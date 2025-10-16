@@ -1,0 +1,51 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_ENDPOINT } from "@/constants/app.constants";
+import {
+  API_TAG_OPERATIONS_SERVICE_TYPES,
+  API_TAG_OPERATIONS_TITLES,
+  API_TAG_OPERATIONS_LANGUAGES,
+  API_TAG_OPERATIONS_PROFILE,
+  API_TAG_OPERATIONS_EMPLOYEES,
+  API_TAG_OPERATIONS_EMPLOYEE_STATS,
+  API_TAG_OPERATIONS_PATIENTS,
+  API_TAG_OPERATIONS_PATIENT_STATS,
+  API_TAG_OPERATIONS_ROLES,
+  API_TAG_OPERATIONS_PERMISSIONS,
+  API_TAG_OPERATIONS_LOCATION,
+} from "@/constants/api-tags.constants";
+
+const prepareHeaders = (
+  headers: Headers,
+  { getState }: { getState: () => any }
+) => {
+  const state = getState();
+  const token = state.auth?.token;
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  return headers;
+};
+
+export const rootApi = createApi({
+  reducerPath: "rootApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_ENDPOINT,
+    prepareHeaders,
+  }),
+  tagTypes: [
+    API_TAG_OPERATIONS_PROFILE,
+    API_TAG_OPERATIONS_TITLES,
+    API_TAG_OPERATIONS_SERVICE_TYPES,
+    API_TAG_OPERATIONS_LANGUAGES,
+    API_TAG_OPERATIONS_EMPLOYEES,
+    API_TAG_OPERATIONS_EMPLOYEE_STATS,
+    API_TAG_OPERATIONS_PATIENTS,
+    API_TAG_OPERATIONS_PATIENT_STATS,
+    API_TAG_OPERATIONS_ROLES,
+    API_TAG_OPERATIONS_PERMISSIONS,
+    API_TAG_OPERATIONS_LOCATION,
+  ],
+  endpoints: () => ({}),
+});

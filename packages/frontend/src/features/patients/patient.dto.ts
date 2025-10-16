@@ -1,0 +1,215 @@
+/**
+ * DTO (Data Transfer Objects) types for Patient API communication
+ * CamelCase format matching backend API contracts
+ */
+
+import { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
+
+// Base enums matching backend
+export type PatientStatusDto = "ACTIVE" | "INACTIVE" | "DECEASED";
+export type GenderDto = "MALE" | "FEMALE";
+export type ContactRelationDto = 
+  | "SELF" 
+  | "PARENT" 
+  | "CHILD" 
+  | "SPOUSE" 
+  | "SIBLING" 
+  | "FRIEND" 
+  | "GUARDIAN" 
+  | "OTHER";
+export type ContactTypeDto = "PRIMARY" | "EMERGENCY" | "WORK" | "SECONDARY";
+
+// Patient Contact DTO
+export interface PatientContactDto {
+  id?: string;
+  relation: ContactRelationDto;
+  type: ContactTypeDto;
+  firstName?: string;
+  lastName?: string;
+  primaryPhone: string;
+  secondaryPhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  textNotificationsEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
+  createdAt?: string; // ISO string
+  updatedAt?: string; // ISO string
+}
+
+// Patient Doctor DTO
+export interface PatientDoctorDto {
+  id: string;
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  assignedAt: string; // ISO string
+  isActive: boolean;
+}
+
+// Patient Response DTO from API (matches PatientResponseDto from backend)
+export interface PatientResponseDto {
+  id: string;
+  patientId?: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  dateOfBirth: string; // ISO string from backend
+  gender: GenderDto;
+  
+  // Passport information
+  passportSeries?: string;
+  passportNumber?: string;
+  passportIssuedBy?: string;
+  passportIssueDate?: string; // ISO string
+  passportExpiryDate?: string; // ISO string
+  
+  // Language IDs (new fields)
+  primaryLanguageId?: string;
+  secondaryLanguageId?: string;
+  
+  // Address IDs (new fields)
+  countryId?: string;
+  regionId?: string;
+  cityId?: string;
+  districtId?: string;
+  address?: string; // Specific street address
+  
+  status: PatientStatusDto;
+  lastVisitedAt?: string; // ISO string
+  organizationId: string;
+  createdBy: string;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
+
+  // Related entities (if loaded)
+  primaryLanguage?: {
+    id: string;
+    name: string;
+    code?: string;
+    nativeName?: string;
+  };
+  secondaryLanguage?: {
+    id: string;
+    name: string;
+    code?: string;
+    nativeName?: string;
+  };
+  country?: {
+    id: string;
+    name: string;
+    code?: string;
+    type: string;
+  };
+  region?: {
+    id: string;
+    name: string;
+    code?: string;
+    type: string;
+  };
+  city?: {
+    id: string;
+    name: string;
+    code?: string;
+    type: string;
+  };
+  district?: {
+    id: string;
+    name: string;
+    code?: string;
+    type: string;
+  };
+  
+  contacts: PatientContactDto[];
+  doctors: PatientDoctorDto[];
+}
+
+// Create Patient Contact Request DTO (matches CreatePatientContactDto from backend)
+export interface CreatePatientContactRequestDto {
+  relation: ContactRelationDto;
+  type: ContactTypeDto;
+  firstName?: string;
+  lastName?: string;
+  primaryPhone: string;
+  secondaryPhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  textNotificationsEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
+}
+
+// Create Patient Request DTO (matches CreatePatientDto from backend)
+export interface CreatePatientRequestDto {
+  patientId?: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  dateOfBirth: string; // ISO string
+  gender: GenderDto;
+  
+  // Passport information
+  passportSeries?: string;
+  passportNumber?: string;
+  passportIssuedBy?: string;
+  passportIssueDate?: string; // ISO string
+  passportExpiryDate?: string; // ISO string
+  
+  // Language IDs (new fields)
+  primaryLanguageId?: string;
+  secondaryLanguageId?: string;
+  
+  // Address IDs (new fields)
+  countryId?: string;
+  regionId?: string;
+  cityId?: string;
+  districtId?: string;
+  address?: string; // Specific street address
+  
+  status?: PatientStatusDto;
+
+  // Related data
+  contacts?: CreatePatientContactRequestDto[];
+  doctorIds?: string[];
+}
+
+// Update Patient Request DTO (matches UpdatePatientDto from backend)
+export interface UpdatePatientRequestDto
+  extends Partial<CreatePatientRequestDto> {
+  id: string; // This is added by frontend for the API path, not part of body
+  excludePatientId?: string; // For uniqueness validation
+}
+
+// Update Patient Status Request DTO (matches UpdatePatientStatusDto from backend)
+export interface UpdatePatientStatusRequestDto {
+  status: PatientStatusDto;
+  organizationId?: string;
+}
+
+// Find All Patient Query DTO (matches FindAllPatientDto from backend)
+export interface PatientsQueryParamsDto extends QueryParamsDto {
+  // Patient specific filters
+  status?: PatientStatusDto;
+  gender?: GenderDto;
+  organizationId?: string;
+}
+
+// Patient By ID Query DTO
+export interface PatientByIdQueryDto {
+  organizationId?: string;
+}
+
+// API Response DTOs using PaginatedResponseDto
+export type PatientsListResponseDto = PaginatedResponseDto<PatientResponseDto>;
+
+// Patient Stats DTO
+export interface PatientStatsDto {
+  total: number;
+  byStatus: {
+    active: number;
+    inactive: number;
+    deceased: number;
+  };
+}

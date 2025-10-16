@@ -1,0 +1,59 @@
+/**
+ * API tags constants for RTK Query cache invalidation
+ */
+
+// Master Data API Tags
+export const API_TAG_OPERATIONS_TITLES = "Title" as const;
+export const API_TAG_OPERATIONS_SERVICE_TYPES = "ServiceType" as const;
+export const API_TAG_OPERATIONS_LANGUAGES = "Language" as const;
+
+// User Profile API Tags
+export const API_TAG_OPERATIONS_PROFILE = "Profile" as const;
+
+// Employee API Tags
+export const API_TAG_OPERATIONS_EMPLOYEES = "Employee" as const;
+export const API_TAG_OPERATIONS_EMPLOYEE_STATS = "EmployeeStats" as const;
+
+// Analysis Templates API Tags
+export const API_TAG_OPERATIONS_ANALYSIS_TEMPLATES = "AnalysisTemplate" as const;
+
+// Patient API Tags
+export const API_TAG_OPERATIONS_PATIENTS = "Patient" as const;
+export const API_TAG_OPERATIONS_PATIENT_STATS = "PatientStats" as const;
+
+// Roles and Permissions API Tags
+export const API_TAG_OPERATIONS_ROLES = "Role" as const;
+export const API_TAG_OPERATIONS_PERMISSIONS = "Permission" as const;
+
+// Location API Tags (New unified structure)
+export const API_TAG_OPERATIONS_LOCATION = "Location" as const;
+
+export type ApiTagTypes = 
+  | typeof API_TAG_OPERATIONS_TITLES
+  | typeof API_TAG_OPERATIONS_SERVICE_TYPES
+  | typeof API_TAG_OPERATIONS_LANGUAGES
+  | typeof API_TAG_OPERATIONS_PROFILE
+  | typeof API_TAG_OPERATIONS_EMPLOYEES
+  | typeof API_TAG_OPERATIONS_EMPLOYEE_STATS
+  | typeof API_TAG_OPERATIONS_PATIENTS
+  | typeof API_TAG_OPERATIONS_PATIENT_STATS
+  | typeof API_TAG_OPERATIONS_ANALYSIS_TEMPLATES
+  | typeof API_TAG_OPERATIONS_ROLES
+  | typeof API_TAG_OPERATIONS_PERMISSIONS
+  | typeof API_TAG_OPERATIONS_LOCATION;
+
+// Unified API Tags object for easier access
+export const API_TAGS = {
+  TITLE: API_TAG_OPERATIONS_TITLES,
+  SERVICE_TYPE: API_TAG_OPERATIONS_SERVICE_TYPES,
+  LANGUAGE: API_TAG_OPERATIONS_LANGUAGES,
+  PROFILE: API_TAG_OPERATIONS_PROFILE,
+  EMPLOYEE: API_TAG_OPERATIONS_EMPLOYEES,
+  EMPLOYEE_STATS: API_TAG_OPERATIONS_EMPLOYEE_STATS,
+  PATIENT: API_TAG_OPERATIONS_PATIENTS,
+  PATIENT_STATS: API_TAG_OPERATIONS_PATIENT_STATS,
+  ANALYSIS_TEMPLATE: API_TAG_OPERATIONS_ANALYSIS_TEMPLATES,
+  ROLE: API_TAG_OPERATIONS_ROLES,
+  PERMISSION: API_TAG_OPERATIONS_PERMISSIONS,
+  LOCATION: API_TAG_OPERATIONS_LOCATION,
+} as const;

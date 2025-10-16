@@ -1,5 +1,4 @@
 {
-  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "independent",
   "npmClient": "pnpm",
   "packages": [
@@ -18,6 +17,5 @@
         "*.spec.ts"
       ]
     }
-  },
-  "useWorkspaces": true
+  }
 }

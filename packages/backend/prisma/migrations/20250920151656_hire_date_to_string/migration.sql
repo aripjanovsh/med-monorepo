@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "employees" ALTER COLUMN "hireDate" DROP NOT NULL,
+ALTER COLUMN "hireDate" SET DATA TYPE TEXT,
+ALTER COLUMN "terminationDate" SET DATA TYPE TEXT;

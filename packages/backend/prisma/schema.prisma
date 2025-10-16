@@ -1,0 +1,611 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Organization (Tenant)
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users         User[]
+  patients      Patient[]
+  employees     Employee[]
+  appointments  Appointment[]
+  medicalRecords MedicalRecord[]
+  departments   Department[]
+  services      Service[]
+  roles         Role[]
+  titles Title[]
+  serviceTypes  ServiceType[]
+
+  @@map("organizations")
+}
+
+// User roles enum
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PATIENT
+}
+
+// Employee status enum
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+// Permission actions enum
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  MANAGE
+}
+
+// Users
+model User {
+  id             String    @id @default(uuid())
+  phone          String    @unique
+  password       String
+  role           UserRole
+  isActive       Boolean   @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Multi-tenant
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  employee       Employee?
+  appointments   Appointment[]
+  roleAssignments UserRole_Assignment[]
+
+  @@map("users")
+}
+
+
+
+// Patients
+model Patient {
+  id                String        @id @default(uuid())
+  patientId         String?       // Unique by organization
+  firstName         String
+  middleName        String?       // Отчество
+  lastName          String
+  dateOfBirth       DateTime
+  gender            Gender
+  status            PatientStatus @default(ACTIVE)
+  lastVisitedAt     DateTime?
+  
+  // Passport Data
+  passportSeries    String?       // Серия паспорта
+  passportNumber    String?       // Номер паспорта
+  passportIssuedBy  String?       // Кем выдан
+  passportIssueDate DateTime?     // Дата выдачи
+  passportExpiryDate DateTime?    // Действителен до
+  
+  // Languages (relations to Language model)
+  primaryLanguageId   String?
+  primaryLanguage     Language? @relation("PatientPrimaryLanguage", fields: [primaryLanguageId], references: [id])
+  
+  secondaryLanguageId String?
+  secondaryLanguage   Language? @relation("PatientSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
+  
+  // Address (relations to Location model)
+  countryId  String?
+  country    Location? @relation("PatientCountry", fields: [countryId], references: [id])
+  
+  regionId   String?
+  region     Location? @relation("PatientRegion", fields: [regionId], references: [id])
+  
+  cityId     String?
+  city       Location? @relation("PatientCity", fields: [cityId], references: [id])
+  
+  districtId String?
+  district   Location? @relation("PatientDistrict", fields: [districtId], references: [id])
+  
+  address    String? // Specific street address
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  contacts       PatientContact[]
+  doctors        PatientDoctor[] // Many-to-many relation with doctors
+
+  @@unique([patientId, organizationId])
+  @@map("patients")
+}
+
+// Patient Contacts
+model PatientContact {
+  id                      String             @id @default(uuid())
+  relation                ContactRelationType
+  type                    ContactType
+  firstName               String?
+  lastName                String?
+  primaryPhone            String
+  secondaryPhone          String?
+  address                 String?
+  city                    String?
+  state                   String?
+  country                 String?
+  textNotificationsEnabled  Boolean         @default(false)
+  emailNotificationsEnabled Boolean         @default(false)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  // Relations
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("patient_contacts")
+}
+
+// Junction table for Patient-Doctor many-to-many relation
+model PatientDoctor {
+  id         String   @id @default(uuid())
+  patientId  String
+  employeeId String   // Doctor is an Employee
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+
+  // Relations
+  patient  Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, employeeId])
+  @@map("patient_doctors")
+}
+
+// Departments
+model Department {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean @default(true)
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  services Service[]
+
+  @@map("departments")
+}
+
+// Services
+model Service {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal?
+  duration    Int?    // in minutes
+  isActive    Boolean @default(true)
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  employeeId   String?
+  employee     Employee?   @relation(fields: [employeeId], references: [id])
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+// Appointment status enum
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Appointments
+model Appointment {
+  id          String            @id @default(uuid())
+  scheduledAt DateTime
+  duration    Int               // in minutes
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String?
+  reason      String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+  
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  medicalRecord MedicalRecord?
+
+  @@map("appointments")
+}
+
+// Medical Records
+model MedicalRecord {
+  id          String   @id @default(uuid())
+  diagnosis   String
+  symptoms    String?
+  treatment   String?
+  medications String?
+  notes       String?
+  followUp    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  
+  appointmentId String? @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  @@map("medical_records")
+}
+
+
+// Gender enum
+enum Gender {
+  MALE
+  FEMALE
+}
+
+// Patient status enum
+enum PatientStatus {
+  ACTIVE
+  INACTIVE
+  DECEASED
+}
+
+// Contact relation type enum
+enum ContactRelationType {
+  SELF
+  PARENT
+  GUARDIAN
+  EMERGENCY
+  OTHER
+}
+
+// Contact type enum
+enum ContactType {
+  PRIMARY
+  SECONDARY
+}
+
+// Employees
+model Employee {
+  id           String         @id @default(uuid())
+  userId       String?        @unique // Optional - not all employees can login
+  employeeId   String?       
+  firstName     String
+  middleName   String?        // Отчество
+  lastName     String
+  dateOfBirth  DateTime?
+  gender       Gender?
+  email        String?        // For employees without user accounts
+  phone        String?
+  secondaryPhone String?
+  workPhone    String?
+  
+  // Passport Data
+  passportSeries    String?       // Серия паспорта
+  passportNumber    String?       // Номер паспорта
+  passportIssuedBy  String?       // Кем выдан
+  passportIssueDate DateTime?     // Дата выдачи
+  passportExpiryDate DateTime?    // Действителен до
+  
+  titleId      String?        // Reference to Title model
+  title        Title?         @relation(fields: [titleId], references: [id])
+  
+  // Employment Details
+  salary       Decimal?
+  hireDate     String?
+  terminationDate String?
+  status       EmployeeStatus @default(ACTIVE)
+  
+  workSchedule   Json?      // JSON or string describing work schedule
+  
+  // Languages (relations to Language model)
+  primaryLanguageId   String?
+  primaryLanguage     Language? @relation("EmployeePrimaryLanguage", fields: [primaryLanguageId], references: [id])
+  
+  secondaryLanguageId String?
+  secondaryLanguage   Language? @relation("EmployeeSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
+  
+  // Address (relations to Location model)
+  countryId  String?
+  country    Location? @relation("EmployeeCountry", fields: [countryId], references: [id])
+  
+  regionId   String?
+  region     Location? @relation("EmployeeRegion", fields: [regionId], references: [id])
+  
+  cityId     String?
+  city       Location? @relation("EmployeeCity", fields: [cityId], references: [id])
+  
+  districtId String?
+  district   Location? @relation("EmployeeDistrict", fields: [districtId], references: [id])
+  
+  address    String? // Specific street address
+  
+  // Notifications
+  textNotificationsEnabled Boolean @default(false)
+  
+  // Additional Info
+  notes        String?
+  
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  user           User?         @relation(fields: [userId], references: [id])
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  services       Service[]
+  serviceTypes   EmployeeServiceType[]
+  patientDoctors PatientDoctor[] // Many-to-many relation with patients
+
+  @@unique([employeeId, organizationId])
+
+  @@map("employees")
+}
+
+// Roles (custom roles beyond basic UserRole enum)
+model Role {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  isSystem    Boolean  @default(false) // System roles cannot be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  permissions    RolePermission[]
+  userAssignments UserRole_Assignment[]
+
+  @@unique([name, organizationId])
+  @@map("roles")
+}
+
+// Permissions
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  resource    String   // e.g., 'users', 'patients', 'appointments'
+  action      PermissionAction
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  rolePermissions RolePermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+// Role-Permission junction table
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// User-Role assignments (for custom roles)
+model UserRole_Assignment {
+  id        String   @id @default(uuid())
+  userId    String
+  roleId    String
+  assignedAt DateTime @default(now())
+  assignedBy String?  // User ID who assigned this role
+  expiresAt  DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_role_assignments")
+}
+
+// Title Dictionary (Master Data)
+model Title {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  employees Employee[]
+
+  @@unique([name, organizationId])
+  @@map("titles")
+}
+
+// Service Type Dictionary (Master Data)
+model ServiceType {
+  id          String   @id @default(uuid())
+  name        String
+  code        String?  // Код типа услуги (например, "CONSULTATION", "DIAGNOSTICS")
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  employees EmployeeServiceType[]
+
+  @@unique([name, organizationId])
+  @@unique([code, organizationId])
+  @@map("service_types")
+}
+
+// Junction table for Employee-ServiceType many-to-many relation
+model EmployeeServiceType {
+  id           String      @id @default(uuid())
+  employeeId   String
+  serviceTypeId String
+  
+  employee     Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  serviceType  ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, serviceTypeId])
+  @@map("employee_service_types")
+}
+
+// Geographical Entities (Master Data)
+
+// Location type enum
+enum LocationType {
+  COUNTRY   // Country (Узбекистан)
+  REGION    // Region/Oblast/Republic (Ташкентская область, город Ташкент, Республика Каракалпакстан)
+  CITY      // City (Андижан, Бухара)
+  DISTRICT  // District/Tuman (Чиланзарский район, Бустанлыкский район)
+}
+
+// Location Dictionary (Master Data) - Hierarchical structure
+model Location {
+  id          String       @id @default(uuid())
+  name        String
+  code        String?      // Location code (e.g., "UZ", "TAS", "CHI")
+  type        LocationType
+  weight      Int          @default(0) // For sorting within the same level
+  description String?
+  // Precomputed search field containing keywords and transliterations (lowercased)
+  searchField String?
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Self-referencing hierarchy
+  parentId String?
+  parent   Location? @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children Location[] @relation("LocationHierarchy")
+
+  // Relations to Employee
+  employeesAsCountry  Employee[] @relation("EmployeeCountry")
+  employeesAsRegion   Employee[] @relation("EmployeeRegion")
+  employeesAsCity     Employee[] @relation("EmployeeCity")
+  employeesAsDistrict Employee[] @relation("EmployeeDistrict")
+  
+  // Relations to Patient
+  patientsAsCountry   Patient[]  @relation("PatientCountry")
+  patientsAsRegion    Patient[]  @relation("PatientRegion")
+  patientsAsCity      Patient[]  @relation("PatientCity")
+  patientsAsDistrict  Patient[]  @relation("PatientDistrict")
+
+  @@index([parentId])
+  @@index([type])
+  @@index([weight])
+  @@index([name])
+  @@index([code])
+  @@index([searchField])
+  @@map("locations")
+}
+
+// Language Dictionary (Master Data)
+model Language {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String?  @unique // ISO language code (e.g., "uz" for Uzbek, "ru" for Russian)
+  nativeName  String?  // Native name of the language (e.g., "O'zbek tili" for Uzbek)
+  weight      Int      @default(0) // For sorting (lower values appear first)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  primaryEmployees   Employee[] @relation("EmployeePrimaryLanguage")
+  secondaryEmployees Employee[] @relation("EmployeeSecondaryLanguage")
+  primaryPatients    Patient[]  @relation("PatientPrimaryLanguage")
+  secondaryPatients  Patient[]  @relation("PatientSecondaryLanguage")
+
+  @@index([weight])
+  @@index([name])
+  @@map("languages")
+}
