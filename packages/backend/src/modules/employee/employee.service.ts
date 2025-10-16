@@ -8,6 +8,7 @@ import { PaginatedResponseDto } from "../../common/dto/pagination.dto";
 import { EmployeeResponseDto } from "./dto/employee-response.dto";
 import { plainToInstance } from "class-transformer";
 import * as bcrypt from "bcrypt";
+import { generateMemorableId } from "../../common/utils/id-generator.util";
 
 @Injectable()
 export class EmployeeService {
@@ -44,9 +45,16 @@ export class EmployeeService {
 
       const { serviceTypeIds, ...employeeCore } = employeeData;
 
+      // Auto-generate employeeId if not provided
+      let employeeId = employeeCore.employeeId;
+      if (!employeeId) {
+        employeeId = generateMemorableId("EMP");
+      }
+
       const created = await tx.employee.create({
         data: {
           ...employeeCore,
+          employeeId,
           userId,
         },
       });
@@ -236,7 +244,7 @@ export class EmployeeService {
 
       await tx.employee.update({
         where,
-        data: coreUpdate,
+        data: coreUpdate as any,
       });
 
       if (serviceTypeIds) {

@@ -35,6 +35,7 @@ import { TextField } from "@/components/fields/text-field";
 import { DatePickerField } from "@/components/fields/date-picker-field";
 import { HeaderStepper } from "@/components/header-stepper";
 import { PhoneField } from "@/components/fields/phone-field";
+import { PassportField } from "@/components/fields/passport-field";
 import { GENDER_OPTIONS, FORM_STEPS } from "../employee.constants";
 import { employeeFormSchema, EmployeeFormData } from "../employee.schema";
 import { EmployeeResponseDto } from "../employee.dto";
@@ -56,10 +57,10 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   firstName: "",
   lastName: "",
   middleName: "",
-  employeeId: "",
   dateOfBirth: "",
   hireDate: "",
   gender: undefined,
+  passport: "",
   passportSeries: "",
   passportNumber: "",
   passportIssuedBy: "",
@@ -120,11 +121,17 @@ export function EmployeeForm({
             }
           : undefined;
 
+      // Объединяем серию и номер паспорта в одно поле
+      const passport = employee.passportSeries && employee.passportNumber 
+        ? `${employee.passportSeries}${employee.passportNumber}` 
+        : "";
+
       form.reset({
         ...DEFAULT_VALUES,
         ...employee,
         serviceTypeIds: map(employee?.serviceTypes, "id"),
         locationHierarchy,
+        passport,
       });
     } else {
       form.reset(DEFAULT_VALUES);
@@ -145,7 +152,6 @@ export function EmployeeForm({
       return await form.trigger([
         "firstName",
         "lastName",
-        "employeeId",
         "hireDate",
       ]);
     }
@@ -289,11 +295,12 @@ export function EmployeeForm({
                         />
                         <FormField
                           control={form.control}
-                          name="employeeId"
+                          name="dateOfBirth"
                           render={({ field }) => (
-                            <TextField
-                              label="ID сотрудника"
-                              placeholder="Введите ID сотрудника"
+                            <DatePickerField
+                              label="Дата рождения"
+                              placeholder="Выберите дату рождения"
+                              valueFormat="yyyy-MM-dd"
                               {...field}
                             />
                           )}
@@ -340,24 +347,23 @@ export function EmployeeForm({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                         <FormField
                           control={form.control}
-                          name="passportSeries"
+                          name="passport"
                           render={({ field }) => (
-                            <TextField
-                              label="Серия паспорта"
-                              placeholder="Введите серию"
+                            <PassportField
+                              label="Серия и номер паспорта"
+                              placeholder="AA 1234567"
                               {...field}
-                            />
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="passportNumber"
-                          render={({ field }) => (
-                            <TextField
-                              label="Номер паспорта"
-                              placeholder="Введите номер"
-                              {...field}
+                              onChange={(value: string) => {
+                                field.onChange(value);
+                                // Автоматически разделяем на серию и номер
+                                if (value && value.length >= 2) {
+                                  form.setValue("passportSeries", value.slice(0, 2));
+                                  form.setValue("passportNumber", value.slice(2));
+                                } else {
+                                  form.setValue("passportSeries", "");
+                                  form.setValue("passportNumber", "");
+                                }
+                              }}
                             />
                           )}
                         />
@@ -366,13 +372,11 @@ export function EmployeeForm({
                           control={form.control}
                           name="passportIssuedBy"
                           render={({ field }) => (
-                            <div className="md:col-span-2">
-                              <TextField
-                                label="Кем выдан"
-                                placeholder="Введите название органа"
-                                {...field}
-                              />
-                            </div>
+                            <TextField
+                              label="Кем выдан"
+                              placeholder="Введите название органа"
+                              {...field}
+                            />
                           )}
                         />
 

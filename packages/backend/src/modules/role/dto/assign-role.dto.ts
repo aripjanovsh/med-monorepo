@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional, IsDateString } from "class-validator";
+import { TransformDate } from "@/common/decorators";
 
 export class AssignRoleDto {
   @ApiProperty({
@@ -32,5 +33,6 @@ export class AssignRoleDto {
   })
   @IsOptional()
   @IsDateString()
-  expiresAt?: string;
+  @TransformDate()
+  expiresAt?: Date;
 }

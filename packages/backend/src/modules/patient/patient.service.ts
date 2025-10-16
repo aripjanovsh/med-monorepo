@@ -7,6 +7,7 @@ import { FindAllPatientDto } from "./dto/find-all-patient.dto";
 import { PaginatedResponseDto } from "../../common/dto/pagination.dto";
 import { PatientResponseDto } from "./dto/patient-response.dto";
 import { plainToInstance } from "class-transformer";
+import { generateMemorableId } from "../../common/utils/id-generator.util";
 
 @Injectable()
 export class PatientService {
@@ -18,11 +19,21 @@ export class PatientService {
     const { contacts, doctorIds, ...patientData } = createPatientDto;
 
     return await this.prisma.$transaction(async (tx) => {
+      // Auto-generate patientId if not provided
+      let patientId = patientData.patientId;
+      if (!patientId) {
+        patientId = generateMemorableId('PAT');
+      }
+
+      // Set status to ACTIVE if not provided
+      const status = patientData.status || PatientStatus.ACTIVE;
+
       // Create patient
       const created = await tx.patient.create({
         data: {
           ...patientData,
-          dateOfBirth: new Date(patientData.dateOfBirth),
+          patientId,
+          status,
         },
       });
 
@@ -255,14 +266,9 @@ export class PatientService {
         updatePatientDto;
 
       // Update core patient data
-      const updateData: any = { ...coreUpdate };
-      if (coreUpdate.dateOfBirth) {
-        updateData.dateOfBirth = new Date(coreUpdate.dateOfBirth);
-      }
-
       await tx.patient.update({
         where,
-        data: updateData,
+        data: coreUpdate,
       });
 
       // Update contacts if provided

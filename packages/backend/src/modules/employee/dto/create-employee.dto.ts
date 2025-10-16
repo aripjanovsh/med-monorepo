@@ -19,7 +19,7 @@ import {
 import { RequiredForUserAccount } from "../../../common/decorators/conditional-validation.decorator";
 import { Expose, Exclude, Transform } from "class-transformer";
 import { Prisma } from "@prisma/client";
-import { TransformEmpty } from "@/common/decorators";
+import { TransformEmpty, TransformDate } from "@/common/decorators";
 
 @Exclude()
 export class CreateEmployeeDto {
@@ -72,7 +72,8 @@ export class CreateEmployeeDto {
   })
   @IsOptional()
   @IsDateString()
-  dateOfBirth?: string;
+  @TransformDate()
+  dateOfBirth?: Date;
 
   @Expose()
   @ApiProperty({
@@ -123,7 +124,8 @@ export class CreateEmployeeDto {
   })
   @IsOptional()
   @IsDateString()
-  passportIssueDate?: string;
+  @TransformDate()
+  passportIssueDate?: Date;
 
   @Expose()
   @ApiProperty({
@@ -133,7 +135,8 @@ export class CreateEmployeeDto {
   })
   @IsOptional()
   @IsDateString()
-  passportExpiryDate?: string;
+  @TransformDate()
+  passportExpiryDate?: Date;
 
   @Expose()
   @ApiProperty({

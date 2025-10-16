@@ -59,7 +59,14 @@ export const patientFormSchema = yup.object({
     .oneOf(Object.values(GENDER))
     .required("Пол обязателен"),
   
-  // Passport information
+  // Passport information (combined field for form UI)
+  passport: yup
+    .string()
+    .matches(
+      /^[A-Za-zА-Яа-я]{2}\d{7}$/,
+      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)"
+    ),
+  // Individual fields (populated from passport field)
   passportSeries: yup.string(),
   passportNumber: yup.string(),
   passportIssuedBy: yup.string(),

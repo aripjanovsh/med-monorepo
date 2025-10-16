@@ -36,8 +36,17 @@ const formatDate = (iso?: string) =>
       })
     : "-";
 
+const formatDateOnly = (iso?: string) =>
+  iso
+    ? new Date(iso).toLocaleDateString("ru-RU", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      })
+    : "-";
+
 const humanGender = (g?: EmployeeResponseDto["gender"]) =>
-  g ? (g === "MALE" ? "Male" : "Female") : "-";
+  g ? (g === "MALE" ? "Мужской" : "Женский") : "-";
 
 export function EmployeeProfile({ employee }: EmployeeProfileProps) {
   const createdAt = formatDate(employee.createdAt);
@@ -84,78 +93,99 @@ export function EmployeeProfile({ employee }: EmployeeProfileProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Field label="First Name" value={employee.firstName} />
-            <Field label="Last Name" value={employee.lastName} />
-            <Field label="Gender" value={humanGender(employee.gender)} />
+            <Field label="Имя" value={employee.firstName} />
+            <Field label="Фамилия" value={employee.lastName} />
+            <Field label="Отчество" value={employee.middleName || "-"} />
+            <Field label="Пол" value={humanGender(employee.gender)} />
+
+            <Field label="Дата рождения" value={formatDateOnly(employee.dateOfBirth)} />
             <Field label="Email" value={employee.email || "-"} />
+            <Field label="Должность" value={employee.title?.name || "-"} />
+            <Field label="ID сотрудника" value={hrid} />
 
-            <Field label="Hire Date" value={formatDate(employee.hireDate)} />
+            <Field label="Дата приёма" value={formatDateOnly(employee.hireDate)} />
             <Field
-              label="End Work Date"
-              value={formatDate(employee.terminationDate)}
+              label="Дата увольнения"
+              value={formatDateOnly(employee.terminationDate)}
             />
-            <Field label="Title" value={employee.title?.name || "-"} />
-            <Field label="HRID" value={hrid} />
-
-            <Field label="Type of Service" value={typeOfService} />
-            <Field label="Group" value={"-"} />
-            <Field label="Supervisor" value={"-"} />
-            <Field label="Profit center" value={"-"} />
-
-            <Field label="Employee type" value={"-"} />
+            <Field label="Типы услуг" value={typeOfService} />
             <Field
-              label="Salary"
+              label="Зарплата"
               value={
                 employee.salary ? `$${employee.salary.toLocaleString()}` : "-"
               }
             />
-            <Field label="Status" value={employee.status || "-"} />
-            <div className="hidden lg:block" />
 
+            <Field label="Статус" value={employee.status || "-"} />
             <Field
-              label="Primary Language"
+              label="Основной язык"
               value={employee.primaryLanguage?.name || "-"}
             />
             <Field
-              label="Secondary Language"
+              label="Второй язык"
               value={employee.secondaryLanguage?.name || "-"}
             />
-            <Field label="Skills" value={"-"} />
             <div className="hidden lg:block" />
           </div>
         </CardContent>
       </Card>
 
+      {/* Passport Information */}
+      {(employee.passportSeries || employee.passportNumber || employee.passportIssuedBy) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Паспортные данные</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field 
+                label="Серия и номер паспорта" 
+                value={
+                  employee.passportSeries && employee.passportNumber
+                    ? `${employee.passportSeries} ${employee.passportNumber}`
+                    : "-"
+                } 
+              />
+              <Field label="Кем выдан" value={employee.passportIssuedBy || "-"} />
+              <Field 
+                label="Дата выдачи" 
+                value={formatDateOnly(employee.passportIssueDate)} 
+              />
+              <Field 
+                label="Действителен до" 
+                value={formatDateOnly(employee.passportExpiryDate)} 
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Contact Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
+          <CardTitle>Контактная информация</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Field label="Primary Phone Number" value={employee.phone || "-"} />
+            <Field label="Основной телефон" value={employee.phone || "-"} />
             <Field
-              label="Secondary Phone Number"
+              label="Дополнительный телефон"
               value={employee.secondaryPhone || "-"}
             />
             <Field
-              label="Work Phone Number"
+              label="Рабочий телефон"
               value={employee.workPhone || "-"}
             />
             <div className="hidden lg:block" />
 
+            <Field label="Страна" value={employee.country?.name || "-"} />
+            <Field label="Регион" value={employee.region?.name || "-"} />
+            <Field label="Город" value={employee.city?.name || "-"} />
+            <Field label="Район" value={employee.district?.name || "-"} />
+
             <Field
-              label="Address"
-              value={
-                [
-                  employee.address,
-                  employee.city?.name,
-                  employee.region?.name,
-                  employee.country?.name,
-                ]
-                  .filter(Boolean)
-                  .join(", ") || "-"
-              }
+              label="Адрес"
+              value={employee.address || "-"}
             />
           </div>
         </CardContent>
@@ -165,12 +195,12 @@ export function EmployeeProfile({ employee }: EmployeeProfileProps) {
       {(employee.notes || employee.workSchedule) && (
         <Card>
           <CardHeader>
-            <CardTitle>Additional Information</CardTitle>
+            <CardTitle>Дополнительная информация</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {employee.notes && (
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Notes</p>
+                <p className="text-xs text-muted-foreground mb-2">Заметки</p>
                 <p className="text-sm">{employee.notes}</p>
               </div>
             )}
@@ -178,7 +208,7 @@ export function EmployeeProfile({ employee }: EmployeeProfileProps) {
             {employee.workSchedule && (
               <div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Work Schedule
+                  График работы
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
                   {WEEK_DAYS.map((day) => (
@@ -199,13 +229,13 @@ export function EmployeeProfile({ employee }: EmployeeProfileProps) {
 
             <div>
               <Field
-                label="Enable Text Notifications"
+                label="SMS-уведомления"
                 value={
                   employee.textNotificationsEnabled === undefined
                     ? "-"
                     : employee.textNotificationsEnabled
-                    ? "Yes"
-                    : "No"
+                    ? "Включены"
+                    : "Выключены"
                 }
               />
             </div>

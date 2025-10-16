@@ -40,6 +40,7 @@ import {
 
 // Import components
 import { PatientOverview } from "@/features/patients/components/detail/patient-overview";
+import { PatientProfile } from "@/features/patients/components/detail/patient-profile";
 import { PatientAppointments } from "@/features/patients/components/detail/patient-appointments";
 import { PatientMedicalHistory } from "@/features/patients/components/detail/patient-medical-history";
 
@@ -268,14 +269,19 @@ export default function PatientDetailPage({
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Обзор</TabsTrigger>
+          <TabsTrigger value="profile">Профиль</TabsTrigger>
           <TabsTrigger value="appointments">Приемы</TabsTrigger>
           <TabsTrigger value="history">Медицинская история</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           <PatientOverview patient={patient} />
+        </TabsContent>
+
+        <TabsContent value="profile" className="space-y-6">
+          <PatientProfile patient={patient} />
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-6">

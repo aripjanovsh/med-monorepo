@@ -13,7 +13,7 @@ import { InjectOrganizationId } from "../../../common/decorators/inject-organiza
 import { IsUniquePatientId } from "../../../common/decorators/unique.decorator";
 import { Expose, Exclude, Type } from "class-transformer";
 import { CreatePatientContactDto } from "./create-patient-contact.dto";
-import { TransformEmpty } from "@/common/decorators";
+import { TransformEmpty, TransformDate } from "@/common/decorators";
 
 @Exclude()
 export class CreatePatientDto {
@@ -64,7 +64,8 @@ export class CreatePatientDto {
     example: "1990-01-15T00:00:00.000Z",
   })
   @IsDateString()
-  dateOfBirth: string;
+  @TransformDate()
+  dateOfBirth: Date;
 
   @Expose()
   @ApiProperty({
@@ -113,7 +114,8 @@ export class CreatePatientDto {
   })
   @IsOptional()
   @IsDateString()
-  passportIssueDate?: string;
+  @TransformDate()
+  passportIssueDate?: Date;
 
   @Expose()
   @ApiProperty({
@@ -123,7 +125,8 @@ export class CreatePatientDto {
   })
   @IsOptional()
   @IsDateString()
-  passportExpiryDate?: string;
+  @TransformDate()
+  passportExpiryDate?: Date;
 
   @Expose()
   @ApiProperty({

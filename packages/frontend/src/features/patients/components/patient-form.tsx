@@ -33,6 +33,7 @@ import { TextField } from "@/components/fields/text-field";
 import { DatePickerField } from "@/components/fields/date-picker-field";
 import { HeaderStepper } from "@/components/header-stepper";
 import { PhoneField } from "@/components/fields/phone-field";
+import { PassportField } from "@/components/fields/passport-field";
 import { SelectField } from "@/components/fields/select-field";
 import { LanguageSelectField } from "@/features/master-data/components/languages/language-select-field";
 import { LocationSelectField } from "@/features/master-data/components/geolocation/location-select-field";
@@ -69,6 +70,7 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
   dateOfBirth: "",
   gender: undefined,
   status: "ACTIVE" as const,
+  passport: "",
   passportSeries: "",
   passportNumber: "",
   passportIssuedBy: "",
@@ -115,10 +117,15 @@ export function PatientForm({
 
     if (patient) {
       const formData = mapPatientToFormData(patient);
+      // Объединяем серию и номер паспорта в одно поле
+      const passport = patient.passportSeries && patient.passportNumber 
+        ? `${patient.passportSeries}${patient.passportNumber}` 
+        : "";
       form.reset({
         ...DEFAULT_VALUES,
         ...formData,
         dateOfBirth: patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
+        passport,
       });
     } else {
       form.reset(DEFAULT_VALUES);
@@ -282,18 +289,6 @@ export function PatientForm({
 
                         <FormField
                           control={form.control}
-                          name="patientId"
-                          render={({ field }) => (
-                            <TextField
-                              label="ID пациента"
-                              placeholder="Введите ID пациента"
-                              {...field}
-                            />
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
                           name="dateOfBirth"
                           render={({ field }) => (
                             <DatePickerField
@@ -322,12 +317,11 @@ export function PatientForm({
 
                         <FormField
                           control={form.control}
-                          name="status"
+                          name="middleName"
                           render={({ field }) => (
-                            <SelectField
-                              label="Статус"
-                              placeholder="Выберите статус"
-                              options={PATIENT_STATUS_OPTIONS}
+                            <TextField
+                              label="Отчество"
+                              placeholder="Введите отчество"
                               {...field}
                             />
                           )}
@@ -340,24 +334,23 @@ export function PatientForm({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                         <FormField
                           control={form.control}
-                          name="passportSeries"
+                          name="passport"
                           render={({ field }) => (
-                            <TextField
-                              label="Серия паспорта"
-                              placeholder="Введите серию"
+                            <PassportField
+                              label="Серия и номер паспорта"
+                              placeholder="AA 1234567"
                               {...field}
-                            />
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="passportNumber"
-                          render={({ field }) => (
-                            <TextField
-                              label="Номер паспорта"
-                              placeholder="Введите номер"
-                              {...field}
+                              onChange={(value: string) => {
+                                field.onChange(value);
+                                // Автоматически разделяем на серию и номер
+                                if (value && value.length >= 2) {
+                                  form.setValue("passportSeries", value.slice(0, 2));
+                                  form.setValue("passportNumber", value.slice(2));
+                                } else {
+                                  form.setValue("passportSeries", "");
+                                  form.setValue("passportNumber", "");
+                                }
+                              }}
                             />
                           )}
                         />
@@ -366,13 +359,11 @@ export function PatientForm({
                           control={form.control}
                           name="passportIssuedBy"
                           render={({ field }) => (
-                            <div className="md:col-span-2">
-                              <TextField
-                                label="Кем выдан"
-                                placeholder="Введите название органа"
-                                {...field}
-                              />
-                            </div>
+                            <TextField
+                              label="Кем выдан"
+                              placeholder="Введите название органа"
+                              {...field}
+                            />
                           )}
                         />
 
