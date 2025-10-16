@@ -383,6 +383,77 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
             </div>
           </FormSection>
 
+          {/* Passport Information */}
+          <FormSection title="Паспортные данные">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="passportSeries"
+                  render={({ field }) => (
+                    <TextField
+                      label="Серия паспорта"
+                      placeholder="Введите серию"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportNumber"
+                  render={({ field }) => (
+                    <TextField
+                      label="Номер паспорта"
+                      placeholder="Введите номер"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportIssuedBy"
+                  render={({ field }) => (
+                    <div className="md:col-span-2">
+                      <TextField
+                        label="Кем выдан"
+                        placeholder="Введите название органа"
+                        {...field}
+                      />
+                    </div>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportIssueDate"
+                  render={({ field }) => (
+                    <DatePickerField
+                      label="Дата выдачи"
+                      placeholder="Выберите дату"
+                      valueFormat="yyyy-MM-dd"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportExpiryDate"
+                  render={({ field }) => (
+                    <DatePickerField
+                      label="Действителен до"
+                      placeholder="Выберите дату"
+                      valueFormat="yyyy-MM-dd"
+                      {...field}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          </FormSection>
+
           {/* Contact Information */}
           <FormSection title="Контактная информация">
             <div className="space-y-4">

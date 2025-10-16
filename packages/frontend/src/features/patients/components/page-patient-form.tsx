@@ -167,7 +167,7 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
   // Get used contact types
   const usedContactTypes = contacts.map((c) => c.type);
   const availableContactTypes = CONTACT_TYPE_OPTIONS.filter(
-    (option) => !usedContactTypes.includes(option.value)
+    (option) => !usedContactTypes.includes(option.value as any)
   );
 
   const addContact = (type: string) => {
@@ -287,6 +287,77 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
                     <LanguageSelectField
                       label="Второй язык"
                       placeholder="Выберите язык"
+                      {...field}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          </FormSection>
+
+          {/* Passport Information */}
+          <FormSection title="Паспортные данные">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="passportSeries"
+                  render={({ field }) => (
+                    <TextField
+                      label="Серия паспорта"
+                      placeholder="Введите серию"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportNumber"
+                  render={({ field }) => (
+                    <TextField
+                      label="Номер паспорта"
+                      placeholder="Введите номер"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportIssuedBy"
+                  render={({ field }) => (
+                    <div className="md:col-span-2">
+                      <TextField
+                        label="Кем выдан"
+                        placeholder="Введите название органа"
+                        {...field}
+                      />
+                    </div>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportIssueDate"
+                  render={({ field }) => (
+                    <DatePickerField
+                      label="Дата выдачи"
+                      placeholder="Выберите дату"
+                      valueFormat="yyyy-MM-dd"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="passportExpiryDate"
+                  render={({ field }) => (
+                    <DatePickerField
+                      label="Действителен до"
+                      placeholder="Выберите дату"
+                      valueFormat="yyyy-MM-dd"
                       {...field}
                     />
                   )}

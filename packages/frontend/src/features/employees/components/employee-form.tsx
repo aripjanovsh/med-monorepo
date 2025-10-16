@@ -52,10 +52,38 @@ interface EmployeeFormProps {
   onSuccess?: () => void;
 }
 
-const DEFAULT_VALUES = {
+const DEFAULT_VALUES: Partial<EmployeeFormData> = {
+  firstName: "",
+  lastName: "",
+  middleName: "",
+  employeeId: "",
+  dateOfBirth: "",
+  hireDate: "",
+  gender: undefined,
+  passportSeries: "",
+  passportNumber: "",
+  passportIssuedBy: "",
+  passportIssueDate: "",
+  passportExpiryDate: "",
+  email: "",
+  phone: "",
+  secondaryPhone: "",
+  workPhone: "",
+  titleId: "",
+  primaryLanguageId: "",
+  secondaryLanguageId: "",
+  countryId: "",
+  regionId: "",
+  cityId: "",
+  districtId: "",
+  address: "",
+  locationHierarchy: undefined,
+  textNotificationsEnabled: false,
+  notes: "",
   serviceTypeIds: [],
-  createUserAccount: false as boolean,
-  userAccountRoleIds: [] as string[],
+  createUserAccount: false,
+  userAccountPhone: "",
+  userAccountRoleIds: [],
 };
 
 export function EmployeeForm({
@@ -300,6 +328,75 @@ export function EmployeeForm({
                             <LanguageSelectField
                               label="Второй язык"
                               placeholder="Выберите язык"
+                              {...field}
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold font-gilroy">Паспортные данные</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                        <FormField
+                          control={form.control}
+                          name="passportSeries"
+                          render={({ field }) => (
+                            <TextField
+                              label="Серия паспорта"
+                              placeholder="Введите серию"
+                              {...field}
+                            />
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="passportNumber"
+                          render={({ field }) => (
+                            <TextField
+                              label="Номер паспорта"
+                              placeholder="Введите номер"
+                              {...field}
+                            />
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="passportIssuedBy"
+                          render={({ field }) => (
+                            <div className="md:col-span-2">
+                              <TextField
+                                label="Кем выдан"
+                                placeholder="Введите название органа"
+                                {...field}
+                              />
+                            </div>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="passportIssueDate"
+                          render={({ field }) => (
+                            <DatePickerField
+                              label="Дата выдачи"
+                              placeholder="Выберите дату"
+                              valueFormat="yyyy-MM-dd"
+                              {...field}
+                            />
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="passportExpiryDate"
+                          render={({ field }) => (
+                            <DatePickerField
+                              label="Действителен до"
+                              placeholder="Выберите дату"
+                              valueFormat="yyyy-MM-dd"
                               {...field}
                             />
                           )}
