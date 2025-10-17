@@ -21,13 +21,13 @@ export const protocolTemplateApi = rootApi.injectEndpoints({
       providesTags: [API_TAG_OPERATIONS_PROTOCOL_TEMPLATES],
     }),
 
-    getProtocolTemplate: builder.query<{ success: boolean; data: ProtocolTemplate }, string>({
+    getProtocolTemplate: builder.query<ProtocolTemplate, string>({
       query: (id) => `/api/v1/protocol-templates/${id}`,
       providesTags: [API_TAG_OPERATIONS_PROTOCOL_TEMPLATES],
     }),
 
     createProtocolTemplate: builder.mutation<
-      { success: boolean; data: ProtocolTemplate; message: string },
+      ProtocolTemplate,
       CreateProtocolTemplateDto
     >({
       query: (body) => ({
@@ -39,7 +39,7 @@ export const protocolTemplateApi = rootApi.injectEndpoints({
     }),
 
     updateProtocolTemplate: builder.mutation<
-      { success: boolean; data: ProtocolTemplate; message: string },
+      ProtocolTemplate,
       { id: string; data: UpdateProtocolTemplateDto }
     >({
       query: ({ id, data }) => ({
@@ -51,7 +51,7 @@ export const protocolTemplateApi = rootApi.injectEndpoints({
     }),
 
     deleteProtocolTemplate: builder.mutation<
-      { success: boolean; message: string },
+      { message: string },
       string
     >({
       query: (id) => ({

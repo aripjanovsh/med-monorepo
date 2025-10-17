@@ -50,11 +50,9 @@ export default function ProtocolsPage() {
 
     try {
       const result = await deleteProtocol(protocolToDelete).unwrap();
-      if (result.success) {
-        toast.success(result.message || "Протокол успешно удален");
-        setDeleteDialogOpen(false);
-        setProtocolToDelete(null);
-      }
+      toast.success(result.message || "Протокол успешно удален");
+      setDeleteDialogOpen(false);
+      setProtocolToDelete(null);
     } catch (error: any) {
       console.error("Error deleting protocol:", error);
       toast.error(error.data?.message || "Ошибка при удалении протокола");
@@ -67,17 +65,15 @@ export default function ProtocolsPage() {
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
     try {
-      const result = await updateProtocol({
+      await updateProtocol({
         id,
         data: { isActive: !isActive },
       }).unwrap();
-      if (result.success) {
-        toast.success(
-          isActive
-            ? "Протокол деактивирован"
-            : "Протокол активирован"
-        );
-      }
+      toast.success(
+        isActive
+          ? "Протокол деактивирован"
+          : "Протокол активирован"
+      );
     } catch (error: any) {
       console.error("Error toggling protocol status:", error);
       toast.error(error.data?.message || "Ошибка при изменении статуса");

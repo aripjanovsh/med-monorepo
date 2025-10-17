@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,10 @@ import {
   ProtocolTemplate,
   UpdateProtocolTemplateDto,
 } from "@/types/protocol-template";
+import {
+  useGetProtocolTemplateQuery,
+  useUpdateProtocolTemplateMutation,
+} from "@/features/protocol-templates/protocol-template.api";
 
 // Динамический импорт редактора для избежания SSR проблем
 const ProtocolEditor = dynamic(
@@ -28,11 +32,11 @@ const ProtocolEditor = dynamic(
 );
 
 export default function EditProtocolPage() {
-  const id = "1";
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [protocol, setProtocol] = useState<ProtocolTemplate | null>(null);
+  const { data: protocol, isLoading, error } = useGetProtocolTemplateQuery(id);
+  const [updateProtocol, { isLoading: isSaving }] = useUpdateProtocolTemplateMutation();
   const [formData, setFormData] = useState<UpdateProtocolTemplateDto>({
     name: "",
     description: "",
@@ -40,10 +44,14 @@ export default function EditProtocolPage() {
   });
 
   useEffect(() => {
-    const loadProtocol = async () => {};
-
-    loadProtocol();
-  }, [id, router]);
+    if (protocol) {
+      setFormData({
+        name: protocol.name,
+        description: protocol.description,
+        content: protocol.content,
+      });
+    }
+  }, [protocol]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,13 +65,37 @@ export default function EditProtocolPage() {
       toast.error("Описание протокола обязательно");
       return;
     }
+
+    if (!formData.content?.trim()) {
+      toast.error("Содержимое протокола обязательно");
+      return;
+    }
+
+    try {
+      // Validate JSON content
+      JSON.parse(formData.content);
+
+      await updateProtocol({ id, data: formData }).unwrap();
+      toast.success("Протокол успешно обновлен");
+      router.push("/cabinet/settings/protocols");
+    } catch (error: any) {
+      console.error("Error updating protocol:", error);
+      
+      if (error.data?.message) {
+        toast.error(error.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Ошибка при обновлении протокола");
+      }
+    }
   };
 
   const handleCancel = () => {
     router.push("/cabinet/settings/protocols");
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center space-y-4">
@@ -74,8 +106,17 @@ export default function EditProtocolPage() {
     );
   }
 
-  if (!protocol) {
-    return null;
+  if (error || !protocol) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex flex-col items-center space-y-4">
+          <p className="text-destructive">Ошибка при загрузке протокола</p>
+          <Button onClick={() => router.push("/cabinet/settings/protocols")}>
+            Вернуться к списку
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -105,7 +146,7 @@ export default function EditProtocolPage() {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              disabled={saving}
+              disabled={isSaving}
             />
           </div>
 
@@ -119,7 +160,7 @@ export default function EditProtocolPage() {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              disabled={saving}
+              disabled={isSaving}
             />
           </div>
 
@@ -138,12 +179,12 @@ export default function EditProtocolPage() {
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={saving}
+            disabled={isSaving}
           >
             Отмена
           </Button>
-          <Button type="submit" disabled={saving}>
-            {saving ? (
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Сохранение...

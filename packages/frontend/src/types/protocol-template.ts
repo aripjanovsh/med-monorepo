@@ -4,9 +4,14 @@ export interface ProtocolTemplate {
   description: string;
   content: string; // JSON содержимое из Lexical Editor
   isActive: boolean;
+  organizationId: string;
+  organization?: {
+    id: string;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
-  createdBy?: string;
+  createdBy: string;
   updatedBy?: string;
 }
 
@@ -28,10 +33,11 @@ export interface ProtocolTemplateFilters {
   isActive?: boolean;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PaginatedProtocolTemplateResponse {
-  success: boolean;
   data: ProtocolTemplate[];
   meta: {
     total: number;

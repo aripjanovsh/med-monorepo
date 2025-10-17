@@ -66,12 +66,9 @@ export default function CreateProtocolPage() {
       // Validate JSON content
       JSON.parse(formData.content);
 
-      const result = await createProtocolTemplate(formData).unwrap();
-      
-      if (result.success) {
-        toast.success(result.message || "Протокол успешно создан");
-        router.push("/cabinet/settings/protocols");
-      }
+      await createProtocolTemplate(formData).unwrap();
+      toast.success("Протокол успешно создан");
+      router.push("/cabinet/settings/protocols");
     } catch (error: any) {
       console.error("Error creating protocol:", error);
       
