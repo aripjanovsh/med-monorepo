@@ -23,6 +23,24 @@ export interface UpdateProtocolTemplateDto {
   isActive?: boolean;
 }
 
+export interface ProtocolTemplateFilters {
+  search?: string;
+  isActive?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedProtocolTemplateResponse {
+  success: boolean;
+  data: ProtocolTemplate[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 // Типы для кастомных элементов в редакторе
 export interface CustomElement {
   type: 'text' | 'select' | 'radio' | 'checkbox' | 'textarea';

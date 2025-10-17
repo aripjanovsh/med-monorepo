@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText } from "lucide-react";
 import { ProtocolsTable } from "@/components/protocols/protocols-table";
-import { ProtocolTemplate } from "@/types/protocol-template";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -17,28 +16,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  useGetProtocolTemplatesQuery,
+  useDeleteProtocolTemplateMutation,
+  useUpdateProtocolTemplateMutation,
+} from "@/features/protocol-templates/protocol-template.api";
 
 export default function ProtocolsPage() {
   const router = useRouter();
-  const [protocols, setProtocols] = useState<ProtocolTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, error } = useGetProtocolTemplatesQuery({ page: 1, limit: 100 });
+  const [deleteProtocol] = useDeleteProtocolTemplateMutation();
+  const [updateProtocol] = useUpdateProtocolTemplateMutation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [protocolToDelete, setProtocolToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadProtocols();
-  }, []);
-
-  const loadProtocols = async () => {
-    try {
-      setProtocols([]);
-    } catch (error) {
-      console.error("Error loading protocols:", error);
-      toast.error("Ошибка при загрузке протоколов");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const protocols = data?.data || [];
 
   const handleCreate = () => {
     router.push("/cabinet/settings/protocols/new");
@@ -55,11 +47,42 @@ export default function ProtocolsPage() {
 
   const confirmDelete = async () => {
     if (!protocolToDelete) return;
+
+    try {
+      const result = await deleteProtocol(protocolToDelete).unwrap();
+      if (result.success) {
+        toast.success(result.message || "Протокол успешно удален");
+        setDeleteDialogOpen(false);
+        setProtocolToDelete(null);
+      }
+    } catch (error: any) {
+      console.error("Error deleting protocol:", error);
+      toast.error(error.data?.message || "Ошибка при удалении протокола");
+    }
   };
 
-  const handleDuplicate = async (id: string) => {};
+  const handleDuplicate = async (id: string) => {
+    toast.info("Дублирование протоколов пока не реализовано");
+  };
 
-  const handleToggleActive = async (id: string, isActive: boolean) => {};
+  const handleToggleActive = async (id: string, isActive: boolean) => {
+    try {
+      const result = await updateProtocol({
+        id,
+        data: { isActive: !isActive },
+      }).unwrap();
+      if (result.success) {
+        toast.success(
+          isActive
+            ? "Протокол деактивирован"
+            : "Протокол активирован"
+        );
+      }
+    } catch (error: any) {
+      console.error("Error toggling protocol status:", error);
+      toast.error(error.data?.message || "Ошибка при изменении статуса");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -89,11 +112,18 @@ export default function ProtocolsPage() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center space-y-4">
             <FileText className="h-12 w-12 text-muted-foreground animate-pulse" />
             <p className="text-muted-foreground">Загрузка протоколов...</p>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <FileText className="h-12 w-12 text-destructive" />
+            <p className="text-destructive">Ошибка при загрузке протоколов</p>
           </div>
         </div>
       ) : (

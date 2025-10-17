@@ -28,6 +28,9 @@ export const API_TAG_OPERATIONS_PERMISSIONS = "Permission" as const;
 // Location API Tags (New unified structure)
 export const API_TAG_OPERATIONS_LOCATION = "Location" as const;
 
+// Protocol Template API Tags
+export const API_TAG_OPERATIONS_PROTOCOL_TEMPLATES = "ProtocolTemplate" as const;
+
 export type ApiTagTypes = 
   | typeof API_TAG_OPERATIONS_TITLES
   | typeof API_TAG_OPERATIONS_SERVICE_TYPES
@@ -40,7 +43,8 @@ export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_ANALYSIS_TEMPLATES
   | typeof API_TAG_OPERATIONS_ROLES
   | typeof API_TAG_OPERATIONS_PERMISSIONS
-  | typeof API_TAG_OPERATIONS_LOCATION;
+  | typeof API_TAG_OPERATIONS_LOCATION
+  | typeof API_TAG_OPERATIONS_PROTOCOL_TEMPLATES;
 
 // Unified API Tags object for easier access
 export const API_TAGS = {
@@ -56,4 +60,5 @@ export const API_TAGS = {
   ROLE: API_TAG_OPERATIONS_ROLES,
   PERMISSION: API_TAG_OPERATIONS_PERMISSIONS,
   LOCATION: API_TAG_OPERATIONS_LOCATION,
+  PROTOCOL_TEMPLATE: API_TAG_OPERATIONS_PROTOCOL_TEMPLATES,
 } as const;

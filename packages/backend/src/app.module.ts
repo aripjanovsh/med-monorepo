@@ -14,6 +14,7 @@ import { EmployeeModule } from "./modules/employee/employee.module";
 import { PatientModule } from "./modules/patient/patient.module";
 import { RoleModule } from "./modules/role/role.module";
 import { MasterDataModule } from "./modules/master-data/master-data.module";
+import { ProtocolTemplateModule } from "./modules/protocol-template/protocol-template.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -33,6 +34,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     PatientModule,
     RoleModule,
     MasterDataModule,
+    ProtocolTemplateModule,
   ],
   controllers: [AppController],
   providers: [

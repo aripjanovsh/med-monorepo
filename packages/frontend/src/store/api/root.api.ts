@@ -12,6 +12,7 @@ import {
   API_TAG_OPERATIONS_ROLES,
   API_TAG_OPERATIONS_PERMISSIONS,
   API_TAG_OPERATIONS_LOCATION,
+  API_TAG_OPERATIONS_PROTOCOL_TEMPLATES,
 } from "@/constants/api-tags.constants";
 
 const prepareHeaders = (
@@ -46,6 +47,7 @@ export const rootApi = createApi({
     API_TAG_OPERATIONS_ROLES,
     API_TAG_OPERATIONS_PERMISSIONS,
     API_TAG_OPERATIONS_LOCATION,
+    API_TAG_OPERATIONS_PROTOCOL_TEMPLATES,
   ],
   endpoints: () => ({}),
 });

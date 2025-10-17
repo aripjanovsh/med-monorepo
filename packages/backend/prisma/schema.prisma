@@ -35,6 +35,7 @@ model Organization {
   roles         Role[]
   titles Title[]
   serviceTypes  ServiceType[]
+  protocolTemplates ProtocolTemplate[]
 
   @@map("organizations")
 }
@@ -608,4 +609,23 @@ model Language {
   @@index([weight])
   @@index([name])
   @@map("languages")
+}
+
+// Protocol Templates
+model ProtocolTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  content     String   // JSON content from editor
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("protocol_templates")
 }

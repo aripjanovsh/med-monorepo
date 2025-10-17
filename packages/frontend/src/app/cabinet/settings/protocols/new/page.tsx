@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { CreateProtocolTemplateDto } from "@/types/protocol-template";
+import { useCreateProtocolTemplateMutation } from "@/features/protocol-templates/protocol-template.api";
 
 // Динамический импорт редактора для избежания SSR проблем
 const ProtocolEditor = dynamic(
@@ -34,7 +35,7 @@ const ProtocolEditor = dynamic(
 
 export default function CreateProtocolPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [createProtocolTemplate, { isLoading }] = useCreateProtocolTemplateMutation();
   const [activeTab, setActiveTab] = useState("editor");
   const [jsonContent, setJsonContent] = useState("");
   const [formData, setFormData] = useState<CreateProtocolTemplateDto>({
@@ -54,6 +55,33 @@ export default function CreateProtocolPage() {
     if (!formData.description.trim()) {
       toast.error("Описание протокола обязательно");
       return;
+    }
+
+    if (!formData.content.trim()) {
+      toast.error("Содержимое протокола обязательно");
+      return;
+    }
+
+    try {
+      // Validate JSON content
+      JSON.parse(formData.content);
+
+      const result = await createProtocolTemplate(formData).unwrap();
+      
+      if (result.success) {
+        toast.success(result.message || "Протокол успешно создан");
+        router.push("/cabinet/settings/protocols");
+      }
+    } catch (error: any) {
+      console.error("Error creating protocol:", error);
+      
+      if (error.data?.message) {
+        toast.error(error.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Ошибка при создании протокола");
+      }
     }
   };
 
@@ -137,7 +165,7 @@ export default function CreateProtocolPage() {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              disabled={loading}
+              disabled={isLoading}
             />
           </div>
 
@@ -151,7 +179,7 @@ export default function CreateProtocolPage() {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              disabled={loading}
+              disabled={isLoading}
             />
           </div>
 
@@ -222,13 +250,13 @@ export default function CreateProtocolPage() {
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={loading}
+            disabled={isLoading}
           >
             Отмена
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={isLoading}>
             <Save className="mr-2 h-4 w-4" />
-            Создать протокол
+            {isLoading ? "Создание..." : "Создать протокол"}
           </Button>
         </div>
       </form>
