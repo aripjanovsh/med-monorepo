@@ -1,55 +1,46 @@
-export interface ProtocolTemplate {
+import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
+
+export interface ProtocolTemplateResponseDto {
   id: string;
   name: string;
   description: string;
-  content: string; // JSON содержимое из Lexical Editor
+  content: string;
   isActive: boolean;
   organizationId: string;
   organization?: {
     id: string;
     name: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   createdBy: string;
   updatedBy?: string;
 }
 
-export interface CreateProtocolTemplateDto {
+export interface CreateProtocolTemplateRequestDto {
   name: string;
   description: string;
   content: string;
 }
 
-export interface UpdateProtocolTemplateDto {
+export interface UpdateProtocolTemplateRequestDto {
   name?: string;
   description?: string;
   content?: string;
   isActive?: boolean;
 }
 
-export interface ProtocolTemplateFilters {
+export interface ProtocolTemplateQueryDto extends QueryParamsDto {
   search?: string;
   isActive?: boolean;
-  page?: number;
-  limit?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
-export interface PaginatedProtocolTemplateResponse {
-  data: ProtocolTemplate[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+export type ProtocolTemplatesListResponseDto = PaginatedResponseDto<ProtocolTemplateResponseDto>;
 
-// Типы для кастомных элементов в редакторе
 export interface CustomElement {
-  type: 'text' | 'select' | 'radio' | 'checkbox' | 'textarea';
+  type: "text" | "select" | "radio" | "checkbox" | "textarea";
   id: string;
   label?: string;
   placeholder?: string;

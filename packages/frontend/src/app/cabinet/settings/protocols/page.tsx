@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText } from "lucide-react";
-import { ProtocolsTable } from "@/components/protocols/protocols-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -20,28 +27,40 @@ import {
   useGetProtocolTemplatesQuery,
   useDeleteProtocolTemplateMutation,
   useUpdateProtocolTemplateMutation,
-} from "@/features/protocol-templates/protocol-template.api";
+  createProtocolTemplateColumns,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE,
+} from "@/features/protocol-template";
+import type { ProtocolTemplateResponseDto } from "@/features/protocol-template";
 
 export default function ProtocolsPage() {
   const router = useRouter();
-  const { data, isLoading, error } = useGetProtocolTemplatesQuery({ page: 1, limit: 100 });
+  const { data, isLoading, error, refetch } = useGetProtocolTemplatesQuery({
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_PAGE_SIZE,
+  });
   const [deleteProtocol] = useDeleteProtocolTemplateMutation();
   const [updateProtocol] = useUpdateProtocolTemplateMutation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [protocolToDelete, setProtocolToDelete] = useState<string | null>(null);
+  const [protocolToDelete, setProtocolToDelete] =
+    useState<ProtocolTemplateResponseDto | null>(null);
 
-  const protocols = data?.data || [];
+  const protocols = data?.data ?? [];
 
   const handleCreate = () => {
     router.push("/cabinet/settings/protocols/new");
   };
 
-  const handleEdit = (id: string) => {
-    router.push(`/cabinet/settings/protocols/${id}/edit`);
+  const handleEdit = (protocol: ProtocolTemplateResponseDto) => {
+    router.push(`/cabinet/settings/protocols/${protocol.id}/edit`);
   };
 
-  const handleDelete = (id: string) => {
-    setProtocolToDelete(id);
+  const handleView = (protocol: ProtocolTemplateResponseDto) => {
+    router.push(`/cabinet/settings/protocols/${protocol.id}/edit`);
+  };
+
+  const handleDelete = (protocol: ProtocolTemplateResponseDto) => {
+    setProtocolToDelete(protocol);
     setDeleteDialogOpen(true);
   };
 
@@ -49,36 +68,44 @@ export default function ProtocolsPage() {
     if (!protocolToDelete) return;
 
     try {
-      const result = await deleteProtocol(protocolToDelete).unwrap();
-      toast.success(result.message || "Протокол успешно удален");
+      const result = await deleteProtocol(protocolToDelete.id).unwrap();
+      toast.success(result.message ?? "Протокол успешно удален");
       setDeleteDialogOpen(false);
       setProtocolToDelete(null);
+      refetch();
     } catch (error: any) {
       console.error("Error deleting protocol:", error);
-      toast.error(error.data?.message || "Ошибка при удалении протокола");
+      toast.error(error.data?.message ?? "Ошибка при удалении протокола");
     }
   };
 
-  const handleDuplicate = async (id: string) => {
+  const handleDuplicate = async (protocol: ProtocolTemplateResponseDto) => {
     toast.info("Дублирование протоколов пока не реализовано");
   };
 
-  const handleToggleActive = async (id: string, isActive: boolean) => {
+  const handleToggleActive = async (protocol: ProtocolTemplateResponseDto) => {
     try {
       await updateProtocol({
-        id,
-        data: { isActive: !isActive },
+        id: protocol.id,
+        data: { isActive: !protocol.isActive },
       }).unwrap();
       toast.success(
-        isActive
-          ? "Протокол деактивирован"
-          : "Протокол активирован"
+        protocol.isActive ? "Протокол деактивирован" : "Протокол активирован"
       );
+      refetch();
     } catch (error: any) {
       console.error("Error toggling protocol status:", error);
-      toast.error(error.data?.message || "Ошибка при изменении статуса");
+      toast.error(error.data?.message ?? "Ошибка при изменении статуса");
     }
   };
+
+  const columns = createProtocolTemplateColumns(
+    handleEdit,
+    handleView,
+    handleDelete,
+    handleDuplicate,
+    handleToggleActive
+  );
 
   return (
     <div className="space-y-6">
@@ -123,13 +150,53 @@ export default function ProtocolsPage() {
           </div>
         </div>
       ) : (
-        <ProtocolsTable
-          protocols={protocols}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onDuplicate={handleDuplicate}
-          onToggleActive={handleToggleActive}
-        />
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableHead
+                    key={column.id ?? (column as any).accessorKey}
+                    className={
+                      column.id === "actions" ? "text-right" : undefined
+                    }
+                  >
+                    {typeof column.header === "function"
+                      ? column.header({} as any)
+                      : column.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {protocols.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    Нет доступных шаблонов протоколов
+                  </TableCell>
+                </TableRow>
+              ) : (
+                protocols.map((protocol) => (
+                  <TableRow key={protocol.id}>
+                    {columns.map((column) => {
+                      const cell = column.cell;
+                      return (
+                        <TableCell key={column.id ?? (column as any).accessorKey}>
+                          {typeof cell === "function"
+                            ? cell({ row: { original: protocol } } as any)
+                            : null}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

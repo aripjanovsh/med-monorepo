@@ -30,10 +30,10 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { ProtocolTemplate } from '@/types/protocol-template';
+import type { ProtocolTemplateResponseDto } from '@/features/protocol-template';
 
 interface ProtocolsTableProps {
-  protocols: ProtocolTemplate[];
+  protocols: ProtocolTemplateResponseDto[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onDuplicate?: (id: string) => void;
