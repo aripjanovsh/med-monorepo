@@ -38,7 +38,10 @@ export class UzbekistanLocationSeed {
       await this.prisma.location.update({
         where: { id: uzbekistan.id },
         data: {
-          searchField: buildSearchTokens([uzbekistan.name, uzbekistan.code ?? undefined]),
+          searchField: buildSearchTokens([
+            uzbekistan.name,
+            uzbekistan.code ?? undefined,
+          ]),
         },
       });
 
@@ -164,7 +167,11 @@ export class UzbekistanLocationSeed {
             data: {
               ...regionData,
               parentId: uzbekistan.id,
-              searchField: buildSearchTokens([regionData.name, regionData.code, uzbekistan.name]),
+              searchField: buildSearchTokens([
+                regionData.name,
+                regionData.code,
+                uzbekistan.name,
+              ]),
               isActive: true,
             },
           });
@@ -174,7 +181,11 @@ export class UzbekistanLocationSeed {
         await this.prisma.location.update({
           where: { id: region.id },
           data: {
-            searchField: buildSearchTokens([region.name, region.code ?? undefined, uzbekistan.name]),
+            searchField: buildSearchTokens([
+              region.name,
+              region.code ?? undefined,
+              uzbekistan.name,
+            ]),
           },
         });
 
@@ -275,7 +286,11 @@ export class UzbekistanLocationSeed {
                 ...districtData,
                 type: LocationType.DISTRICT,
                 parentId: tashkentRegion.id,
-                searchField: buildSearchTokens([districtData.name, districtData.code, tashkentRegion.name]),
+                searchField: buildSearchTokens([
+                  districtData.name,
+                  districtData.code,
+                  tashkentRegion.name,
+                ]),
                 isActive: true,
               },
             });
@@ -284,7 +299,11 @@ export class UzbekistanLocationSeed {
           await this.prisma.location.update({
             where: { id: district.id },
             data: {
-              searchField: buildSearchTokens([district.name, district.code ?? undefined, tashkentRegion.name]),
+              searchField: buildSearchTokens([
+                district.name,
+                district.code ?? undefined,
+                tashkentRegion.name,
+              ]),
             },
           });
           console.log(`✅ Created district: ${districtData.name}`);
@@ -362,7 +381,11 @@ export class UzbekistanLocationSeed {
                   ...cityData,
                   type: LocationType.CITY,
                   parentId: region.id,
-                  searchField: buildSearchTokens([cityData.name, cityData.code, region.name]),
+                  searchField: buildSearchTokens([
+                    cityData.name,
+                    cityData.code,
+                    region.name,
+                  ]),
                   isActive: true,
                 },
               });
@@ -380,7 +403,11 @@ export class UzbekistanLocationSeed {
             await this.prisma.location.update({
               where: { id: city.id },
               data: {
-                searchField: buildSearchTokens([city.name, city.code ?? undefined, region.name]),
+                searchField: buildSearchTokens([
+                  city.name,
+                  city.code ?? undefined,
+                  region.name,
+                ]),
               },
             });
           }
@@ -439,7 +466,11 @@ export class UzbekistanLocationSeed {
                   ...districtData,
                   type: LocationType.DISTRICT,
                   parentId: city.id,
-                  searchField: buildSearchTokens([districtData.name, districtData.code, city.name]),
+                  searchField: buildSearchTokens([
+                    districtData.name,
+                    districtData.code,
+                    city.name,
+                  ]),
                   isActive: true,
                 },
               });
@@ -451,7 +482,11 @@ export class UzbekistanLocationSeed {
             await this.prisma.location.update({
               where: { id: district.id },
               data: {
-                searchField: buildSearchTokens([district.name, district.code ?? undefined, city.name]),
+                searchField: buildSearchTokens([
+                  district.name,
+                  district.code ?? undefined,
+                  city.name,
+                ]),
               },
             });
           }

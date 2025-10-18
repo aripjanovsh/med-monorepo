@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreateProtocolTemplateDto } from "./dto/create-protocol-template.dto";
@@ -42,7 +46,8 @@ export class ProtocolTemplateService {
   async findAll(
     query: FindAllProtocolTemplateDto,
   ): Promise<PaginatedResponseDto<ProtocolTemplateResponseDto>> {
-    const { search, isActive, page, limit, sortBy, sortOrder, organizationId } = query;
+    const { search, isActive, page, limit, sortBy, sortOrder, organizationId } =
+      query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProtocolTemplateWhereInput = {
@@ -88,7 +93,10 @@ export class ProtocolTemplateService {
     };
   }
 
-  async findOne(id: string, organizationId?: string): Promise<ProtocolTemplateResponseDto> {
+  async findOne(
+    id: string,
+    organizationId?: string,
+  ): Promise<ProtocolTemplateResponseDto> {
     const where: Prisma.ProtocolTemplateWhereUniqueInput = { id };
     if (organizationId) {
       where.organizationId = organizationId;
@@ -152,7 +160,10 @@ export class ProtocolTemplateService {
     return plainToInstance(ProtocolTemplateResponseDto, updated);
   }
 
-  async remove(id: string, organizationId?: string): Promise<{ message: string }> {
+  async remove(
+    id: string,
+    organizationId?: string,
+  ): Promise<{ message: string }> {
     try {
       const where: Prisma.ProtocolTemplateWhereUniqueInput = { id };
       if (organizationId) {

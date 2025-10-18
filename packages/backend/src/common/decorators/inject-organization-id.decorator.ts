@@ -13,7 +13,7 @@ export const InjectOrganizationId = (defaultValue = undefined) => {
     const headerOrganizationId = get(
       request,
       "request.headers.x-organization-id",
-      null
+      null,
     );
     const user = request?.user as CurrentUserData;
     let organizationId = null;

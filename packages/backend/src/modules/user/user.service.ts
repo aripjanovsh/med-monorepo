@@ -57,7 +57,7 @@ export class UserService {
 
   async findAll(
     query: FindAllUserDto,
-    currentUser: CurrentUserData
+    currentUser: CurrentUserData,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
     const { page, limit, search, sortBy, sortOrder, role, isActive } = query;
     const skip = (page - 1) * limit;
@@ -159,7 +159,7 @@ export class UserService {
 
   async update(
     id: string,
-    updateUserDto: UpdateUserDto
+    updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     try {
       const user = await this.prisma.user.update({

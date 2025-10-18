@@ -27,7 +27,7 @@ export class PermissionService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Permission with this name or resource/action combination already exists"
+            "Permission with this name or resource/action combination already exists",
           );
         }
       }
@@ -37,7 +37,7 @@ export class PermissionService {
 
   async findAll(
     query: FindAllPermissionDto,
-    currentUser: CurrentUserData
+    currentUser: CurrentUserData,
   ): Promise<PaginatedResponseDto<any>> {
     const { page, limit, search, sortBy, sortOrder, resource, action } = query;
     const skip = (page - 1) * limit;
@@ -140,7 +140,7 @@ export class PermissionService {
         }
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Permission with this name or resource/action combination already exists"
+            "Permission with this name or resource/action combination already exists",
           );
         }
       }
@@ -208,7 +208,7 @@ export class PermissionService {
         acc[permission.resource].push(permission);
         return acc;
       },
-      {} as Record<string, typeof permissions>
+      {} as Record<string, typeof permissions>,
     );
 
     return grouped;
@@ -467,7 +467,7 @@ export class PermissionService {
     const existingNames = new Set(existingPermissions.map((p) => p.name));
 
     const newPermissions = defaultPermissions.filter(
-      (p) => !existingNames.has(p.name)
+      (p) => !existingNames.has(p.name),
     );
 
     if (newPermissions.length > 0) {

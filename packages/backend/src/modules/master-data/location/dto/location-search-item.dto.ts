@@ -3,7 +3,8 @@ import { Expose } from "class-transformer";
 
 export class LocationSearchItemDto {
   @ApiProperty({
-    description: "Display label combining location hierarchy (e.g., 'город Ташкент, Учтепинский район')",
+    description:
+      "Display label combining location hierarchy (e.g., 'город Ташкент, Учтепинский район')",
     example: "город Ташкент, Чиланзарский район",
   })
   @Expose()

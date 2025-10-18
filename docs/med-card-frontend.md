@@ -182,3 +182,211 @@ enum VisitStatus {
    → `Visit.status = COMPLETED`
    → `Appointment.status = COMPLETED`
    → Медкарта пациента обновляется
+
+---
+
+## 🖥️ Frontend — Архитектура и Компоненты
+
+### 📂 Feature Structure (следуя frontend-guide.md)
+
+Каждый feature модуль должен иметь:
+
+```
+features/[feature]/
+├── components/
+│   ├── [feature]-columns.tsx    # Table columns
+│   ├── [feature]-form.tsx       # Form logic
+│   └── [feature]-list.tsx       # List component
+├── [feature].api.ts             # RTK Query endpoints
+├── [feature].dto.ts             # TypeScript types (match backend)
+├── [feature].constants.ts       # Enums, options
+├── [feature].schema.ts          # Yup validation
+├── [feature].model.ts           # Helper functions
+└── index.ts                     # Public exports
+```
+
+---
+
+## 🗂️ Features для реализации
+
+### 1. **Feature: Visit**
+
+**Backend API:** `/api/v1/visits`
+
+**Структура:**
+```
+features/visit/
+├── components/
+│   ├── visit-columns.tsx
+│   ├── visit-form.tsx
+│   ├── page-visit-form.tsx
+│   ├── visit-status-badge.tsx
+│   └── detail/
+│       ├── visit-overview.tsx
+│       ├── visit-prescriptions.tsx
+│       └── visit-lab-orders.tsx
+├── visit.api.ts                 # getVisits, createVisit, updateVisit, updateVisitStatus
+├── visit.dto.ts                 # VisitResponseDto, CreateVisitRequestDto, etc.
+├── visit.constants.ts           # VISIT_STATUS, VISIT_STATUS_OPTIONS
+├── visit.schema.ts              # visitFormSchema
+├── visit.model.ts               # getPatientFullName, isVisitEditable
+└── index.ts
+```
+
+**Страницы:**
+- `/cabinet/visits` - Список визитов
+- `/cabinet/visits/create` - Начать прием
+- `/cabinet/visits/[id]` - Детали визита (с вкладками: обзор, назначения, анализы)
+- `/cabinet/visits/[id]/edit` - Редактировать визит
+
+---
+
+### 2. **Feature: Prescription**
+
+**Backend API:** `/api/v1/prescriptions`
+
+**Структура:**
+```
+features/prescription/
+├── components/
+│   ├── prescription-columns.tsx
+│   ├── prescription-form.tsx
+│   └── prescription-list.tsx    # Для отображения в Visit detail
+├── prescription.api.ts          # getPrescriptions, createPrescription, etc.
+├── prescription.dto.ts          # PrescriptionResponseDto
+├── prescription.schema.ts       # prescriptionFormSchema
+├── prescription.model.ts
+└── index.ts
+```
+
+**Интеграция:** Отображается внутри Visit detail page как вложенный компонент
+
+---
+
+### 3. **Feature: Lab Order**
+
+**Backend API:** `/api/v1/lab-orders`
+
+**Структура:**
+```
+features/lab-order/
+├── components/
+│   ├── lab-order-columns.tsx
+│   ├── lab-order-form.tsx
+│   ├── lab-order-list.tsx
+│   └── lab-order-status-badge.tsx
+├── lab-order.api.ts             # getLabOrders, createLabOrder, updateLabOrderStatus
+├── lab-order.dto.ts             # LabOrderResponseDto
+├── lab-order.constants.ts       # LAB_STATUS, LAB_STATUS_OPTIONS
+├── lab-order.schema.ts
+├── lab-order.model.ts
+└── index.ts
+```
+
+**Интеграция:** Отображается внутри Visit detail page
+
+---
+
+### 4. **Обновление Feature: Appointment**
+
+**Изменения:**
+- Добавить кнопку "Начать прием" для записей со статусом `SCHEDULED` или `IN_QUEUE`
+- При клике создавать новый Visit с `appointmentId`
+- Отображать связанный Visit в деталях Appointment
+- Автоматическое обновление статуса через бэкенд
+
+---
+
+## 🎯 Ключевые UI Компоненты
+
+### **VisitForm** (visit-form.tsx)
+- Patient selector (autocomplete)
+- Employee selector (autocomplete врачей)
+- Appointment selector (optional, autocomplete)
+- Protocol template selector (optional)
+- Visit date picker
+- Notes textarea
+
+### **VisitDetail** (app/cabinet/visits/[id]/page.tsx)
+Вкладки:
+1. **Обзор** - Patient info, Employee info, Visit info
+2. **Назначения** - PrescriptionList с кнопкой добавления
+3. **Анализы** - LabOrderList с кнопкой добавления
+
+### **PrescriptionList** (prescription-list.tsx)
+- DataTable с колонками: Препарат, Дозировка, Частота, Длительность
+- Кнопка "+ Добавить назначение"
+- Dialog с PrescriptionForm
+- Доступно только если Visit.status === "IN_PROGRESS"
+
+### **LabOrderList** (lab-order-list.tsx)
+- DataTable с колонками: Анализ, Статус, Дата создания
+- Кнопка "+ Добавить направление"
+- Dialog с LabOrderForm
+- Badge для статуса с цветовой индикацией
+
+---
+
+## 🔄 User Flow
+
+### **Reception Flow:**
+1. Receptionist создает Appointment через `/cabinet/appointments/create`
+2. Appointment.status = "SCHEDULED"
+3. В день приема статус меняется на "IN_QUEUE"
+
+### **Doctor Flow:**
+1. Врач видит список appointments со статусом "IN_QUEUE"
+2. Нажимает "Начать прием" → создается Visit
+3. Открывается `/cabinet/visits/[id]`
+4. Заполняет информацию, добавляет назначения и анализы
+5. Нажимает "Завершить прием" → Visit.status = "COMPLETED"
+6. Backend автоматически обновляет Appointment.status = "COMPLETED"
+
+### **Patient History:**
+- В деталях пациента вкладка "История визитов"
+- Список всех Visit с возможностью просмотра
+- Фильтры по дате, врачу, статусу
+
+---
+
+## 📋 API Tags для RTK Query
+
+Добавить в `constants/api-tags.constants.ts`:
+
+```typescript
+export const API_TAG_VISITS = "Visits" as const;
+export const API_TAG_PRESCRIPTIONS = "Prescriptions" as const;
+export const API_TAG_LAB_ORDERS = "LabOrders" as const;
+```
+
+---
+
+## 🔐 Permissions
+
+Добавить в систему permissions:
+
+```typescript
+// Visits
+visits:CREATE
+visits:READ
+visits:UPDATE
+visits:DELETE
+
+// Prescriptions
+prescriptions:CREATE
+prescriptions:READ
+prescriptions:UPDATE
+prescriptions:DELETE
+
+// Lab Orders
+lab-orders:CREATE
+lab-orders:READ
+lab-orders:UPDATE
+lab-orders:DELETE
+```
+
+**Role mapping:**
+- **DOCTOR**: все permissions для visits, prescriptions, lab-orders
+- **NURSE**: READ для всех, CREATE/UPDATE для lab-orders
+- **RECEPTIONIST**: READ для appointments и visits
+- **ADMIN**: все permissions

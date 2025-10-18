@@ -32,7 +32,7 @@ export class TitleService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Должность с таким названием уже существует в организации"
+            "Должность с таким названием уже существует в организации",
           );
         }
       }
@@ -44,7 +44,7 @@ export class TitleService {
    * Получить все должности с фильтрацией и пагинацией
    */
   async findAll(
-    findAllDto: FindAllTitlesDto
+    findAllDto: FindAllTitlesDto,
   ): Promise<PaginatedResponseDto<TitleResponseDto>> {
     const {
       organizationId,
@@ -107,7 +107,7 @@ export class TitleService {
    */
   async update(
     id: string,
-    updateTitleDto: UpdateTitleDto
+    updateTitleDto: UpdateTitleDto,
   ): Promise<TitleResponseDto> {
     await this.findOne(id);
 
@@ -122,7 +122,7 @@ export class TitleService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Должность с таким названием уже существует в организации"
+            "Должность с таким названием уже существует в организации",
           );
         }
       }

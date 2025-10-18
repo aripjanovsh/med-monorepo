@@ -1,5 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, IsNotEmpty, MaxLength, IsInt, Min } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  MaxLength,
+  IsInt,
+  Min,
+} from "class-validator";
 
 export class CreateLanguageDto {
   @ApiProperty({

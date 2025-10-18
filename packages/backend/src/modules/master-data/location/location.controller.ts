@@ -95,7 +95,7 @@ export class LocationController {
   @ApiResponse({ status: 404, description: "Location not found" })
   async findOne(
     @Param("id", ParseUUIDPipe) id: string,
-    @Query("includeRelations") includeRelations: boolean = true
+    @Query("includeRelations") includeRelations: boolean = true,
   ) {
     const location = await this.locationService.findOne(id, includeRelations);
     return plainToInstance(LocationResponseDto, location);
@@ -113,7 +113,7 @@ export class LocationController {
   @ApiResponse({ status: 400, description: "Bad request" })
   async update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() updateLocationDto: UpdateLocationDto
+    @Body() updateLocationDto: UpdateLocationDto,
   ) {
     const location = await this.locationService.update(id, updateLocationDto);
     return plainToInstance(LocationResponseDto, location);

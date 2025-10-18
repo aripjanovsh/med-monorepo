@@ -36,6 +36,7 @@ model Organization {
   titles Title[]
   serviceTypes  ServiceType[]
   protocolTemplates ProtocolTemplate[]
+  visits        Visit[] // визиты организации
 
   @@map("organizations")
 }
@@ -145,6 +146,7 @@ model Patient {
   medicalRecords MedicalRecord[]
   contacts       PatientContact[]
   doctors        PatientDoctor[] // Many-to-many relation with doctors
+  visits         Visit[] // визиты пациента
 
   @@unique([patientId, organizationId])
   @@map("patients")
@@ -235,10 +237,42 @@ model Service {
 enum AppointmentStatus {
   SCHEDULED
   CONFIRMED
+  IN_QUEUE      // добавлено: пациент в очереди
   IN_PROGRESS
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+// Appointment type enum
+enum AppointmentType {
+  STANDARD      // обычная запись
+  WITHOUT_QUEUE // без очереди
+  EMERGENCY     // экстренно
+}
+
+// Visit status enum
+enum VisitStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+// Medical record type enum
+enum RecordType {
+  COMPLAINTS     // жалобы
+  EXAMINATION    // осмотр
+  DIAGNOSIS      // диагноз
+  PRESCRIPTION   // назначения
+  LAB_ORDER      // направление на анализ
+  NOTE           // дополнительные записи
+}
+
+// Lab order status enum
+enum LabStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }
 
 // Appointments
@@ -247,6 +281,7 @@ model Appointment {
   scheduledAt DateTime
   duration    Int               // in minutes
   status      AppointmentStatus @default(SCHEDULED)
+  type        AppointmentType   @default(STANDARD)
   notes       String?
   reason      String?
   createdAt   DateTime          @default(now())
@@ -269,38 +304,120 @@ model Appointment {
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id])
 
-  medicalRecord MedicalRecord?
+  visits        Visit[]           // один appointment может иметь несколько попыток визита
+  medicalRecord MedicalRecord?    // legacy, будет удалено после миграции
 
   @@map("appointments")
 }
 
-// Medical Records
-model MedicalRecord {
-  id          String   @id @default(uuid())
-  diagnosis   String
-  symptoms    String?
-  treatment   String?
-  medications String?
+// Visits (Medical visits/appointments)
+model Visit {
+  id          String      @id @default(uuid())
+  visitDate   DateTime    @default(now())
+  status      VisitStatus @default(IN_PROGRESS)
   notes       String?
-  followUp    DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   // Multi-tenant
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   // Relations
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-  
-  employeeId  String
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  
-  appointmentId String? @unique
+  appointmentId String?
   appointment   Appointment? @relation(fields: [appointmentId], references: [id])
 
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  employeeId String // doctor (Employee)
+  employee   Employee @relation("VisitDoctor", fields: [employeeId], references: [id])
+
+  protocolId String?
+  protocol   ProtocolTemplate? @relation(fields: [protocolId], references: [id])
+
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  labOrders      LabOrder[]
+
+  @@map("visits")
+}
+
+// Medical Records (structured records based on templates)
+model MedicalRecord {
+  id        String     @id @default(uuid())
+  type      RecordType
+  content   Json       // хранит заполненные данные по шаблону ProtocolTemplate
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  visitId String
+  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  createdById String   // doctor who created the record
+  createdBy   Employee @relation(fields: [createdById], references: [id])
+
+  // Legacy fields - will be removed after migration
+  employeeId    String?  // deprecated, use createdById
+  employee      Employee? @relation("LegacyMedicalRecordEmployee", fields: [employeeId], references: [id])
+  appointmentId String?  @unique // deprecated, use visitId
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  diagnosis     String?  // deprecated
+  symptoms      String?  // deprecated
+  treatment     String?  // deprecated
+  medications   String?  // deprecated
+  notes         String?  // deprecated
+  followUp      DateTime? // deprecated
+
   @@map("medical_records")
+}
+
+// Prescriptions (назначенные лекарства)
+model Prescription {
+  id        String   @id @default(uuid())
+  name      String   // название препарата
+  dosage    String?  // дозировка
+  frequency String?  // частота приёма
+  duration  String?  // длительность
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  visitId String
+  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  createdById String   // doctor who created the prescription
+  createdBy   Employee @relation(fields: [createdById], references: [id])
+
+  @@map("prescriptions")
+}
+
+// Lab Orders (назначение на анализ/обследование)
+model LabOrder {
+  id        String    @id @default(uuid())
+  testName  String
+  status    LabStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  visitId String
+  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  createdById String   // doctor who created the lab order
+  createdBy   Employee @relation(fields: [createdById], references: [id])
+
+  @@map("lab_orders")
 }
 
 
@@ -403,10 +520,14 @@ model Employee {
   // Relations
   user           User?         @relation(fields: [userId], references: [id])
   appointments   Appointment[]
-  medicalRecords MedicalRecord[]
+  medicalRecords MedicalRecord[] @relation("LegacyMedicalRecordEmployee")
+  medicalRecordsCreated MedicalRecord[] // медицинские записи, созданные этим врачом
   services       Service[]
   serviceTypes   EmployeeServiceType[]
   patientDoctors PatientDoctor[] // Many-to-many relation with patients
+  visits         Visit[] @relation("VisitDoctor") // визиты как врач
+  prescriptions  Prescription[] // назначенные лекарства
+  labOrders      LabOrder[] // назначенные анализы
 
   @@unique([employeeId, organizationId])
 
@@ -626,6 +747,9 @@ model ProtocolTemplate {
   // Multi-tenant
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Relations
+  visits Visit[] // визиты, использующие этот шаблон
 
   @@map("protocol_templates")
 }

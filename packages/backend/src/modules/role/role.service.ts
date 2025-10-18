@@ -61,7 +61,7 @@ export class RoleService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Role with this name already exists in this organization"
+            "Role with this name already exists in this organization",
           );
         }
       }
@@ -71,7 +71,7 @@ export class RoleService {
 
   async findAll(
     query: FindAllRoleDto,
-    currentUser: CurrentUserData
+    currentUser: CurrentUserData,
   ): Promise<PaginatedResponseDto<RoleResponseDto>> {
     const {
       page,
@@ -242,7 +242,7 @@ export class RoleService {
         }
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Role with this name already exists in this organization"
+            "Role with this name already exists in this organization",
           );
         }
       }
@@ -406,7 +406,7 @@ export class RoleService {
   async checkUserPermission(
     userId: string,
     resource: string,
-    action: string
+    action: string,
   ): Promise<boolean> {
     const permissions = await this.getUserPermissions(userId);
 
@@ -414,7 +414,7 @@ export class RoleService {
     return permissions.some(
       (permission) =>
         permission.resource === resource &&
-        (permission.action === action || permission.action === "MANAGE")
+        (permission.action === action || permission.action === "MANAGE"),
     );
   }
 }

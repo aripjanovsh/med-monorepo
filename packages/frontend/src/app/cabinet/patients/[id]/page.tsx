@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -29,8 +29,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { 
-  PatientResponseDto, 
+import {
+  PatientResponseDto,
   useGetPatientQuery,
   getPatientFullName,
   calculatePatientAge,
@@ -43,6 +43,8 @@ import { PatientOverview } from "@/features/patients/components/detail/patient-o
 import { PatientProfile } from "@/features/patients/components/detail/patient-profile";
 import { PatientAppointments } from "@/features/patients/components/detail/patient-appointments";
 import { PatientMedicalHistory } from "@/features/patients/components/detail/patient-medical-history";
+import { PatientVisits } from "@/features/patients/components/detail/patient-visits";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 
 export default function PatientDetailPage({
   params,
@@ -113,23 +115,37 @@ export default function PatientDetailPage({
 
   return (
     <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/patients" backTitle="Пациенты" />
+
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/cabinet/patients")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Назад к пациентам
-          </Button>
+        <div className="flex items-center space-x-2">
+          <Avatar className="size-10">
+            <AvatarImage alt={fullName} />
+            <AvatarFallback className="text-lg">
+              {fullName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex flex-col">
+            <h2 className="text-xl font-gilroy font-bold leading-none">
+              {fullName}
+            </h2>
+            <p className="text-xs text-muted-foreground leading-none">
+              {age} лет • {patient.gender === "MALE" ? "Мужской" : "Женский"} •{" "}
+              {statusDisplay} • {patient.patientId}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm">
             <Edit className="h-4 w-4 mr-2" />
-            Редактировать пациента
+            Редактировать
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -138,142 +154,41 @@ export default function PatientDetailPage({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Печать медицинской карты</DropdownMenuItem>
+              <DropdownMenuItem>Печать карточки сотрудника</DropdownMenuItem>
               <DropdownMenuItem>Экспорт данных</DropdownMenuItem>
-              <DropdownMenuItem>Записать на прием</DropdownMenuItem>
+              <DropdownMenuItem>Запланировать встречу</DropdownMenuItem>
+              <DropdownMenuItem>Оценка эффективности</DropdownMenuItem>
               <Separator className="my-1" />
               <DropdownMenuItem className="text-red-600">
-                Архивировать пациента
+                Деактивировать сотрудника
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* Patient Header Card */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-20 w-20">
-                <AvatarFallback className="text-lg bg-primary/10 text-primary font-medium">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="space-y-2">
-                <div>
-                  <h1 className="text-2xl font-bold">{fullName}</h1>
-                  <p className="text-muted-foreground">
-                    {age} лет • {patient.gender === "MALE" ? "Мужской" : "Женский"} • ID: {patient.patientId || patient.id}
-                  </p>
-                </div>
-
-                <div className="flex items-center space-x-4 text-sm">
-                  {primaryPhone && (
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-1" />
-                      {primaryPhone}
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Дата рождения: {new Date(patient.dateOfBirth).toLocaleDateString("ru-RU")}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-right space-y-2">
-              <Badge variant={getStatusVariant(patient.status)}>
-                {statusDisplay}
-              </Badge>
-
-              <div className="text-sm text-muted-foreground">
-                {patient.doctors && patient.doctors.length > 0 && (
-                  <div className="flex items-center justify-end">
-                    <Stethoscope className="h-4 w-4 mr-1" />
-                    {patient.doctors[0].firstName} {patient.doctors[0].lastName}
-                  </div>
-                )}
-                {patient.lastVisitedAt && (
-                  <div className="flex items-center justify-end mt-1">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Последний визит: {new Date(patient.lastVisitedAt).toLocaleDateString("ru-RU")}
-                  </div>
-                )}
-                <div className="flex items-center justify-end mt-1">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  Регистрация: {new Date(patient.createdAt).toLocaleDateString("ru-RU")}
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-600" />
-              <div>
-                <p className="text-sm font-medium">Контакты</p>
-                <p className="text-2xl font-bold">
-                  {patient.contacts?.length || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Stethoscope className="h-4 w-4 text-green-600" />
-              <div>
-                <p className="text-sm font-medium">Назначенные врачи</p>
-                <p className="text-2xl font-bold">
-                  {patient.doctors?.filter(d => d.isActive).length || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-purple-600" />
-              <div>
-                <p className="text-sm font-medium">Возраст</p>
-                <p className="text-2xl font-bold">{age}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-4 w-4 text-red-600" />
-              <div>
-                <p className="text-sm font-medium">Статус</p>
-                <p className="text-sm font-bold">{statusDisplay}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Обзор</TabsTrigger>
-          <TabsTrigger value="profile">Профиль</TabsTrigger>
-          <TabsTrigger value="appointments">Приемы</TabsTrigger>
-          <TabsTrigger value="history">Медицинская история</TabsTrigger>
+        <TabsList
+          variant="underline"
+          className="-mx-6 mb-6"
+          contentClassName="px-4"
+        >
+          <TabsTrigger variant="underline" value="overview">
+            Обзор
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="profile">
+            Профиль
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="visits">
+            Визиты
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="appointments">
+            Записи
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="history">
+            История
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -282,6 +197,10 @@ export default function PatientDetailPage({
 
         <TabsContent value="profile" className="space-y-6">
           <PatientProfile patient={patient} />
+        </TabsContent>
+
+        <TabsContent value="visits" className="space-y-6">
+          <PatientVisits patientId={patient.id} />
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-6">

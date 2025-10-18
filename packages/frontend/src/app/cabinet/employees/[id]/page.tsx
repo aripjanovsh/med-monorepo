@@ -76,12 +76,6 @@ export default function EmployeeDetailPage({
     );
   }
 
-  const age = new Date().getFullYear() - new Date("2000-01-01").getFullYear();
-
-  const yearsOfService = employee.hireDate
-    ? new Date().getFullYear() - new Date(employee.hireDate).getFullYear()
-    : null;
-
   return (
     <div className="space-y-6">
       <LayoutHeader backHref="/cabinet/employees" backTitle="Сотрудники" />

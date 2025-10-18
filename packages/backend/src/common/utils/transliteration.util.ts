@@ -53,7 +53,9 @@ export function transliterateToLatinLower(input: string): string {
   return out.replace(/\s+/g, " ").trim();
 }
 
-export function buildSearchTokens(values: Array<string | undefined | null>): string {
+export function buildSearchTokens(
+  values: Array<string | undefined | null>,
+): string {
   const tokens: string[] = [];
   for (const v of values) {
     const s = (v ?? "").toString().trim();

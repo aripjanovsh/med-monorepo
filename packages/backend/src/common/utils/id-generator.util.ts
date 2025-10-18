@@ -1,17 +1,17 @@
-import { customAlphabet } from 'nanoid';
+import { customAlphabet } from "nanoid";
 
 /**
  * Utility for generating unique memorable IDs
- * 
+ *
  * Format: PREFIX-XXXX-YYYY
  * Example: PAT-A8K4-7M2N, EMP-B9P3-5R8T
- * 
+ *
  * Uses custom alphabet without confusing characters (0,O,I,1,l)
  * Total possible combinations: 32^8 = ~1.2 trillion
  */
 
 // Custom alphabet without confusing characters: 0,O,I,1,l
-const ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+const ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 // Create nanoid generator with custom alphabet
 const generateSegment = customAlphabet(ALPHABET, 4);

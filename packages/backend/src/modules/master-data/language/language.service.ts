@@ -20,7 +20,7 @@ export class LanguageService {
    * Создать новый язык
    */
   async create(
-    createLanguageDto: CreateLanguageDto
+    createLanguageDto: CreateLanguageDto,
   ): Promise<LanguageResponseDto> {
     try {
       const language = await this.prisma.language.create({
@@ -34,7 +34,7 @@ export class LanguageService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Язык с таким названием или кодом уже существует"
+            "Язык с таким названием или кодом уже существует",
           );
         }
       }
@@ -46,7 +46,7 @@ export class LanguageService {
    * Получить все языки с фильтрацией и пагинацией
    */
   async findAll(
-    findAllDto: FindAllLanguagesDto
+    findAllDto: FindAllLanguagesDto,
   ): Promise<PaginatedResponseDto<LanguageResponseDto>> {
     const { search, isActive, page = 1, limit = 10 } = findAllDto;
     const skip = (page - 1) * limit;
@@ -104,7 +104,7 @@ export class LanguageService {
    */
   async update(
     id: string,
-    updateLanguageDto: UpdateLanguageDto
+    updateLanguageDto: UpdateLanguageDto,
   ): Promise<LanguageResponseDto> {
     await this.findOne(id);
 
@@ -119,7 +119,7 @@ export class LanguageService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Язык с таким названием или кодом уже существует"
+            "Язык с таким названием или кодом уже существует",
           );
         }
       }

@@ -20,7 +20,7 @@ export class ServiceTypeService {
    * Создать новый тип услуги
    */
   async create(
-    createServiceTypeDto: CreateServiceTypeDto
+    createServiceTypeDto: CreateServiceTypeDto,
   ): Promise<ServiceTypeResponseDto> {
     try {
       const serviceType = await this.prisma.serviceType.create({
@@ -36,12 +36,12 @@ export class ServiceTypeService {
           const target = error.meta?.target as string[];
           if (target?.includes("name")) {
             throw new ConflictException(
-              "Тип услуги с таким названием уже существует в организации"
+              "Тип услуги с таким названием уже существует в организации",
             );
           }
           if (target?.includes("code")) {
             throw new ConflictException(
-              "Тип услуги с таким кодом уже существует в организации"
+              "Тип услуги с таким кодом уже существует в организации",
             );
           }
         }
@@ -54,7 +54,7 @@ export class ServiceTypeService {
    * Получить все типы услуг с фильтрацией и пагинацией
    */
   async findAll(
-    findAllDto: FindAllServiceTypesDto
+    findAllDto: FindAllServiceTypesDto,
   ): Promise<PaginatedResponseDto<ServiceTypeResponseDto>> {
     const {
       organizationId,
@@ -118,7 +118,7 @@ export class ServiceTypeService {
    */
   async update(
     id: string,
-    updateServiceTypeDto: UpdateServiceTypeDto
+    updateServiceTypeDto: UpdateServiceTypeDto,
   ): Promise<ServiceTypeResponseDto> {
     await this.findOne(id);
 
@@ -135,12 +135,12 @@ export class ServiceTypeService {
           const target = error.meta?.target as string[];
           if (target?.includes("name")) {
             throw new ConflictException(
-              "Тип услуги с таким названием уже существует в организации"
+              "Тип услуги с таким названием уже существует в организации",
             );
           }
           if (target?.includes("code")) {
             throw new ConflictException(
-              "Тип услуги с таким кодом уже существует в организации"
+              "Тип услуги с таким кодом уже существует в организации",
             );
           }
         }

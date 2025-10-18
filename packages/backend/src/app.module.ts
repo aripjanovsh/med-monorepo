@@ -15,6 +15,9 @@ import { PatientModule } from "./modules/patient/patient.module";
 import { RoleModule } from "./modules/role/role.module";
 import { MasterDataModule } from "./modules/master-data/master-data.module";
 import { ProtocolTemplateModule } from "./modules/protocol-template/protocol-template.module";
+import { VisitModule } from "./modules/visit/visit.module";
+import { PrescriptionModule } from "./modules/prescription/prescription.module";
+import { LabOrderModule } from "./modules/lab-order/lab-order.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -35,6 +38,9 @@ import { RolesGuard } from "./common/guards/roles.guard";
     RoleModule,
     MasterDataModule,
     ProtocolTemplateModule,
+    VisitModule,
+    PrescriptionModule,
+    LabOrderModule,
   ],
   controllers: [AppController],
   providers: [

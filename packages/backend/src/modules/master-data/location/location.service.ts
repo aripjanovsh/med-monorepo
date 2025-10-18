@@ -43,7 +43,7 @@ export class LocationService {
     const searchField = this.buildSearchField(
       locationData.name,
       locationData.code,
-      parent?.name
+      parent?.name,
     );
 
     const location = await this.prisma.location.create({
@@ -65,7 +65,7 @@ export class LocationService {
   }
 
   async findAll(
-    query: FindAllLocationsDto
+    query: FindAllLocationsDto,
   ): Promise<PaginatedResponseDto<LocationResponseDto>> {
     const {
       search,
@@ -180,7 +180,7 @@ export class LocationService {
   private buildSearchField(
     name: string,
     code?: string,
-    parentName?: string
+    parentName?: string,
   ): string {
     return buildSearchTokens([name, code, parentName]);
   }
@@ -207,7 +207,7 @@ export class LocationService {
       const searchField = this.buildSearchField(
         node?.name ?? "",
         node?.code ?? undefined,
-        parent?.name
+        parent?.name,
       );
       await this.prisma.location.update({
         where: { id },
@@ -256,7 +256,7 @@ export class LocationService {
         });
         if (!parent) {
           throw new BadRequestException(
-            "Parent location not found or inactive"
+            "Parent location not found or inactive",
           );
         }
       }
@@ -271,7 +271,7 @@ export class LocationService {
         const isDescendant = await this.isDescendant(id, parentId);
         if (isDescendant) {
           throw new BadRequestException(
-            "Cannot set parent: would create circular reference"
+            "Cannot set parent: would create circular reference",
           );
         }
       }
@@ -293,7 +293,7 @@ export class LocationService {
     const searchField = this.buildSearchField(
       locationData.name ?? existingLocation.name,
       locationData.code ?? existingLocation.code ?? undefined,
-      parent?.name
+      parent?.name,
     );
 
     const updated = await this.prisma.location.update({
@@ -332,7 +332,7 @@ export class LocationService {
     const hasActiveChildren = location.children && location.children.length > 0;
     if (hasActiveChildren) {
       throw new BadRequestException(
-        "Cannot delete location that has active child locations"
+        "Cannot delete location that has active child locations",
       );
     }
 
@@ -372,10 +372,10 @@ export class LocationService {
 
   private buildLocationTree(
     locations: any[],
-    parentId: string | null = null
+    parentId: string | null = null,
   ): any[] {
     const children = locations.filter(
-      (location) => location.parentId === parentId
+      (location) => location.parentId === parentId,
     );
 
     return children.map((location) => ({
@@ -386,13 +386,13 @@ export class LocationService {
 
   private async validateLocationHierarchy(
     type: LocationType,
-    parentId: string | null
+    parentId: string | null,
   ) {
     if (!parentId) {
       // Only COUNTRY type can be root (no parent)
       if (type !== LocationType.COUNTRY) {
         throw new BadRequestException(
-          "Only countries can be root locations (no parent)"
+          "Only countries can be root locations (no parent)",
         );
       }
       return;
@@ -416,14 +416,14 @@ export class LocationService {
     const allowedParentTypes = validHierarchies[type];
     if (!allowedParentTypes || !allowedParentTypes.includes(parent.type)) {
       throw new BadRequestException(
-        `Invalid hierarchy: ${type} cannot be child of ${parent.type}`
+        `Invalid hierarchy: ${type} cannot be child of ${parent.type}`,
       );
     }
   }
 
   private async isDescendant(
     ancestorId: string,
-    locationId: string
+    locationId: string,
   ): Promise<boolean> {
     const location = await this.prisma.location.findUnique({
       where: { id: locationId },

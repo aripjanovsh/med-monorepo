@@ -30,7 +30,8 @@ export class CreateProtocolTemplateDto {
   @Expose()
   @ApiProperty({
     description: "Protocol content in JSON format",
-    example: '{"type":"root","children":[{"type":"paragraph","children":[{"type":"text","text":"Sample protocol"}]}]}',
+    example:
+      '{"type":"root","children":[{"type":"paragraph","children":[{"type":"text","text":"Sample protocol"}]}]}',
   })
   @IsString()
   @IsNotEmpty()
