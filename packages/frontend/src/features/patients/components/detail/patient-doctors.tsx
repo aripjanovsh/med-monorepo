@@ -1,13 +1,12 @@
 "use client";
 
-import { EmployeeResponseDto } from "@/features/employees/employee.dto";
+import { PatientResponseDto } from "@/features/patients/patient.dto";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calendar, ExternalLink } from "lucide-react";
-import { useGetPatientsQuery } from "@/features/patients";
-import type { PatientResponseDto } from "@/features/patients/patient.dto";
-import { calculatePatientAge, getPatientPrimaryPhone } from "@/features/patients/patient.model";
+import { Users, Stethoscope, ExternalLink, Calendar } from "lucide-react";
+import { useGetEmployeesQuery } from "@/features/employees";
+import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
 import Link from "next/link";
 import {
   Table,
@@ -18,17 +17,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface EmployeePatientsProps {
-  employee: EmployeeResponseDto;
+interface PatientDoctorsProps {
+  patient: PatientResponseDto;
 }
 
-export function EmployeePatients({ employee }: EmployeePatientsProps) {
-  const { data, isLoading } = useGetPatientsQuery(
-    { doctorId: employee.id, limit: 100 },
-    { skip: !employee.id }
+export function PatientDoctors({ patient }: PatientDoctorsProps) {
+  const { data, isLoading } = useGetEmployeesQuery(
+    { patientId: patient.id, limit: 100 },
+    { skip: !patient.id }
   );
   
-  const assignedPatients = data?.data || [];
+  const doctors = data?.data || [];
   const total = data?.meta?.total || 0;
 
   if (isLoading) {
@@ -37,7 +36,7 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Загрузка пациентов...
+            Загрузка врачей...
           </p>
         </div>
       </div>
@@ -46,14 +45,14 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Patient Stats */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-600" />
+              <Stethoscope className="h-4 w-4 text-blue-600" />
               <div>
-                <p className="text-sm font-medium">Всего пациентов</p>
+                <p className="text-sm font-medium">Всего врачей</p>
                 <p className="text-2xl font-bold">{total}</p>
               </div>
             </div>
@@ -63,11 +62,11 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-purple-600" />
+              <Calendar className="h-4 w-4 text-green-600" />
               <div>
-                <p className="text-sm font-medium">С последним визитом</p>
+                <p className="text-sm font-medium">Активные</p>
                 <p className="text-2xl font-bold">
-                  {assignedPatients.filter((p: PatientResponseDto) => p.lastVisitedAt).length}
+                  {doctors.filter((d: EmployeeResponseDto) => d.status === "ACTIVE").length}
                 </p>
               </div>
             </div>
@@ -75,81 +74,68 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
         </Card>
       </div>
 
-      {/* Patients Table */}
+      {/* Doctors Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Users className="mr-2 h-5 w-5" />
-            Пациенты врача
+            <Stethoscope className="mr-2 h-5 w-5" />
+            Врачи пациента
           </CardTitle>
           <CardDescription>
-            Закрепленные пациенты ({total})
+            Закрепленные врачи ({total})
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {assignedPatients.length > 0 ? (
+          {doctors.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Пациент</TableHead>
-                  <TableHead>Возраст/Пол</TableHead>
+                  <TableHead>Врач</TableHead>
+                  <TableHead>Должность</TableHead>
                   <TableHead>Телефон</TableHead>
-                  <TableHead>Последний визит</TableHead>
                   <TableHead>Статус</TableHead>
                   <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assignedPatients.map((patient: PatientResponseDto) => {
-                  const fullName = `${patient.firstName} ${patient.lastName}`;
-                  const age = calculatePatientAge(patient.dateOfBirth);
-                  const phone = getPatientPrimaryPhone(patient);
+                {doctors.map((doctor: EmployeeResponseDto) => {
+                  const fullName = `${doctor.firstName} ${doctor.lastName}`;
                   
                   return (
-                    <TableRow key={patient.id}>
+                    <TableRow key={doctor.id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback>
-                              {patient.firstName[0]}{patient.lastName[0]}
+                              {doctor.firstName[0]}{doctor.lastName[0]}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium">{fullName}</div>
-                            {patient.patientId && (
+                            {doctor.employeeId && (
                               <div className="text-sm text-muted-foreground">
-                                #{patient.patientId}
+                                #{doctor.employeeId}
                               </div>
                             )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {age} лет / {patient.gender === "MALE" ? "М" : "Ж"}
+                        {doctor.title?.name || "Не указано"}
                       </TableCell>
                       <TableCell>
-                        {phone || "Не указан"}
-                      </TableCell>
-                      <TableCell>
-                        {patient.lastVisitedAt ? (
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {new Date(patient.lastVisitedAt).toLocaleDateString("ru-RU")}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">Не посещал</span>
-                        )}
+                        {doctor.phone || doctor.workPhone || "Не указан"}
                       </TableCell>
                       <TableCell>
                         <Badge 
-                          variant={patient.status === "ACTIVE" ? "default" : "secondary"}
+                          variant={doctor.status === "ACTIVE" ? "default" : "secondary"}
                         >
-                          {patient.status === "ACTIVE" ? "Активен" : "Неактивен"}
+                          {doctor.status === "ACTIVE" ? "Активен" : "Неактивен"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <Link
-                          href={`/cabinet/patients/${patient.id}`}
+                          href={`/cabinet/employees/${doctor.id}`}
                           className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
                         >
                           Открыть
@@ -163,10 +149,10 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
             </Table>
           ) : (
             <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Нет пациентов</h3>
+              <Stethoscope className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Нет врачей</h3>
               <p className="text-sm text-gray-500">
-                У этого врача пока нет закрепленных пациентов.
+                У этого пациента пока нет закрепленных врачей.
               </p>
             </div>
           )}

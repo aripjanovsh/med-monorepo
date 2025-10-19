@@ -75,6 +75,38 @@ export class VisitService {
         }
       }
 
+      // Create or update patient-doctor relationship
+      const existingRelation = await tx.patientDoctor.findUnique({
+        where: {
+          patientId_employeeId: {
+            patientId: visitData.patientId,
+            employeeId: visitData.employeeId,
+          },
+        },
+      });
+
+      if (!existingRelation) {
+        await tx.patientDoctor.create({
+          data: {
+            patientId: visitData.patientId,
+            employeeId: visitData.employeeId,
+            isActive: true,
+          },
+        });
+      } else if (!existingRelation.isActive) {
+        await tx.patientDoctor.update({
+          where: {
+            patientId_employeeId: {
+              patientId: visitData.patientId,
+              employeeId: visitData.employeeId,
+            },
+          },
+          data: {
+            isActive: true,
+          },
+        });
+      }
+
       // Create visit
       const created = await tx.visit.create({
         data: {
@@ -84,6 +116,12 @@ export class VisitService {
           visitDate: visitData.visitDate || new Date(),
           status: VisitStatus.IN_PROGRESS,
         },
+      });
+
+      // Update patient's lastVisitedAt
+      await tx.patient.update({
+        where: { id: visitData.patientId },
+        data: { lastVisitedAt: created.visitDate },
       });
 
       // Fetch with relations

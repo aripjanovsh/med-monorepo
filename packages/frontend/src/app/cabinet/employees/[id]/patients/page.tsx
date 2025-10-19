@@ -1,19 +1,18 @@
 "use client";
 
 import { use } from "react";
-import { useGetPatientQuery } from "@/features/patients";
-import { PatientOverview } from "@/features/patients/components/detail/patient-overview";
+import { useGetEmployeeQuery } from "@/features/employees";
+import { EmployeePatients } from "@/features/employees/components/detail/employee-patients";
 
-export default function PatientDetailPage({
+export default function EmployeePatientsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { data: patient, isLoading } = useGetPatientQuery(
-    { id: id as string },
-    { skip: !id }
-  );
+  const { data: employee, isLoading } = useGetEmployeeQuery(id as string, {
+    skip: !id,
+  });
 
   if (isLoading) {
     return (
@@ -21,20 +20,20 @@ export default function PatientDetailPage({
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Загрузка данных пациента...
+            Загрузка данных сотрудника...
           </p>
         </div>
       </div>
     );
   }
 
-  if (!patient) {
+  if (!employee) {
     return null;
   }
 
   return (
     <div className="space-y-6">
-      <PatientOverview patient={patient} />
+      <EmployeePatients employee={employee} />
     </div>
   );
 }

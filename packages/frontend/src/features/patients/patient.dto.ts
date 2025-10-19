@@ -194,6 +194,7 @@ export interface PatientsQueryParamsDto extends QueryParamsDto {
   status?: PatientStatusDto;
   gender?: GenderDto;
   organizationId?: string;
+  doctorId?: string;
 }
 
 // Patient By ID Query DTO

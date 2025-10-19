@@ -59,4 +59,13 @@ export class FindAllPatientDto extends FindAllQueryDto {
   @IsOptional()
   @IsEnum(["asc", "desc"])
   sortOrder?: "asc" | "desc";
+
+  @Expose()
+  @ApiProperty({
+    description: "Filter by doctor/employee ID",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  doctorId?: string;
 }

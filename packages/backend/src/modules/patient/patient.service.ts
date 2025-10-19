@@ -114,6 +114,7 @@ export class PatientService {
       status,
       gender,
       organizationId,
+      doctorId,
     } = query;
     const skip = 0; //(page - 1) * limit;
 
@@ -130,6 +131,15 @@ export class PatientService {
 
     if (gender) {
       where.gender = gender as any;
+    }
+
+    if (doctorId) {
+      where.doctors = {
+        some: {
+          employeeId: doctorId,
+          isActive: true,
+        },
+      };
     }
 
     if (search) {

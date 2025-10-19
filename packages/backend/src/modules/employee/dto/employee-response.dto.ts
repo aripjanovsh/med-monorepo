@@ -151,4 +151,16 @@ export class EmployeeResponseDto extends BaseResponseDto {
   @Expose()
   @Type(() => ServiceTypeResponseDto)
   serviceTypes?: ServiceTypeResponseDto[];
+
+  @Expose()
+  patients?: {
+    id: string;
+    patientId?: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    gender: string;
+    lastVisitedAt?: Date;
+    assignedAt: Date;
+  }[];
 }

@@ -316,4 +316,20 @@ export class PatientResponseDto {
   })
   @Type(() => PatientDoctorResponseDto)
   doctors: PatientDoctorResponseDto[];
+
+  @Expose()
+  @ApiProperty({
+    description: "Last visit",
+    required: false,
+  })
+  lastVisit?: {
+    id: string;
+    visitDate: Date;
+    status: string;
+    employee: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
 }

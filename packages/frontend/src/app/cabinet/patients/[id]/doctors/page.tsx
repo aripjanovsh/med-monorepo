@@ -2,9 +2,9 @@
 
 import { use } from "react";
 import { useGetPatientQuery } from "@/features/patients";
-import { PatientOverview } from "@/features/patients/components/detail/patient-overview";
+import { PatientDoctors } from "@/features/patients/components/detail/patient-doctors";
 
-export default function PatientDetailPage({
+export default function PatientDoctorsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -34,7 +34,7 @@ export default function PatientDetailPage({
 
   return (
     <div className="space-y-6">
-      <PatientOverview patient={patient} />
+      <PatientDoctors patient={patient} />
     </div>
   );
 }

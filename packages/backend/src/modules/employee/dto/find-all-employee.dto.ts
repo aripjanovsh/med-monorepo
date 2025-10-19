@@ -18,4 +18,11 @@ export class FindAllEmployeeDto extends FindAllQueryDto {
   @IsOptional()
   @IsEnum(EmployeeStatus)
   status?: EmployeeStatus;
+
+  @ApiPropertyOptional({
+    description: "Filter by patient ID",
+  })
+  @IsOptional()
+  @IsUUID()
+  patientId?: string;
 }

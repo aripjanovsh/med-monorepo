@@ -141,6 +141,7 @@ export interface UpdateEmployeeStatusRequestDto {
 // Find All Employee Query DTO (matches FindAllEmployeeDto from backend)
 export interface EmployeesQueryParamsDto extends QueryParamsDto {
   status?: EmployeeStatusDto;
+  patientId?: string;
 }
 
 // API Response DTOs using PaginatedResponseDto

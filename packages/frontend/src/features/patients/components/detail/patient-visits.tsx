@@ -34,7 +34,7 @@ type PatientVisitsProps = {
 export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   const { data, isLoading, refetch } = useGetVisitsQuery({
     patientId,
     page: 1,

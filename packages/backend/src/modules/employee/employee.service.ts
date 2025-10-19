@@ -101,8 +101,16 @@ export class EmployeeService {
   async findAll(
     query: FindAllEmployeeDto,
   ): Promise<PaginatedResponseDto<EmployeeResponseDto>> {
-    const { page, limit, search, sortBy, sortOrder, status, organizationId } =
-      query;
+    const {
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      status,
+      organizationId,
+      patientId,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.EmployeeWhereInput = {};
@@ -114,6 +122,15 @@ export class EmployeeService {
 
     if (status) {
       where.status = status;
+    }
+
+    if (patientId) {
+      where.patientDoctors = {
+        some: {
+          patientId: patientId,
+          isActive: true,
+        },
+      };
     }
 
     if (search) {
