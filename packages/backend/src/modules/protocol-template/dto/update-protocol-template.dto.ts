@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsString, IsOptional, IsBoolean } from "class-validator";
+import { IsString, IsOptional, IsBoolean, IsIn } from "class-validator";
 import { Exclude, Expose } from "class-transformer";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
 
@@ -36,6 +36,16 @@ export class UpdateProtocolTemplateDto {
   @IsOptional()
   @IsString()
   content?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Template type",
+    enum: ["richtext", "formbuilder"],
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(["richtext", "formbuilder"])
+  templateType?: string;
 
   @Expose()
   @ApiPropertyOptional({

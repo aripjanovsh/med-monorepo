@@ -9,6 +9,10 @@ export const protocolTemplateFormSchema = yup.object({
     .string()
     .min(10, "Описание должно содержать минимум 10 символов")
     .required("Описание протокола обязательно"),
+  templateType: yup
+    .string()
+    .oneOf(["richtext", "formbuilder"], "Тип шаблона должен быть richtext или formbuilder")
+    .required("Тип шаблона обязателен"),
   content: yup
     .string()
     .test("is-valid-json", "Содержимое должно быть валидным JSON", (value) => {
@@ -27,6 +31,10 @@ export const protocolTemplateFormSchema = yup.object({
 export const createProtocolTemplateRequestSchema = yup.object({
   name: yup.string().required("Название протокола обязательно"),
   description: yup.string().required("Описание протокола обязательно"),
+  templateType: yup
+    .string()
+    .oneOf(["richtext", "formbuilder"])
+    .required("Тип шаблона обязателен"),
   content: yup
     .string()
     .test("is-valid-json", "Содержимое должно быть валидным JSON", (value) => {

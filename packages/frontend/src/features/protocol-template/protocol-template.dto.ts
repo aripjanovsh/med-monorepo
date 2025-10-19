@@ -1,10 +1,12 @@
 import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
+import type { TemplateType } from "./types/form-builder.types";
 
 export interface ProtocolTemplateResponseDto {
   id: string;
   name: string;
   description: string;
   content: string;
+  templateType: TemplateType;
   isActive: boolean;
   organizationId: string;
   organization?: {
@@ -21,12 +23,14 @@ export interface CreateProtocolTemplateRequestDto {
   name: string;
   description: string;
   content: string;
+  templateType: TemplateType;
 }
 
 export interface UpdateProtocolTemplateRequestDto {
   name?: string;
   description?: string;
   content?: string;
+  templateType?: TemplateType;
   isActive?: boolean;
 }
 

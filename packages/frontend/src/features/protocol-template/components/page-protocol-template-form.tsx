@@ -51,12 +51,14 @@ export const PageProtocolTemplateForm = ({
         name: data.name,
         description: data.description,
         content: data.content,
+        templateType: data.templateType,
       }).unwrap();
     } else if (protocolTemplateId) {
       const updateData: UpdateProtocolTemplateRequestDto = {
         name: data.name,
         description: data.description,
         content: data.content,
+        templateType: data.templateType,
         isActive: data.isActive,
       };
 
@@ -95,6 +97,7 @@ export const PageProtocolTemplateForm = ({
           name: protocolTemplate.name,
           description: protocolTemplate.description,
           content: protocolTemplate.content,
+          templateType: protocolTemplate.templateType,
           isActive: protocolTemplate.isActive,
         }
       : undefined;

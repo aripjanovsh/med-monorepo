@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsNotEmpty } from "class-validator";
+import { IsString, IsNotEmpty, IsIn } from "class-validator";
 import { Exclude, Expose } from "class-transformer";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
 
@@ -36,4 +36,15 @@ export class CreateProtocolTemplateDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Template type",
+    enum: ["richtext", "formbuilder"],
+    example: "richtext",
+  })
+  @IsString()
+  @IsIn(["richtext", "formbuilder"])
+  @IsNotEmpty()
+  templateType: string;
 }

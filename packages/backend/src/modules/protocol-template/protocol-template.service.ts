@@ -32,6 +32,7 @@ export class ProtocolTemplateService {
         name: createDto.name,
         description: createDto.description,
         content: createDto.content,
+        templateType: createDto.templateType,
         organizationId: createDto.organizationId,
         createdBy: userId,
       },

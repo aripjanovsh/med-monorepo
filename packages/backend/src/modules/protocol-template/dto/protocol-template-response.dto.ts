@@ -14,6 +14,9 @@ export class ProtocolTemplateResponseDto extends BaseResponseDto {
   content: string;
 
   @Expose()
+  templateType: string;
+
+  @Expose()
   isActive: boolean;
 
   @Expose()
