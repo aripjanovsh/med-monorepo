@@ -44,7 +44,7 @@ export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
   const visits = data?.data || [];
 
   const handleViewVisit = (visitId: string) => {
-    router.push(`/cabinet/patients/${patientId}/visit/${visitId}`);
+    router.push(`/cabinet/patients/${patientId}/visits/${visitId}`);
   };
 
   const handleVisitCreated = () => {

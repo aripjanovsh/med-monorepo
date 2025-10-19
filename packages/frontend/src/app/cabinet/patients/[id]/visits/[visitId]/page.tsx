@@ -2,17 +2,9 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Edit,
-  Calendar,
-  User,
-  Stethoscope,
-  FileText,
-} from "lucide-react";
+import { ArrowLeft, User, Stethoscope, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -26,7 +18,6 @@ import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge
 import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { LabOrderList } from "@/features/lab-order/components/lab-order-list";
-import { LayoutHeader } from "@/components/layouts/cabinet";
 
 type PageProps = {
   params: Promise<{ id: string; visitId: string }>;
@@ -74,10 +65,6 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <LayoutHeader
-        backHref={`/cabinet/patients/${patientId}`}
-        backTitle={getPatientFullName(visit)}
-      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
