@@ -33,7 +33,10 @@ import { formatProtocolContent } from "../protocol-template.model";
 import type { TemplateType } from "../types/form-builder.types";
 import { FormBuilderEditor } from "./form-builder/form-builder-editor";
 import { TemplatePreview } from "./form-builder/template-preview";
-import { deserializeFormBuilderContent, createEmptyFormBuilderContent } from "../utils/form-builder-helpers";
+import {
+  deserializeFormBuilderContent,
+  createEmptyFormBuilderContent,
+} from "../utils/form-builder-helpers";
 
 const ProtocolEditor = dynamic(
   () => import("@/components/editor/ProtocolEditor"),
@@ -66,9 +69,8 @@ export const ProtocolTemplateForm = ({
 }: ProtocolTemplateFormProps) => {
   const [activeTab, setActiveTab] = useState("editor");
   const [jsonContent, setJsonContent] = useState(initialData?.content ?? "");
-  const [selectedTemplateType, setSelectedTemplateType] = useState<TemplateType>(
-    initialData?.templateType ?? "richtext"
-  );
+  const [selectedTemplateType, setSelectedTemplateType] =
+    useState<TemplateType>(initialData?.templateType ?? "richtext");
 
   const form = useForm<ProtocolTemplateFormData>({
     resolver: yupResolver(protocolTemplateFormSchema),
@@ -159,7 +161,9 @@ export const ProtocolTemplateForm = ({
 
   const handleTemplateTypeChange = (newType: TemplateType) => {
     if (form.watch("content") && form.watch("content").trim()) {
-      if (!confirm("Смена типа шаблона очистит текущее содержимое. Продолжить?")) {
+      if (
+        !confirm("Смена типа шаблона очистит текущее содержимое. Продолжить?")
+      ) {
         return;
       }
     }
@@ -217,17 +221,19 @@ export const ProtocolTemplateForm = ({
           <Label htmlFor="template-type">Тип шаблона *</Label>
           <Select
             value={selectedTemplateType}
-            onValueChange={(value) => handleTemplateTypeChange(value as TemplateType)}
+            onValueChange={(value) =>
+              handleTemplateTypeChange(value as TemplateType)
+            }
             disabled={mode === "edit"}
           >
-            <SelectTrigger id="template-type">
+            <SelectTrigger id="template-type" className="h-auto!">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="richtext">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <div>
+                  <FileText className="size-6" />
+                  <div className="flex flex-col items-left text-left">
                     <div className="font-medium">Rich Text Editor</div>
                     <div className="text-xs text-muted-foreground">
                       Свободный текст с форматированием
@@ -237,8 +243,8 @@ export const ProtocolTemplateForm = ({
               </SelectItem>
               <SelectItem value="formbuilder">
                 <div className="flex items-center gap-2">
-                  <Blocks className="h-4 w-4" />
-                  <div>
+                  <Blocks className="size-6" />
+                  <div className="flex flex-col items-left text-left">
                     <div className="font-medium">Form Builder</div>
                     <div className="text-xs text-muted-foreground">
                       Конструктор форм с секциями
@@ -276,7 +282,7 @@ export const ProtocolTemplateForm = ({
                 JSON
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="editor" className="mt-4">
               {selectedTemplateType === "richtext" ? (
                 <ProtocolEditor

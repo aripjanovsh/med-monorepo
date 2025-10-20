@@ -187,6 +187,19 @@ export const FormBuilderEditor = ({
                     canMoveDown={index < content.sections.length - 1}
                   />
                 ))}
+                
+                {/* Add Section button at the end */}
+                <div className="flex justify-center pt-2">
+                  <Button 
+                    onClick={handleAddSection} 
+                    type="button"
+                    variant="outline"
+                    className="w-full max-w-md"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Добавить секцию
+                  </Button>
+                </div>
               </div>
             </SortableContext>
           </DndContext>

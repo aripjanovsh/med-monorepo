@@ -1,3 +1,5 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,15 +22,22 @@ type FieldPreviewProps = {
   field: FormField;
   onEdit: () => void;
   onDelete: () => void;
-  isDragging?: boolean;
 };
 
 export const FieldPreview = ({
   field,
   onEdit,
   onDelete,
-  isDragging = false,
 }: FieldPreviewProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.id });
+
   const renderFieldInput = () => {
     switch (field.type) {
       case "text":
@@ -126,12 +135,21 @@ export const FieldPreview = ({
         );
 
       default:
-        return <div className="text-muted-foreground">Неизвестный тип поля</div>;
+        return (
+          <div className="text-muted-foreground">Неизвестный тип поля</div>
+        );
     }
+  };
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
   };
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className={cn(
         "group relative rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-sm",
         isDragging && "opacity-50",
@@ -139,7 +157,11 @@ export const FieldPreview = ({
       )}
     >
       {/* Drag Handle */}
-      <div className="absolute left-2 top-2 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+      <div
+        className="absolute left-2 top-2 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+        {...attributes}
+        {...listeners}
+      >
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
@@ -166,7 +188,7 @@ export const FieldPreview = ({
       </div>
 
       {/* Field Content */}
-      <div className="space-y-2 pr-16 pl-6">
+      <div className="space-y-4 pr-16 pl-6">
         <div className="flex items-center gap-2">
           <Label className="font-medium">
             {field.label}

@@ -16,6 +16,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -52,7 +53,8 @@ export const FieldEditor = ({
     const updatedField = {
       ...editedField,
       options:
-        ["select", "radio", "tags"].includes(editedField.type) && options.length > 0
+        ["select", "radio", "tags"].includes(editedField.type) &&
+        options.length > 0
           ? options
           : undefined,
     };
@@ -102,12 +104,10 @@ export const FieldEditor = ({
       <SheetContent className="overflow-y-auto sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Редактирование поля</SheetTitle>
-          <SheetDescription>
-            Настройте параметры поля формы
-          </SheetDescription>
+          <SheetDescription>Настройте параметры поля формы</SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-6 py-6">
+        <div className="space-y-6 p-6">
           {/* Label */}
           <div className="space-y-2">
             <Label htmlFor="field-label">Название поля *</Label>
@@ -152,7 +152,10 @@ export const FieldEditor = ({
                 id="field-placeholder"
                 value={editedField.placeholder ?? ""}
                 onChange={(e) =>
-                  setEditedField({ ...editedField, placeholder: e.target.value })
+                  setEditedField({
+                    ...editedField,
+                    placeholder: e.target.value,
+                  })
                 }
                 placeholder="Введите подсказку"
               />
@@ -312,14 +315,14 @@ export const FieldEditor = ({
           </div>
         </div>
 
-        <div className="flex gap-2 pt-4 border-t">
+        <SheetFooter>
           <Button variant="outline" onClick={onClose} className="flex-1">
             Отмена
           </Button>
           <Button onClick={handleSave} className="flex-1">
             Сохранить
           </Button>
-        </div>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
