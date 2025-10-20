@@ -13,11 +13,13 @@ import { toast } from "sonner";
 import {
   useGetVisitQuery,
   useUpdateVisitStatusMutation,
+  VisitProtocol,
 } from "@/features/visit";
 import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge";
 import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { LabOrderList } from "@/features/lab-order/components/lab-order-list";
+import type { FilledFormData } from "@/features/protocol-template";
 
 type PageProps = {
   params: Promise<{ id: string; visitId: string }>;
@@ -148,6 +150,18 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       )}
+
+      <Separator />
+
+      {/* Protocol */}
+      <VisitProtocol
+        visitId={visit.id}
+        initialProtocolId={visit.protocol?.id}
+        initialProtocolData={
+          visit.protocolData ? (JSON.parse(visit.protocolData) as FilledFormData) : {}
+        }
+        status={visit.status}
+      />
 
       <Separator />
 

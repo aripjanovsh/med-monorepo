@@ -230,6 +230,13 @@ export class VisitResponseDto extends BaseResponseDto {
   protocol?: SimpleProtocolTemplateResponseDto;
 
   @Expose()
+  @ApiPropertyOptional({
+    description: "Protocol filled data (JSON string)",
+    example: '{"field1": "value1", "field2": "value2"}',
+  })
+  protocolData?: string;
+
+  @Expose()
   @ApiProperty({
     description: "Medical records",
     type: [SimpleMedicalRecordResponseDto],

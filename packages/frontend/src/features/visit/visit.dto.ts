@@ -74,6 +74,7 @@ export interface VisitResponseDto {
   employee: SimpleEmployeeDto;
   appointment?: SimpleAppointmentDto;
   protocol?: SimpleProtocolTemplateDto;
+  protocolData?: string; // JSON string of FilledFormData
   medicalRecords: SimpleMedicalRecordDto[];
   prescriptions: SimplePrescriptionDto[];
   labOrders: SimpleLabOrderDto[];
@@ -93,6 +94,7 @@ export interface CreateVisitRequestDto {
 
 export interface UpdateVisitRequestDto extends Partial<CreateVisitRequestDto> {
   id: string;
+  protocolData?: string; // JSON string of FilledFormData
 }
 
 export interface UpdateVisitStatusRequestDto {

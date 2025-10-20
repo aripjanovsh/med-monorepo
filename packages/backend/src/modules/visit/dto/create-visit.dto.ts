@@ -61,6 +61,15 @@ export class CreateVisitDto {
 
   @Expose()
   @ApiPropertyOptional({
+    description: "Protocol filled data (JSON string)",
+    example: '{"field1": "value1", "field2": "value2"}',
+  })
+  @IsOptional()
+  @IsString()
+  protocolData?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
     description: "Visit notes",
     example: "Patient came for regular checkup",
   })

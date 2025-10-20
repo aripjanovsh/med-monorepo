@@ -35,15 +35,22 @@ export const FormRenderer = ({
   onChange,
   readonly = false,
 }: FormRendererProps) => {
-  const { control, watch } = useForm<FilledFormData>({
+  const { control, watch, getValues } = useForm<FilledFormData>({
     defaultValues: initialData,
   });
 
   const formData = watch();
 
+  // Используем дебаунс для onChange
   useEffect(() => {
-    onChange?.(formData);
-  }, [formData, onChange]);
+    if (!onChange) return;
+
+    const timeoutId = setTimeout(() => {
+      onChange(formData);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData]); // Убрали onChange из зависимостей
 
   const checkVisibility = (field: FormField): boolean => {
     if (!field.visibleIf) return true;

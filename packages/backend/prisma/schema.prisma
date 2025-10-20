@@ -333,8 +333,9 @@ model Visit {
   employeeId String // doctor (Employee)
   employee   Employee @relation("VisitDoctor", fields: [employeeId], references: [id])
 
-  protocolId String?
-  protocol   ProtocolTemplate? @relation(fields: [protocolId], references: [id])
+  protocolId   String?
+  protocol     ProtocolTemplate? @relation(fields: [protocolId], references: [id])
+  protocolData String? // JSON string of filled protocol data
 
   medicalRecords MedicalRecord[]
   prescriptions  Prescription[]
