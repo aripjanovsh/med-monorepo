@@ -11,8 +11,9 @@ function Input({ className, type, left, right, ...props }: InputProps) {
   return (
     <label
       className={cn(
-        "flex-row gap-3 flex h-9 w-full items-center px-3 rounded-md border border-input bg-background transition-colors focus-within:ring-1 focus-within:ring-ring disabled:opacity-50",
-        className
+        "flex-row gap-3 flex h-9 w-full items-center px-3 rounded-md border border-input bg-background transition-colors focus-within:ring-1 focus-within:ring-ring",
+        className,
+        props.disabled && "opacity-50"
       )}
     >
       {left && (
