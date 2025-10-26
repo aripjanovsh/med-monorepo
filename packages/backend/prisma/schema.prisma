@@ -36,6 +36,7 @@ model Organization {
   titles Title[]
   serviceTypes  ServiceType[]
   protocolTemplates ProtocolTemplate[]
+  analysisTemplates AnalysisTemplate[]
   visits        Visit[] // визиты организации
 
   @@map("organizations")
@@ -754,4 +755,34 @@ model ProtocolTemplate {
   visits Visit[] // визиты, использующие этот шаблон
 
   @@map("protocol_templates")
+}
+
+// Parameter Types
+enum ParameterType {
+  NUMBER
+  TEXT
+  BOOLEAN
+}
+
+// Analysis Templates
+model AnalysisTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  code        String
+  description String?
+  parameters  Json // Array of parameter objects
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([code, organizationId])
+  @@index([organizationId])
+  @@index([name])
+  @@map("analysis_templates")
 }

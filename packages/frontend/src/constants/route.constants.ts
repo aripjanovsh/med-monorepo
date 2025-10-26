@@ -21,7 +21,6 @@ export const ROUTES = {
   EMPLOYEE_EDIT: "/cabinet/employees/[id]/edit",
   EMPLOYEE_CREATE: "/cabinet/employees/create",
   DOCTOR_DASHBOARD: "/cabinet/doctor-dashboard",
-  ANALYSIS_TEMPLATES: "/cabinet/analysis-templates",
   ACCOUNTS: "/cabinet/accounts",
   SALES: "/cabinet/sales",
   PURCHASES: "/cabinet/purchases",
@@ -37,6 +36,12 @@ export const ROUTES = {
   MASTER_DATA_SERVICE_TYPES: "/cabinet/settings/master-data/service-types",
   MASTER_DATA_LANGUAGES: "/cabinet/settings/master-data/languages",
   MASTER_DATA_GEOLOCATION: "/cabinet/settings/master-data/geolocation",
+  
+  // Analysis Templates routes (Settings)
+  ANALYSIS_TEMPLATES: "/cabinet/settings/analysis-templates",
+  ANALYSIS_TEMPLATE_DETAIL: "/cabinet/settings/analysis-templates/[id]",
+  ANALYSIS_TEMPLATE_CREATE: "/cabinet/settings/analysis-templates/create",
+  ANALYSIS_TEMPLATE_EDIT: "/cabinet/settings/analysis-templates/[id]/edit",
 } as const;
 
 // Helper functions for routes with parameters
