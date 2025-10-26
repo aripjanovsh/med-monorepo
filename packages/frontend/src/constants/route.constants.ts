@@ -21,6 +21,11 @@ export const ROUTES = {
   EMPLOYEE_EDIT: "/cabinet/employees/[id]/edit",
   EMPLOYEE_CREATE: "/cabinet/employees/create",
   DOCTOR_DASHBOARD: "/cabinet/doctor-dashboard",
+  
+  // Service Orders routes
+  ORDERS: "/cabinet/orders",
+  ORDER_DETAIL: "/cabinet/orders/[id]",
+  
   ACCOUNTS: "/cabinet/accounts",
   SALES: "/cabinet/sales",
   PURCHASES: "/cabinet/purchases",
@@ -73,6 +78,11 @@ export const getEmployeeDetailRoute = (employeeId: string): string => {
 // Helper function for patient edit route
 export const getPatientEditRoute = (patientId: string): string => {
   return `/cabinet/patients/${patientId}/edit`;
+};
+
+// Helper function for order detail route
+export const getOrderDetailRoute = (orderId: string): string => {
+  return `/cabinet/orders/${orderId}`;
 };
 
 // Type for all possible routes

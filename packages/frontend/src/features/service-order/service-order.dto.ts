@@ -104,6 +104,10 @@ export interface ServiceOrderQueryParamsDto extends QueryParamsDto {
   departmentId?: string;
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
+  serviceType?: string;
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export type ServiceOrdersListResponseDto = PaginatedResponseDto<ServiceOrderResponseDto>;

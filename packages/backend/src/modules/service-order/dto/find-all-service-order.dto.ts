@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsUUID, IsEnum, IsInt, Min } from "class-validator";
+import { IsOptional, IsUUID, IsEnum, IsInt, Min, IsString, IsDateString } from "class-validator";
 import { Type } from "class-transformer";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
 
@@ -57,6 +57,26 @@ export class FindAllServiceOrderDto {
   @IsOptional()
   @IsEnum(PaymentStatus)
   paymentStatus?: PaymentStatus;
+
+  @ApiPropertyOptional({ description: "Service type (LAB, DIAGNOSTIC, PROCEDURE, CONSULTATION)" })
+  @IsOptional()
+  @IsString()
+  serviceType?: string;
+
+  @ApiPropertyOptional({ description: "Search by service name or patient name" })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ description: "Start date for filtering (ISO 8601 format)" })
+  @IsOptional()
+  @IsDateString()
+  dateFrom?: string;
+
+  @ApiPropertyOptional({ description: "End date for filtering (ISO 8601 format)" })
+  @IsOptional()
+  @IsDateString()
+  dateTo?: string;
 
   @ApiPropertyOptional({ description: "Sort by field", default: "createdAt" })
   @IsOptional()

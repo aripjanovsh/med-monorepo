@@ -13,6 +13,7 @@ import {
   FileTextIcon,
   Stethoscope,
   TestTube,
+  ClipboardList,
 } from "lucide-react";
 
 export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
@@ -38,6 +39,11 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         title: "Пациенты",
         url: ROUTES.PATIENTS,
         icon: UserIcon,
+      },
+      {
+        title: "Назначения",
+        url: ROUTES.ORDERS,
+        icon: ClipboardList,
       },
       {
         title: "Treatments",

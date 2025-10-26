@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Prisma, OrderStatus, PaymentStatus } from "@prisma/client";
+import { Prisma, OrderStatus, PaymentStatus, ServiceTypeEnum } from "@prisma/client";
 import { PrismaService } from "@/common/prisma/prisma.service";
 import { CreateServiceOrderDto } from "./dto/create-service-order.dto";
 import { UpdateServiceOrderDto } from "./dto/update-service-order.dto";
@@ -167,6 +167,10 @@ export class ServiceOrderService {
       departmentId,
       status,
       paymentStatus,
+      serviceType,
+      search,
+      dateFrom,
+      dateTo,
     } = query;
 
     const pageNumber = page ?? 1;
@@ -205,6 +209,63 @@ export class ServiceOrderService {
 
     if (paymentStatus) {
       where.paymentStatus = paymentStatus;
+    }
+
+    // Build service filter conditions
+    const serviceConditions: Prisma.ServiceWhereInput = {};
+    if (serviceType) {
+      serviceConditions.type = serviceType as ServiceTypeEnum;
+    }
+
+    // Build search conditions
+    if (search) {
+      const searchConditions: Prisma.ServiceOrderWhereInput[] = [
+        {
+          service: {
+            name: {
+              contains: search,
+              mode: "insensitive" as Prisma.QueryMode,
+            },
+            ...serviceConditions,
+          },
+        },
+        {
+          patient: {
+            firstName: {
+              contains: search,
+              mode: "insensitive" as Prisma.QueryMode,
+            },
+          },
+        },
+        {
+          patient: {
+            lastName: {
+              contains: search,
+              mode: "insensitive" as Prisma.QueryMode,
+            },
+          },
+        },
+      ];
+      
+      if (Object.keys(serviceConditions).length > 0) {
+        where.AND = [
+          { OR: searchConditions },
+        ];
+      } else {
+        where.OR = searchConditions;
+      }
+    } else if (Object.keys(serviceConditions).length > 0) {
+      where.service = serviceConditions;
+    }
+
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) {
+        where.createdAt.gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        where.createdAt.lte = new Date(dateTo);
+      }
     }
 
     const orderBy: Prisma.ServiceOrderOrderByWithRelationInput = sortBy
