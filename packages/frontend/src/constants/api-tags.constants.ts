@@ -37,6 +37,7 @@ export const API_TAG_OPERATIONS_PROTOCOL_TEMPLATES = "ProtocolTemplate" as const
 export const API_TAG_OPERATIONS_VISITS = "Visit" as const;
 export const API_TAG_OPERATIONS_PRESCRIPTIONS = "Prescription" as const;
 export const API_TAG_OPERATIONS_LAB_ORDERS = "LabOrder" as const;
+export const API_TAG_OPERATIONS_SERVICE_ORDERS = "ServiceOrder" as const;
 
 export type ApiTagTypes = 
   | typeof API_TAG_OPERATIONS_TITLES
@@ -56,7 +57,8 @@ export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_PROTOCOL_TEMPLATES
   | typeof API_TAG_OPERATIONS_VISITS
   | typeof API_TAG_OPERATIONS_PRESCRIPTIONS
-  | typeof API_TAG_OPERATIONS_LAB_ORDERS;
+  | typeof API_TAG_OPERATIONS_LAB_ORDERS
+  | typeof API_TAG_OPERATIONS_SERVICE_ORDERS;
 
 // Unified API Tags object for easier access
 export const API_TAGS = {
@@ -78,4 +80,5 @@ export const API_TAGS = {
   VISIT: API_TAG_OPERATIONS_VISITS,
   PRESCRIPTION: API_TAG_OPERATIONS_PRESCRIPTIONS,
   LAB_ORDER: API_TAG_OPERATIONS_LAB_ORDERS,
+  SERVICE_ORDER: API_TAG_OPERATIONS_SERVICE_ORDERS,
 } as const;

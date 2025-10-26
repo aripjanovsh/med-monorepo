@@ -19,6 +19,7 @@ import {
   API_TAG_OPERATIONS_VISITS,
   API_TAG_OPERATIONS_PRESCRIPTIONS,
   API_TAG_OPERATIONS_LAB_ORDERS,
+  API_TAG_OPERATIONS_SERVICE_ORDERS,
 } from "@/constants/api-tags.constants";
 
 const prepareHeaders = (
@@ -60,6 +61,7 @@ export const rootApi = createApi({
     API_TAG_OPERATIONS_VISITS,
     API_TAG_OPERATIONS_PRESCRIPTIONS,
     API_TAG_OPERATIONS_LAB_ORDERS,
+    API_TAG_OPERATIONS_SERVICE_ORDERS,
   ],
   endpoints: () => ({}),
 });

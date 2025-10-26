@@ -44,6 +44,10 @@ class SimpleEmployeeResponseDto {
 
   @Expose()
   @ApiProperty()
+  userId: string;
+
+  @Expose()
+  @ApiProperty()
   employeeId?: string;
 
   @Expose()

@@ -19,6 +19,7 @@ import { AnalysisTemplateModule } from "./modules/analysis-template/analysis-tem
 import { VisitModule } from "./modules/visit/visit.module";
 import { PrescriptionModule } from "./modules/prescription/prescription.module";
 import { LabOrderModule } from "./modules/lab-order/lab-order.module";
+import { ServiceOrderModule } from "./modules/service-order/service-order.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -43,6 +44,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     VisitModule,
     PrescriptionModule,
     LabOrderModule,
+    ServiceOrderModule,
   ],
   controllers: [AppController],
   providers: [

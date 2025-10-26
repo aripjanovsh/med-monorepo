@@ -38,6 +38,7 @@ model Organization {
   protocolTemplates ProtocolTemplate[]
   analysisTemplates AnalysisTemplate[]
   visits        Visit[] // визиты организации
+  serviceOrders ServiceOrder[] // назначения услуг
 
   @@map("organizations")
 }
@@ -88,6 +89,7 @@ model User {
   employee       Employee?
   appointments   Appointment[]
   roleAssignments UserRole_Assignment[]
+  performedOrders ServiceOrder[] @relation("PerformedBy") // выполненные заказы
 
   @@map("users")
 }
@@ -148,6 +150,7 @@ model Patient {
   contacts       PatientContact[]
   doctors        PatientDoctor[] // Many-to-many relation with doctors
   visits         Visit[] // визиты пациента
+  serviceOrders  ServiceOrder[] // назначения пациента
 
   @@unique([patientId, organizationId])
   @@map("patients")
@@ -214,6 +217,7 @@ model Department {
   head     Employee? @relation("DepartmentHead", fields: [headId], references: [id])
   services Service[]
   staff    Employee[] @relation("DepartmentStaff")
+  serviceOrders ServiceOrder[] // заказы, выполняемые отделением
 
   @@unique([organizationId, name])
   @@unique([organizationId, code])
@@ -252,6 +256,7 @@ model Service {
   employeeId   String?
   employee     Employee?   @relation(fields: [employeeId], references: [id])
   appointments Appointment[]
+  serviceOrders ServiceOrder[] // заказы этой услуги
 
   @@unique([code, organizationId])
   @@map("services")
@@ -364,6 +369,7 @@ model Visit {
   medicalRecords MedicalRecord[]
   prescriptions  Prescription[]
   labOrders      LabOrder[]
+  serviceOrders  ServiceOrder[] // назначения в рамках визита
 
   @@map("visits")
 }
@@ -553,6 +559,7 @@ model Employee {
   visits         Visit[] @relation("VisitDoctor") // визиты как врач
   prescriptions  Prescription[] // назначенные лекарства
   labOrders      LabOrder[] // назначенные анализы
+  doctorOrders   ServiceOrder[] @relation("DoctorOrders") // назначения врача
   departmentsAsHead Department[] @relation("DepartmentHead") // отделения, которыми руководит
   departmentId   String?
   department     Department? @relation("DepartmentStaff", fields: [departmentId], references: [id])
@@ -779,6 +786,7 @@ model ProtocolTemplate {
 
   // Relations
   visits Visit[] // визиты, использующие этот шаблон
+  serviceOrders ServiceOrder[] // заказы с протоколом
 
   @@map("protocol_templates")
 }
@@ -811,4 +819,71 @@ model AnalysisTemplate {
   @@index([organizationId])
   @@index([name])
   @@map("analysis_templates")
+}
+
+// Order Status enum
+enum OrderStatus {
+  ORDERED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Payment Status enum
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+}
+
+/// ===============================
+///  SERVICE ORDER (назначения врача)
+/// ===============================
+model ServiceOrder {
+  id                String   @id @default(uuid())
+
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id])
+
+  visitId           String?
+  visit             Visit?   @relation(fields: [visitId], references: [id])
+
+  doctorId          String
+  doctor            Employee @relation("DoctorOrders", fields: [doctorId], references: [id])
+
+  serviceId         String
+  service           Service  @relation(fields: [serviceId], references: [id])
+
+  departmentId      String?
+  department        Department? @relation(fields: [departmentId], references: [id])
+
+  protocolTemplateId String?
+  protocolTemplate   ProtocolTemplate? @relation(fields: [protocolTemplateId], references: [id])
+
+  status            OrderStatus   @default(ORDERED)
+  paymentStatus     PaymentStatus @default(UNPAID)
+
+  resultText        String?
+  resultData        Json?
+  resultFileUrl     String?
+  resultAt          DateTime?
+  performedById     String?
+  performedBy       User?        @relation("PerformedBy", fields: [performedById], references: [id])
+
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([visitId])
+  @@index([doctorId])
+  @@index([serviceId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([organizationId])
+  @@map("service_orders")
 }

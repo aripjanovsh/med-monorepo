@@ -1,11 +1,12 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User, Stethoscope, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { toast } from "sonner";
@@ -19,6 +20,8 @@ import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge
 import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { LabOrderList } from "@/features/lab-order/components/lab-order-list";
+import { ServiceOrderList } from "@/features/service-order/components/service-order-list";
+import { AddServicesDialog } from "@/features/service-order/components/add-services-dialog";
 import type { FilledFormData } from "@/features/protocol-template";
 
 type PageProps = {
@@ -30,6 +33,7 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
   const router = useRouter();
   const { data: visit, isLoading } = useGetVisitQuery(visitId);
   const [updateStatus] = useUpdateVisitStatusMutation();
+  const [addServicesOpen, setAddServicesOpen] = useState(false);
 
   const handleCompleteVisit = async () => {
     if (!confirm("Завершить прием?")) return;
@@ -153,41 +157,71 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
 
       <Separator />
 
-      {/* Protocol */}
-      <VisitProtocol
+      {/* Tabs */}
+      <Tabs defaultValue="protocol" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="protocol">Протокол осмотра</TabsTrigger>
+          <TabsTrigger value="services">Назначения и услуги</TabsTrigger>
+          <TabsTrigger value="prescriptions">Рецепты</TabsTrigger>
+          <TabsTrigger value="lab">Направление на анализы</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="protocol" className="space-y-4">
+          <VisitProtocol
+            visitId={visit.id}
+            initialProtocolId={visit.protocol?.id}
+            initialProtocolData={
+              visit.protocolData ? (JSON.parse(visit.protocolData) as FilledFormData) : {}
+            }
+            status={visit.status}
+          />
+        </TabsContent>
+
+        <TabsContent value="services" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <ServiceOrderList
+                visitId={visit.id}
+                onAddServices={() => setAddServicesOpen(true)}
+                isEditable={isEditable}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="prescriptions" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <PrescriptionList
+                visitId={visit.id}
+                employeeId={visit.employee.id}
+                status={visit.status}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="lab" className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <LabOrderList
+                visitId={visit.id}
+                employeeId={visit.employee.id}
+                status={visit.status}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Add Services Dialog */}
+      <AddServicesDialog
+        open={addServicesOpen}
+        onOpenChange={setAddServicesOpen}
         visitId={visit.id}
-        initialProtocolId={visit.protocol?.id}
-        initialProtocolData={
-          visit.protocolData ? (JSON.parse(visit.protocolData) as FilledFormData) : {}
-        }
-        status={visit.status}
+        patientId={visit.patient.id}
+        doctorId={visit.employee.id}
       />
-
-      <Separator />
-
-      {/* Prescriptions */}
-      <Card>
-        <CardContent className="pt-6">
-          <PrescriptionList
-            visitId={visit.id}
-            employeeId={visit.employee.id}
-            status={visit.status}
-          />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Lab Orders */}
-      <Card>
-        <CardContent className="pt-6">
-          <LabOrderList
-            visitId={visit.id}
-            employeeId={visit.employee.id}
-            status={visit.status}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 }
