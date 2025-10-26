@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Users, Wrench, Globe, Languages } from "lucide-react";
+import { Database, Users, Wrench, Globe, Languages, Building2, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/route.constants";
 import PageHeader from "@/components/layouts/page-header";
@@ -27,6 +27,20 @@ const masterDataModules = [
     icon: Wrench,
     href: ROUTES.MASTER_DATA_SERVICE_TYPES,
     color: "text-green-600",
+  },
+  {
+    title: "Услуги",
+    description: "Управление медицинскими услугами",
+    icon: Stethoscope,
+    href: ROUTES.MASTER_DATA_SERVICES,
+    color: "text-emerald-600",
+  },
+  {
+    title: "Отделения",
+    description: "Управление отделениями медицинской организации",
+    icon: Building2,
+    href: ROUTES.MASTER_DATA_DEPARTMENTS,
+    color: "text-indigo-600",
   },
   {
     title: "Языки",

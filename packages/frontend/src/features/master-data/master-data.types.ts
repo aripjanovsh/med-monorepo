@@ -44,6 +44,40 @@ export interface UpdateServiceTypeRequest extends Partial<CreateServiceTypeReque
   id?: string;
 }
 
+// Department types
+export interface Department {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  headId?: string;
+  head?: {
+    id: string;
+    employeeId?: string;
+    firstName: string;
+    middleName?: string;
+    lastName: string;
+  };
+  isActive: boolean;
+  order?: number;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDepartmentRequest {
+  name: string;
+  code?: string;
+  description?: string;
+  headId?: string;
+  order?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateDepartmentRequest extends Partial<CreateDepartmentRequest> {
+  id?: string;
+}
+
 // Language types
 export interface Language {
   id: string;
@@ -130,6 +164,58 @@ export interface LocationQueryParams extends MasterDataQueryParams {
   type?: LocationType;
   parentId?: string;
   includeRelations?: boolean;
+}
+
+// ==========================
+// Service types
+// ==========================
+
+export enum ServiceTypeEnumFrontend {
+  CONSULTATION = "CONSULTATION",
+  LAB = "LAB",
+  DIAGNOSTIC = "DIAGNOSTIC",
+  PROCEDURE = "PROCEDURE",
+  OTHER = "OTHER",
+}
+
+export interface Service {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  type: ServiceTypeEnumFrontend;
+  departmentId?: string;
+  department?: {
+    id: string;
+    name: string;
+    code?: string;
+  };
+  price?: number;
+  durationMin?: number;
+  isActive: boolean;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateServiceRequest {
+  code: string;
+  name: string;
+  type: ServiceTypeEnumFrontend;
+  description?: string;
+  departmentId?: string;
+  price?: number;
+  durationMin?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateServiceRequest extends Partial<CreateServiceRequest> {
+  id?: string;
+}
+
+export interface ServiceQueryParams extends MasterDataQueryParams {
+  type?: ServiceTypeEnumFrontend;
+  departmentId?: string;
 }
 
 // ==========================

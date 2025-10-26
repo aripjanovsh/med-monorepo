@@ -34,7 +34,9 @@ export const ROUTES = {
   MASTER_DATA: "/cabinet/settings/master-data",
   MASTER_DATA_TITLES: "/cabinet/settings/master-data/titles",
   MASTER_DATA_SERVICE_TYPES: "/cabinet/settings/master-data/service-types",
+  MASTER_DATA_SERVICES: "/cabinet/settings/master-data/services",
   MASTER_DATA_LANGUAGES: "/cabinet/settings/master-data/languages",
+  MASTER_DATA_DEPARTMENTS: "/cabinet/settings/master-data/departments",
   MASTER_DATA_GEOLOCATION: "/cabinet/settings/master-data/geolocation",
   
   // Analysis Templates routes (Settings)

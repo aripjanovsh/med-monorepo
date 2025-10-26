@@ -3,6 +3,7 @@ import * as bcrypt from "bcrypt";
 import { OrganizationSeed } from "../src/common/seeds/organization.seed";
 import { UzbekistanLocationSeed } from "../src/common/seeds/uzbekistan-location.seed";
 import { LanguageSeed } from "../src/common/seeds/language.seed";
+import { DepartmentServiceSeed } from "../src/common/seeds/department-service.seed";
 
 const prisma = new PrismaClient();
 
@@ -17,13 +18,30 @@ async function main() {
     await createSuperAdmin();
 
     // Create sample organization with admin (optional)
-    await createSampleOrganization();
+    const orgResult = await createSampleOrganization();
 
     // Seed Uzbekistan location data
     await seedUzbekistanLocations();
 
     // Seed languages
     await seedLanguages();
+
+    // Seed departments and services
+    // Get organization ID even if it already existed
+    let organizationId: string | null = null;
+    if (orgResult && orgResult.organization) {
+      organizationId = orgResult.organization.id;
+    } else {
+      // Organization already exists, find it
+      const existingOrg = await prisma.organization.findFirst({
+        where: { slug: "zdravye-clinic" },
+      });
+      organizationId = existingOrg?.id ?? null;
+    }
+
+    if (organizationId) {
+      await seedDepartmentsAndServices(organizationId);
+    }
 
     console.log("✅ Database seeding completed successfully!");
     console.log("");
@@ -410,6 +428,30 @@ async function seedLanguages() {
     // If languages already exist, just log and continue
     if (error.message && error.message.includes("already exists")) {
       console.log("ℹ️  Languages already exist, skipping...");
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function seedDepartmentsAndServices(organizationId: string) {
+  console.log("🏥 Seeding departments and services...");
+
+  try {
+    const departmentServiceSeed = new DepartmentServiceSeed(prisma);
+    const result = await departmentServiceSeed.seedDepartmentsAndServices(organizationId);
+
+    if (!result.skipped) {
+      console.log("✅ Departments and services seeded successfully!");
+      console.log(`🏢 Departments: ${result.departments.length}`);
+      console.log(`💼 Services: ${result.services.length}`);
+    }
+
+    return result;
+  } catch (error) {
+    // If data already exists, just log and continue
+    if (error.message && error.message.includes("already exists")) {
+      console.log("ℹ️  Departments and services already exist, skipping...");
       return null;
     }
     throw error;
