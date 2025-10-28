@@ -20,6 +20,9 @@ import { VisitModule } from "./modules/visit/visit.module";
 import { PrescriptionModule } from "./modules/prescription/prescription.module";
 import { LabOrderModule } from "./modules/lab-order/lab-order.module";
 import { ServiceOrderModule } from "./modules/service-order/service-order.module";
+import { PatientParameterModule } from "./modules/patient-parameter/patient-parameter.module";
+import { PatientAllergyModule } from "./modules/patient-allergy/patient-allergy.module";
+import { ParameterDefinitionModule } from "./modules/parameter-definition/parameter-definition.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -45,6 +48,9 @@ import { RolesGuard } from "./common/guards/roles.guard";
     PrescriptionModule,
     LabOrderModule,
     ServiceOrderModule,
+    PatientParameterModule,
+    PatientAllergyModule,
+    ParameterDefinitionModule,
   ],
   controllers: [AppController],
   providers: [

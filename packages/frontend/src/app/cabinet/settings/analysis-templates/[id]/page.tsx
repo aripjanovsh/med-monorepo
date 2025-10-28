@@ -120,7 +120,7 @@ export default function AnalysisTemplateDetailPage({
       {/* Parameters */}
       <Card>
         <CardHeader>
-          <CardTitle>Параметры анализа</CardTitle>
+          <CardTitle>Показатели анализа</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all">
@@ -194,13 +194,13 @@ const ParameterCard = ({ parameter }: { parameter: AnalysisParameterDto }) => {
                   .filter(([key]) => key !== "default")
                   .map(([key, range]) => {
                     if (!range || (!range.min && !range.max)) return null;
-                    
+
                     const labels: Record<string, string> = {
                       men: "Мужчины",
                       women: "Женщины",
                       children: "Дети",
                     };
-                    
+
                     return (
                       <div key={key}>
                         <p className="text-xs text-muted-foreground">

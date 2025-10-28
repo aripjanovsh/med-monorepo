@@ -43,3 +43,9 @@ export { VisitStatusBadge } from "./components/visit-status-badge";
 export { createVisitColumns } from "./components/visit-columns";
 export { VisitForm } from "./components/visit-form";
 export { VisitProtocol } from "./components/visit-protocol";
+export {
+  VisitDetailHeader,
+  VisitInfoCards,
+  VisitDetailTabs,
+  VisitParametersAllergiesTab,
+} from "./components/detail";

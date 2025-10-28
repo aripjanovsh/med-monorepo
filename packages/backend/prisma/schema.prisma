@@ -39,6 +39,9 @@ model Organization {
   analysisTemplates AnalysisTemplate[]
   visits        Visit[] // визиты организации
   serviceOrders ServiceOrder[] // назначения услуг
+  parameterDefinitions ParameterDefinition[]
+  patientParameters    PatientParameter[]
+  allergies            PatientAllergy[]
 
   @@map("organizations")
 }
@@ -151,6 +154,8 @@ model Patient {
   doctors        PatientDoctor[] // Many-to-many relation with doctors
   visits         Visit[] // визиты пациента
   serviceOrders  ServiceOrder[] // назначения пациента
+  allergies      PatientAllergy[] // аллергии пациента
+  patientParameters PatientParameter[] // параметры пациента
 
   @@unique([patientId, organizationId])
   @@map("patients")
@@ -370,6 +375,8 @@ model Visit {
   prescriptions  Prescription[]
   labOrders      LabOrder[]
   serviceOrders  ServiceOrder[] // назначения в рамках визита
+  allergies      PatientAllergy[]
+  patientParameters PatientParameter[]
 
   @@map("visits")
 }
@@ -563,6 +570,8 @@ model Employee {
   departmentsAsHead Department[] @relation("DepartmentHead") // отделения, которыми руководит
   departmentId   String?
   department     Department? @relation("DepartmentStaff", fields: [departmentId], references: [id])
+  recordedParameters PatientParameter[]
+  recordedAllergies  PatientAllergy[]
 
   @@unique([employeeId, organizationId])
 
@@ -870,6 +879,7 @@ model ServiceOrder {
   resultAt          DateTime?
   performedById     String?
   performedBy       User?        @relation("PerformedBy", fields: [performedById], references: [id])
+  patientParameters PatientParameter[]
 
   organizationId    String
   organization      Organization @relation(fields: [organizationId], references: [id])
@@ -886,4 +896,130 @@ model ServiceOrder {
   @@index([paymentStatus])
   @@index([organizationId])
   @@map("service_orders")
+}
+
+/// ===============================
+///  PARAMETER & ALLERGY SUPPORT
+/// ===============================
+
+// Источник данных для параметра пациента
+enum ParameterSource {
+  MANUAL   // ручной ввод
+  LAB      // из лаборатории
+  DEVICE   // с медицинского устройства
+  IMPORT   // импорт данных
+}
+
+// Справочник определений параметров пациента
+model ParameterDefinition {
+  id             String         @id @default(uuid())
+  code           String         // уникальный код параметра, например: PULSE, BP_SYS
+  name           String         // человекочитаемое название
+  category       String         // категория: VITALS, ANTHROPOMETRY, etc.
+  valueType      ParameterType  // NUMBER | TEXT | BOOLEAN
+  defaultUnit    String?
+  normalRange    Json?
+  description    String?
+  isActive       Boolean        @default(true)
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([code, organizationId])
+  @@index([organizationId])
+  @@map("parameter_definitions")
+}
+
+// Измеряемые параметры пациента (история)
+model PatientParameter {
+  id             String   @id @default(uuid())
+
+  patientId      String
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Опциональные связи
+  visitId        String?
+  visit          Visit?   @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  serviceOrderId String?
+  serviceOrder   ServiceOrder? @relation(fields: [serviceOrderId], references: [id])
+
+  // Идентификатор параметра по коду справочника
+  parameterCode  String
+
+  // Значения
+  valueNumeric   Decimal? @db.Decimal(12, 4)
+  valueText      String?
+  valueBoolean   Boolean?
+  valueJson      Json?
+
+  // Единица измерения
+  unit           String?
+
+  // Время измерения
+  measuredAt     DateTime @default(now())
+
+  // Кто записал
+  recordedById   String
+  recordedBy     Employee @relation(fields: [recordedById], references: [id])
+
+  // Источник
+  source         ParameterSource @default(MANUAL)
+
+  // Мульти-арендность
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([patientId, parameterCode, measuredAt])
+  @@index([visitId])
+  @@index([serviceOrderId])
+  @@index([organizationId])
+  @@map("patient_parameters")
+}
+
+// Степень тяжести аллергии
+enum AllergySeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+// Аллергии пациента
+model PatientAllergy {
+  id             String   @id @default(uuid())
+
+  patientId      String
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Связь с визитом (опционально)
+  visitId        String?
+  visit          Visit?   @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  // Кто записал
+  recordedById   String
+  recordedBy     Employee @relation(fields: [recordedById], references: [id])
+
+  substance      String
+  reaction       String?
+  severity       AllergySeverity?
+  note           String?
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([visitId])
+  @@index([organizationId])
+  @@map("patient_allergies")
 }

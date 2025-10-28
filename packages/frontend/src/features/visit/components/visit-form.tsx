@@ -28,7 +28,12 @@ type VisitFormProps = {
   onSuccess?: () => void;
 };
 
-export const VisitForm = ({ mode, initialData, patientId: prefilledPatientId, onSuccess }: VisitFormProps) => {
+export const VisitForm = ({
+  mode,
+  initialData,
+  patientId: prefilledPatientId,
+  onSuccess,
+}: VisitFormProps) => {
   const router = useRouter();
   const [createVisit, { isLoading: isCreating }] = useCreateVisitMutation();
   const [updateVisit, { isLoading: isUpdating }] = useUpdateVisitMutation();
@@ -86,10 +91,12 @@ export const VisitForm = ({ mode, initialData, patientId: prefilledPatientId, on
       } else {
         const visit = await createVisit(payload).unwrap();
         toast.success("Визит создан");
-        
+
         // Если создаем из карточки пациента, редиректим туда
         if (prefilledPatientId) {
-          router.push(`/cabinet/patients/${prefilledPatientId}/visit/${visit.id}`);
+          router.push(
+            `/cabinet/patients/${prefilledPatientId}/visits/${visit.id}`
+          );
         } else {
           router.push(`/cabinet/visits/${visit.id}`);
         }

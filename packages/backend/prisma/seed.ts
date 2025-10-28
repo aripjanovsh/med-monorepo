@@ -4,6 +4,7 @@ import { OrganizationSeed } from "../src/common/seeds/organization.seed";
 import { UzbekistanLocationSeed } from "../src/common/seeds/uzbekistan-location.seed";
 import { LanguageSeed } from "../src/common/seeds/language.seed";
 import { DepartmentServiceSeed } from "../src/common/seeds/department-service.seed";
+import { ParameterDefinitionSeed } from "../src/common/seeds/parameter-definition.seed";
 
 const prisma = new PrismaClient();
 
@@ -41,6 +42,7 @@ async function main() {
 
     if (organizationId) {
       await seedDepartmentsAndServices(organizationId);
+      await seedParameterDefinitions(organizationId);
     }
 
     console.log("✅ Database seeding completed successfully!");
@@ -452,6 +454,25 @@ async function seedDepartmentsAndServices(organizationId: string) {
     // If data already exists, just log and continue
     if (error.message && error.message.includes("already exists")) {
       console.log("ℹ️  Departments and services already exist, skipping...");
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function seedParameterDefinitions(organizationId: string) {
+  console.log("📊 Seeding parameter definitions...");
+
+  try {
+    const parameterSeed = new ParameterDefinitionSeed(prisma);
+    const result = await parameterSeed.seedParameterDefinitions(organizationId);
+
+    console.log(`✅ Parameter definitions: ${result.count} created`);
+
+    return result;
+  } catch (error) {
+    if (error.message && error.message.includes("already exists")) {
+      console.log("ℹ️  Parameter definitions already exist, skipping...");
       return null;
     }
     throw error;
