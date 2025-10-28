@@ -18,7 +18,6 @@ import { ProtocolTemplateModule } from "./modules/protocol-template/protocol-tem
 import { AnalysisTemplateModule } from "./modules/analysis-template/analysis-template.module";
 import { VisitModule } from "./modules/visit/visit.module";
 import { PrescriptionModule } from "./modules/prescription/prescription.module";
-import { LabOrderModule } from "./modules/lab-order/lab-order.module";
 import { ServiceOrderModule } from "./modules/service-order/service-order.module";
 import { PatientParameterModule } from "./modules/patient-parameter/patient-parameter.module";
 import { PatientAllergyModule } from "./modules/patient-allergy/patient-allergy.module";
@@ -46,7 +45,6 @@ import { RolesGuard } from "./common/guards/roles.guard";
     AnalysisTemplateModule,
     VisitModule,
     PrescriptionModule,
-    LabOrderModule,
     ServiceOrderModule,
     PatientParameterModule,
     PatientAllergyModule,

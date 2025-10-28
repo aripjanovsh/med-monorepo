@@ -44,13 +44,6 @@ export interface SimplePrescriptionDto {
   createdAt: string; // ISO
 }
 
-export interface SimpleLabOrderDto {
-  id: string;
-  testName: string;
-  status: string;
-  createdAt: string; // ISO
-}
-
 export interface SimpleMedicalRecordDto {
   id: string;
   type: string;
@@ -77,7 +70,6 @@ export interface VisitResponseDto {
   protocolData?: string; // JSON string of FilledFormData
   medicalRecords: SimpleMedicalRecordDto[];
   prescriptions: SimplePrescriptionDto[];
-  labOrders: SimpleLabOrderDto[];
   organization: SimpleOrganizationDto;
   createdAt: string; // ISO
   updatedAt: string; // ISO

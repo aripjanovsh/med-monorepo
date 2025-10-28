@@ -144,25 +144,6 @@ class SimplePrescriptionResponseDto {
 }
 
 @Exclude()
-class SimpleLabOrderResponseDto {
-  @Expose()
-  @ApiProperty()
-  id: string;
-
-  @Expose()
-  @ApiProperty()
-  testName: string;
-
-  @Expose()
-  @ApiProperty()
-  status: string;
-
-  @Expose()
-  @ApiProperty()
-  createdAt: Date;
-}
-
-@Exclude()
 class SimpleOrganizationResponseDto {
   @Expose()
   @ApiProperty()
@@ -255,14 +236,6 @@ export class VisitResponseDto extends BaseResponseDto {
   })
   @Type(() => SimplePrescriptionResponseDto)
   prescriptions: SimplePrescriptionResponseDto[];
-
-  @Expose()
-  @ApiProperty({
-    description: "Lab orders",
-    type: [SimpleLabOrderResponseDto],
-  })
-  @Type(() => SimpleLabOrderResponseDto)
-  labOrders: SimpleLabOrderResponseDto[];
 
   @Expose()
   @ApiProperty({

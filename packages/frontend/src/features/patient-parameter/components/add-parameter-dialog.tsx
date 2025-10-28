@@ -35,7 +35,8 @@ export const AddParameterDialog = ({
   const [bpSystolic, setBpSystolic] = useState("");
   const [bpDiastolic, setBpDiastolic] = useState("");
   const [createParameter, { isLoading }] = useCreatePatientParameterMutation();
-  const { data: definitionsData, isLoading: isLoadingDefinitions } = useGetParameterDefinitionsQuery({ isActive: true });
+  const { data: definitionsData, isLoading: isLoadingDefinitions } =
+    useGetParameterDefinitionsQuery({ isActive: true });
   const parameterDefinitions = definitionsData?.data || [];
 
   const handleValueChange = (code: string, value: string) => {
@@ -46,7 +47,7 @@ export const AddParameterDialog = ({
     const parametersToAdd: Array<{
       code: string;
       value: string;
-      definition: typeof parameterDefinitions[number];
+      definition: (typeof parameterDefinitions)[number];
     }> = [];
 
     // Собираем все заполненные параметры
@@ -128,7 +129,7 @@ export const AddParameterDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button size="sm" variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           Добавить показатели
         </Button>
@@ -142,105 +143,111 @@ export const AddParameterDialog = ({
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : (
-        <ScrollArea className="max-h-[60vh]">
-          <div className="space-y-6 pr-4 pb-4">
-            {/* Жизненные показатели */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">
-                Жизненные показатели
-              </h3>
-              <div className="space-y-3">
-                {parameterDefinitions.filter(
-                  (p) =>
-                    p.category === "VITALS_CORE" &&
-                    p.code !== "BP_SYS" &&
-                    p.code !== "BP_DIA"
-                ).map((param) => (
-                  <div
-                    key={param.code}
-                    className="grid grid-cols-2 gap-4 items-center"
-                  >
-                    <Label htmlFor={param.code}>
-                      {param.name}{" "}
-                      {param.defaultUnit && (
-                        <span className="text-muted-foreground">
-                          ({param.defaultUnit})
-                        </span>
-                      )}
-                    </Label>
-                    <Input
-                      id={param.code}
-                      type={param.valueType === "NUMBER" ? "number" : "text"}
-                      placeholder="Введите значение"
-                      value={values[param.code] || ""}
-                      onChange={(e) =>
-                        handleValueChange(param.code, e.target.value)
-                      }
-                    />
-                  </div>
-                ))}
+          <ScrollArea className="max-h-[60vh]">
+            <div className="space-y-6 pr-4 pb-4">
+              {/* Жизненные показатели */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3">
+                  Жизненные показатели
+                </h3>
+                <div className="space-y-3">
+                  {parameterDefinitions
+                    .filter(
+                      (p) =>
+                        p.category === "VITALS_CORE" &&
+                        p.code !== "BP_SYS" &&
+                        p.code !== "BP_DIA"
+                    )
+                    .map((param) => (
+                      <div
+                        key={param.code}
+                        className="grid grid-cols-2 gap-4 items-center"
+                      >
+                        <Label htmlFor={param.code}>
+                          {param.name}{" "}
+                          {param.defaultUnit && (
+                            <span className="text-muted-foreground">
+                              ({param.defaultUnit})
+                            </span>
+                          )}
+                        </Label>
+                        <Input
+                          id={param.code}
+                          type={
+                            param.valueType === "NUMBER" ? "number" : "text"
+                          }
+                          placeholder="Введите значение"
+                          value={values[param.code] || ""}
+                          onChange={(e) =>
+                            handleValueChange(param.code, e.target.value)
+                          }
+                        />
+                      </div>
+                    ))}
 
-                {/* Специальное поле для артериального давления */}
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  <Label>
-                    Артериальное давление{" "}
-                    <span className="text-muted-foreground">(mmHg)</span>
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      className="w-24"
-                      type="number"
-                      placeholder="Верхнее"
-                      value={bpSystolic}
-                      onChange={(e) => setBpSystolic(e.target.value)}
-                    />
-                    <span>/</span>
-                    <Input
-                      className="w-24"
-                      type="number"
-                      placeholder="Нижнее"
-                      value={bpDiastolic}
-                      onChange={(e) => setBpDiastolic(e.target.value)}
-                    />
+                  {/* Специальное поле для артериального давления */}
+                  <div className="grid grid-cols-2 gap-4 items-center">
+                    <Label>
+                      Артериальное давление{" "}
+                      <span className="text-muted-foreground">(mmHg)</span>
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        className="w-24"
+                        type="number"
+                        placeholder="Верхнее"
+                        value={bpSystolic}
+                        onChange={(e) => setBpSystolic(e.target.value)}
+                      />
+                      <span>/</span>
+                      <Input
+                        className="w-24"
+                        type="number"
+                        placeholder="Нижнее"
+                        value={bpDiastolic}
+                        onChange={(e) => setBpDiastolic(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Антропометрия */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Антропометрия</h3>
-              <div className="space-y-3">
-                {parameterDefinitions.filter(
-                  (p) => p.category === "ANTHROPOMETRY"
-                ).map((param) => (
-                  <div
-                    key={param.code}
-                    className="grid grid-cols-2 gap-4 items-center"
-                  >
-                    <Label htmlFor={param.code}>
-                      {param.name}{" "}
-                      {param.defaultUnit && (
-                        <span className="text-muted-foreground">
-                          ({param.defaultUnit})
-                        </span>
-                      )}
-                    </Label>
-                    <Input
-                      id={param.code}
-                      type={param.valueType === "NUMBER" ? "number" : "text"}
-                      placeholder="Введите значение"
-                      value={values[param.code] || ""}
-                      onChange={(e) =>
-                        handleValueChange(param.code, e.target.value)
-                      }
-                    />
-                  </div>
-                ))}
+              {/* Антропометрия */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Антропометрия</h3>
+                <div className="space-y-3">
+                  {parameterDefinitions
+                    .filter((p) => p.category === "ANTHROPOMETRY")
+                    .map((param) => (
+                      <div
+                        key={param.code}
+                        className="grid grid-cols-2 gap-4 items-center"
+                      >
+                        <Label htmlFor={param.code}>
+                          {param.name}{" "}
+                          {param.defaultUnit && (
+                            <span className="text-muted-foreground">
+                              ({param.defaultUnit})
+                            </span>
+                          )}
+                        </Label>
+                        <Input
+                          id={param.code}
+                          type={
+                            param.valueType === "NUMBER" ? "number" : "text"
+                          }
+                          placeholder="Введите значение"
+                          value={values[param.code] || ""}
+                          onChange={(e) =>
+                            handleValueChange(param.code, e.target.value)
+                          }
+                        />
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
         )}
 
         <div className="flex justify-end gap-2 mt-4">

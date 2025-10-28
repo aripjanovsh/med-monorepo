@@ -1,43 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
 import { useGetPrescriptionsByVisitQuery, useDeletePrescriptionMutation } from "../prescription.api";
-import { PrescriptionForm } from "./prescription-form";
 import { getFrequencyLabel, getDurationLabel } from "../prescription.constants";
 import type { VisitStatus } from "@/features/visit/visit.dto";
 
 type PrescriptionListProps = {
   visitId: string;
-  employeeId: string;
   status: VisitStatus;
 };
 
 export const PrescriptionList = ({
   visitId,
-  employeeId,
   status,
 }: PrescriptionListProps) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: prescriptions, isLoading } = useGetPrescriptionsByVisitQuery(visitId);
   const [deletePrescription] = useDeletePrescriptionMutation();
 
@@ -59,81 +40,54 @@ export const PrescriptionList = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Назначения</h3>
-        {isEditable && (
-          <Button onClick={() => setIsDialogOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Добавить назначение
-          </Button>
-        )}
-      </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Препарат</TableHead>
-            <TableHead>Дозировка</TableHead>
-            <TableHead>Частота</TableHead>
-            <TableHead>Длительность</TableHead>
-            <TableHead>Дата</TableHead>
-            {isEditable && <TableHead className="w-20">Действия</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {prescriptions && prescriptions.length > 0 ? (
-            prescriptions.map((prescription) => (
-              <TableRow key={prescription.id}>
-                <TableCell className="font-medium">{prescription.name}</TableCell>
-                <TableCell>{prescription.dosage || "—"}</TableCell>
-                <TableCell>
-                  {prescription.frequency ? getFrequencyLabel(prescription.frequency) : "—"}
-                </TableCell>
-                <TableCell>
-                  {prescription.duration ? getDurationLabel(prescription.duration) : "—"}
-                </TableCell>
-                <TableCell>
-                  {format(new Date(prescription.createdAt), "dd.MM.yyyy HH:mm", {
-                    locale: ru,
-                  })}
-                </TableCell>
+    <>
+      {prescriptions && prescriptions.length > 0 ? (
+        <div className="space-y-3">
+          {prescriptions.map((prescription) => (
+            <div
+              key={prescription.id}
+              className="border-b pb-3 last:border-0 space-y-1"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-1">
+                  <p className="font-semibold text-base">
+                    {prescription.name} {prescription.dosage && `${prescription.dosage}`}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {prescription.frequency && getFrequencyLabel(prescription.frequency)}
+                    {prescription.frequency && prescription.duration && ". "}
+                    {prescription.duration && getDurationLabel(prescription.duration)}
+                  </p>
+                  {prescription.notes && (
+                    <p className="text-xs text-muted-foreground italic">
+                      {prescription.notes}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(prescription.createdAt), "dd.MM.yyyy HH:mm", {
+                      locale: ru,
+                    })}
+                  </p>
+                </div>
                 {isEditable && (
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(prescription.id)}
-                    >
-                      <Trash className="h-4 w-4 text-red-600" />
-                    </Button>
-                  </TableCell>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(prescription.id)}
+                    className="h-8 w-8 p-0 shrink-0"
+                  >
+                    <Trash className="h-4 w-4 text-red-600" />
+                  </Button>
                 )}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={isEditable ? 6 : 5} className="text-center text-muted-foreground">
-                Назначений пока нет
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Добавить назначение</DialogTitle>
-          </DialogHeader>
-          <PrescriptionForm
-            visitId={visitId}
-            employeeId={employeeId}
-            onSuccess={() => setIsDialogOpen(false)}
-            onCancel={() => setIsDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground text-center py-4">
+          Назначений пока нет
+        </p>
+      )}
+    </>
   );
 };

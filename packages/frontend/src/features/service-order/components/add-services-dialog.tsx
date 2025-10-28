@@ -85,12 +85,6 @@ export const AddServicesDialog = ({
     });
   };
 
-  const totalPrice = useMemo(() => {
-    return services
-      .filter((s) => selectedServices.has(s.id))
-      .reduce((sum, service) => sum + Number(service.price), 0);
-  }, [services, selectedServices]);
-
   const handleSubmit = async () => {
     if (selectedServices.size === 0) {
       toast.error("Выберите хотя бы одну услугу");
@@ -192,12 +186,7 @@ export const AddServicesDialog = ({
                       className="mt-1"
                     />
                     <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{service.name}</span>
-                        <span className="font-semibold">
-                          {Number(service.price).toLocaleString()} сум
-                        </span>
-                      </div>
+                      <div className="font-medium">{service.name}</div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         {service.department && (
                           <Badge variant="outline" className="text-xs">
@@ -215,14 +204,11 @@ export const AddServicesDialog = ({
             )}
           </ScrollArea>
 
-          {/* Selected count and total */}
+          {/* Selected count */}
           {selectedServices.size > 0 && (
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="p-4 bg-muted rounded-lg">
               <span className="text-sm font-medium">
                 Выбрано услуг: {selectedServices.size}
-              </span>
-              <span className="text-lg font-semibold">
-                Итого: {totalPrice.toLocaleString()} сум
               </span>
             </div>
           )}

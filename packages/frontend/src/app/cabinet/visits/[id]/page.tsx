@@ -15,7 +15,6 @@ import { useGetVisitQuery, useUpdateVisitStatusMutation } from "@/features/visit
 import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge";
 import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
-import { LabOrderList } from "@/features/lab-order/components/lab-order-list";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -101,7 +100,6 @@ export default function VisitDetailPage({ params }: PageProps) {
         <TabsList>
           <TabsTrigger value="overview">Обзор</TabsTrigger>
           <TabsTrigger value="prescriptions">Назначения</TabsTrigger>
-          <TabsTrigger value="labOrders">Анализы</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -163,19 +161,6 @@ export default function VisitDetailPage({ params }: PageProps) {
             <CardContent className="pt-6">
               <PrescriptionList
                 visitId={visit.id}
-                employeeId={visit.employee.id}
-                status={visit.status}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="labOrders">
-          <Card>
-            <CardContent className="pt-6">
-              <LabOrderList
-                visitId={visit.id}
-                employeeId={visit.employee.id}
                 status={visit.status}
               />
             </CardContent>

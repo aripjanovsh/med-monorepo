@@ -188,14 +188,6 @@ export class VisitService {
               createdAt: true,
             },
           },
-          labOrders: {
-            select: {
-              id: true,
-              testName: true,
-              status: true,
-              createdAt: true,
-            },
-          },
         },
       });
 
@@ -317,14 +309,6 @@ export class VisitService {
               createdAt: true,
             },
           },
-          labOrders: {
-            select: {
-              id: true,
-              testName: true,
-              status: true,
-              createdAt: true,
-            },
-          },
         },
         orderBy,
         skip,
@@ -413,17 +397,6 @@ export class VisitService {
             dosage: true,
             frequency: true,
             duration: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
-        labOrders: {
-          select: {
-            id: true,
-            testName: true,
-            status: true,
             createdAt: true,
           },
           orderBy: {
@@ -545,14 +518,6 @@ export class VisitService {
               createdAt: true,
             },
           },
-          labOrders: {
-            select: {
-              id: true,
-              testName: true,
-              status: true,
-              createdAt: true,
-            },
-          },
         },
       });
 
@@ -656,14 +621,6 @@ export class VisitService {
               dosage: true,
               frequency: true,
               duration: true,
-              createdAt: true,
-            },
-          },
-          labOrders: {
-            select: {
-              id: true,
-              testName: true,
-              status: true,
               createdAt: true,
             },
           },

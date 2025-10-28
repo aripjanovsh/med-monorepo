@@ -13,7 +13,7 @@ import {
 import {
   VisitDetailHeader,
   VisitInfoCards,
-  VisitDetailTabs,
+  VisitDetailSections,
 } from "@/features/visit/components/detail";
 
 type PageProps = {
@@ -77,7 +77,7 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
 
       <Separator />
 
-      <VisitDetailTabs visit={visit} isEditable={isEditable} />
+      <VisitDetailSections visit={visit} isEditable={isEditable} />
     </div>
   );
 }

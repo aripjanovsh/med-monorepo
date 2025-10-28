@@ -298,15 +298,7 @@ enum RecordType {
   EXAMINATION    // осмотр
   DIAGNOSIS      // диагноз
   PRESCRIPTION   // назначения
-  LAB_ORDER      // направление на анализ
   NOTE           // дополнительные записи
-}
-
-// Lab order status enum
-enum LabStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
 }
 
 // Appointments
@@ -373,7 +365,6 @@ model Visit {
 
   medicalRecords MedicalRecord[]
   prescriptions  Prescription[]
-  labOrders      LabOrder[]
   serviceOrders  ServiceOrder[] // назначения в рамках визита
   allergies      PatientAllergy[]
   patientParameters PatientParameter[]
@@ -438,26 +429,6 @@ model Prescription {
 
   @@map("prescriptions")
 }
-
-// Lab Orders (назначение на анализ/обследование)
-model LabOrder {
-  id        String    @id @default(uuid())
-  testName  String
-  status    LabStatus @default(PENDING)
-  notes     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  // Relations
-  visitId String
-  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
-  createdById String   // doctor who created the lab order
-  createdBy   Employee @relation(fields: [createdById], references: [id])
-
-  @@map("lab_orders")
-}
-
 
 // Gender enum
 enum Gender {
@@ -565,7 +536,6 @@ model Employee {
   patientDoctors PatientDoctor[] // Many-to-many relation with patients
   visits         Visit[] @relation("VisitDoctor") // визиты как врач
   prescriptions  Prescription[] // назначенные лекарства
-  labOrders      LabOrder[] // назначенные анализы
   doctorOrders   ServiceOrder[] @relation("DoctorOrders") // назначения врача
   departmentsAsHead Department[] @relation("DepartmentHead") // отделения, которыми руководит
   departmentId   String?

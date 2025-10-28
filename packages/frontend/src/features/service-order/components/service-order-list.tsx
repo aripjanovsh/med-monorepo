@@ -22,13 +22,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { OrderStatusBadge, PaymentStatusBadge } from "./service-order-status-badge";
+import {
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "./service-order-status-badge";
 import {
   useGetServiceOrdersQuery,
   useDeleteServiceOrderMutation,
 } from "../service-order.api";
-import { canCancelOrder, calculateUnpaidTotal } from "../service-order.model";
-import type { ServiceOrderResponseDto } from "../service-order.dto";
+import { canCancelOrder } from "../service-order.model";
 
 type ServiceOrderListProps = {
   visitId: string;
@@ -53,7 +55,6 @@ export const ServiceOrderList = ({
     useDeleteServiceOrderMutation();
 
   const orders = data?.data ?? [];
-  const unpaidTotal = calculateUnpaidTotal(orders);
 
   const handleDelete = async () => {
     if (!deleteOrderId) return;
@@ -112,14 +113,9 @@ export const ServiceOrderList = ({
                             {order.service.code}
                           </div>
                         )}
-                        <div className="text-sm text-muted-foreground">
-                          {Number(order.service.price).toLocaleString()} сум
-                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {order.department?.name || "—"}
-                    </TableCell>
+                    <TableCell>{order.department?.name || "—"}</TableCell>
                     <TableCell>
                       <OrderStatusBadge status={order.status} />
                     </TableCell>
@@ -151,15 +147,6 @@ export const ServiceOrderList = ({
               </TableBody>
             </Table>
           </div>
-
-          {unpaidTotal > 0 && (
-            <div className="flex justify-end items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Ожидает оплаты:</span>
-              <span className="font-semibold text-lg">
-                {unpaidTotal.toLocaleString()} сум
-              </span>
-            </div>
-          )}
         </>
       )}
 
