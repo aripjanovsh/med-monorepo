@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Eye, Plus } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   Table,
@@ -34,13 +34,11 @@ import { canCancelOrder } from "../service-order.model";
 
 type ServiceOrderListProps = {
   visitId: string;
-  onAddServices: () => void;
   isEditable?: boolean;
 };
 
 export const ServiceOrderList = ({
   visitId,
-  onAddServices,
   isEditable = true,
 }: ServiceOrderListProps) => {
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
@@ -73,17 +71,7 @@ export const ServiceOrderList = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Назначения и услуги</h3>
-        {isEditable && (
-          <Button onClick={onAddServices} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Добавить услуги
-          </Button>
-        )}
-      </div>
-
+    <>
       {orders.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           Нет назначений
@@ -169,6 +157,6 @@ export const ServiceOrderList = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 };

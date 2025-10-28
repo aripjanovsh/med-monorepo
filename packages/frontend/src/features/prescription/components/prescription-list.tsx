@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-import { useGetPrescriptionsByVisitQuery, useDeletePrescriptionMutation } from "../prescription.api";
+import {
+  useGetPrescriptionsByVisitQuery,
+  useDeletePrescriptionMutation,
+} from "../prescription.api";
 import { getFrequencyLabel, getDurationLabel } from "../prescription.constants";
 import type { VisitStatus } from "@/features/visit/visit.dto";
 
@@ -19,7 +22,8 @@ export const PrescriptionList = ({
   visitId,
   status,
 }: PrescriptionListProps) => {
-  const { data: prescriptions, isLoading } = useGetPrescriptionsByVisitQuery(visitId);
+  const { data: prescriptions, isLoading } =
+    useGetPrescriptionsByVisitQuery(visitId);
   const [deletePrescription] = useDeletePrescriptionMutation();
 
   const isEditable = status === "IN_PROGRESS";
@@ -51,12 +55,15 @@ export const PrescriptionList = ({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 space-y-1">
                   <p className="font-semibold text-base">
-                    {prescription.name} {prescription.dosage && `${prescription.dosage}`}
+                    {prescription.name}{" "}
+                    {prescription.dosage && `${prescription.dosage}`}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {prescription.frequency && getFrequencyLabel(prescription.frequency)}
+                    {prescription.frequency &&
+                      getFrequencyLabel(prescription.frequency)}
                     {prescription.frequency && prescription.duration && ". "}
-                    {prescription.duration && getDurationLabel(prescription.duration)}
+                    {prescription.duration &&
+                      getDurationLabel(prescription.duration)}
                   </p>
                   {prescription.notes && (
                     <p className="text-xs text-muted-foreground italic">
@@ -64,9 +71,13 @@ export const PrescriptionList = ({
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(prescription.createdAt), "dd.MM.yyyy HH:mm", {
-                      locale: ru,
-                    })}
+                    {format(
+                      new Date(prescription.createdAt),
+                      "dd.MM.yyyy HH:mm",
+                      {
+                        locale: ru,
+                      }
+                    )}
                   </p>
                 </div>
                 {isEditable && (
@@ -84,9 +95,7 @@ export const PrescriptionList = ({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          Назначений пока нет
-        </p>
+        <p className="text-sm text-muted-foreground">Назначений пока нет</p>
       )}
     </>
   );

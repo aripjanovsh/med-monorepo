@@ -120,7 +120,7 @@ export const AddServicesDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh]">
+      <DialogContent className="md:max-w-3xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Добавить услуги пациенту</DialogTitle>
           <DialogDescription>
@@ -218,7 +218,10 @@ export const AddServicesDialog = ({
           <Button variant="outline" onClick={handleClose} disabled={isCreating}>
             Отмена
           </Button>
-          <Button onClick={handleSubmit} disabled={isCreating || selectedServices.size === 0}>
+          <Button
+            onClick={handleSubmit}
+            disabled={isCreating || selectedServices.size === 0}
+          >
             {isCreating
               ? "Добавление..."
               : `Добавить (${selectedServices.size})`}

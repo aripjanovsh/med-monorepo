@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { VisitProtocol } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { AddPrescriptionDialog } from "@/features/prescription/components/add-prescription-dialog";
 import { ServiceOrderList } from "@/features/service-order/components/service-order-list";
-import { AddServicesDialog } from "@/features/service-order/components/add-services-dialog";
+import { AddServicesButton } from "@/features/service-order/components/add-services-button";
 import {
   AddParameterDialog,
   EditParameterDialog,
@@ -32,7 +31,6 @@ export const VisitDetailSections = ({
   visit,
   isEditable,
 }: VisitDetailSectionsProps) => {
-  const [addServicesOpen, setAddServicesOpen] = useState(false);
 
   const { data: latestParameters } = useGetLatestPatientParametersQuery(
     visit.patient.id
@@ -104,14 +102,19 @@ export const VisitDetailSections = ({
         {/* Services and Orders Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Назначения и услуги</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Назначения и услуги</CardTitle>
+              {isEditable && (
+                <AddServicesButton
+                  visitId={visit.id}
+                  patientId={visit.patient.id}
+                  doctorId={visit.employee.id}
+                />
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <ServiceOrderList
-              visitId={visit.id}
-              onAddServices={() => setAddServicesOpen(true)}
-              isEditable={isEditable}
-            />
+            <ServiceOrderList visitId={visit.id} isEditable={isEditable} />
           </CardContent>
         </Card>
       </div>
@@ -241,15 +244,6 @@ export const VisitDetailSections = ({
           </CardContent>
         </Card>
       </div>
-
-      {/* Add Services Dialog */}
-      <AddServicesDialog
-        open={addServicesOpen}
-        onOpenChange={setAddServicesOpen}
-        visitId={visit.id}
-        patientId={visit.patient.id}
-        doctorId={visit.employee.id}
-      />
     </div>
   );
 };
