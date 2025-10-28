@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -51,6 +51,13 @@ export const ResultInputAnalysis = ({
     value?.templateId || ""
   );
 
+  // Sync selectedTemplateId with value prop
+  useEffect(() => {
+    if (value?.templateId !== selectedTemplateId) {
+      setSelectedTemplateId(value?.templateId || "");
+    }
+  }, [value?.templateId, selectedTemplateId]);
+
   const { data: templatesData } = useGetAnalysisTemplatesQuery({
     page: 1,
     limit: 100,
@@ -65,13 +72,17 @@ export const ResultInputAnalysis = ({
 
     setSelectedTemplateId(templateId);
 
-    const rows: AnalysisResultRow[] = template.parameters.map((param) => ({
-      parameterId: param.id,
+    console.log('Template selected:', { templateId, template: template.name, parameters: template.parameters.map(p => ({ id: p.id, name: p.name })) });
+
+    const rows: AnalysisResultRow[] = template.parameters.map((param, index) => ({
+      parameterId: param.id || `param-${index}`, // Fallback to generated ID if param.id is undefined
       parameterName: param.name,
       value: param.type === "BOOLEAN" ? false : "",
       unit: param.unit,
       normalRange: formatNormalRange(param.referenceRanges),
     }));
+
+    console.log('Created rows:', rows.map(r => ({ id: r.parameterId, name: r.parameterName })));
 
     onChange({
       templateId: template.id,
@@ -80,18 +91,32 @@ export const ResultInputAnalysis = ({
     });
   };
 
-  const handleValueChange = (parameterId: string, newValue: string | number | boolean) => {
+  const handleValueChange = useCallback((parameterId: string, newValue: string | number | boolean) => {
     if (!value) return;
 
-    const updatedRows = value.rows.map((row) =>
-      row.parameterId === parameterId ? { ...row, value: newValue } : row
-    );
+    console.log('handleValueChange called:', { 
+      parameterId, 
+      newValue, 
+      currentRows: value.rows.map(r => ({ id: r.parameterId, name: r.parameterName, value: r.value }))
+    });
+
+    // Find the specific row to update and create a new array
+    const rowIndex = value.rows.findIndex((row) => row.parameterId === parameterId);
+    if (rowIndex === -1) {
+      console.log('Row not found for parameterId:', parameterId);
+      return;
+    }
+
+    const updatedRows = [...value.rows];
+    updatedRows[rowIndex] = { ...updatedRows[rowIndex], value: newValue };
+
+    console.log('Updated rows:', updatedRows.map(r => ({ id: r.parameterId, name: r.parameterName, value: r.value })));
 
     onChange({
       ...value,
       rows: updatedRows,
     });
-  };
+  }, [value, onChange]);
 
   const formatNormalRange = (ranges?: any): string => {
     if (!ranges) return "—";
@@ -147,11 +172,12 @@ export const ResultInputAnalysis = ({
             </TableHeader>
             <TableBody>
               {selectedTemplate.parameters.map((param, index) => {
-                const row = value.rows.find((r) => r.parameterId === param.id);
+                const paramId = param.id || `param-${index}`; // Use same fallback logic
+                const row = value.rows.find((r) => r.parameterId === paramId);
                 if (!row) return null;
 
                 return (
-                  <TableRow key={param.id}>
+                  <TableRow key={`${paramId}-${index}`}>
                     <TableCell className="font-medium">
                       {param.name}
                       {param.isRequired && <span className="text-red-500 ml-1">*</span>}
@@ -159,11 +185,14 @@ export const ResultInputAnalysis = ({
                     <TableCell>
                       {param.type === "NUMBER" && (
                         <Input
+                          key={`number-input-${paramId}-${index}`}
+                          id={`number-${paramId}-${index}`}
                           type="number"
                           value={row.value as string}
-                          onChange={(e) =>
-                            handleValueChange(param.id, e.target.value)
-                          }
+                          onChange={(e) => {
+                            console.log(`Number input changed for param ${paramId} (${param.name}):`, e.target.value);
+                            handleValueChange(paramId, e.target.value);
+                          }}
                           disabled={disabled}
                           placeholder="Введите значение"
                           className="w-full"
@@ -171,11 +200,14 @@ export const ResultInputAnalysis = ({
                       )}
                       {param.type === "TEXT" && (
                         <Input
+                          key={`text-input-${paramId}-${index}`}
+                          id={`text-${paramId}-${index}`}
                           type="text"
                           value={row.value as string}
-                          onChange={(e) =>
-                            handleValueChange(param.id, e.target.value)
-                          }
+                          onChange={(e) => {
+                            console.log(`Text input changed for param ${paramId} (${param.name}):`, e.target.value);
+                            handleValueChange(paramId, e.target.value);
+                          }}
                           disabled={disabled}
                           placeholder="Введите текст"
                           className="w-full"
@@ -183,10 +215,13 @@ export const ResultInputAnalysis = ({
                       )}
                       {param.type === "BOOLEAN" && (
                         <Checkbox
+                          key={`boolean-input-${paramId}-${index}`}
+                          id={`boolean-${paramId}-${index}`}
                           checked={row.value as boolean}
-                          onCheckedChange={(checked) =>
-                            handleValueChange(param.id, checked as boolean)
-                          }
+                          onCheckedChange={(checked) => {
+                            console.log(`Checkbox changed for param ${paramId} (${param.name}):`, checked);
+                            handleValueChange(paramId, checked as boolean);
+                          }}
                           disabled={disabled}
                         />
                       )}
