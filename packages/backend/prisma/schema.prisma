@@ -89,10 +89,12 @@ model User {
   organization   Organization? @relation(fields: [organizationId], references: [id])
 
   // Relations
-  employee       Employee?
-  appointments   Appointment[]
-  roleAssignments UserRole_Assignment[]
-  performedOrders ServiceOrder[] @relation("PerformedBy") // выполненные заказы
+  employee                  Employee?
+  createdAppointments       Appointment[] @relation("AppointmentCreatedBy")
+  confirmedAppointments     Appointment[] @relation("AppointmentConfirmedBy")
+  canceledAppointments      Appointment[] @relation("AppointmentCanceledBy")
+  roleAssignments           UserRole_Assignment[]
+  performedOrders           ServiceOrder[] @relation("PerformedBy") // выполненные заказы
 
   @@map("users")
 }
@@ -310,6 +312,19 @@ model Appointment {
   type        AppointmentType   @default(STANDARD)
   notes       String?
   reason      String?
+  
+  // Дополнительные поля для управления записью
+  roomNumber    String?           // номер кабинета
+  confirmedById String?           // кто подтвердил запись
+  confirmedBy   User?   @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
+  confirmedAt   DateTime?         // время подтверждения
+  canceledById  String?           // кто отменил запись
+  canceledBy    User?   @relation("AppointmentCanceledBy", fields: [canceledById], references: [id])
+  canceledAt    DateTime?         // время отмены
+  cancelReason  String?           // причина отмены
+  checkInAt     DateTime?         // время отметки прихода
+  checkOutAt    DateTime?         // время выхода
+  
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
@@ -328,7 +343,7 @@ model Appointment {
   service   Service? @relation(fields: [serviceId], references: [id])
   
   createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdBy   User   @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
 
   visits        Visit[]           // один appointment может иметь несколько попыток визита
   medicalRecord MedicalRecord?    // legacy, будет удалено после миграции

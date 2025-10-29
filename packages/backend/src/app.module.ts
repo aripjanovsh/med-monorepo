@@ -22,6 +22,7 @@ import { ServiceOrderModule } from "./modules/service-order/service-order.module
 import { PatientParameterModule } from "./modules/patient-parameter/patient-parameter.module";
 import { PatientAllergyModule } from "./modules/patient-allergy/patient-allergy.module";
 import { ParameterDefinitionModule } from "./modules/parameter-definition/parameter-definition.module";
+import { AppointmentModule } from "./modules/appointment/appointment.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -49,6 +50,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     PatientParameterModule,
     PatientAllergyModule,
     ParameterDefinitionModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [
