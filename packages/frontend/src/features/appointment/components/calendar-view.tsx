@@ -16,8 +16,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { AppointmentResponseDto } from "../appointment.dto";
-import { getPatientFullName, formatAppointmentTime } from "../appointment.model";
+import {
+  getPatientFullName,
+  formatAppointmentTime,
+} from "../appointment.model";
 import { APPOINTMENT_STATUS_COLORS } from "../appointment.constants";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 const TIME_SLOTS = [
   "08:00",
@@ -103,14 +107,14 @@ export const CalendarView = ({
     <div className="space-y-4">
       {/* Week Navigation */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <ButtonGroup>
           <Button
             variant="outline"
             size="icon"
             onClick={handlePreviousWeek}
             aria-label="Previous week"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft />
           </Button>
           <Button
             variant="outline"
@@ -118,10 +122,10 @@ export const CalendarView = ({
             onClick={handleNextWeek}
             aria-label="Next week"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight />
           </Button>
-          <div className="text-sm font-medium">{weekRange}</div>
-        </div>
+        </ButtonGroup>
+        <div className="text-sm font-medium">{weekRange}</div>
         <Button variant="outline" size="sm" onClick={onGoToToday}>
           Today
         </Button>
@@ -133,7 +137,8 @@ export const CalendarView = ({
         <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b bg-muted/50">
           <div className="p-3 text-xs font-medium text-muted-foreground" />
           {weekDays.map((day) => {
-            const eventsCount = appointmentsByDay.get(format(day, "yyyy-MM-dd"))?.length || 0;
+            const eventsCount =
+              appointmentsByDay.get(format(day, "yyyy-MM-dd"))?.length || 0;
             return (
               <div
                 key={day.toString()}
@@ -174,7 +179,10 @@ export const CalendarView = ({
 
               {/* Day Cells */}
               {weekDays.map((day) => {
-                const dayAppointments = getAppointmentsForDayAndTime(day, timeSlot);
+                const dayAppointments = getAppointmentsForDayAndTime(
+                  day,
+                  timeSlot
+                );
 
                 return (
                   <div

@@ -5,6 +5,8 @@ import {
   APPOINTMENT_STATUS,
   type AppointmentStatus,
 } from "../appointment.constants";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { cn } from "@/lib/utils";
 
 type ViewMode = "calendar" | "list";
 
@@ -32,40 +34,52 @@ export const ViewSwitcher = ({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* View Toggle */}
-      <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+      <ButtonGroup>
         <Button
-          variant={view === "calendar" ? "default" : "ghost"}
+          variant="outline"
+          className={cn(
+            view === "calendar" &&
+              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+          )}
           size="sm"
           onClick={() => onViewChange("calendar")}
-          className="gap-2"
         >
-          <Calendar className="h-4 w-4" />
+          <Calendar />
           Календарь
         </Button>
         <Button
-          variant={view === "list" ? "default" : "ghost"}
+          variant="outline"
+          className={cn(
+            view === "list" &&
+              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+          )}
           size="sm"
           onClick={() => onViewChange("list")}
-          className="gap-2"
         >
-          <List className="h-4 w-4" />
+          <List />
           Список
         </Button>
-      </div>
+      </ButtonGroup>
 
       {/* Status Filters */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* <div className="flex flex-wrap items-center gap-2"> */}
+      <ButtonGroup>
         {STATUS_FILTERS.map((filter) => (
           <Button
             key={filter.value}
-            variant={selectedStatus === filter.value ? "default" : "outline"}
+            variant="outline"
+            className={cn(
+              selectedStatus === filter.value &&
+                "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+            )}
             size="sm"
             onClick={() => onStatusChange(filter.value)}
           >
             {filter.label}
           </Button>
         ))}
-      </div>
+      </ButtonGroup>
+      {/* </div> */}
     </div>
   );
 };
