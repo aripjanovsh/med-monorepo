@@ -1,4 +1,3 @@
-import { Calendar, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -44,7 +43,6 @@ export const ViewSwitcher = ({
           size="sm"
           onClick={() => onViewChange("calendar")}
         >
-          <Calendar />
           Календарь
         </Button>
         <Button
@@ -56,7 +54,6 @@ export const ViewSwitcher = ({
           size="sm"
           onClick={() => onViewChange("list")}
         >
-          <List />
           Список
         </Button>
       </ButtonGroup>

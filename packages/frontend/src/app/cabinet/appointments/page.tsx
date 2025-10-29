@@ -28,7 +28,9 @@ export default function AppointmentsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
-  const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus | "all">("all");
+  const [selectedStatus, setSelectedStatus] = useState<
+    AppointmentStatus | "all"
+  >("all");
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -36,7 +38,9 @@ export default function AppointmentsPage() {
   // Sheet states
   const [viewSheetOpen, setViewSheetOpen] = useState(false);
   const [formSheetOpen, setFormSheetOpen] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
+    string | null
+  >(null);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
 
   const { data, isLoading, refetch } = useGetAppointmentsQuery({
@@ -111,7 +115,10 @@ export default function AppointmentsPage() {
     if (!reason) return;
 
     try {
-      await cancelAppointment({ id: appointment.id, cancelReason: reason }).unwrap();
+      await cancelAppointment({
+        id: appointment.id,
+        cancelReason: reason,
+      }).unwrap();
       toast.success("Запись отменена");
       refetch();
     } catch (error: any) {
@@ -144,24 +151,35 @@ export default function AppointmentsPage() {
           </p>
         </div>
         <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus />
           Создать запись
         </Button>
       </div>
 
-      <ViewSwitcher
-        view={viewMode}
-        onViewChange={setViewMode}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-      />
+      {/* Single Row: Add new + Filters + Navigation */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <ViewSwitcher
+            view={viewMode}
+            onViewChange={setViewMode}
+            selectedStatus={selectedStatus}
+            onStatusChange={setSelectedStatus}
+          />
+        </div>
+
+        {viewMode === "calendar" && (
+          <CalendarView.Navigation
+            currentWeekStart={currentWeekStart}
+            onWeekChange={setCurrentWeekStart}
+            onGoToToday={handleGoToToday}
+          />
+        )}
+      </div>
 
       {viewMode === "calendar" ? (
         <CalendarView
           appointments={appointments}
           currentWeekStart={currentWeekStart}
-          onWeekChange={setCurrentWeekStart}
-          onGoToToday={handleGoToToday}
           onAppointmentClick={handleView}
         />
       ) : (

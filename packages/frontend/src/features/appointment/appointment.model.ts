@@ -114,5 +114,22 @@ export const formatAppointmentTime = (dateTime: string): string => {
   return new Intl.DateTimeFormat("ru-RU", {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   }).format(date);
+};
+
+export const formatAppointmentTimeWithPeriod = (dateTime: string): string => {
+  const date = new Date(dateTime);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, "0");
+  return `${displayHours.toString().padStart(2, "0")}:${displayMinutes} ${period}`;
+};
+
+export const getAppointmentDuration = (
+  appointment: AppointmentResponseDto,
+): number => {
+  return appointment.duration || 30;
 };
