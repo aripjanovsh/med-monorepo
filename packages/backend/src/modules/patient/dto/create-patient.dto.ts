@@ -3,7 +3,6 @@ import {
   IsString,
   IsOptional,
   IsEnum,
-  IsDateString,
   IsUUID,
   IsArray,
   ValidateNested,
@@ -13,7 +12,11 @@ import { InjectOrganizationId } from "../../../common/decorators/inject-organiza
 import { IsUniquePatientId } from "../../../common/decorators/unique.decorator";
 import { Expose, Exclude, Type } from "class-transformer";
 import { CreatePatientContactDto } from "./create-patient-contact.dto";
-import { TransformEmpty, TransformDate } from "@/common/decorators";
+import {
+  TransformEmpty,
+  TransformDate,
+  IsDateOrDateTimeString,
+} from "@/common/decorators";
 
 @Exclude()
 export class CreatePatientDto {
@@ -61,9 +64,9 @@ export class CreatePatientDto {
   @Expose()
   @ApiProperty({
     description: "Patient date of birth",
-    example: "1990-01-15T00:00:00.000Z",
+    example: "1990-01-15",
   })
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   dateOfBirth: Date;
 
@@ -109,22 +112,22 @@ export class CreatePatientDto {
   @Expose()
   @ApiProperty({
     description: "Passport issue date (дата выдачи)",
-    example: "2015-01-15T00:00:00.000Z",
+    example: "2015-01-15",
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   passportIssueDate?: Date;
 
   @Expose()
   @ApiProperty({
     description: "Passport expiry date (действителен до)",
-    example: "2025-01-15T00:00:00.000Z",
+    example: "2025-01-15",
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   passportExpiryDate?: Date;
 

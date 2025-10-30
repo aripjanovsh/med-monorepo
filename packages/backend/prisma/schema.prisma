@@ -108,7 +108,7 @@ model Patient {
   firstName         String
   middleName        String?       // Отчество
   lastName          String
-  dateOfBirth       DateTime
+  dateOfBirth       DateTime      @db.Date
   gender            Gender
   status            PatientStatus @default(ACTIVE)
   lastVisitedAt     DateTime?
@@ -117,8 +117,8 @@ model Patient {
   passportSeries    String?       // Серия паспорта
   passportNumber    String?       // Номер паспорта
   passportIssuedBy  String?       // Кем выдан
-  passportIssueDate DateTime?     // Дата выдачи
-  passportExpiryDate DateTime?    // Действителен до
+  passportIssueDate DateTime?     @db.Date // Дата выдачи
+  passportExpiryDate DateTime?    @db.Date // Действителен до
   
   // Languages (relations to Language model)
   primaryLanguageId   String?
@@ -481,7 +481,7 @@ model Employee {
   firstName     String
   middleName   String?        // Отчество
   lastName     String
-  dateOfBirth  DateTime?
+  dateOfBirth  DateTime?      @db.Date
   gender       Gender?
   email        String?        // For employees without user accounts
   phone        String?
@@ -492,16 +492,16 @@ model Employee {
   passportSeries    String?       // Серия паспорта
   passportNumber    String?       // Номер паспорта
   passportIssuedBy  String?       // Кем выдан
-  passportIssueDate DateTime?     // Дата выдачи
-  passportExpiryDate DateTime?    // Действителен до
+  passportIssueDate DateTime?     @db.Date // Дата выдачи
+  passportExpiryDate DateTime?    @db.Date // Действителен до
   
   titleId      String?        // Reference to Title model
   title        Title?         @relation(fields: [titleId], references: [id])
   
   // Employment Details
   salary       Decimal?       @db.Decimal(12, 2) // до 9 999 999 999.99
-  hireDate     String?
-  terminationDate String?
+  hireDate     DateTime?      @db.Date
+  terminationDate DateTime?   @db.Date
   status       EmployeeStatus @default(ACTIVE)
   
   workSchedule   Json?      // JSON or string describing work schedule

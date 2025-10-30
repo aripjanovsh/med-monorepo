@@ -14,7 +14,7 @@ export class PatientService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createPatientDto: CreatePatientDto,
+    createPatientDto: CreatePatientDto
   ): Promise<PatientResponseDto> {
     const { contacts, doctorIds, ...patientData } = createPatientDto;
 
@@ -22,7 +22,7 @@ export class PatientService {
       // Auto-generate patientId if not provided
       let patientId = patientData.patientId;
       if (!patientId) {
-        patientId = generateMemorableId("PAT");
+        patientId = generateMemorableId("P");
       }
 
       // Set status to ACTIVE if not provided
@@ -103,7 +103,7 @@ export class PatientService {
   }
 
   async findAll(
-    query: FindAllPatientDto,
+    query: FindAllPatientDto
   ): Promise<PaginatedResponseDto<PatientResponseDto>> {
     const {
       page,
@@ -197,7 +197,7 @@ export class PatientService {
 
   async findById(
     id: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<PatientResponseDto> {
     const where: Prisma.PatientWhereUniqueInput = { id };
 
@@ -251,7 +251,7 @@ export class PatientService {
 
   async update(
     id: string,
-    updatePatientDto: UpdatePatientDto,
+    updatePatientDto: UpdatePatientDto
   ): Promise<PatientResponseDto> {
     // Check if patient exists
     const existingPatient = await this.prisma.patient.findUnique({
@@ -309,7 +309,7 @@ export class PatientService {
 
         const toAdd = doctorIds.filter((sid) => !existingIds.has(sid));
         const toRemove = [...existingIds].filter(
-          (sid) => !incomingIds.has(sid),
+          (sid) => !incomingIds.has(sid)
         );
 
         if (toAdd.length > 0) {
@@ -373,7 +373,7 @@ export class PatientService {
   async updateStatus(
     id: string,
     status: PatientStatus,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<PatientResponseDto> {
     try {
       // Build where clause with organizationId filter if provided

@@ -3,7 +3,6 @@ import {
   IsString,
   IsOptional,
   IsEnum,
-  IsDateString,
   IsNumber,
   IsEmail,
   IsUUID,
@@ -19,7 +18,7 @@ import {
 import { RequiredForUserAccount } from "../../../common/decorators/conditional-validation.decorator";
 import { Expose, Exclude, Transform } from "class-transformer";
 import { Prisma } from "@prisma/client";
-import { TransformEmpty, TransformDate } from "@/common/decorators";
+import { TransformEmpty, TransformDate, IsDateOrDateTimeString } from "@/common/decorators";
 
 @Exclude()
 export class CreateEmployeeDto {
@@ -67,11 +66,11 @@ export class CreateEmployeeDto {
   @Expose()
   @ApiProperty({
     description: "Employee date of birth",
-    example: "1990-01-15T00:00:00.000Z",
+    example: "1990-01-15",
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   dateOfBirth?: Date;
 
@@ -119,22 +118,22 @@ export class CreateEmployeeDto {
   @Expose()
   @ApiProperty({
     description: "Passport issue date (дата выдачи)",
-    example: "2015-01-15T00:00:00.000Z",
+    example: "2015-01-15",
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   passportIssueDate?: Date;
 
   @Expose()
   @ApiProperty({
     description: "Passport expiry date (действителен до)",
-    example: "2025-01-15T00:00:00.000Z",
+    example: "2025-01-15",
     required: false,
   })
   @IsOptional()
-  @IsDateString()
+  @IsDateOrDateTimeString()
   @TransformDate()
   passportExpiryDate?: Date;
 
@@ -207,11 +206,12 @@ export class CreateEmployeeDto {
   @Expose()
   @ApiProperty({
     description: "Hire date",
-    example: "2024-01-15T00:00:00.000Z",
+    example: "2024-01-15",
   })
   @IsOptional()
-  @IsDateString()
-  hireDate?: string;
+  @IsDateOrDateTimeString()
+  @TransformDate()
+  hireDate?: Date;
 
   @Expose()
   @ApiProperty({

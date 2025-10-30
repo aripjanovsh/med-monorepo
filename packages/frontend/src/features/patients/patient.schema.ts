@@ -268,3 +268,35 @@ export type PatientFormStep4 = Pick<
   PatientFormData,
   "status"
 >;
+
+// Quick create patient schema (minimal required fields)
+export const patientQuickCreateSchema = yup.object({
+  firstName: yup
+    .string()
+    .min(2, VALIDATION_MESSAGES.FIRST_NAME_MIN)
+    .required(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  lastName: yup
+    .string()
+    .min(2, VALIDATION_MESSAGES.LAST_NAME_MIN)
+    .required(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  middleName: yup.string(),
+  dateOfBirth: yup
+    .string()
+    .required("Дата рождения обязательна")
+    .test("age", "Дата рождения не может быть в будущем", function (value) {
+      if (!value) return false;
+      const birthDate = new Date(value);
+      const today = new Date();
+      return birthDate <= today;
+    }),
+  gender: yup
+    .string()
+    .oneOf(Object.values(GENDER))
+    .required("Пол обязателен"),
+  primaryPhone: yup
+    .string()
+    .required("Основной телефон обязателен")
+    .min(10, "Телефон должен содержать минимум 10 цифр"),
+});
+
+export type PatientQuickCreateData = yup.InferType<typeof patientQuickCreateSchema>;

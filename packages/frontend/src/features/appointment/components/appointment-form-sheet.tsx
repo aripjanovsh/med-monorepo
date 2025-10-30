@@ -39,9 +39,9 @@ import {
 } from "../appointment.api";
 import { APPOINTMENT_TYPE_OPTIONS } from "../appointment.constants";
 import type { AppointmentType } from "../appointment.constants";
-import { PatientSelectField } from "@/features/patients/components/patient-select-field";
 import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
 import { useMe } from "@/features/auth/use-me";
+import { PatientAutocompleteField } from "@/features/patients";
 
 type AppointmentFormSheetProps = {
   mode: "create" | "edit";
@@ -173,7 +173,7 @@ export const AppointmentFormSheet = ({
                     <FormItem>
                       <FormLabel>Пациент *</FormLabel>
                       <FormControl>
-                        <PatientSelectField {...field} />
+                        <PatientAutocompleteField {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

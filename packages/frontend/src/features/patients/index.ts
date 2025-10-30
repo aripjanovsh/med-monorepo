@@ -17,6 +17,9 @@ export * from "./patient.model";
 export * from "./components/patient-columns";
 export * from "./components/patient-form";
 export * from "./components/page-patient-form";
+export * from "./components/patient-select-field";
+export * from "./components/patient-autocomplete-field";
+export * from "./components/patient-quick-create-sheet";
 
 // Detail Components
 export * from "./components/detail/patient-overview";

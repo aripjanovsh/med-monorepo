@@ -14,7 +14,7 @@ import { customAlphabet } from "nanoid";
 const ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 // Create nanoid generator with custom alphabet
-const generateSegment = customAlphabet(ALPHABET, 4);
+const generateSegment = customAlphabet(ALPHABET, 3);
 
 /**
  * Generate a unique memorable ID with prefix and random segments
