@@ -5,6 +5,8 @@ import { Plus } from "lucide-react";
 import { startOfWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useDialog } from "@/lib/dialog-manager/dialog-manager";
+import { useConfirmDialog, usePromptDialog } from "@/components/dialogs";
 
 import {
   useGetAppointmentsQuery,
@@ -35,13 +37,11 @@ export default function AppointmentsPage() {
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
 
-  // Sheet states
-  const [viewSheetOpen, setViewSheetOpen] = useState(false);
-  const [formSheetOpen, setFormSheetOpen] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
-    string | null
-  >(null);
-  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  // Dialog Manager для управления sheets и dialogs
+  const viewSheet = useDialog(AppointmentViewSheet);
+  const formSheet = useDialog(AppointmentFormSheet);
+  const confirm = useConfirmDialog();
+  const prompt = usePromptDialog();
 
   const { data, isLoading, refetch } = useGetAppointmentsQuery({
     page: viewMode === "list" ? page : 1,
@@ -55,39 +55,55 @@ export default function AppointmentsPage() {
   const [cancelAppointment] = useCancelAppointmentMutation();
 
   const handleView = (appointment: AppointmentResponseDto) => {
-    setSelectedAppointmentId(appointment.id);
-    setViewSheetOpen(true);
+    viewSheet.open({
+      appointmentId: appointment.id,
+      onEdit: (id) => {
+        viewSheet.close();
+        handleEdit({ id } as AppointmentResponseDto);
+      },
+      onDeleted: refetch,
+    });
   };
 
   const handleEdit = (appointment: AppointmentResponseDto) => {
-    setSelectedAppointmentId(appointment.id);
-    setFormMode("edit");
-    setFormSheetOpen(true);
+    formSheet.open({
+      mode: "edit",
+      appointmentId: appointment.id,
+      onSuccess: () => {
+        refetch();
+        formSheet.close();
+      },
+    });
   };
 
   const handleCreate = () => {
-    setSelectedAppointmentId(null);
-    setFormMode("create");
-    setFormSheetOpen(true);
-  };
-
-  const handleEditFromView = (appointmentId: string) => {
-    setViewSheetOpen(false);
-    setSelectedAppointmentId(appointmentId);
-    setFormMode("edit");
-    setFormSheetOpen(true);
+    formSheet.open({
+      mode: "create",
+      appointmentId: null,
+      onSuccess: () => {
+        refetch();
+        formSheet.close();
+      },
+    });
   };
 
   const handleDelete = async (appointment: AppointmentResponseDto) => {
-    if (!confirm("Удалить запись?")) return;
-
-    try {
-      await deleteAppointment(appointment.id).unwrap();
-      toast.success("Запись удалена");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при удалении");
-    }
+    confirm({
+      title: "Удалить запись?",
+      description:
+        "Это действие нельзя отменить. Запись будет удалена безвозвратно.",
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: async () => {
+        try {
+          await deleteAppointment(appointment.id).unwrap();
+          toast.success("Запись удалена");
+          refetch();
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Ошибка при удалении");
+        }
+      },
+    });
   };
 
   const handleConfirm = async (appointment: AppointmentResponseDto) => {
@@ -111,19 +127,27 @@ export default function AppointmentsPage() {
   };
 
   const handleCancel = async (appointment: AppointmentResponseDto) => {
-    const reason = prompt("Причина отмены:");
-    if (!reason) return;
-
-    try {
-      await cancelAppointment({
-        id: appointment.id,
-        cancelReason: reason,
-      }).unwrap();
-      toast.success("Запись отменена");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при отмене");
-    }
+    prompt({
+      title: "Отменить запись",
+      description: "Укажите причину отмены записи на прием",
+      label: "Причина отмены *",
+      placeholder: "Например: Пациент отказался, изменились планы...",
+      multiline: true,
+      required: true,
+      confirmText: "Отменить запись",
+      onConfirm: async (reason) => {
+        try {
+          await cancelAppointment({
+            id: appointment.id,
+            cancelReason: reason,
+          }).unwrap();
+          toast.success("Запись отменена");
+          refetch();
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Ошибка при отмене");
+        }
+      },
+    });
   };
 
   const handleGoToToday = () => {
@@ -196,24 +220,6 @@ export default function AppointmentsPage() {
           }}
         />
       )}
-
-      {/* View Sheet */}
-      <AppointmentViewSheet
-        appointmentId={selectedAppointmentId}
-        open={viewSheetOpen}
-        onOpenChange={setViewSheetOpen}
-        onEdit={handleEditFromView}
-        onDeleted={refetch}
-      />
-
-      {/* Form Sheet */}
-      <AppointmentFormSheet
-        mode={formMode}
-        appointmentId={formMode === "edit" ? selectedAppointmentId : null}
-        open={formSheetOpen}
-        onOpenChange={setFormSheetOpen}
-        onSuccess={refetch}
-      />
     </div>
   );
 }

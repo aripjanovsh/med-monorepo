@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 
 import {
   appointmentFormSchema,
@@ -43,14 +44,20 @@ import { EmployeeSelectField } from "@/features/employees/components/employee-se
 import { useMe } from "@/features/auth/use-me";
 import { PatientAutocompleteField } from "@/features/patients";
 
-type AppointmentFormSheetProps = {
+/**
+ * Пропсы для AppointmentFormSheet (без базовых DialogProps)
+ */
+type AppointmentFormSheetOwnProps = {
   mode: "create" | "edit";
   appointmentId?: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   patientId?: string;
 };
+
+/**
+ * Полные пропсы компонента (с DialogProps)
+ */
+type AppointmentFormSheetProps = AppointmentFormSheetOwnProps & DialogProps;
 
 export const AppointmentFormSheet = ({
   mode,

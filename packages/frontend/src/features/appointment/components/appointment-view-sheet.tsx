@@ -24,6 +24,8 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
+import { useConfirmDialog, usePromptDialog } from "@/components/dialogs";
 import {
   useGetAppointmentQuery,
   useDeleteAppointmentMutation,
@@ -42,13 +44,19 @@ import {
   isAppointmentEditable,
 } from "../appointment.model";
 
-type AppointmentViewSheetProps = {
+/**
+ * Пропсы для AppointmentViewSheet (без базовых DialogProps)
+ */
+type AppointmentViewSheetOwnProps = {
   appointmentId: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onEdit?: (appointmentId: string) => void;
   onDeleted?: () => void;
 };
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type AppointmentViewSheetProps = AppointmentViewSheetOwnProps & DialogProps;
 
 export const AppointmentViewSheet = ({
   appointmentId,
@@ -57,26 +65,40 @@ export const AppointmentViewSheet = ({
   onEdit,
   onDeleted,
 }: AppointmentViewSheetProps) => {
-  const { data: appointment, isLoading, error, refetch } = useGetAppointmentQuery(
-    appointmentId || "",
-    { skip: !appointmentId }
-  );
+  const {
+    data: appointment,
+    isLoading,
+    error,
+    refetch,
+  } = useGetAppointmentQuery(appointmentId || "", { skip: !appointmentId });
   const [deleteAppointment] = useDeleteAppointmentMutation();
   const [confirmAppointment] = useConfirmAppointmentMutation();
   const [checkInAppointment] = useCheckInAppointmentMutation();
   const [cancelAppointment] = useCancelAppointmentMutation();
 
-  const handleDelete = async () => {
-    if (!appointmentId || !confirm("Удалить запись?")) return;
+  const confirm = useConfirmDialog();
+  const prompt = usePromptDialog();
 
-    try {
-      await deleteAppointment(appointmentId).unwrap();
-      toast.success("Запись удалена");
-      onOpenChange(false);
-      onDeleted?.();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при удалении");
-    }
+  const handleDelete = async () => {
+    if (!appointmentId) return;
+
+    confirm({
+      title: "Удалить запись?",
+      description:
+        "Это действие нельзя отменить. Запись будет удалена безвозвратно.",
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: async () => {
+        try {
+          await deleteAppointment(appointmentId).unwrap();
+          toast.success("Запись удалена");
+          onOpenChange(false);
+          onDeleted?.();
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Ошибка при удалении");
+        }
+      },
+    });
   };
 
   const handleConfirm = async () => {
@@ -106,16 +128,27 @@ export const AppointmentViewSheet = ({
   const handleCancel = async () => {
     if (!appointmentId) return;
 
-    const reason = prompt("Причина отмены:");
-    if (!reason) return;
-
-    try {
-      await cancelAppointment({ id: appointmentId, cancelReason: reason }).unwrap();
-      toast.success("Запись отменена");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при отмене");
-    }
+    prompt({
+      title: "Отменить запись",
+      description: "Укажите причину отмены записи на прием",
+      label: "Причина отмены *",
+      placeholder: "Например: Пациент отказался, изменились планы...",
+      multiline: true,
+      required: true,
+      confirmText: "Отменить запись",
+      onConfirm: async (reason) => {
+        try {
+          await cancelAppointment({
+            id: appointmentId,
+            cancelReason: reason,
+          }).unwrap();
+          toast.success("Запись отменена");
+          refetch();
+        } catch (error: any) {
+          toast.error(error?.data?.message || "Ошибка при отмене");
+        }
+      },
+    });
   };
 
   const handleEdit = () => {
@@ -247,7 +280,9 @@ export const AppointmentViewSheet = ({
 
               {appointment.cancelReason && (
                 <div className="pt-4 border-t">
-                  <p className="text-sm font-medium mb-2 text-red-600">Причина отмены</p>
+                  <p className="text-sm font-medium mb-2 text-red-600">
+                    Причина отмены
+                  </p>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                     {appointment.cancelReason}
                   </p>
