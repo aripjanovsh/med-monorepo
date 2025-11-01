@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -26,8 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { useCreatePatientAllergyMutation } from "../patient-allergy.api";
 import { toast } from "sonner";
 import type { AllergySeverity } from "../patient-allergy.model";
@@ -39,18 +38,27 @@ type AddPatientAllergyFormData = {
   note?: string;
 };
 
-type AddPatientAllergyDialogProps = {
+/**
+ * Пропсы для AddPatientAllergyDialog (без базовых DialogProps)
+ */
+type AddPatientAllergyDialogOwnProps = {
   patientId: string;
   recordedById: string;
   visitId?: string;
 };
 
+/**
+ * Полные пропсы с DialogProps
+ */
+type AddPatientAllergyDialogProps = AddPatientAllergyDialogOwnProps & DialogProps;
+
 export const AddPatientAllergyDialog = ({
   patientId,
   recordedById,
   visitId,
+  open,
+  onOpenChange,
 }: AddPatientAllergyDialogProps) => {
-  const [open, setOpen] = useState(false);
   const [createPatientAllergy, { isLoading }] = useCreatePatientAllergyMutation();
 
   const form = useForm<AddPatientAllergyFormData>({
@@ -71,8 +79,8 @@ export const AddPatientAllergyDialog = ({
         ...data,
       }).unwrap();
 
-      toast.success("Аллергия добавлена");
-      setOpen(false);
+      toast.success("Аллергия успешно добавлена");
+      onOpenChange(false);
       form.reset();
     } catch (error) {
       toast.error("Ошибка при добавлении аллергии");
@@ -80,13 +88,7 @@ export const AddPatientAllergyDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Добавить аллергию
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Добавить аллергию</DialogTitle>
@@ -168,7 +170,7 @@ export const AddPatientAllergyDialog = ({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => onOpenChange(false)}
               >
                 Отмена
               </Button>

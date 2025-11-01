@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -26,11 +25,11 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { useUpdatePatientAllergyMutation } from "../patient-allergy.api";
+import type { PatientAllergy, AllergySeverity } from "../patient-allergy.model";
 import { toast } from "sonner";
-import type { AllergySeverity, PatientAllergy } from "../patient-allergy.model";
 
 type EditPatientAllergyFormData = {
   substance: string;
@@ -39,14 +38,23 @@ type EditPatientAllergyFormData = {
   note?: string;
 };
 
-type EditPatientAllergyDialogProps = {
+/**
+ * Пропсы для EditPatientAllergyDialog (без базовых DialogProps)
+ */
+type EditPatientAllergyDialogOwnProps = {
   allergy: PatientAllergy;
 };
 
+/**
+ * Полные пропсы с DialogProps
+ */
+type EditPatientAllergyDialogProps = EditPatientAllergyDialogOwnProps & DialogProps;
+
 export const EditPatientAllergyDialog = ({
   allergy,
+  open,
+  onOpenChange,
 }: EditPatientAllergyDialogProps) => {
-  const [open, setOpen] = useState(false);
   const [updatePatientAllergy, { isLoading }] = useUpdatePatientAllergyMutation();
 
   const form = useForm<EditPatientAllergyFormData>({
@@ -58,17 +66,6 @@ export const EditPatientAllergyDialog = ({
     },
   });
 
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        substance: allergy.substance,
-        reaction: allergy.reaction || "",
-        severity: allergy.severity,
-        note: allergy.note || "",
-      });
-    }
-  }, [open, allergy, form]);
-
   const handleSubmit = async (data: EditPatientAllergyFormData) => {
     try {
       await updatePatientAllergy({
@@ -76,20 +73,15 @@ export const EditPatientAllergyDialog = ({
         data,
       }).unwrap();
 
-      toast.success("Аллергия обновлена");
-      setOpen(false);
+      toast.success("Аллергия успешно обновлена");
+      onOpenChange(false);
     } catch (error) {
       toast.error("Ошибка при обновлении аллергии");
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Редактировать аллергию</DialogTitle>
@@ -171,7 +163,7 @@ export const EditPatientAllergyDialog = ({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => onOpenChange(false)}
               >
                 Отмена
               </Button>

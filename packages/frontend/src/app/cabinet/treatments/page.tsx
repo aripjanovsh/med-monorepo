@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { mockTreatments, getTreatmentStats } from "@/data/treatments";
 import { Treatment, TreatmentFilter } from "@/types/treatment";
 import PageHeader from "@/components/layouts/page-header";
+import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 
 import { createTreatmentColumns } from "@/components/treatments/treatment-columns";
 import { TreatmentSheet } from "@/components/treatments/treatment-sheet";
@@ -29,31 +30,31 @@ import { TreatmentFilters } from "@/components/treatments/treatment-filters";
 
 export default function TreatmentsPage() {
   const [activeTab, setActiveTab] = useState("all");
-  const [treatmentSheetOpen, setTreatmentSheetOpen] = useState(false);
-  const [sheetMode, setSheetMode] = useState<"create" | "edit">("create");
-  const [selectedTreatment, setSelectedTreatment] = useState<
-    Treatment | undefined
-  >();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<TreatmentFilter>({});
   const [showFilters, setShowFilters] = useState(false);
 
+  const treatmentSheet = useDialog(TreatmentSheet);
+
   const handleCreateTreatment = () => {
-    setSelectedTreatment(undefined);
-    setSheetMode("create");
-    setTreatmentSheetOpen(true);
+    treatmentSheet.open({
+      treatment: undefined,
+      mode: "create",
+    });
   };
 
   const handleEditTreatment = (treatment: Treatment) => {
-    setSelectedTreatment(treatment);
-    setSheetMode("edit");
-    setTreatmentSheetOpen(true);
+    treatmentSheet.open({
+      treatment,
+      mode: "edit",
+    });
   };
 
   const handleViewTreatment = (treatment: Treatment) => {
-    setSelectedTreatment(treatment);
-    setSheetMode("edit"); // For now, use edit mode for viewing
-    setTreatmentSheetOpen(true);
+    treatmentSheet.open({
+      treatment,
+      mode: "edit", // For now, use edit mode for viewing
+    });
   };
 
   // Filter treatments based on search and filters
@@ -298,14 +299,6 @@ export default function TreatmentsPage() {
           />
         </TabsContent>
       </Tabs>
-
-      {/* Treatment Sheet */}
-      <TreatmentSheet
-        open={treatmentSheetOpen}
-        onOpenChange={setTreatmentSheetOpen}
-        treatment={selectedTreatment}
-        mode={sheetMode}
-      />
     </div>
   );
 }

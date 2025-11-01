@@ -1,36 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { PrescriptionForm } from "./prescription-form";
 
-type AddPrescriptionDialogProps = {
+/**
+ * Пропсы для AddPrescriptionDialog (без базовых DialogProps)
+ */
+type AddPrescriptionDialogOwnProps = {
   visitId: string;
   employeeId: string;
 };
 
+/**
+ * Полные пропсы с DialogProps
+ */
+type AddPrescriptionDialogProps = AddPrescriptionDialogOwnProps & DialogProps;
+
 export const AddPrescriptionDialog = ({
   visitId,
   employeeId,
+  open,
+  onOpenChange,
 }: AddPrescriptionDialogProps) => {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Добавить
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Добавить назначение</DialogTitle>
@@ -38,8 +38,8 @@ export const AddPrescriptionDialog = ({
         <PrescriptionForm
           visitId={visitId}
           employeeId={employeeId}
-          onSuccess={() => setOpen(false)}
-          onCancel={() => setOpen(false)}
+          onSuccess={() => onOpenChange(false)}
+          onCancel={() => onOpenChange(false)}
         />
       </DialogContent>
     </Dialog>

@@ -19,14 +19,21 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetServicesQuery } from "@/features/master-data";
 import { useCreateServiceOrdersMutation } from "../service-order.api";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 
-type AddServicesDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+/**
+ * Пропсы для AddServicesDialog (без базовых DialogProps)
+ */
+type AddServicesDialogOwnProps = {
   visitId: string;
   patientId: string;
   doctorId: string;
 };
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type AddServicesDialogProps = AddServicesDialogOwnProps & DialogProps;
 
 const SERVICE_TYPE_LABELS = {
   CONSULTATION: "Консультации",

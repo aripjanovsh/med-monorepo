@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { ActionTabs } from "@/components/action-tabs";
 import PageHeader from "@/components/layouts/page-header";
 import Link from "next/link";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function EmployeesPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function EmployeesPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
+  const confirm = useConfirmDialog();
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const {
@@ -57,28 +59,28 @@ export default function EmployeesPage() {
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
-    if (
-      !confirm(
-        `Вы уверены, что хотите удалить сотрудника ${
-          employee.firstName || employee.id
-        }?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await deleteEmployee(employee.id).unwrap();
-      toast.success("Сотрудник успешно удален!");
-      refetchEmployees();
-    } catch (error: any) {
-      console.error("Error deleting employee:", error);
-      const errorMessage =
-        error?.data?.message ||
-        error?.message ||
-        "Ошибка при удалении сотрудника";
-      toast.error(errorMessage);
-    }
+    confirm({
+      title: "Удалить сотрудника?",
+      description: `Вы уверены, что хотите удалить сотрудника ${
+        employee.firstName || employee.id
+      }? Это действие нельзя отменить.`,
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: async () => {
+        try {
+          await deleteEmployee(employee.id).unwrap();
+          toast.success("Сотрудник успешно удален!");
+          refetchEmployees();
+        } catch (error: any) {
+          console.error("Error deleting employee:", error);
+          const errorMessage =
+            error?.data?.message ||
+            error?.message ||
+            "Ошибка при удалении сотрудника";
+          toast.error(errorMessage);
+        }
+      },
+    });
   };
 
   const employeeColumns = createEmployeeColumns(

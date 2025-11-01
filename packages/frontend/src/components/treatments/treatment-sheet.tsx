@@ -26,15 +26,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 
 import { Treatment, TreatmentProcedure } from "@/types/treatment";
 
-interface TreatmentSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+/**
+ * Пропсы для TreatmentSheet (без базовых DialogProps)
+ */
+type TreatmentSheetOwnProps = {
   treatment?: Treatment;
   mode: "create" | "edit";
-}
+};
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type TreatmentSheetProps = TreatmentSheetOwnProps & DialogProps;
 
 export function TreatmentSheet({ 
   open, 

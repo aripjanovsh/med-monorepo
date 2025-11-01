@@ -7,21 +7,29 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { useCreatePatientParameterMutation } from "../patient-parameter.api";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import { toast } from "sonner";
 
-type AddParameterDialogProps = {
+/**
+ * Пропсы для AddParameterDialog (без базовых DialogProps)
+ */
+type AddParameterDialogOwnProps = {
   patientId: string;
   recordedById: string;
   visitId?: string;
 };
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type AddParameterDialogProps = AddParameterDialogOwnProps & DialogProps;
 
 type ParameterValues = Record<string, string>;
 
@@ -29,8 +37,9 @@ export const AddParameterDialog = ({
   patientId,
   recordedById,
   visitId,
+  open,
+  onOpenChange,
 }: AddParameterDialogProps) => {
-  const [open, setOpen] = useState(false);
   const [values, setValues] = useState<ParameterValues>({});
   const [bpSystolic, setBpSystolic] = useState("");
   const [bpDiastolic, setBpDiastolic] = useState("");
@@ -110,7 +119,7 @@ export const AddParameterDialog = ({
       );
 
       toast.success(`Добавлено параметров: ${parametersToAdd.length}`);
-      setOpen(false);
+      onOpenChange(false);
       setValues({});
       setBpSystolic("");
       setBpDiastolic("");
@@ -120,20 +129,14 @@ export const AddParameterDialog = ({
   };
 
   const handleCancel = () => {
-    setOpen(false);
+    onOpenChange(false);
     setValues({});
     setBpSystolic("");
     setBpDiastolic("");
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Добавить показатели
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="md:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Добавить показатели пациента</DialogTitle>

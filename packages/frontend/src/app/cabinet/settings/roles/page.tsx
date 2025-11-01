@@ -13,24 +13,14 @@ import {
   useCreateRoleMutation,
   useDeleteRoleMutation,
 } from "@/features/roles/role.api";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useDialog } from "@/lib/dialog-manager/dialog-manager";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function RolesPage() {
   const router = useRouter();
-  const [sheetOpen, setSheetOpen] = useState(false);
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [roleToDelete, setRoleToDelete] = useState<Role | undefined>();
+  const roleSheet = useDialog(RoleSheet);
+  const confirm = useConfirmDialog();
 
   const [filters, setFilters] = useState<RoleFilters>({
     page: 1,
@@ -53,7 +43,20 @@ export default function RolesPage() {
   const [deleteRole, { isLoading: isDeleting }] = useDeleteRoleMutation();
 
   const handleCreateRole = () => {
-    setSheetOpen(true);
+    roleSheet.open({
+      onSubmit: async (data: CreateRoleDto) => {
+        try {
+          const newRole = await createRole(data).unwrap();
+          toast.success("Role created successfully");
+          roleSheet.close();
+          // Redirect to role detail page to add permissions
+          router.push(`/cabinet/settings/roles/${newRole.id}`);
+        } catch (error) {
+          toast.error("Failed to create role");
+        }
+      },
+      isLoading: isCreating,
+    });
   };
 
   const handleViewRole = (role: Role) => {
@@ -61,33 +64,20 @@ export default function RolesPage() {
   };
 
   const handleDeleteRole = (role: Role) => {
-    setRoleToDelete(role);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleSubmit = async (data: CreateRoleDto) => {
-    try {
-      const newRole = await createRole(data).unwrap();
-      toast.success("Role created successfully");
-      setSheetOpen(false);
-      // Redirect to role detail page to add permissions
-      router.push(`/cabinet/settings/roles/${newRole.id}`);
-    } catch (error) {
-      toast.error("Failed to create role");
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (!roleToDelete) return;
-
-    try {
-      await deleteRole(roleToDelete.id).unwrap();
-      toast.success("Role deleted successfully");
-      setDeleteDialogOpen(false);
-      setRoleToDelete(undefined);
-    } catch (error) {
-      toast.error("Failed to delete role");
-    }
+    confirm({
+      title: "Удалить роль?",
+      description: `Это действие нельзя отменить. Роль "${role.name}" будет удалена у всех пользователей.`,
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: async () => {
+        try {
+          await deleteRole(role.id).unwrap();
+          toast.success("Role deleted successfully");
+        } catch (error) {
+          toast.error("Failed to delete role");
+        }
+      },
+    });
   };
 
   const columns = createRoleColumns(handleViewRole, handleDeleteRole);
@@ -115,32 +105,6 @@ export default function RolesPage() {
         }}
         isLoading={isLoading}
       />
-
-      <RoleSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        onSubmit={handleSubmit}
-        isLoading={isCreating}
-      />
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              role &ldquo;{roleToDelete?.name}&rdquo; and remove it from all
-              users.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={isDeleting}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

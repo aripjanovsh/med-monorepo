@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/layouts/page-header";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function PatientsPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
+  const confirm = useConfirmDialog();
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const {
@@ -57,26 +59,26 @@ export default function PatientsPage() {
   };
 
   const handleDeletePatient = async (patient: PatientResponseDto) => {
-    if (
-      !confirm(
-        `Вы уверены, что хотите удалить пациента ${patient.firstName} ${patient.lastName}?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await deletePatient({ id: patient.id }).unwrap();
-      toast.success("Пациент успешно удален!");
-      refetchPatients();
-    } catch (error: any) {
-      console.error("Error deleting patient:", error);
-      const errorMessage =
-        error?.data?.message ||
-        error?.message ||
-        "Ошибка при удалении пациента";
-      toast.error(errorMessage);
-    }
+    confirm({
+      title: "Удалить пациента?",
+      description: `Вы уверены, что хотите удалить пациента ${patient.firstName} ${patient.lastName}? Это действие нельзя отменить.`,
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: async () => {
+        try {
+          await deletePatient({ id: patient.id }).unwrap();
+          toast.success("Пациент успешно удален!");
+          refetchPatients();
+        } catch (error: any) {
+          console.error("Error deleting patient:", error);
+          const errorMessage =
+            error?.data?.message ||
+            error?.message ||
+            "Ошибка при удалении пациента";
+          toast.error(errorMessage);
+        }
+      },
+    });
   };
 
   const patientActions = {

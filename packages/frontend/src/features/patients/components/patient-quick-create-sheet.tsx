@@ -11,6 +11,7 @@ import {
   SheetBody,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 
 import { TextField } from "@/components/fields/text-field";
 import { DatePickerField } from "@/components/fields/date-picker-field";
@@ -29,12 +30,19 @@ import type {
   CreatePatientRequestDto,
 } from "../patient.dto";
 
-type PatientQuickCreateSheetProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+/**
+ * Пропсы для PatientQuickCreateSheet (без базовых DialogProps)
+ */
+type PatientQuickCreateSheetOwnProps = {
   onSuccess?: (patient: PatientResponseDto) => void;
   defaultSearch?: string;
 };
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type PatientQuickCreateSheetProps = PatientQuickCreateSheetOwnProps &
+  DialogProps;
 
 const DEFAULT_VALUES: Partial<PatientQuickCreateData> = {
   firstName: "",

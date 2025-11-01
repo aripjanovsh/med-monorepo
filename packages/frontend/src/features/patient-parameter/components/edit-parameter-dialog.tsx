@@ -7,22 +7,33 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { useUpdatePatientParameterMutation } from "../patient-parameter.api";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import type { PatientParameter } from "../patient-parameter.model";
 import { toast } from "sonner";
 
-type EditParameterDialogProps = {
+/**
+ * Пропсы для EditParameterDialog (без базовых DialogProps)
+ */
+type EditParameterDialogOwnProps = {
   parameter: PatientParameter;
 };
 
-export const EditParameterDialog = ({ parameter }: EditParameterDialogProps) => {
-  const [open, setOpen] = useState(false);
+/**
+ * Полные пропсы с DialogProps
+ */
+type EditParameterDialogProps = EditParameterDialogOwnProps & DialogProps;
+
+export const EditParameterDialog = ({
+  parameter,
+  open,
+  onOpenChange,
+}: EditParameterDialogProps) => {
   const [value, setValue] = useState(() => {
     if (parameter.valueNumeric !== undefined && parameter.valueNumeric !== null) {
       return String(parameter.valueNumeric);
@@ -65,8 +76,8 @@ export const EditParameterDialog = ({ parameter }: EditParameterDialogProps) => 
         },
       }).unwrap();
 
-      toast.success("Параметр обновлен");
-      setOpen(false);
+      toast.success("Параметр успешно обновлен");
+      onOpenChange(false);
     } catch (error) {
       toast.error("Ошибка при обновлении параметра");
     }
@@ -77,12 +88,7 @@ export const EditParameterDialog = ({ parameter }: EditParameterDialogProps) => 
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Редактировать параметр</DialogTitle>
@@ -120,7 +126,7 @@ export const EditParameterDialog = ({ parameter }: EditParameterDialogProps) => 
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
             >
               Отмена
             </Button>

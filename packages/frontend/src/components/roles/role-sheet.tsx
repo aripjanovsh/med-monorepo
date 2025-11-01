@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateRoleDto } from "@/features/roles/role.types";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import {
   Sheet,
   SheetContent,
@@ -11,12 +12,18 @@ import {
 
 import { SimpleRoleForm } from "./simple-role-form";
 
-interface RoleSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+/**
+ * Пропсы для RoleSheet (без базовых DialogProps)
+ */
+type RoleSheetOwnProps = {
   onSubmit: (data: CreateRoleDto) => void;
   isLoading?: boolean;
-}
+};
+
+/**
+ * Полные пропсы с DialogProps
+ */
+type RoleSheetProps = RoleSheetOwnProps & DialogProps;
 
 export function RoleSheet({
   open,
