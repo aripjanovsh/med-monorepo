@@ -17,9 +17,15 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { ServiceOrderService } from "./service-order.service";
+import { ServiceOrderQueueService } from "./service-order-queue.service";
 import { CreateServiceOrderDto } from "./dto/create-service-order.dto";
 import { UpdateServiceOrderDto } from "./dto/update-service-order.dto";
 import { FindAllServiceOrderDto } from "./dto/find-all-service-order.dto";
+import { DepartmentQueueResponseDto } from "./dto/department-queue-response.dto";
+import { StartServiceDto } from "./dto/start-service.dto";
+import { CompleteServiceDto } from "./dto/complete-service.dto";
+import { QueueActionDto } from "./dto/queue-action.dto";
+import { plainToInstance } from "class-transformer";
 import {
   RequirePermission,
   PermissionGuard,
@@ -34,7 +40,10 @@ import {
 @UseGuards(AuthGuard("jwt"), PermissionGuard)
 @ApiBearerAuth()
 export class ServiceOrderController {
-  constructor(private readonly serviceOrderService: ServiceOrderService) {}
+  constructor(
+    private readonly serviceOrderService: ServiceOrderService,
+    private readonly queueService: ServiceOrderQueueService,
+  ) {}
 
   @Post()
   @RequirePermission({ resource: "service-orders", action: "CREATE" })
@@ -86,5 +95,116 @@ export class ServiceOrderController {
       id,
       user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
     );
+  }
+
+  // ==========================================
+  // QUEUE MANAGEMENT ENDPOINTS
+  // ==========================================
+
+  @Get("department/:departmentId/queue")
+  @RequirePermission({ resource: "service-orders", action: "READ" })
+  @ApiOperation({ summary: "Get department queue (lab/diagnostic/procedure)" })
+  @ApiResponse({ status: 200, description: "Department queue with waiting, in-progress, and stats" })
+  async getDepartmentQueue(
+    @Param("departmentId") departmentId: string,
+    @Query("organizationId") organizationId: string,
+  ): Promise<DepartmentQueueResponseDto> {
+    const queue = await this.queueService.getDepartmentQueue(
+      departmentId,
+      organizationId,
+    );
+
+    // Calculate waiting minutes for each item
+    const now = new Date();
+    const mapWithWaitingTime = (items: any[]) =>
+      items.map((item) => ({
+        ...item,
+        waitingMinutes: item.queuedAt
+          ? Math.floor((now.getTime() - item.queuedAt.getTime()) / 60000)
+          : 0,
+      }));
+
+    return plainToInstance(
+      DepartmentQueueResponseDto,
+      {
+        departmentId,
+        waiting: mapWithWaitingTime(queue.waiting),
+        inProgress: queue.inProgress
+          ? {
+              ...queue.inProgress,
+              waitingMinutes: queue.inProgress.queuedAt
+                ? Math.floor(
+                    (now.getTime() - queue.inProgress.queuedAt.getTime()) /
+                      60000,
+                  )
+                : 0,
+            }
+          : undefined,
+        skipped: mapWithWaitingTime(queue.skipped),
+        stats: queue.stats,
+      },
+      { excludeExtraneousValues: true },
+    );
+  }
+
+  @Post(":id/start")
+  @RequirePermission({ resource: "service-orders", action: "UPDATE" })
+  @ApiOperation({ summary: "Start service (begin serving patient)" })
+  @ApiResponse({ status: 200, description: "Service started successfully" })
+  @ApiResponse({ status: 400, description: "Cannot start service with current status" })
+  async startService(
+    @Param("id") id: string,
+    @Body() dto: StartServiceDto,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    await this.queueService.startService(
+      id,
+      dto.organizationId,
+      dto.performedById || user.id,
+    );
+    return { message: "Service started successfully" };
+  }
+
+  @Post(":id/complete")
+  @RequirePermission({ resource: "service-orders", action: "UPDATE" })
+  @ApiOperation({ summary: "Complete service and save results" })
+  @ApiResponse({ status: 200, description: "Service completed successfully" })
+  @ApiResponse({ status: 400, description: "Cannot complete service with current status" })
+  async completeService(
+    @Param("id") id: string,
+    @Body() dto: CompleteServiceDto,
+  ) {
+    await this.queueService.completeService(id, dto.organizationId, {
+      resultText: dto.resultText,
+      resultData: dto.resultData,
+      resultFileUrl: dto.resultFileUrl,
+    });
+    return { message: "Service completed successfully" };
+  }
+
+  @Post(":id/skip")
+  @RequirePermission({ resource: "service-orders", action: "UPDATE" })
+  @ApiOperation({ summary: "Skip patient temporarily (remove from active queue)" })
+  @ApiResponse({ status: 200, description: "Patient skipped successfully" })
+  @ApiResponse({ status: 400, description: "Cannot skip service with current status" })
+  async skipPatient(
+    @Param("id") id: string,
+    @Body() dto: QueueActionDto,
+  ) {
+    await this.queueService.skipPatient(id, dto.organizationId);
+    return { message: "Patient skipped successfully" };
+  }
+
+  @Post(":id/return-to-queue")
+  @RequirePermission({ resource: "service-orders", action: "UPDATE" })
+  @ApiOperation({ summary: "Return skipped patient back to queue" })
+  @ApiResponse({ status: 200, description: "Patient returned to queue successfully" })
+  @ApiResponse({ status: 400, description: "Can only return SKIPPED orders" })
+  async returnToQueue(
+    @Param("id") id: string,
+    @Body() dto: QueueActionDto,
+  ) {
+    await this.queueService.returnToQueue(id, dto.organizationId);
+    return { message: "Patient returned to queue successfully" };
   }
 }

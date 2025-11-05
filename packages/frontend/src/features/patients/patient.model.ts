@@ -3,17 +3,20 @@
  * Utility functions for patient data manipulation
  */
 
-import { PatientResponseDto, PatientContactDto, PatientDoctorDto } from "./patient.dto";
+import {
+  PatientResponseDto,
+  PatientContactDto,
+  PatientDoctorDto,
+} from "./patient.dto";
 
 // =============================================
 // Utility Functions
 // =============================================
 
 export const getPatientFullName = (patient: PatientResponseDto): string => {
-  const parts = [patient.firstName];
-  if (patient.middleName) parts.push(patient.middleName);
-  parts.push(patient.lastName);
-  return parts.join(" ");
+  return [patient.lastName, patient.firstName, patient.middleName]
+    .filter(Boolean)
+    .join(" ");
 };
 
 export const isPatientActive = (patient: PatientResponseDto): boolean => {
@@ -36,7 +39,8 @@ export const getPatientDisplayStatus = (status?: string): string => {
 export const calculatePatientAge = (dateOfBirth?: string | Date): number => {
   if (!dateOfBirth) return 0;
 
-  const birthDate = typeof dateOfBirth === 'string' ? new Date(dateOfBirth) : dateOfBirth;
+  const birthDate =
+    typeof dateOfBirth === "string" ? new Date(dateOfBirth) : dateOfBirth;
   const today = new Date();
   const diffTime = Math.abs(today.getTime() - birthDate.getTime());
   const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
@@ -44,36 +48,63 @@ export const calculatePatientAge = (dateOfBirth?: string | Date): number => {
   return diffYears;
 };
 
-export const getPatientPrimaryContact = (patient: PatientResponseDto): PatientContactDto | null => {
-  return patient.contacts?.find(contact => contact.type === "PRIMARY") || null;
+export const getPatientPrimaryContact = (
+  patient: PatientResponseDto
+): PatientContactDto | null => {
+  return (
+    patient.contacts?.find((contact) => contact.type === "PRIMARY") || null
+  );
 };
 
-export const getPatientEmergencyContact = (patient: PatientResponseDto): PatientContactDto | null => {
-  return patient.contacts?.find(contact => contact.type === "EMERGENCY") || null;
+export const getPatientEmergencyContact = (
+  patient: PatientResponseDto
+): PatientContactDto | null => {
+  return (
+    patient.contacts?.find((contact) => contact.type === "EMERGENCY") || null
+  );
 };
 
-export const getPatientSelfContact = (patient: PatientResponseDto): PatientContactDto | null => {
-  return patient.contacts?.find(contact => contact.relation === "SELF") || null;
+export const getPatientSelfContact = (
+  patient: PatientResponseDto
+): PatientContactDto | null => {
+  return (
+    patient.contacts?.find((contact) => contact.relation === "SELF") || null
+  );
 };
 
-export const getPatientPrimaryPhone = (patient: PatientResponseDto): string | null => {
-  const primaryContact = getPatientSelfContact(patient) || getPatientPrimaryContact(patient);
+export const getPatientPrimaryPhone = (
+  patient: PatientResponseDto
+): string | null => {
+  const primaryContact =
+    getPatientSelfContact(patient) || getPatientPrimaryContact(patient);
   return primaryContact?.primaryPhone || null;
 };
 
-export const getPatientPrimaryDoctor = (patient: PatientResponseDto): PatientDoctorDto | null => {
-  return patient.doctors?.find(doctor => doctor.isActive) || patient.doctors?.[0] || null;
+export const getPatientPrimaryDoctor = (
+  patient: PatientResponseDto
+): PatientDoctorDto | null => {
+  return (
+    patient.doctors?.find((doctor) => doctor.isActive) ||
+    patient.doctors?.[0] ||
+    null
+  );
 };
 
-export const getPatientDoctorNames = (patient: PatientResponseDto): string[] => {
-  return patient.doctors
-    ?.filter(doctor => doctor.isActive)
-    ?.map(doctor => `${doctor.firstName} ${doctor.lastName}`) || [];
+export const getPatientDoctorNames = (
+  patient: PatientResponseDto
+): string[] => {
+  return (
+    patient.doctors
+      ?.filter((doctor) => doctor.isActive)
+      ?.map((doctor) => `${doctor.firstName} ${doctor.lastName}`) || []
+  );
 };
 
-export const formatPatientDisplayName = (patient: PatientResponseDto): string => {
+export const formatPatientDisplayName = (
+  patient: PatientResponseDto
+): string => {
   const fullName = getPatientFullName(patient);
-  const patientId = patient.patientId ? ` (${patient.patientId})` : '';
+  const patientId = patient.patientId ? ` (${patient.patientId})` : "";
   return `${fullName}${patientId}`;
 };
 
@@ -81,11 +112,11 @@ export const getContactDisplayName = (contact: PatientContactDto): string => {
   if (contact.relation === "SELF") {
     return "Сам пациент";
   }
-  
+
   const firstName = contact.firstName || "";
   const lastName = contact.lastName || "";
   const name = `${firstName} ${lastName}`.trim();
-  
+
   return name || "Без имени";
 };
 
@@ -152,7 +183,7 @@ export const getPatientLastVisit = (patient: PatientResponseDto): string => {
   if (!patient.lastVisitedAt) {
     return "Не посещал";
   }
-  
+
   const visitDate = new Date(patient.lastVisitedAt);
   return visitDate.toLocaleDateString("ru-RU");
 };
@@ -165,18 +196,22 @@ export const isPatientNew = (patient: PatientResponseDto): boolean => {
 // Language Functions (new)
 // =============================================
 
-export const getPatientPrimaryLanguage = (patient: PatientResponseDto): string => {
+export const getPatientPrimaryLanguage = (
+  patient: PatientResponseDto
+): string => {
   return patient.primaryLanguage?.name || "Не указан";
 };
 
-export const getPatientSecondaryLanguage = (patient: PatientResponseDto): string => {
+export const getPatientSecondaryLanguage = (
+  patient: PatientResponseDto
+): string => {
   return patient.secondaryLanguage?.name || "Не указан";
 };
 
 export const getPatientLanguages = (patient: PatientResponseDto): string => {
   const primary = patient.primaryLanguage?.name;
   const secondary = patient.secondaryLanguage?.name;
-  
+
   if (primary && secondary) {
     return `${primary}, ${secondary}`;
   } else if (primary) {
@@ -184,7 +219,7 @@ export const getPatientLanguages = (patient: PatientResponseDto): string => {
   } else if (secondary) {
     return secondary;
   }
-  
+
   return "Не указаны";
 };
 
@@ -194,20 +229,20 @@ export const getPatientLanguages = (patient: PatientResponseDto): string => {
 
 export const getPatientFullAddress = (patient: PatientResponseDto): string => {
   const parts: string[] = [];
-  
+
   if (patient.country?.name) parts.push(patient.country.name);
   if (patient.region?.name) parts.push(patient.region.name);
   if (patient.city?.name) parts.push(patient.city.name);
   if (patient.district?.name) parts.push(patient.district.name);
   if (patient.address) parts.push(patient.address);
-  
+
   return parts.length > 0 ? parts.join(", ") : "Не указан";
 };
 
 export const getPatientShortAddress = (patient: PatientResponseDto): string => {
   const city = patient.city?.name;
   const address = patient.address;
-  
+
   if (city && address) {
     return `${city}, ${address}`;
   } else if (city) {
@@ -215,7 +250,7 @@ export const getPatientShortAddress = (patient: PatientResponseDto): string => {
   } else if (address) {
     return address;
   }
-  
+
   return "Не указан";
 };
 
@@ -249,44 +284,48 @@ export const mapPatientToFormData = (patient: PatientResponseDto) => {
     dateOfBirth: patient.dateOfBirth,
     gender: (patient.gender as "MALE" | "FEMALE") || undefined,
     status: patient.status,
-    
+
     // Passport information
     passportSeries: patient.passportSeries || "",
     passportNumber: patient.passportNumber || "",
     passportIssuedBy: patient.passportIssuedBy || "",
     passportIssueDate: patient.passportIssueDate || "",
     passportExpiryDate: patient.passportExpiryDate || "",
-    
+
     // Language IDs
     primaryLanguageId: patient.primaryLanguageId || "",
     secondaryLanguageId: patient.secondaryLanguageId || "",
-    
+
     // Address IDs
     countryId: patient.countryId || "",
     regionId: patient.regionId || "",
     cityId: patient.cityId || "",
     districtId: patient.districtId || "",
     address: patient.address || "",
-    
+
     // Location hierarchy for LocationSelectField
     locationHierarchy: {
       countryId: patient.countryId,
       regionId: patient.regionId,
       cityId: patient.cityId,
       districtId: patient.districtId,
-      selectedId: patient.districtId || patient.cityId || patient.regionId || patient.countryId,
+      selectedId:
+        patient.districtId ||
+        patient.cityId ||
+        patient.regionId ||
+        patient.countryId,
     },
-    
+
     // Related data
     contacts: patient.contacts || [],
-    doctorIds: patient.doctors?.map(d => d.employeeId) || [],
+    doctorIds: patient.doctors?.map((d) => d.employeeId) || [],
   };
 };
 
 export const mapFormDataToCreateRequest = (formData: any) => {
   // Exclude UI-only fields from API request
   const { locationHierarchy, ...apiData } = formData;
-  
+
   return {
     ...apiData,
     // Ensure date is in ISO format
@@ -294,7 +333,10 @@ export const mapFormDataToCreateRequest = (formData: any) => {
   };
 };
 
-export const mapFormDataToUpdateRequest = (formData: any, patientId: string) => {
+export const mapFormDataToUpdateRequest = (
+  formData: any,
+  patientId: string
+) => {
   const createRequest = mapFormDataToCreateRequest(formData);
   return {
     ...createRequest,

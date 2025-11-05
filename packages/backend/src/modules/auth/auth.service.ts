@@ -39,6 +39,7 @@ export class AuthService {
         ? user.roleAssignments.map((ra: any) => ra.role?.name).filter(Boolean)
         : [],
       organizationId: user.organizationId,
+      employeeId: user.employee?.id,
     };
 
     return {
@@ -51,6 +52,7 @@ export class AuthService {
           ? user.roleAssignments.map((ra: any) => ra.role?.name).filter(Boolean)
           : [],
         organizationId: user.organizationId,
+        employeeId: user.employee?.id,
       },
     };
   }
@@ -69,6 +71,7 @@ export class AuthService {
       role: user.role,
       roles: user.roles || [],
       organizationId: user.organizationId,
+      employeeId: user.employeeId,
     };
 
     return {

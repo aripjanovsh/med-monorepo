@@ -8,9 +8,15 @@ import { PrismaService } from "@/common/prisma/prisma.service";
 import { CreateVisitDto } from "./dto/create-visit.dto";
 import { UpdateVisitDto } from "./dto/update-visit.dto";
 import { UpdateVisitStatusDto } from "./dto/update-visit-status.dto";
+import { StartVisitDto } from "./dto/start-visit.dto";
+import { CompleteVisitDto } from "./dto/complete-visit.dto";
 import { FindAllVisitDto } from "./dto/find-all-visit.dto";
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { VisitResponseDto } from "./dto/visit-response.dto";
+import {
+  DoctorQueueResponseDto,
+  DoctorQueueVisitDto,
+} from "./dto/doctor-queue-response.dto";
 import { plainToInstance } from "class-transformer";
 
 @Injectable()
@@ -29,7 +35,7 @@ export class VisitService {
 
         if (!appointment) {
           throw new NotFoundException(
-            `Appointment with ID ${appointmentId} not found`,
+            `Appointment with ID ${appointmentId} not found`
           );
         }
 
@@ -47,7 +53,7 @@ export class VisitService {
 
       if (!patient) {
         throw new NotFoundException(
-          `Patient with ID ${visitData.patientId} not found`,
+          `Patient with ID ${visitData.patientId} not found`
         );
       }
 
@@ -58,7 +64,7 @@ export class VisitService {
 
       if (!employee) {
         throw new NotFoundException(
-          `Employee (Doctor) with ID ${visitData.employeeId} not found`,
+          `Employee (Doctor) with ID ${visitData.employeeId} not found`
         );
       }
 
@@ -70,7 +76,7 @@ export class VisitService {
 
         if (!protocol) {
           throw new NotFoundException(
-            `Protocol template with ID ${visitData.protocolId} not found`,
+            `Protocol template with ID ${visitData.protocolId} not found`
           );
         }
       }
@@ -196,7 +202,7 @@ export class VisitService {
   }
 
   async findAll(
-    query: FindAllVisitDto,
+    query: FindAllVisitDto
   ): Promise<PaginatedResponseDto<VisitResponseDto>> {
     const {
       page,
@@ -309,6 +315,20 @@ export class VisitService {
               createdAt: true,
             },
           },
+          serviceOrders: {
+            select: {
+              id: true,
+              status: true,
+              paymentStatus: true,
+              service: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          },
         },
         orderBy,
         skip,
@@ -330,7 +350,7 @@ export class VisitService {
 
   async findOne(
     id: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<VisitResponseDto> {
     const where: Prisma.VisitWhereUniqueInput = { id };
 
@@ -420,7 +440,7 @@ export class VisitService {
 
   async update(
     id: string,
-    updateVisitDto: UpdateVisitDto,
+    updateVisitDto: UpdateVisitDto
   ): Promise<VisitResponseDto> {
     const { organizationId, ...updateData } = updateVisitDto;
 
@@ -527,7 +547,7 @@ export class VisitService {
 
   async updateStatus(
     id: string,
-    updateStatusDto: UpdateVisitStatusDto,
+    updateStatusDto: UpdateVisitStatusDto
   ): Promise<VisitResponseDto> {
     const { status, organizationId } = updateStatusDto;
 
@@ -633,7 +653,7 @@ export class VisitService {
 
   async remove(
     id: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<{ message: string }> {
     try {
       const where: Prisma.VisitWhereUniqueInput = { id };
@@ -664,5 +684,361 @@ export class VisitService {
       }
       throw error;
     }
+  }
+
+  async startVisit(id: string, dto: StartVisitDto): Promise<VisitResponseDto> {
+    const { organizationId } = dto;
+
+    const visit = await this.prisma.visit.findFirst({
+      where: { id, organizationId },
+      include: { appointment: true },
+    });
+
+    if (!visit) {
+      throw new NotFoundException(`Visit with ID ${id} not found`);
+    }
+
+    if (visit.status !== VisitStatus.WAITING) {
+      throw new BadRequestException(
+        `Cannot start visit with status ${visit.status}`
+      );
+    }
+
+    const startedAt = new Date();
+    const waitingTimeMinutes = visit.queuedAt
+      ? Math.floor((startedAt.getTime() - visit.queuedAt.getTime()) / 60000)
+      : null;
+
+    const updatedVisit = await this.prisma.visit.update({
+      where: { id },
+      data: {
+        status: VisitStatus.IN_PROGRESS,
+        startedAt,
+        waitingTimeMinutes,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            patientId: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            dateOfBirth: true,
+            gender: true,
+          },
+        },
+        employee: {
+          select: {
+            id: true,
+            employeeId: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+          },
+        },
+        appointment: {
+          select: {
+            id: true,
+            scheduledAt: true,
+            status: true,
+            type: true,
+          },
+        },
+        protocol: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        medicalRecords: {
+          select: {
+            id: true,
+            type: true,
+            content: true,
+            createdAt: true,
+          },
+        },
+        prescriptions: {
+          select: {
+            id: true,
+            name: true,
+            dosage: true,
+            frequency: true,
+            duration: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    // Update appointment status
+    if (visit.appointmentId) {
+      await this.prisma.appointment.update({
+        where: { id: visit.appointmentId },
+        data: { status: AppointmentStatus.IN_PROGRESS },
+      });
+    }
+
+    return plainToInstance(VisitResponseDto, updatedVisit, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async completeVisit(
+    id: string,
+    dto: CompleteVisitDto
+  ): Promise<VisitResponseDto> {
+    const { organizationId, notes } = dto;
+
+    const visit = await this.prisma.visit.findFirst({
+      where: { id, organizationId },
+      include: { appointment: true },
+    });
+
+    if (!visit) {
+      throw new NotFoundException(`Visit with ID ${id} not found`);
+    }
+
+    if (visit.status !== VisitStatus.IN_PROGRESS) {
+      throw new BadRequestException(
+        `Cannot complete visit with status ${visit.status}`
+      );
+    }
+
+    const completedAt = new Date();
+    const serviceTimeMinutes = visit.startedAt
+      ? Math.floor((completedAt.getTime() - visit.startedAt.getTime()) / 60000)
+      : null;
+
+    const updatedVisit = await this.prisma.visit.update({
+      where: { id },
+      data: {
+        status: VisitStatus.COMPLETED,
+        completedAt,
+        serviceTimeMinutes,
+        notes: notes ?? visit.notes,
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            patientId: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            dateOfBirth: true,
+            gender: true,
+          },
+        },
+        employee: {
+          select: {
+            id: true,
+            employeeId: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+          },
+        },
+        appointment: {
+          select: {
+            id: true,
+            scheduledAt: true,
+            status: true,
+            type: true,
+          },
+        },
+        protocol: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        medicalRecords: {
+          select: {
+            id: true,
+            type: true,
+            content: true,
+            createdAt: true,
+          },
+        },
+        prescriptions: {
+          select: {
+            id: true,
+            name: true,
+            dosage: true,
+            frequency: true,
+            duration: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    // Update appointment status
+    if (visit.appointmentId) {
+      await this.prisma.appointment.update({
+        where: { id: visit.appointmentId },
+        data: { status: AppointmentStatus.COMPLETED },
+      });
+    }
+
+    return plainToInstance(VisitResponseDto, updatedVisit, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getDoctorQueue(
+    employeeId: string,
+    organizationId: string,
+    date?: string
+  ): Promise<DoctorQueueResponseDto> {
+    // Parse date
+    let startOfDay: Date;
+    let endOfDay: Date;
+
+    if (date) {
+      const [year, month, day] = date.split("-").map(Number);
+      startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+      endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+    } else {
+      const now = new Date();
+      startOfDay = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+      );
+      endOfDay = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        23,
+        59,
+        59,
+        999
+      );
+    }
+
+    console.log("employeeId", employeeId);
+    console.log("organizationId", organizationId);
+    console.log("date", date);
+
+    // Get doctor
+    const doctor = await this.prisma.employee.findFirst({
+      where: { id: employeeId, organizationId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        middleName: true,
+      },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException("Doctor not found");
+    }
+
+    const employeeName = [doctor.lastName, doctor.firstName, doctor.middleName]
+      .filter(Boolean)
+      .join(" ");
+
+    // Get visits
+    const visits = await this.prisma.visit.findMany({
+      where: {
+        employeeId,
+        organizationId,
+        visitDate: { gte: startOfDay, lte: endOfDay },
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+          },
+        },
+      },
+      orderBy: {
+        queueNumber: "asc",
+      },
+    });
+
+    const waiting = visits
+      .filter((v) => v.status === VisitStatus.WAITING)
+      .map((v) => {
+        const waitingMinutes = v.queuedAt
+          ? Math.floor((Date.now() - v.queuedAt.getTime()) / 60000)
+          : 0;
+        return plainToInstance(
+          DoctorQueueVisitDto,
+          {
+            ...v,
+            waitingMinutes,
+          },
+          { excludeExtraneousValues: true }
+        );
+      });
+
+    const inProgress = visits.find((v) => v.status === VisitStatus.IN_PROGRESS);
+    const completed = visits.filter((v) => v.status === VisitStatus.COMPLETED);
+
+    // Calculate stats
+    const avgWaitingTime =
+      completed.length > 0
+        ? completed.reduce((sum, v) => sum + (v.waitingTimeMinutes ?? 0), 0) /
+          completed.length
+        : 0;
+    const avgServiceTime =
+      completed.length > 0
+        ? completed.reduce((sum, v) => sum + (v.serviceTimeMinutes ?? 0), 0) /
+          completed.length
+        : 0;
+
+    return plainToInstance(
+      DoctorQueueResponseDto,
+      {
+        employeeId,
+        employeeName,
+        waiting,
+        inProgress: inProgress
+          ? plainToInstance(
+              DoctorQueueVisitDto,
+              {
+                ...inProgress,
+                waitingMinutes: inProgress.waitingTimeMinutes ?? 0,
+              },
+              { excludeExtraneousValues: true }
+            )
+          : undefined,
+        stats: {
+          waiting: waiting.length,
+          completed: completed.length,
+          avgWaitingTime: Math.round(avgWaitingTime),
+          avgServiceTime: Math.round(avgServiceTime),
+        },
+      },
+      { excludeExtraneousValues: true }
+    );
   }
 }

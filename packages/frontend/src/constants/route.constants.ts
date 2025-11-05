@@ -21,11 +21,17 @@ export const ROUTES = {
   EMPLOYEE_EDIT: "/cabinet/employees/[id]/edit",
   EMPLOYEE_CREATE: "/cabinet/employees/create",
   DOCTOR_DASHBOARD: "/cabinet/doctor-dashboard",
-  
+  RECEPTION_DASHBOARD: "/cabinet/reception",
+
+  // Invoice routes
+  INVOICES: "/cabinet/invoices",
+  INVOICE_DETAIL: "/cabinet/invoices/[id]",
+  INVOICE_CREATE: "/cabinet/invoices/create",
+
   // Service Orders routes
   ORDERS: "/cabinet/orders",
   ORDER_DETAIL: "/cabinet/orders/[id]",
-  
+
   ACCOUNTS: "/cabinet/accounts",
   SALES: "/cabinet/sales",
   PURCHASES: "/cabinet/purchases",
@@ -43,7 +49,7 @@ export const ROUTES = {
   MASTER_DATA_LANGUAGES: "/cabinet/settings/master-data/languages",
   MASTER_DATA_DEPARTMENTS: "/cabinet/settings/master-data/departments",
   MASTER_DATA_GEOLOCATION: "/cabinet/settings/master-data/geolocation",
-  
+
   // Analysis Templates routes (Settings)
   ANALYSIS_TEMPLATES: "/cabinet/settings/analysis-templates",
   ANALYSIS_TEMPLATE_DETAIL: "/cabinet/settings/analysis-templates/[id]",
@@ -83,6 +89,11 @@ export const getPatientEditRoute = (patientId: string): string => {
 // Helper function for order detail route
 export const getOrderDetailRoute = (orderId: string): string => {
   return `/cabinet/orders/${orderId}`;
+};
+
+// Helper function for invoice detail route
+export const getInvoiceDetailRoute = (invoiceId: string): string => {
+  return `/cabinet/invoices/${invoiceId}`;
 };
 
 // Type for all possible routes

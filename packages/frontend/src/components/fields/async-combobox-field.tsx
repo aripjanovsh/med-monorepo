@@ -85,7 +85,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
   const debouncedSearch = useDebounce(search, debounceMs);
 
   const selectedValues = multiselect
-    ? (value as string[]) ?? []
+    ? ((value as string[]) ?? [])
     : [value as string].filter(Boolean);
   const selectedOptions = options.filter((option) =>
     selectedValues.includes(option.value)
@@ -168,7 +168,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
         labelHintClassName,
       }}
     >
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal>
         <PopoverTrigger asChild>
           <FormControl>
             <Button

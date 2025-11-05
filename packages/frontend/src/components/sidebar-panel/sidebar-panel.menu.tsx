@@ -14,6 +14,8 @@ import {
   Stethoscope,
   TestTube,
   ClipboardList,
+  Receipt,
+  UserCog,
 } from "lucide-react";
 
 export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
@@ -31,9 +33,19 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         icon: Stethoscope,
       },
       {
+        title: "Панель регистратуры",
+        url: ROUTES.RECEPTION_DASHBOARD,
+        icon: UserCog,
+      },
+      {
         title: "Reservations",
         url: ROUTES.APPOINTMENTS,
         icon: CalendarIcon,
+      },
+      {
+        title: "Счета",
+        url: ROUTES.INVOICES,
+        icon: Receipt,
       },
       {
         title: "Пациенты",
@@ -49,11 +61,6 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         title: "Treatments",
         url: ROUTES.TREATMENTS,
         icon: Activity,
-      },
-      {
-        title: "Шаблоны анализов",
-        url: ROUTES.ANALYSIS_TEMPLATES,
-        icon: TestTube,
       },
       {
         title: "Сотрудники",

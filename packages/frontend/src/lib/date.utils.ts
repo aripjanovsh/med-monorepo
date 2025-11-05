@@ -2,7 +2,7 @@
  * Date utility functions using date-fns
  */
 
-import { differenceInYears, parseISO, isValid } from "date-fns";
+import { differenceInYears, parseISO, isValid, format } from "date-fns";
 
 /**
  * Calculate age from date of birth string
@@ -49,4 +49,24 @@ export const formatAge = (dateOfBirth: string): string => {
   if (age === 1) return "1 год";
   if (age >= 2 && age <= 4) return `${age} года`;
   return `${age} лет`;
+};
+
+/**
+ * Format date to specified format
+ * @param date - Date string or Date object
+ * @param formatString - Format string (e.g., "dd.MM.yyyy", "yyyy-MM-dd")
+ * @returns Formatted date string or empty string if invalid
+ */
+export const formatDate = (date: string | Date, formatString: string = "dd.MM.yyyy"): string => {
+  if (!date) return "";
+
+  try {
+    const dateObj = typeof date === "string" ? parseISO(date) : date;
+    
+    if (!isValid(dateObj)) return "";
+
+    return format(dateObj, formatString);
+  } catch {
+    return "";
+  }
 };

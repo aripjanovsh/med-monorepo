@@ -27,4 +27,8 @@ export class UserResponseDto extends BaseResponseDto {
 
   @Expose()
   organizationId?: string;
+
+  @Expose()
+  @Transform(({ obj }) => obj?.employee?.id)
+  employeeId?: string;
 }

@@ -137,6 +137,7 @@ export class UserService {
       include: {
         organization: true,
         roleAssignments: { include: { role: true } },
+        employee: true,
       },
     });
 
@@ -153,6 +154,7 @@ export class UserService {
       include: {
         organization: true,
         roleAssignments: { include: { role: true } },
+        employee: true,
       },
     });
   }

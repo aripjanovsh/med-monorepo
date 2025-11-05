@@ -14,7 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ActionTabs } from "@/components/action-tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table/data-table";
 import { Badge } from "@/components/ui/badge";
@@ -247,40 +247,18 @@ export default function TreatmentsPage() {
         </Card>
       )}
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList
-          variant="underline"
-          className="-mx-6 mb-6"
-          contentClassName="px-4"
-        >
-          <TabsTrigger value="all" variant="underline">
-            Все процедуры
-            <Badge variant="secondary" className="ml-2">
-              {mockTreatments.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="active" variant="underline">
-            Активные
-            <Badge variant="secondary" className="ml-2">
-              {stats.active}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="inactive" variant="underline">
-            Неактивные
-            <Badge variant="secondary" className="ml-2">
-              {stats.inactive}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="popular" variant="underline">
-            Популярные
-            <Badge variant="secondary" className="ml-2">
-              4
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
+      <ActionTabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "all", label: `Все процедуры (${mockTreatments.length})` },
+          { value: "active", label: `Активные (${stats.active})` },
+          { value: "inactive", label: `Неактивные (${stats.inactive})` },
+          { value: "popular", label: "Популярные (4)" },
+        ]}
+      />
 
-        <TabsContent value={activeTab} className="space-y-4">
+      <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Показано {filteredTreatments.length} из {mockTreatments.length}{" "}
@@ -297,8 +275,7 @@ export default function TreatmentsPage() {
               total: filteredTreatments.length,
             }}
           />
-        </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 }

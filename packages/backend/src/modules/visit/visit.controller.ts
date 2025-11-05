@@ -20,7 +20,10 @@ import { VisitService } from "./visit.service";
 import { CreateVisitDto } from "./dto/create-visit.dto";
 import { UpdateVisitDto } from "./dto/update-visit.dto";
 import { UpdateVisitStatusDto } from "./dto/update-visit-status.dto";
+import { StartVisitDto } from "./dto/start-visit.dto";
+import { CompleteVisitDto } from "./dto/complete-visit.dto";
 import { FindAllVisitDto } from "./dto/find-all-visit.dto";
+import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
 import {
   RequirePermission,
   PermissionGuard,
@@ -94,6 +97,38 @@ export class VisitController {
     @Body() updateStatusDto: UpdateVisitStatusDto,
   ) {
     return this.visitService.updateStatus(id, updateStatusDto);
+  }
+
+  @Post(":id/start")
+  @RequirePermission({ resource: "visits", action: "UPDATE" })
+  @ApiOperation({ summary: "Start visit (change from WAITING to IN_PROGRESS)" })
+  @ApiResponse({ status: 200, description: "Visit started successfully" })
+  @ApiResponse({ status: 404, description: "Visit not found" })
+  @ApiResponse({ status: 400, description: "Cannot start visit with current status" })
+  startVisit(@Param("id") id: string, @Body() dto: StartVisitDto) {
+    return this.visitService.startVisit(id, dto);
+  }
+
+  @Post(":id/complete")
+  @RequirePermission({ resource: "visits", action: "UPDATE" })
+  @ApiOperation({ summary: "Complete visit (change from IN_PROGRESS to COMPLETED)" })
+  @ApiResponse({ status: 200, description: "Visit completed successfully" })
+  @ApiResponse({ status: 404, description: "Visit not found" })
+  @ApiResponse({ status: 400, description: "Cannot complete visit with current status" })
+  async completeVisit(
+    @Param("id") id: string,
+    @Body() dto: CompleteVisitDto,
+  ) {
+    return this.visitService.completeVisit(id, dto);
+  }
+
+  @Get("doctor/:employeeId/queue")
+  async getDoctorQueue(
+    @Param("employeeId") employeeId: string,
+    @Query("organizationId") organizationId: string,
+    @Query("date") date?: string,
+  ): Promise<DoctorQueueResponseDto> {
+    return this.visitService.getDoctorQueue(employeeId, organizationId, date);
   }
 
   @Delete(":id")

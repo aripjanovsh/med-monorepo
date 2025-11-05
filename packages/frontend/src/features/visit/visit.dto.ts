@@ -57,12 +57,28 @@ export interface SimpleOrganizationDto {
   slug: string;
 }
 
+export interface SimpleServiceDto {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface SimpleServiceOrderDto {
+  id: string;
+  status: string;
+  paymentStatus: string;
+  service: SimpleServiceDto;
+}
+
 // Main DTOs
 export interface VisitResponseDto {
   id: string;
   visitDate: string; // ISO
   status: VisitStatus;
   notes?: string;
+  diagnosis?: string;
+  queueNumber?: number;
+  finishedAt?: string;
   patient: SimplePatientDto;
   employee: SimpleEmployeeDto;
   appointment?: SimpleAppointmentDto;
@@ -70,6 +86,7 @@ export interface VisitResponseDto {
   protocolData?: string; // JSON string of FilledFormData
   medicalRecords: SimpleMedicalRecordDto[];
   prescriptions: SimplePrescriptionDto[];
+  serviceOrders?: SimpleServiceOrderDto[];
   organization: SimpleOrganizationDto;
   createdAt: string; // ISO
   updatedAt: string; // ISO
@@ -94,6 +111,7 @@ export interface UpdateVisitStatusRequestDto {
 }
 
 export interface VisitsQueryParamsDto extends QueryParamsDto {
+  organizationId?: string;
   status?: VisitStatus;
   patientId?: string;
   employeeId?: string;

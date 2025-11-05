@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Filter, Plus, Users, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ActionTabs } from "@/components/action-tabs";
 import { DataTable } from "@/components/data-table/data-table";
 import { createPatientColumns } from "@/features/patients/components/patient-columns";
 import {
@@ -101,25 +101,17 @@ export default function PatientsPage() {
         }
       />
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList
-          variant="underline"
-          className="-mx-6 mb-6"
-          contentClassName="px-4"
-        >
-          <TabsTrigger value="active" variant="underline">
-            Активные пациенты ({statsData?.byStatus?.active || 0})
-          </TabsTrigger>
-          <TabsTrigger value="inactive" variant="underline">
-            Неактивные ({statsData?.byStatus?.inactive || 0})
-          </TabsTrigger>
-          <TabsTrigger value="deceased" variant="underline">
-            Умершие ({statsData?.byStatus?.deceased || 0})
-          </TabsTrigger>
-        </TabsList>
+      <ActionTabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        items={[
+          { value: "active", label: `Активные пациенты (${statsData?.byStatus?.active || 0})` },
+          { value: "inactive", label: `Неактивные (${statsData?.byStatus?.inactive || 0})` },
+          { value: "deceased", label: `Умершие (${statsData?.byStatus?.deceased || 0})` },
+        ]}
+      />
 
-        <TabsContent value={activeTab} className="space-y-4">
+      <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Input
               placeholder="Поиск пациентов по имени..."
@@ -186,9 +178,7 @@ export default function PatientsPage() {
               </div>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
-
+      </div>
     </div>
   );
 }

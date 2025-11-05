@@ -28,6 +28,9 @@
     "prisma:reset": "prisma migrate reset",
     "prisma:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:demo": "ts-node prisma/seed-demo.ts",
+    "db:reset:demo": "prisma migrate reset --force && ts-node prisma/seed-demo.ts",
+    "db:reset:push": "prisma db push --force-reset --accept-data-loss && pnpm db:seed && pnpm db:seed:demo",
     "seed:org": "ts-node scripts/seed-organization.ts"
   },
   "dependencies": {

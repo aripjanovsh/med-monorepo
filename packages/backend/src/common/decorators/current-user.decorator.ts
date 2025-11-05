@@ -7,6 +7,7 @@ export interface CurrentUserData {
   phone: string;
   roles?: string[];
   organizationId?: string;
+  employeeId?: string; // Employee ID for audit fields (createdById, updatedById, etc.)
   isActive: boolean;
   isSuperAdmin: boolean;
 }
@@ -26,6 +27,7 @@ export const CurrentUser = createParamDecorator(
       role: user.role,
       roles: user.roles || [],
       organizationId: user.organizationId,
+      employeeId: user.employeeId,
       isActive: user.isActive,
       isSuperAdmin: user.role === UserRole.SUPER_ADMIN,
     };

@@ -2,6 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Exclude, Expose, Type } from "class-transformer";
 import { VisitStatus } from "@prisma/client";
 import { BaseResponseDto } from "@/common/dto/response.dto";
+import { TransformDecimal } from "@/common/decorators";
+import { Decimal } from "@/common/utils/transform.util";
+import { SafeDecimal } from "@/common/types";
 
 // Simplified response DTOs for nested relations
 // These will be imported from their respective modules
@@ -159,6 +162,43 @@ class SimpleOrganizationResponseDto {
 }
 
 @Exclude()
+class SimpleServiceDto {
+  @Expose()
+  @ApiProperty()
+  id: string;
+
+  @Expose()
+  @ApiProperty()
+  name: string;
+
+  @Expose()
+  @ApiProperty()
+  @TransformDecimal()
+  @Type(() => SafeDecimal)
+  price: number;
+}
+
+@Exclude()
+class SimpleServiceOrderResponseDto {
+  @Expose()
+  @ApiProperty()
+  id: string;
+
+  @Expose()
+  @ApiProperty()
+  status: string;
+
+  @Expose()
+  @ApiProperty()
+  paymentStatus: string;
+
+  @Expose()
+  @ApiProperty({ type: SimpleServiceDto })
+  @Type(() => SimpleServiceDto)
+  service: SimpleServiceDto;
+}
+
+@Exclude()
 export class VisitResponseDto extends BaseResponseDto {
   @Expose()
   @ApiProperty({
@@ -181,6 +221,48 @@ export class VisitResponseDto extends BaseResponseDto {
     example: "Patient came for regular checkup",
   })
   notes?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Queue number",
+    example: 1,
+  })
+  queueNumber?: number;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Time when patient was queued",
+    example: "2024-01-15T10:00:00.000Z",
+  })
+  queuedAt?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Time when visit started",
+    example: "2024-01-15T10:15:00.000Z",
+  })
+  startedAt?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Time when visit completed",
+    example: "2024-01-15T10:45:00.000Z",
+  })
+  completedAt?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Waiting time in minutes",
+    example: 15,
+  })
+  waitingTimeMinutes?: number;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Service time in minutes",
+    example: 30,
+  })
+  serviceTimeMinutes?: number;
 
   @Expose()
   @ApiProperty({
@@ -244,4 +326,26 @@ export class VisitResponseDto extends BaseResponseDto {
   })
   @Type(() => SimpleOrganizationResponseDto)
   organization: SimpleOrganizationResponseDto;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Service orders",
+    type: [SimpleServiceOrderResponseDto],
+  })
+  @Type(() => SimpleServiceOrderResponseDto)
+  serviceOrders?: SimpleServiceOrderResponseDto[];
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Diagnosis",
+    example: "ОРВИ",
+  })
+  diagnosis?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Time when visit finished",
+    example: "2024-01-15T11:00:00.000Z",
+  })
+  finishedAt?: Date;
 }

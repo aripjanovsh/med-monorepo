@@ -3,12 +3,15 @@ import { rootApi } from "@/store/api/root.api";
 
 export interface User {
   id: string;
+  phone: string;
+  role?: string;
+  roles?: string[];
+  organizationId?: string;
   firstName?: string;
   lastName?: string;
-  phone: string;
-  coins: number;
-  createdAt: string;
-  updatedAt: string;
+  coins?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UpdateProfileRequest {
