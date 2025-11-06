@@ -307,11 +307,19 @@ export default function ServiceOrderDetailPage() {
           Вернуться к списку
         </Button>
         
-        {(order.status === "ORDERED" || order.status === "IN_PROGRESS") && (
-          <Button onClick={() => router.push(`/cabinet/orders/${orderId}/execute`)}>
-            {order.status === "ORDERED" ? "Принять в работу" : "Продолжить выполнение"}
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {(order.status === "ORDERED" || order.status === "IN_PROGRESS") && (
+            <Button onClick={() => router.push(`/cabinet/orders/${orderId}/execute`)}>
+              {order.status === "ORDERED" ? "Принять в работу" : "Продолжить выполнение"}
+            </Button>
+          )}
+          
+          {order.status === "COMPLETED" && (order.resultText || order.resultData) && (
+            <Button onClick={() => router.push(`/cabinet/orders/${orderId}/execute`)}>
+              Редактировать результат
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

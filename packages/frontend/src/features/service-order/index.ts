@@ -11,3 +11,6 @@ export * from "./components/service-order-execution-card";
 export * from "./components/result-input-text";
 export * from "./components/result-input-analysis";
 export * from "./components/result-input-protocol";
+export * from "./components/service-order-result-dialog";
+export * from "./components/analysis-result-view";
+export * from "./components/protocol-result-view";

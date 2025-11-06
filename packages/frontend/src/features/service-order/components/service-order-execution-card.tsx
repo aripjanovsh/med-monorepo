@@ -87,9 +87,6 @@ export const ServiceOrderExecutionCard = ({
   onCancel,
   isLoading = false,
 }: ServiceOrderExecutionCardProps) => {
-  const [inputMode, setInputMode] = useState<ResultInputMode>("text");
-  const [textResult, setTextResult] = useState<string>(order.resultText || "");
-  
   const parseResultData = (data: Record<string, any> | null | undefined): {
     analysis: AnalysisResultData | null;
     protocol: ProtocolResultData | null;
@@ -108,6 +105,17 @@ export const ServiceOrderExecutionCard = ({
   };
 
   const parsedData = parseResultData(order.resultData);
+  
+  // Определяем начальный режим ввода на основе существующих данных
+  const getInitialInputMode = (): ResultInputMode => {
+    if (parsedData.analysis) return "analysis";
+    if (parsedData.protocol) return "protocol";
+    if (order.resultText) return "text";
+    return "text";
+  };
+
+  const [inputMode, setInputMode] = useState<ResultInputMode>(getInitialInputMode());
+  const [textResult, setTextResult] = useState<string>(order.resultText || "");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultData | null>(parsedData.analysis);
   const [protocolResult, setProtocolResult] = useState<ProtocolResultData | null>(parsedData.protocol);
 
@@ -115,10 +123,10 @@ export const ServiceOrderExecutionCard = ({
   const doctorName = getDoctorFullName(order);
 
   const canStartWork = order.status === "ORDERED";
-  const canWork = order.status === "IN_PROGRESS";
+  const canWork = order.status === "IN_PROGRESS" || order.status === "COMPLETED";
   const isCompleted = order.status === "COMPLETED";
   const isCancelled = order.status === "CANCELLED";
-  const isReadonly = isCompleted || isCancelled;
+  const isReadonly = isCancelled;
 
   const handleStartWork = async () => {
     try {
@@ -140,14 +148,18 @@ export const ServiceOrderExecutionCard = ({
   };
 
   const handleComplete = async () => {
-    if (!confirm("Завершить выполнение назначения?")) return;
+    const confirmMessage = isCompleted 
+      ? "Обновить результаты назначения?" 
+      : "Завершить выполнение назначения?";
+    
+    if (!confirm(confirmMessage)) return;
 
     try {
       const data = prepareResultData();
       await onComplete(data);
-      toast.success("Назначение выполнено");
+      toast.success(isCompleted ? "Результаты обновлены" : "Назначение выполнено");
     } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при завершении выполнения");
+      toast.error(error?.data?.message || "Ошибка при сохранении");
     }
   };
 
@@ -321,37 +333,25 @@ export const ServiceOrderExecutionCard = ({
 
             {/* Кнопки действий */}
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={handleSaveDraft}
-                disabled={isLoading}
-                className="gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Сохранить черновик
-              </Button>
+              {!isCompleted && (
+                <Button
+                  variant="outline"
+                  onClick={handleSaveDraft}
+                  disabled={isLoading}
+                  className="gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  Сохранить черновик
+                </Button>
+              )}
               <Button
                 onClick={handleComplete}
                 disabled={isLoading}
                 className="gap-2"
               >
                 <CheckCircle className="h-4 w-4" />
-                Завершить выполнение
+                {isCompleted ? "Обновить результат" : "Завершить выполнение"}
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Отображение результатов для завершенных назначений */}
-      {isCompleted && order.resultText && (
-        <Card>
-          <CardHeader>
-            <CardTitle>📄 Результаты выполнения</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md bg-muted p-4">
-              <p className="whitespace-pre-wrap">{order.resultText}</p>
             </div>
           </CardContent>
         </Card>

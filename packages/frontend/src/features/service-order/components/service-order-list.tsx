@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -31,6 +32,8 @@ import {
   useDeleteServiceOrderMutation,
 } from "../service-order.api";
 import { canCancelOrder } from "../service-order.model";
+import { ServiceOrderResultDialog } from "./service-order-result-dialog";
+import type { ServiceOrderResponseDto } from "../service-order.dto";
 
 type ServiceOrderListProps = {
   visitId: string;
@@ -41,7 +44,10 @@ export const ServiceOrderList = ({
   visitId,
   isEditable = true,
 }: ServiceOrderListProps) => {
+  const router = useRouter();
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] =
+    useState<ServiceOrderResponseDto | null>(null);
 
   const { data, isLoading } = useGetServiceOrdersQuery({
     visitId,
@@ -53,6 +59,17 @@ export const ServiceOrderList = ({
     useDeleteServiceOrderMutation();
 
   const orders = data?.data ?? [];
+
+  const handleViewResult = (order: ServiceOrderResponseDto) => {
+    setSelectedOrder(order);
+  };
+
+  const handleEditResult = () => {
+    if (selectedOrder) {
+      router.push(`/cabinet/orders/${selectedOrder.id}/execute`);
+      setSelectedOrder(null);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteOrderId) return;
@@ -111,9 +128,15 @@ export const ServiceOrderList = ({
                       <PaymentStatusBadge status={order.paymentStatus} />
                     </TableCell>
                     <TableCell>
-                      {order.status === "COMPLETED" && order.resultText ? (
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
+                      {order.status === "COMPLETED" &&
+                      (order.resultText || order.resultData) ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewResult(order)}
+                          title="Просмотреть результат"
+                        >
+                          Просмотреть
                         </Button>
                       ) : (
                         "—"
@@ -157,6 +180,13 @@ export const ServiceOrderList = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ServiceOrderResultDialog
+        order={selectedOrder}
+        open={selectedOrder !== null}
+        onOpenChange={(open) => !open && setSelectedOrder(null)}
+        onEdit={isEditable ? handleEditResult : undefined}
+      />
     </>
   );
 };

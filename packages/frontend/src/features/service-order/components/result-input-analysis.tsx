@@ -20,14 +20,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetAnalysisTemplatesQuery } from "@/features/analysis-template";
-import type { AnalysisTemplateResponseDto } from "@/features/analysis-template/analysis-template.dto";
+import type {
+  AnalysisTemplateResponseDto,
+  ReferenceRangesDto,
+} from "@/features/analysis-template/analysis-template.dto";
 
 export interface AnalysisResultRow {
   parameterId: string;
   parameterName: string;
   value: string | number | boolean;
   unit?: string;
-  normalRange?: string;
+  normalRange?: string; // For display only
+  referenceRanges?: ReferenceRangesDto; // Full reference ranges structure
 }
 
 export interface AnalysisResultData {
@@ -80,6 +84,7 @@ export const ResultInputAnalysis = ({
       value: param.type === "BOOLEAN" ? false : "",
       unit: param.unit,
       normalRange: formatNormalRange(param.referenceRanges),
+      referenceRanges: param.referenceRanges, // Store full reference ranges
     }));
 
     console.log('Created rows:', rows.map(r => ({ id: r.parameterId, name: r.parameterName })));

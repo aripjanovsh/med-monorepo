@@ -11,6 +11,8 @@ export interface SimplePatientDto {
   firstName: string;
   middleName?: string;
   lastName: string;
+  dateOfBirth?: string; // ISO date
+  gender?: "MALE" | "FEMALE";
 }
 
 export interface SimpleDoctorDto {
