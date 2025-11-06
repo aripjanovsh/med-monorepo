@@ -19,6 +19,12 @@ export const getPatientFullName = (patient: PatientResponseDto): string => {
     .join(" ");
 };
 
+export const getPatientInitials = (patient: PatientResponseDto): string => {
+  return [patient.lastName?.[0], patient.firstName?.[0]]
+    .filter(Boolean)
+    .join("");
+};
+
 export const isPatientActive = (patient: PatientResponseDto): boolean => {
   return patient.status === "ACTIVE";
 };

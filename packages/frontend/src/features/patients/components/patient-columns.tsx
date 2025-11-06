@@ -2,41 +2,26 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MoreHorizontal, Edit, Trash, Eye } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { PatientResponseDto } from "../patient.dto";
 import {
   getPatientFullName,
-  calculatePatientAge,
   getPatientDisplayStatus,
+  getPatientInitials,
   getPatientPrimaryPhone,
   formatPatientInfo,
   getPatientLastVisit,
 } from "../patient.model";
-import Link from "next/link";
 
-export interface PatientTableActions {
-  onDelete: (patient: PatientResponseDto) => void;
-}
-
-export const createPatientColumns = (
-  actions: PatientTableActions
-): ColumnDef<PatientResponseDto>[] => [
+export const patientColumns: ColumnDef<PatientResponseDto>[] = [
   {
-    accessorKey: "patientInfo",
+    accessorKey: "firstName",
     header: "Пациент",
+    enableSorting: true,
     cell: ({ row }) => {
       const patient = row.original;
       const fullName = getPatientFullName(patient);
-      const initials = `${patient.firstName[0]}${patient.lastName[0]}`;
+      const initials = getPatientInitials(patient);
 
       return (
         <div className="flex items-center space-x-3">
@@ -46,12 +31,7 @@ export const createPatientColumns = (
             </AvatarFallback>
           </Avatar>
           <div>
-            <Link
-              href={`/cabinet/patients/${patient.id}`}
-              className="font-medium"
-            >
-              {fullName}
-            </Link>
+            <div className="font-medium">{fullName}</div>
             <div className="text-sm text-muted-foreground">
               {patient.patientId || "Без ID"}
             </div>
@@ -61,7 +41,7 @@ export const createPatientColumns = (
     },
   },
   {
-    accessorKey: "info",
+    accessorKey: "dateOfBirth",
     header: "Информация",
     cell: ({ row }) => {
       const patient = row.original;
@@ -79,33 +59,9 @@ export const createPatientColumns = (
     },
   },
   {
-    accessorKey: "status",
-    header: "Статус",
-    cell: ({ row }) => {
-      const patient = row.original;
-      const statusText = getPatientDisplayStatus(patient.status);
-
-      const getStatusVariant = (status: string) => {
-        switch (status) {
-          case "ACTIVE":
-            return "default" as const;
-          case "INACTIVE":
-            return "secondary" as const;
-          case "DECEASED":
-            return "destructive" as const;
-          default:
-            return "outline" as const;
-        }
-      };
-
-      return (
-        <Badge variant={getStatusVariant(patient.status)}>{statusText}</Badge>
-      );
-    },
-  },
-  {
     accessorKey: "lastVisit",
     header: "Последний визит",
+    enableSorting: true,
     cell: ({ row }) => {
       const patient = row.original;
       const lastVisit = getPatientLastVisit(patient);
@@ -145,6 +101,7 @@ export const createPatientColumns = (
   {
     accessorKey: "createdAt",
     header: "Дата создания",
+    enableSorting: true,
     cell: ({ row }) => {
       const patient = row.original;
       const date = new Date(patient.createdAt);
@@ -152,41 +109,27 @@ export const createPatientColumns = (
     },
   },
   {
-    id: "actions",
+    accessorKey: "status",
+    header: "Статус",
     cell: ({ row }) => {
       const patient = row.original;
+      const statusText = getPatientDisplayStatus(patient.status);
+
+      const getStatusVariant = (status: string) => {
+        switch (status) {
+          case "ACTIVE":
+            return "default" as const;
+          case "INACTIVE":
+            return "secondary" as const;
+          case "DECEASED":
+            return "destructive" as const;
+          default:
+            return "outline" as const;
+        }
+      };
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Открыть меню</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/cabinet/patients/${patient.id}`}>
-                <Eye className="mr-2 h-4 w-4" />
-                Просмотр
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/cabinet/patients/${patient.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Редактировать
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => actions.onDelete(patient)}
-              className="text-destructive"
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Удалить
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Badge variant={getStatusVariant(patient.status)}>{statusText}</Badge>
       );
     },
   },

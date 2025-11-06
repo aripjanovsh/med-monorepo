@@ -60,7 +60,9 @@ export function DataTablePagination<TData>({
       </div>
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-2">
-          <div className="text-sm font-medium">{t("Строк на странице")}</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Строк на странице
+          </div>
           <Select value={String(limit)} onValueChange={handleChangeLimit}>
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue placeholder={limit} />
@@ -74,49 +76,52 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center justify-center text-sm font-medium">
-          {t("Страница i из n", { page, count })}
-        </div>
-        {(canNextPage || canPreviousPage) && (
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => handlePageChange(1)}
-              disabled={!canPreviousPage}
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-            >
-              <span className="sr-only">Go to first page</span>
-              <ChevronsLeft />
-            </Button>
-            <Button
-              onClick={() => handlePageChange(page - 1)}
-              disabled={!canPreviousPage}
-              variant="outline"
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Go to previous page</span>
-              <ChevronLeft />
-            </Button>
-            <Button
-              onClick={() => handlePageChange(page + 1)}
-              disabled={!canNextPage}
-              variant="outline"
-              className="h-8 w-8 p-0"
-            >
-              <span className="sr-only">Go to next page</span>
-              <ChevronRight />
-            </Button>
-            <Button
-              onClick={() => handlePageChange(count)}
-              disabled={!canNextPage}
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-            >
-              <span className="sr-only">Go to last page</span>
-              <ChevronsRight />
-            </Button>
+        <div className="flex items-center justify-center text-sm font-medium text-muted-foreground space-x-2">
+          <div>
+            Страница {page} из {count}
           </div>
-        )}
+
+          {(canNextPage || canPreviousPage) && (
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => handlePageChange(1)}
+                disabled={!canPreviousPage}
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+              >
+                <span className="sr-only">Go to first page</span>
+                <ChevronsLeft />
+              </Button>
+              <Button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={!canPreviousPage}
+                variant="outline"
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeft />
+              </Button>
+              <Button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={!canNextPage}
+                variant="outline"
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRight />
+              </Button>
+              <Button
+                onClick={() => handlePageChange(count)}
+                disabled={!canNextPage}
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+              >
+                <span className="sr-only">Go to last page</span>
+                <ChevronsRight />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

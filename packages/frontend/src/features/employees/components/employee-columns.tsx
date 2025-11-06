@@ -16,42 +16,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EmployeeResponseDto } from "../employee.dto";
-import {
-  WEEK_DAYS,
-  WEEK_DAYS_SHORT,
-} from "../employee.constants";
+import { WEEK_DAYS, WEEK_DAYS_SHORT } from "../employee.constants";
 import { cn } from "@/lib/utils";
 
-export const createEmployeeColumns = (
-  onEditEmployee?: (employee: EmployeeResponseDto) => void,
-  onViewEmployee?: (employee: EmployeeResponseDto) => void,
-  onDeleteEmployee?: (employee: EmployeeResponseDto) => void
-): ColumnDef<EmployeeResponseDto>[] => [
+export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
+    accessorKey: "firstName",
     header: "ИМЯ",
+    enableSorting: true,
+    enableHiding: false,
     cell: ({ row }) => {
       const employee = row.original;
       return (
@@ -70,12 +43,9 @@ export const createEmployeeColumns = (
             </AvatarFallback>
           </Avatar>
           <div>
-            <button
-              className="font-medium text-left hover:text-blue-600 transition-colors"
-              onClick={() => onViewEmployee?.(employee)}
-            >
+            <div className="font-medium">
               {employee.firstName} {employee.lastName}
-            </button>
+            </div>
             <div className="text-sm text-muted-foreground">
               {employee.title?.name}
             </div>
@@ -85,8 +55,10 @@ export const createEmployeeColumns = (
     },
   },
   {
-    accessorKey: "contact",
+    accessorKey: "phone",
     header: "КОНТАКТЫ",
+    enableSorting: false,
+    enableHiding: false,
     cell: ({ row }) => {
       const employee = row.original;
       return (
@@ -100,8 +72,10 @@ export const createEmployeeColumns = (
     },
   },
   {
-    accessorKey: "workingDays",
+    accessorKey: "workSchedule",
     header: "РАБОЧИЕ ДНИ",
+    enableSorting: false,
+    enableHiding: false,
     cell: ({ row }) => {
       const workingDays = row.original.workSchedule;
       return (
@@ -123,58 +97,4 @@ export const createEmployeeColumns = (
       );
     },
   },
-  {
-    accessorKey: "assignedTreatment",
-    header: "НАЗНАЧЕННЫЕ УСЛУГИ",
-    cell: ({ row }) => {
-      const employee = row.original;
-      return (
-        <div className="text-muted-foreground">
-          {employee.serviceTypes?.map((st) => st.name).join(", ")}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const employee = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Действия</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(employee.id)}
-            >
-              Копировать ID сотрудника
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onViewEmployee?.(employee)}>
-              Просмотр профиля
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEditEmployee?.(employee)}>
-              Редактировать сотрудника
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600"
-              onClick={() => onDeleteEmployee?.(employee)}
-            >
-              Удалить сотрудника
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
 ];
-
-// Default columns without edit functionality for backwards compatibility
-export const employeeColumns = createEmployeeColumns();

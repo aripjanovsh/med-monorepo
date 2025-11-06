@@ -1,7 +1,8 @@
 "use client";
 
+import type { DataTableModel } from "@/components/data-table/data-table.model";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableModel } from "@/components/data-table/data-table.model";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -11,16 +12,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
+import type {
+  ColumnFiltersState,
   RowSelectionState,
+  SortingState,
   VisibilityState,
+} from "@tanstack/react-table";
+import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { DataTablePagination } from "./data-table-pagination";
 
 export function DataTable<TData, TValue>({
   columns = [],
@@ -28,12 +34,24 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   sort,
   pagination,
+  enableSorting = false,
+  enableFiltering = false,
+  defaultSorting = [],
+  defaultFilters = [],
   selection,
   toolbar,
   emptyState = "No results.",
+  onRowClick,
 }: DataTableModel<TData, TValue>) {
+  // State management
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFiltersState>(defaultFilters);
+
+  // Determine if client-side mode is enabled
+  const isClientSide = enableSorting || enableFiltering;
 
   const table = useReactTable({
     data,
@@ -41,12 +59,32 @@ export function DataTable<TData, TValue>({
     state: {
       columnVisibility,
       rowSelection,
+      ...(enableSorting && { sorting }),
+      ...(enableFiltering && { columnFilters }),
     },
     enableRowSelection: !!selection?.enable,
     onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
+    ...(enableSorting && {
+      onSortingChange: setSorting,
+      getSortedRowModel: getSortedRowModel(),
+    }),
+    ...(enableFiltering && {
+      onColumnFiltersChange: setColumnFilters,
+      getFilteredRowModel: getFilteredRowModel(),
+    }),
+    ...(isClientSide &&
+      !pagination && {
+        getPaginationRowModel: getPaginationRowModel(),
+      }),
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    manualSorting: !enableSorting,
+    manualFiltering: !enableFiltering,
+    manualPagination: !!pagination,
+    defaultColumn: {
+      enableSorting: false,
+      enableHiding: false,
+    },
   });
 
   useEffect(() => {
@@ -84,12 +122,14 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <DataTableSkeleton columns={columns.length} />
+              <DataTableSkeleton columns={columns.length} rows={10} />
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick?.(row)}
+                  className={onRowClick ? "cursor-pointer" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -105,7 +145,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
                   {emptyState}
                 </TableCell>
@@ -119,14 +159,20 @@ export function DataTable<TData, TValue>({
   );
 }
 
-const DataTableSkeleton = ({ columns }: { columns: number }) => {
+const DataTableSkeleton = ({
+  columns,
+  rows = 5,
+}: {
+  columns: number;
+  rows?: number;
+}) => {
   return (
     <>
-      {Array.from({ length: 5 }).map((_, rowIndex) => (
+      {Array.from({ length: rows }).map((_, rowIndex) => (
         <TableRow key={rowIndex}>
           {Array.from({ length: columns }).map((_, cellIndex) => (
             <TableCell key={cellIndex}>
-              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-6 w-full" />
             </TableCell>
           ))}
         </TableRow>

@@ -1,95 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Filter, Loader2, Plus } from "lucide-react";
+import { MoreHorizontal, Plus, UserCheck, UserX } from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/data-table/data-table";
-import { createEmployeeColumns } from "@/features/employees/components/employee-columns";
 import {
-  Employee,
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import { employeeColumns } from "@/features/employees/components/employee-columns";
+import {
+  type Employee,
   useGetEmployeesQuery,
-  useGetEmployeeStatsQuery,
   useDeleteEmployeeMutation,
 } from "@/features/employees";
-import { Input } from "@/components/ui/input";
 import { getEmployeeDetailRoute, ROUTES } from "@/constants/route.constants";
-import { useDebounce } from "@/hooks/use-debounce";
-import { toast } from "sonner";
 import { ActionTabs } from "@/components/action-tabs";
 import PageHeader from "@/components/layouts/page-header";
-import Link from "next/link";
 import { useConfirmDialog } from "@/components/dialogs";
+import { useDataTableState } from "@/hooks/use-data-table-state";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function EmployeesPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("doctors");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-
   const confirm = useConfirmDialog();
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const [activeTab, setActiveTab] = useState("all");
 
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, setters, values } = useDataTableState({
+    defaultLimit: 10,
+    defaultSorting: [{ id: "firstName", desc: false }],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
+
+  // Map activeTab to role filter
+  const getRoleFilter = (tab: string) => {
+    switch (tab) {
+      case "doctors":
+        return "DOCTOR";
+      case "nurses":
+        return "NURSE";
+      case "other":
+        return "OTHER";
+      default:
+        return undefined;
+    }
+  };
+
+  // Reset to first page when activeTab changes
+  useEffect(() => {
+    setters.setPage(1);
+  }, [activeTab, setters]);
+
+  // Add role filter to query params
+  const finalQueryParams = useMemo(() => {
+    const role = getRoleFilter(activeTab);
+    return {
+      ...queryParams,
+      ...(role && { role }),
+    };
+  }, [queryParams, activeTab]);
+
+  // Fetch employees with managed state
   const {
     data: employeesData,
     isLoading: isLoadingEmployees,
     error: employeesError,
     refetch: refetchEmployees,
-  } = useGetEmployeesQuery({
-    page,
-    limit,
-    search: debouncedSearchTerm,
-    sortBy: "firstName",
-    sortOrder: "asc",
-  });
-
-  const { data: statsData, isLoading: isLoadingStats } =
-    useGetEmployeeStatsQuery({});
+  } = useGetEmployeesQuery(finalQueryParams);
 
   const [deleteEmployee] = useDeleteEmployeeMutation();
 
-  const handleEditEmployee = (employee: Employee) => {
-    router.push(`/cabinet/employees/${employee.id}/edit`);
-  };
+  const handleEditEmployee = useCallback(
+    (employee: Employee) => {
+      router.push(`/cabinet/employees/${employee.id}/edit`);
+    },
+    [router]
+  );
 
-  const handleViewEmployee = (employee: Employee) => {
-    router.push(getEmployeeDetailRoute(employee.id));
-  };
+  const handleViewEmployee = useCallback(
+    (employee: Employee) => {
+      router.push(getEmployeeDetailRoute(employee.id));
+    },
+    [router]
+  );
 
-  const handleDeleteEmployee = async (employee: Employee) => {
-    confirm({
-      title: "Удалить сотрудника?",
-      description: `Вы уверены, что хотите удалить сотрудника ${
-        employee.firstName || employee.id
-      }? Это действие нельзя отменить.`,
-      variant: "destructive",
-      confirmText: "Удалить",
-      onConfirm: async () => {
-        try {
-          await deleteEmployee(employee.id).unwrap();
-          toast.success("Сотрудник успешно удален!");
-          refetchEmployees();
-        } catch (error: any) {
-          console.error("Error deleting employee:", error);
-          const errorMessage =
-            error?.data?.message ||
-            error?.message ||
-            "Ошибка при удалении сотрудника";
-          toast.error(errorMessage);
-        }
-      },
-    });
-  };
-
-  const employeeColumns = createEmployeeColumns(
-    handleEditEmployee,
-    handleViewEmployee,
-    handleDeleteEmployee
+  const handleDeleteEmployee = useCallback(
+    async (employee: Employee) => {
+      confirm({
+        title: "Удалить сотрудника?",
+        description: `Вы уверены, что хотите удалить сотрудника ${
+          employee.firstName || employee.id
+        }? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteEmployee(employee.id).unwrap();
+            toast.success("Сотрудник успешно удален!");
+            refetchEmployees();
+          } catch (error: any) {
+            console.error("Error deleting employee:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении сотрудника";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteEmployee, refetchEmployees]
   );
 
   const employees = employeesData?.data || [];
+  const totalEmployees = employeesData?.meta?.total || 0;
 
   return (
     <div className="space-y-6">
@@ -109,60 +146,87 @@ export default function EmployeesPage() {
         value={activeTab}
         onValueChange={setActiveTab}
         items={[
+          { value: "all", label: "Все сотрудники" },
           { value: "doctors", label: "Врачи" },
-          { value: "nurses", label: "Сестры" },
-          { value: "general", label: "Обслуживание" },
+          { value: "nurses", label: "Медсестры" },
+          { value: "other", label: "Прочие" },
         ]}
       />
 
-      {activeTab === "doctors" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Input
-              placeholder="Поиск врачей по имени..."
-              className="w-full max-w-md"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="flex items-center space-x-2">
-              <Button variant="outline">
-                <Filter />
-                Фильтры
-              </Button>
-            </div>
-          </div>
+      <DataTable
+        columns={[
+          ...employeeColumns,
+          {
+            id: "actions",
+            cell: ({ row }) => {
+              const employee = row.original;
 
-          {isLoadingEmployees ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : employeesError ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <p className="text-red-500">Ошибка при загрузке данных</p>
-                <Button
-                  onClick={() => refetchEmployees()}
-                  variant="outline"
-                  className="mt-2"
-                >
-                  Повторить
-                </Button>
-              </div>
-            </div>
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                    <DropdownMenuItem
+                      onClick={() => handleViewEmployee(employee)}
+                    >
+                      Просмотр профиля
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleEditEmployee(employee)}
+                    >
+                      Редактировать сотрудника
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={() => handleDeleteEmployee(employee)}
+                    >
+                      Удалить сотрудника
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          },
+        ]}
+        data={employees}
+        isLoading={isLoadingEmployees}
+        pagination={{
+          ...handlers.pagination,
+          total: totalEmployees,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="firstName"
+            searchPlaceholder="Поиск по имени..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          />
+        )}
+        emptyState={
+          employeesError ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке сотрудников"
+              error={employeesError}
+              onRetry={refetchEmployees}
+            />
           ) : (
-            <DataTable
-              columns={employeeColumns}
-              data={employees}
-              pagination={{
-                page,
-                limit,
-                total: employeesData?.meta?.total || 0,
-              }}
+            <DataTableEmptyState
+              title="Сотрудники не найдены"
+              description="Попробуйте изменить параметры поиска или фильтры"
             />
-          )}
-        </div>
-      )}
-
+          )
+        }
+        onRowClick={(row) => {
+          router.push(getEmployeeDetailRoute(row.original.id));
+        }}
+      />
     </div>
   );
 }
