@@ -3,6 +3,8 @@
  * Utility functions for patient data manipulation
  */
 
+import { formatDate as formatDateUtil } from "@/lib/date.utils";
+import { SimplePatientDto } from "../visit";
 import {
   PatientResponseDto,
   PatientContactDto,
@@ -13,7 +15,9 @@ import {
 // Utility Functions
 // =============================================
 
-export const getPatientFullName = (patient: PatientResponseDto): string => {
+export const getPatientFullName = (
+  patient: PatientResponseDto | SimplePatientDto
+): string => {
   return [patient.lastName, patient.firstName, patient.middleName]
     .filter(Boolean)
     .join(" ");
@@ -196,6 +200,111 @@ export const getPatientLastVisit = (patient: PatientResponseDto): string => {
 
 export const isPatientNew = (patient: PatientResponseDto): boolean => {
   return !hasPatientVisited(patient);
+};
+
+// =============================================
+// Date Formatting Functions
+// =============================================
+
+/**
+ * Format date with time (DD.MM.YYYY HH:mm)
+ */
+export const formatPatientDateTime = (date?: string | Date): string => {
+  if (!date) return "-";
+  return formatDateUtil(date, "dd.MM.yyyy HH:mm");
+};
+
+/**
+ * Format date only (DD.MM.YYYY)
+ */
+export const formatPatientDate = (date?: string | Date): string => {
+  if (!date) return "-";
+  return formatDateUtil(date, "dd.MM.yyyy");
+};
+
+// =============================================
+// Status Display Functions
+// =============================================
+
+/**
+ * Get human-readable patient status
+ */
+export const getPatientStatusDisplay = (
+  status?: PatientResponseDto["status"]
+): string => {
+  if (!status) return "-";
+  
+  const statusMap: Record<string, string> = {
+    ACTIVE: "Активный",
+    INACTIVE: "Неактивный",
+    DECEASED: "Умерший",
+  };
+  
+  return statusMap[status] || status;
+};
+
+/**
+ * Get notification status display
+ */
+export const getNotificationStatusDisplay = (enabled?: boolean): string => {
+  if (enabled === undefined || enabled === null) return "-";
+  return enabled ? "Включены" : "Выключены";
+};
+
+// =============================================
+// Doctor Functions
+// =============================================
+
+/**
+ * Get assigned doctors as comma-separated string
+ */
+export const getAssignedDoctorsDisplay = (
+  patient: PatientResponseDto
+): string => {
+  const doctors = patient.doctors
+    ?.filter((d) => d.isActive)
+    .map((d) => `${d.firstName} ${d.lastName}`)
+    .join(", ");
+  
+  return doctors || "-";
+};
+
+// =============================================
+// Passport Functions
+// =============================================
+
+/**
+ * Get passport series and number combined
+ */
+export const getPassportSeriesNumber = (
+  patient: PatientResponseDto
+): string => {
+  if (patient.passportSeries && patient.passportNumber) {
+    return `${patient.passportSeries} ${patient.passportNumber}`;
+  }
+  return "-";
+};
+
+/**
+ * Check if patient has passport information
+ */
+export const hasPassportInfo = (patient: PatientResponseDto): boolean => {
+  return !!(
+    patient.passportSeries ||
+    patient.passportNumber ||
+    patient.passportIssuedBy
+  );
+};
+
+// =============================================
+// Display ID Functions
+// =============================================
+
+/**
+ * Get patient display ID (patientId or fallback to id)
+ */
+export const getPatientDisplayId = (patient: PatientResponseDto): string => {
+  return patient.patientId || patient.id;
 };
 
 // =============================================

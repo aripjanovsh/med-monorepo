@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { VisitResponseDto } from "../visit.dto";
-import { getPatientFullName, getEmployeeFullName } from "../visit.model";
+import { formatVisitDate } from "../visit.model";
 import { VisitStatusBadge } from "./visit-status-badge";
+import { getPatientFullName } from "@/features/patients/patient.model";
+import { getEmployeeFullName } from "@/features/employees/employee.model";
 
 export const createVisitColumns = (
   onEdit?: (visit: VisitResponseDto) => void,
@@ -61,12 +63,11 @@ export const createVisitColumns = (
     accessorKey: "patient",
     header: "ПАЦИЕНТ",
     cell: ({ row }) => {
-      const visit = row.original;
-      const patientName = getPatientFullName(visit);
+      const patientName = getPatientFullName(row.original.patient);
       return (
         <button
           className="font-medium text-left hover:text-blue-600 transition-colors"
-          onClick={() => onView?.(visit)}
+          onClick={() => onView?.(row.original)}
         >
           {patientName}
         </button>
@@ -77,7 +78,7 @@ export const createVisitColumns = (
     accessorKey: "employee",
     header: "ВРАЧ",
     cell: ({ row }) => {
-      const employeeName = getEmployeeFullName(row.original);
+      const employeeName = getEmployeeFullName(row.original.employee);
       return <div className="text-sm">{employeeName}</div>;
     },
   },
@@ -121,6 +122,38 @@ export const createVisitColumns = (
           </DropdownMenuContent>
         </DropdownMenu>
       );
+    },
+  },
+];
+
+// Упрощенные колонки для визитов пациента (используются в PatientVisits компоненте)
+export const patientVisitColumns: ColumnDef<VisitResponseDto>[] = [
+  {
+    accessorKey: "visitDate",
+    header: "Дата визита",
+    enableSorting: true,
+    enableHiding: false,
+    cell: ({ row }) => {
+      const visit = row.original;
+      const formattedDate = formatVisitDate(visit.visitDate);
+      return <div className="whitespace-nowrap">{formattedDate}</div>;
+    },
+  },
+  {
+    accessorKey: "employee",
+    header: "Врач",
+    cell: ({ row }) => {
+      const visit = row.original;
+      const employeeName = getEmployeeFullName(visit.employee);
+      return <div>{employeeName}</div>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Статус",
+    cell: ({ row }) => {
+      const visit = row.original;
+      return <VisitStatusBadge status={visit.status} />;
     },
   },
 ];

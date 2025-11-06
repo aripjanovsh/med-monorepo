@@ -60,9 +60,24 @@ export {
 // Model/Utility exports
 export {
   getEmployeeFullName,
+  getEmployeeInitials,
+  getEmployeePhone,
+  getEmployeeTitle,
   isEmployeeActive,
   getEmployeeDisplayStatus,
   calculateEmployeeExperience,
+  formatEmployeeDateTime,
+  formatEmployeeDate,
+  getGenderDisplay,
+  getEmployeeStatusDisplay,
+  getNotificationStatusDisplay,
+  getPassportSeriesNumber,
+  hasPassportInfo,
+  getEmployeeDisplayId,
+  getServiceTypesDisplay,
+  formatSalary,
+  getWorkScheduleForDay,
+  hasWorkSchedule,
 } from "./employee.model";
 
 // API exports
@@ -81,3 +96,7 @@ export {
 export { EmployeeForm } from "./components/employee-form";
 export { PageEmployeeForm } from "./components/page-employee-form";
 export { default as WorkScheduleField } from "./components/work-schedule-field";
+export {
+  employeeColumns,
+  patientDoctorColumns,
+} from "./components/employee-columns";

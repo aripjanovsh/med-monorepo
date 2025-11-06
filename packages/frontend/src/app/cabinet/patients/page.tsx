@@ -16,6 +16,7 @@ import {
 import { patientColumns } from "@/features/patients/components/patient-columns";
 import {
   type PatientResponseDto,
+  type PatientStatusDto,
   useGetPatientsQuery,
   useDeletePatientMutation,
 } from "@/features/patients";
@@ -45,7 +46,7 @@ export default function PatientsPage() {
   });
 
   // Map activeTab to status filter
-  const getStatusFilter = (tab: string) => {
+  const getStatusFilter = (tab: string): PatientStatusDto => {
     switch (tab) {
       case "active":
         return "ACTIVE";

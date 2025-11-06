@@ -13,19 +13,27 @@ export type { VisitStatus } from "./visit.constants";
 export type { VisitFormData } from "./visit.schema";
 
 // Constants
-export { VISIT_STATUS, VISIT_STATUS_OPTIONS, VISIT_STATUS_LABELS, VISIT_STATUS_COLORS } from "./visit.constants";
+export {
+  VISIT_STATUS,
+  VISIT_STATUS_OPTIONS,
+  VISIT_STATUS_LABELS,
+  VISIT_STATUS_COLORS,
+} from "./visit.constants";
 
 // Schemas
-export { visitFormSchema, createVisitRequestSchema, updateVisitRequestSchema } from "./visit.schema";
+export {
+  visitFormSchema,
+  createVisitRequestSchema,
+  updateVisitRequestSchema,
+} from "./visit.schema";
 
 // Model functions
 export {
   getVisitStatusLabel,
-  getPatientFullName,
-  getEmployeeFullName,
   isVisitEditable,
   canCompleteVisit,
   canCancelVisit,
+  formatVisitDate,
 } from "./visit.model";
 
 // API hooks
@@ -40,12 +48,11 @@ export {
 
 // Components
 export { VisitStatusBadge } from "./components/visit-status-badge";
-export { createVisitColumns } from "./components/visit-columns";
-export { VisitForm } from "./components/visit-form";
-export { VisitProtocol } from "./components/visit-protocol";
 export {
-  VisitDetailHeader,
-  VisitInfoCards,
-  VisitDetailTabs,
-  VisitParametersAllergiesTab,
-} from "./components/detail";
+  createVisitColumns,
+  patientVisitColumns,
+} from "./components/visit-columns";
+export { VisitForm } from "./components/visit-form";
+export { VisitFormDialog } from "./components/visit-form-dialog";
+export { VisitProtocol } from "./components/visit-protocol";
+export { VisitDetailHeader, VisitInfoCards } from "./components/detail";

@@ -5,7 +5,8 @@ import { ru } from "date-fns/locale";
 import { User, Stethoscope, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
-import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
+import { getPatientFullName } from "@/features/patients/patient.model";
+import { getEmployeeFullName } from "@/features/employees/employee.model";
 
 type VisitInfoCardsProps = {
   visit: VisitResponseDto;
@@ -26,7 +27,7 @@ export const VisitInfoCards = ({ visit }: VisitInfoCardsProps) => {
           <CardContent>
             <div className="space-y-2">
               <p className="text-2xl font-semibold">
-                {getPatientFullName(visit)}
+                {getPatientFullName(visit.patient)}
               </p>
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>
@@ -51,7 +52,7 @@ export const VisitInfoCards = ({ visit }: VisitInfoCardsProps) => {
           <CardContent>
             <div className="space-y-2">
               <p className="text-2xl font-semibold">
-                {getEmployeeFullName(visit)}
+                {getEmployeeFullName(visit.employee)}
               </p>
               {visit.employee.employeeId && (
                 <p className="text-sm text-muted-foreground">

@@ -1,98 +1,39 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProfileField } from "@/components/ui/profile-field";
+import {
+  formatPatientDateTime,
+  formatPatientDate,
+  getGenderDisplay,
+  getPatientStatusDisplay,
+  getAssignedDoctorsDisplay,
+  getPassportSeriesNumber,
+  hasPassportInfo,
+  getPatientDisplayId,
+  getNotificationStatusDisplay,
+  getContactTypeDisplay,
+} from "@/features/patients/patient.model";
 import { PatientResponseDto } from "@/features/patients/patient.dto";
 
-interface PatientProfileProps {
+type PatientProfileProps = {
   patient: PatientResponseDto;
-}
-
-function Field({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | number | null;
-}) {
-  const display =
-    value === null || value === undefined || value === "" ? "-" : String(value);
-  return (
-    <div className="min-w-0">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium truncate">{display}</p>
-    </div>
-  );
-}
-
-const formatDate = (iso?: string) =>
-  iso
-    ? new Date(iso).toLocaleDateString("ru-RU", {
-        hour: "numeric",
-        minute: "numeric",
-        day: "numeric",
-        month: "numeric",
-        year: "numeric",
-      })
-    : "-";
-
-const formatDateOnly = (iso?: string) =>
-  iso
-    ? new Date(iso).toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "numeric",
-        year: "numeric",
-      })
-    : "-";
-
-const humanGender = (g?: PatientResponseDto["gender"]) =>
-  g ? (g === "MALE" ? "Мужской" : "Женский") : "-";
-
-const humanStatus = (s?: PatientResponseDto["status"]) => {
-  if (!s) return "-";
-  const statusMap: Record<string, string> = {
-    ACTIVE: "Активный",
-    INACTIVE: "Неактивный",
-    DECEASED: "Умерший",
-  };
-  return statusMap[s] || s;
 };
 
-export function PatientProfile({ patient }: PatientProfileProps) {
-  const createdAt = formatDate(patient.createdAt);
-  const updatedAt = formatDate(patient.updatedAt);
-
-  // Get patient ID
-  const patientDisplayId = patient.patientId || patient.id;
-
-  // Get assigned doctors
-  const assignedDoctors = patient.doctors
-    ?.filter(d => d.isActive)
-    .map(d => `${d.firstName} ${d.lastName}`)
-    .join(", ") || "-";
-
+export const PatientProfile = ({ patient }: PatientProfileProps) => {
   return (
     <div className="space-y-4">
       {/* Meta info row (creation/update dates) */}
       <div className="text-xs text-muted-foreground">
         <span className="mr-4">
-          Дата создания: {createdAt} (
-          <a href="#" className="text-primary">
-            John Smith
-          </a>
-          )
+          Дата создания: {formatPatientDateTime(patient.createdAt)}
+          {/* TODO: Add creator name when audit fields are implemented */}
         </span>
         <span className="mr-4">
-          Дата обновления: {updatedAt} (
-          <a href="#" className="text-primary">
-            John Smith
-          </a>
-          )
+          Дата обновления: {formatPatientDateTime(patient.updatedAt)}
+          {/* TODO: Add updater name when audit fields are implemented */}
         </span>
-        <span className="mr-4">
-          <a href="#" className="text-primary">
-            История изменений
-          </a>
-        </span>
+        {/* TODO: Add history changes link when audit log is implemented */}
       </div>
 
       {/* General Information */}
@@ -102,54 +43,71 @@ export function PatientProfile({ patient }: PatientProfileProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Field label="Имя" value={patient.firstName} />
-            <Field label="Фамилия" value={patient.lastName} />
-            <Field label="Отчество" value={patient.middleName || "-"} />
-            <Field label="Пол" value={humanGender(patient.gender)} />
+            <ProfileField label="Имя" value={patient.firstName} />
+            <ProfileField label="Фамилия" value={patient.lastName} />
+            <ProfileField label="Отчество" value={patient.middleName} />
+            <ProfileField
+              label="Пол"
+              value={getGenderDisplay(patient.gender)}
+            />
 
-            <Field label="Дата рождения" value={formatDateOnly(patient.dateOfBirth)} />
-            <Field label="ID пациента" value={patientDisplayId} />
-            <Field label="Статус" value={humanStatus(patient.status)} />
-            <Field label="Последний визит" value={formatDate(patient.lastVisitedAt)} />
+            <ProfileField
+              label="Дата рождения"
+              value={formatPatientDate(patient.dateOfBirth)}
+            />
+            <ProfileField
+              label="ID пациента"
+              value={getPatientDisplayId(patient)}
+            />
+            <ProfileField
+              label="Статус"
+              value={getPatientStatusDisplay(patient.status)}
+            />
+            <ProfileField
+              label="Последний визит"
+              value={formatPatientDateTime(patient.lastVisitedAt)}
+            />
 
-            <Field
+            <ProfileField
               label="Основной язык"
-              value={patient.primaryLanguage?.name || "-"}
+              value={patient.primaryLanguage?.name}
             />
-            <Field
+            <ProfileField
               label="Второй язык"
-              value={patient.secondaryLanguage?.name || "-"}
+              value={patient.secondaryLanguage?.name}
             />
-            <Field label="Назначенные врачи" value={assignedDoctors} />
+            <ProfileField
+              label="Назначенные врачи"
+              value={getAssignedDoctorsDisplay(patient)}
+            />
             <div className="hidden lg:block" />
           </div>
         </CardContent>
       </Card>
 
       {/* Passport Information */}
-      {(patient.passportSeries || patient.passportNumber || patient.passportIssuedBy) && (
+      {hasPassportInfo(patient) && (
         <Card>
           <CardHeader>
             <CardTitle>Паспортные данные</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Field 
-                label="Серия и номер паспорта" 
-                value={
-                  patient.passportSeries && patient.passportNumber
-                    ? `${patient.passportSeries} ${patient.passportNumber}`
-                    : "-"
-                } 
+              <ProfileField
+                label="Серия и номер паспорта"
+                value={getPassportSeriesNumber(patient)}
               />
-              <Field label="Кем выдан" value={patient.passportIssuedBy || "-"} />
-              <Field 
-                label="Дата выдачи" 
-                value={formatDateOnly(patient.passportIssueDate)} 
+              <ProfileField
+                label="Кем выдан"
+                value={patient.passportIssuedBy}
               />
-              <Field 
-                label="Действителен до" 
-                value={formatDateOnly(patient.passportExpiryDate)} 
+              <ProfileField
+                label="Дата выдачи"
+                value={formatPatientDate(patient.passportIssueDate)}
+              />
+              <ProfileField
+                label="Действителен до"
+                value={formatPatientDate(patient.passportExpiryDate)}
               />
             </div>
           </CardContent>
@@ -163,15 +121,11 @@ export function PatientProfile({ patient }: PatientProfileProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Field label="Страна" value={patient.country?.name || "-"} />
-            <Field label="Регион" value={patient.region?.name || "-"} />
-            <Field label="Город" value={patient.city?.name || "-"} />
-            <Field label="Район" value={patient.district?.name || "-"} />
-
-            <Field
-              label="Адрес"
-              value={patient.address || "-"}
-            />
+            <ProfileField label="Страна" value={patient.country?.name} />
+            <ProfileField label="Регион" value={patient.region?.name} />
+            <ProfileField label="Город" value={patient.city?.name} />
+            <ProfileField label="Район" value={patient.district?.name} />
+            <ProfileField label="Адрес" value={patient.address} />
           </div>
         </CardContent>
       </Card>
@@ -186,45 +140,47 @@ export function PatientProfile({ patient }: PatientProfileProps) {
             {patient.contacts.map((contact, index) => (
               <div key={contact.id || index}>
                 <h4 className="text-sm font-semibold mb-4">
-                  Контакт {index + 1} ({contact.type})
+                  Контакт {index + 1} ({getContactTypeDisplay(contact.type)})
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {contact.firstName && (
                     <>
-                      <Field label="Имя контакта" value={contact.firstName} />
-                      <Field label="Фамилия контакта" value={contact.lastName} />
+                      <ProfileField
+                        label="Имя контакта"
+                        value={[contact.firstName, contact.lastName]
+                          .filter(Boolean)
+                          .join(" ")}
+                      />
                     </>
                   )}
-                  <Field label="Основной телефон" value={contact.primaryPhone} />
-                  <Field label="Дополнительный телефон" value={contact.secondaryPhone || "-"} />
-                  
+                  <ProfileField
+                    label="Основной телефон"
+                    value={contact.primaryPhone}
+                  />
+                  <ProfileField
+                    label="Дополнительный телефон"
+                    value={contact.secondaryPhone}
+                  />
+
                   {contact.address && (
                     <>
-                      <Field label="Адрес" value={contact.address} />
-                      <Field label="Город" value={contact.city || "-"} />
-                      <Field label="Страна" value={contact.country || "-"} />
+                      <ProfileField label="Адрес" value={contact.address} />
+                      <ProfileField label="Город" value={contact.city} />
+                      <ProfileField label="Страна" value={contact.country} />
                     </>
                   )}
-                  
-                  <Field
+
+                  <ProfileField
                     label="SMS-уведомления"
-                    value={
-                      contact.textNotificationsEnabled === undefined
-                        ? "-"
-                        : contact.textNotificationsEnabled
-                        ? "Включены"
-                        : "Выключены"
-                    }
+                    value={getNotificationStatusDisplay(
+                      contact.textNotificationsEnabled
+                    )}
                   />
-                  <Field
+                  <ProfileField
                     label="Email-уведомления"
-                    value={
-                      contact.emailNotificationsEnabled === undefined
-                        ? "-"
-                        : contact.emailNotificationsEnabled
-                        ? "Включены"
-                        : "Выключены"
-                    }
+                    value={getNotificationStatusDisplay(
+                      contact.emailNotificationsEnabled
+                    )}
                   />
                 </div>
                 {index < patient.contacts.length - 1 && (
@@ -237,4 +193,4 @@ export function PatientProfile({ patient }: PatientProfileProps) {
       )}
     </div>
   );
-}
+};
