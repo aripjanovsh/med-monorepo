@@ -71,29 +71,33 @@ export const urlWithParams = (
   return `${route}?${queryString}` as any;
 };
 
-// Helper function for patient detail route
-export const getPatientDetailRoute = (patientId: string): string => {
-  return `/cabinet/patients/${patientId}`;
-};
+/**
+ * Universal URL builder for dynamic routes
+ * Replaces [id], [slug], etc. with actual values
+ *
+ * @example
+ * url(ROUTES.PATIENT_DETAIL, { id: '123' }) → '/cabinet/patients/123'
+ * url(ROUTES.INVOICES) → '/cabinet/invoices'
+ */
+export const url = (
+  route: RouteValues,
+  params?: Record<string, string | number>
+): string => {
+  if (!params || Object.keys(params).length === 0) {
+    return route;
+  }
 
-// Helper function for employee detail route
-export const getEmployeeDetailRoute = (employeeId: string): string => {
-  return `/cabinet/employees/${employeeId}`;
-};
+  let resolvedRoute = route as string;
 
-// Helper function for patient edit route
-export const getPatientEditRoute = (patientId: string): string => {
-  return `/cabinet/patients/${patientId}/edit`;
-};
+  Object.entries(params).forEach(([key, value]) => {
+    const encodedValue = encodeURIComponent(String(value));
+    resolvedRoute = resolvedRoute.replace(
+      new RegExp(`\\[${key}\\]`, 'g'),
+      encodedValue
+    );
+  });
 
-// Helper function for order detail route
-export const getOrderDetailRoute = (orderId: string): string => {
-  return `/cabinet/orders/${orderId}`;
-};
-
-// Helper function for invoice detail route
-export const getInvoiceDetailRoute = (invoiceId: string): string => {
-  return `/cabinet/invoices/${invoiceId}`;
+  return resolvedRoute;
 };
 
 // Type for all possible routes

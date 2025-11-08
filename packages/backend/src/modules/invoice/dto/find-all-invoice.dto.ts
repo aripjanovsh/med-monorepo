@@ -67,4 +67,16 @@ export class FindAllInvoiceDto {
   @IsInt()
   @Min(1)
   limit?: number = 20;
+
+  @ApiPropertyOptional({ description: "Field to sort by", default: "createdAt" })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  sortBy?: string = "createdAt";
+
+  @ApiPropertyOptional({ enum: ["asc", "desc"], description: "Sort order", default: "desc" })
+  @Expose()
+  @IsOptional()
+  @IsEnum(["asc", "desc"])
+  sortOrder?: "asc" | "desc" = "desc";
 }

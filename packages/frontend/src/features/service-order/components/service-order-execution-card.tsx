@@ -18,11 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getPatientFullName } from "@/features/patients";
+import { getEmployeeFullName } from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 import {
-  getPatientFullName,
-  getDoctorFullName,
+  getOrderStatusVariant,
+  getPaymentStatusVariant,
 } from "../service-order.model";
 import {
   ORDER_STATUS_LABELS,
@@ -50,34 +52,6 @@ interface ServiceOrderExecutionCardProps {
   onCancel: () => Promise<void>;
   isLoading?: boolean;
 }
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "ORDERED":
-      return "default";
-    case "IN_PROGRESS":
-      return "secondary";
-    case "COMPLETED":
-      return "outline";
-    case "CANCELLED":
-      return "destructive";
-    default:
-      return "outline";
-  }
-};
-
-const getPaymentVariant = (status: string) => {
-  switch (status) {
-    case "PAID":
-      return "default";
-    case "UNPAID":
-      return "destructive";
-    case "PARTIALLY_PAID":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
 
 export const ServiceOrderExecutionCard = ({
   order,
@@ -119,8 +93,8 @@ export const ServiceOrderExecutionCard = ({
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultData | null>(parsedData.analysis);
   const [protocolResult, setProtocolResult] = useState<ProtocolResultData | null>(parsedData.protocol);
 
-  const patientName = getPatientFullName(order);
-  const doctorName = getDoctorFullName(order);
+  const patientName = getPatientFullName(order.patient);
+  const doctorName = getEmployeeFullName(order.doctor);
 
   const canStartWork = order.status === "ORDERED";
   const canWork = order.status === "IN_PROGRESS" || order.status === "COMPLETED";
@@ -205,10 +179,10 @@ export const ServiceOrderExecutionCard = ({
               </p>
             </div>
             <div className="flex gap-2">
-              <Badge variant={getStatusVariant(order.status)}>
+              <Badge variant={getOrderStatusVariant(order.status)}>
                 {ORDER_STATUS_LABELS[order.status]}
               </Badge>
-              <Badge variant={getPaymentVariant(order.paymentStatus)}>
+              <Badge variant={getPaymentStatusVariant(order.paymentStatus)}>
                 {PAYMENT_STATUS_LABELS[order.paymentStatus]}
               </Badge>
             </div>

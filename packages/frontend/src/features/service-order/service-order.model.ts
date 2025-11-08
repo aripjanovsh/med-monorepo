@@ -22,20 +22,36 @@ export const getPaymentStatusIcon = (status: string): string => {
   return PAYMENT_STATUS_ICONS[status as keyof typeof PAYMENT_STATUS_ICONS] || "";
 };
 
-export const getPatientFullName = (order: ServiceOrderResponseDto): string => {
-  const { firstName, middleName, lastName } = order.patient;
-  return [lastName, firstName, middleName].filter(Boolean).join(" ");
+export const getOrderStatusVariant = (
+  status: string
+): "default" | "secondary" | "outline" | "destructive" => {
+  switch (status) {
+    case "ORDERED":
+      return "default";
+    case "IN_PROGRESS":
+      return "secondary";
+    case "COMPLETED":
+      return "outline";
+    case "CANCELLED":
+      return "destructive";
+    default:
+      return "outline";
+  }
 };
 
-export const getDoctorFullName = (order: ServiceOrderResponseDto): string => {
-  const { firstName, middleName, lastName } = order.doctor;
-  return [lastName, firstName, middleName].filter(Boolean).join(" ");
-};
-
-export const getPerformedByFullName = (order: ServiceOrderResponseDto): string | null => {
-  if (!order.performedBy) return null;
-  const { firstName, middleName, lastName } = order.performedBy;
-  return [lastName, firstName, middleName].filter(Boolean).join(" ");
+export const getPaymentStatusVariant = (
+  status: string
+): "default" | "secondary" | "outline" | "destructive" => {
+  switch (status) {
+    case "PAID":
+      return "default";
+    case "UNPAID":
+      return "destructive";
+    case "PARTIALLY_PAID":
+      return "secondary";
+    default:
+      return "outline";
+  }
 };
 
 export const canCancelOrder = (order: ServiceOrderResponseDto): boolean => {

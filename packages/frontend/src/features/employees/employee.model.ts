@@ -19,6 +19,12 @@ export const getEmployeeFullName = (
     .join(" ");
 };
 
+export const getEmployeeShortName = (
+  employee: EmployeeResponseDto | SimpleEmployeeDto | { firstName: string; lastName: string; middleName?: string }
+): string => {
+  return `${employee.firstName} ${employee.lastName}`;
+};
+
 export const getEmployeeInitials = (employee: EmployeeResponseDto): string => {
   return `${employee.lastName?.[0] || ""}${employee.firstName?.[0] || ""}`;
 };

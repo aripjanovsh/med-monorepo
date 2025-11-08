@@ -2,11 +2,11 @@
 
 import { use } from "react";
 import type { ReactElement } from "react";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGetInvoiceQuery, InvoiceOverview } from "@/features/invoice";
 import { ROUTES } from "@/constants/route.constants";
 import { LayoutHeader } from "@/components/layouts/cabinet";
+import { LoadingState, ErrorState } from "@/components/states";
 
 export default function InvoiceDetailPage({
   params,
@@ -15,35 +15,21 @@ export default function InvoiceDetailPage({
 }): ReactElement {
   const { id } = use(params);
   const router = useRouter();
-  const { data: invoice, isLoading, error } = useGetInvoiceQuery(id);
+  const { data: invoice, isLoading, error, refetch } = useGetInvoiceQuery(id);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Загрузка данных счета...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingState title="Загрузка данных счета..." />;
   }
 
   if (error || !invoice) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-red-500">Счет не найден или произошла ошибка</p>
-          <Button
-            onClick={() => router.push(ROUTES.INVOICES)}
-            variant="outline"
-            className="mt-2"
-          >
-            Вернуться к списку
-          </Button>
-        </div>
-      </div>
+      <ErrorState
+        title="Счет не найден"
+        description="Счет не найден или произошла ошибка при загрузке"
+        onRetry={refetch}
+        onBack={() => router.push(ROUTES.INVOICES)}
+        backLabel="Вернуться к списку"
+      />
     );
   }
 

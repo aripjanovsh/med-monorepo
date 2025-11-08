@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { use } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, User, Stethoscope, DollarSign, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -9,76 +10,51 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileField } from "@/components/ui/profile-field";
+import { LoadingState, ErrorState } from "@/components/states";
+import { getPatientFullName } from "@/features/patients";
+import { getEmployeeFullName } from "@/features/employees";
+import { ROUTES, url } from "@/constants/route.constants";
 
 import {
   useGetServiceOrderQuery,
-  getPatientFullName,
-  getDoctorFullName,
-  getPerformedByFullName,
+  getOrderStatusVariant,
+  getPaymentStatusVariant,
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS_LABELS,
   SERVICE_TYPE_LABELS,
 } from "@/features/service-order";
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "ORDERED":
-      return "default";
-    case "IN_PROGRESS":
-      return "secondary";
-    case "COMPLETED":
-      return "outline";
-    case "CANCELLED":
-      return "destructive";
-    default:
-      return "outline";
-  }
-};
 
-const getPaymentVariant = (status: string) => {
-  switch (status) {
-    case "PAID":
-      return "default";
-    case "UNPAID":
-      return "destructive";
-    case "PARTIALLY_PAID":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
-
-export default function ServiceOrderDetailPage() {
-  const params = useParams();
+export default function ServiceOrderDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: orderId } = use(params);
   const router = useRouter();
-  const orderId = params.id as string;
 
-  const { data: order, isLoading } = useGetServiceOrderQuery(orderId);
+  const { data: order, isLoading, error, refetch } = useGetServiceOrderQuery(orderId);
 
   if (isLoading) {
+    return <LoadingState title="Загрузка назначения..." />;
+  }
+
+  if (error || !order) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-96" />
-      </div>
+      <ErrorState
+        title="Назначение не найдено"
+        description="Не удалось загрузить информацию о назначении"
+        onRetry={refetch}
+        onBack={() => router.push(url(ROUTES.ORDERS))}
+        backLabel="Вернуться к списку"
+      />
     );
   }
 
-  if (!order) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <h2 className="text-2xl font-semibold">Назначение не найдено</h2>
-        <Button onClick={() => router.push("/cabinet/orders")} className="mt-4">
-          Вернуться к списку
-        </Button>
-      </div>
-    );
-  }
-
-  const patientName = getPatientFullName(order);
-  const doctorName = getDoctorFullName(order);
-  const performedByName = getPerformedByFullName(order);
+  const patientName = getPatientFullName(order.patient);
+  const doctorName = getEmployeeFullName(order.doctor);
+  const performedByName = order.performedBy ? getEmployeeFullName(order.performedBy) : null;
 
   return (
     <div className="space-y-6">
@@ -86,7 +62,7 @@ export default function ServiceOrderDetailPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.push("/cabinet/orders")}
+          onClick={() => router.push(url(ROUTES.ORDERS))}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -121,37 +97,32 @@ export default function ServiceOrderDetailPage() {
             <Separator />
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-muted-foreground">Тип услуги</div>
-                <div className="font-medium">
-                  {order.service.type
+              <ProfileField
+                label="Тип услуги"
+                value={
+                  order.service.type
                     ? SERVICE_TYPE_LABELS[order.service.type] || order.service.type
-                    : "—"}
-                </div>
-              </div>
+                    : "—"
+                }
+              />
 
-              <div>
-                <div className="text-sm text-muted-foreground">Цена</div>
-                <div className="font-medium">
-                  {order.service.price ? `${order.service.price} сум` : "—"}
-                </div>
-              </div>
+              <ProfileField
+                label="Цена"
+                value={order.service.price ? `${order.service.price} сум` : "—"}
+              />
             </div>
 
             <Separator />
 
-            <div>
-              <div className="text-sm text-muted-foreground">Отделение</div>
-              <div className="font-medium">{order.department?.name || "—"}</div>
-            </div>
+            <ProfileField label="Отделение" value={order.department?.name || "—"} />
 
             {order.protocolTemplate && (
               <>
                 <Separator />
-                <div>
-                  <div className="text-sm text-muted-foreground">Шаблон протокола</div>
-                  <div className="font-medium">{order.protocolTemplate.name}</div>
-                </div>
+                <ProfileField
+                  label="Шаблон протокола"
+                  value={order.protocolTemplate.name}
+                />
               </>
             )}
           </CardContent>
@@ -194,10 +165,7 @@ export default function ServiceOrderDetailPage() {
             {performedByName && (
               <>
                 <Separator />
-                <div>
-                  <div className="text-sm text-muted-foreground">Выполнил</div>
-                  <div className="font-medium">{performedByName}</div>
-                </div>
+                <ProfileField label="Выполнил" value={performedByName} />
               </>
             )}
           </CardContent>
@@ -215,7 +183,7 @@ export default function ServiceOrderDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Статус выполнения</div>
-                <Badge variant={getStatusVariant(order.status)}>
+                <Badge variant={getOrderStatusVariant(order.status)}>
                   {ORDER_STATUS_LABELS[order.status]}
                 </Badge>
               </div>
@@ -225,7 +193,7 @@ export default function ServiceOrderDetailPage() {
                   <DollarSign className="h-4 w-4" />
                   Статус оплаты
                 </div>
-                <Badge variant={getPaymentVariant(order.paymentStatus)}>
+                <Badge variant={getPaymentStatusVariant(order.paymentStatus)}>
                   {PAYMENT_STATUS_LABELS[order.paymentStatus]}
                 </Badge>
               </div>
@@ -233,39 +201,33 @@ export default function ServiceOrderDetailPage() {
 
             <Separator />
 
-            <div>
-              <div className="text-sm text-muted-foreground">Дата назначения</div>
-              <div className="font-medium">
-                {format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm", {
-                  locale: ru,
-                })}
-              </div>
-            </div>
+            <ProfileField
+              label="Дата назначения"
+              value={format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm", {
+                locale: ru,
+              })}
+            />
 
             {order.resultAt && (
               <>
                 <Separator />
-                <div>
-                  <div className="text-sm text-muted-foreground">Дата выполнения</div>
-                  <div className="font-medium">
-                    {format(new Date(order.resultAt), "dd MMMM yyyy, HH:mm", {
-                      locale: ru,
-                    })}
-                  </div>
-                </div>
+                <ProfileField
+                  label="Дата выполнения"
+                  value={format(new Date(order.resultAt), "dd MMMM yyyy, HH:mm", {
+                    locale: ru,
+                  })}
+                />
               </>
             )}
 
             <Separator />
 
-            <div>
-              <div className="text-sm text-muted-foreground">Последнее обновление</div>
-              <div className="font-medium">
-                {format(new Date(order.updatedAt), "dd MMMM yyyy, HH:mm", {
-                  locale: ru,
-                })}
-              </div>
-            </div>
+            <ProfileField
+              label="Последнее обновление"
+              value={format(new Date(order.updatedAt), "dd MMMM yyyy, HH:mm", {
+                locale: ru,
+              })}
+            />
           </CardContent>
         </Card>
 
@@ -303,7 +265,7 @@ export default function ServiceOrderDetailPage() {
       </div>
 
       <div className="flex justify-between items-center">
-        <Button variant="outline" onClick={() => router.push("/cabinet/orders")}>
+        <Button variant="outline" onClick={() => router.push(url(ROUTES.ORDERS))}>
           Вернуться к списку
         </Button>
         

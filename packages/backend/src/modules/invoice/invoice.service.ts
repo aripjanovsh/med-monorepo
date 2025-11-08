@@ -440,6 +440,8 @@ export class InvoiceService {
       dateTo,
       organizationId,
       search,
+      sortBy = "createdAt",
+      sortOrder = "desc",
       ...filters
     } = query;
     const skip = (page - 1) * limit;
@@ -525,7 +527,9 @@ export class InvoiceService {
           },
           payments: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
       }),
       this.prisma.invoice.count({ where }),
     ]);

@@ -60,10 +60,6 @@ export { invoiceApi } from "./invoice.api";
 
 // Model utilities
 export {
-  getInvoicePatientFullName,
-  getInvoicePatientShortName,
-  getEmployeeFullName,
-  getEmployeeShortName,
   getPaymentPaidByName,
   getInvoiceRemainingAmount,
   isInvoiceFullyPaid,
@@ -71,8 +67,6 @@ export {
   isInvoicePartiallyPaid,
   canAddPayment,
   calculateItemTotal,
-  formatAmountWithCurrency,
-  formatAmountCompact,
   getInvoiceSummary,
   getInvoiceDisplayTitle,
   getInvoicePatientDisplay,
@@ -84,7 +78,6 @@ export { PaymentModal } from "./components/payment-modal";
 export { CreateInvoiceSheet } from "./components/create-invoice-sheet";
 export { CreateInvoiceWithPaymentSheet } from "./components/create-invoice-with-payment-sheet";
 export { InvoiceOverview } from "./components/invoice-overview";
-export {
-  createInvoiceColumns,
-  type InvoiceTableActions,
-} from "./components/invoice-columns";
+export { invoiceColumns } from "./components/invoice-columns";
+export { invoiceItemsColumns } from "./components/invoice-items-columns";
+export { invoicePaymentsColumns } from "./components/invoice-payments-columns";

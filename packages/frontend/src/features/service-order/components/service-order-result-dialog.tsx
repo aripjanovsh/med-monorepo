@@ -14,9 +14,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { getEmployeeFullName } from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
-import { getPerformedByFullName } from "../service-order.model";
+import { getOrderStatusVariant } from "../service-order.model";
 import { ORDER_STATUS_LABELS } from "../service-order.constants";
 import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
@@ -30,21 +31,6 @@ type ServiceOrderResultDialogProps = {
   onEdit?: () => void;
 };
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "ORDERED":
-      return "default";
-    case "IN_PROGRESS":
-      return "secondary";
-    case "COMPLETED":
-      return "outline";
-    case "CANCELLED":
-      return "destructive";
-    default:
-      return "outline";
-  }
-};
-
 export const ServiceOrderResultDialog = ({
   order,
   open,
@@ -53,7 +39,7 @@ export const ServiceOrderResultDialog = ({
 }: ServiceOrderResultDialogProps) => {
   if (!order) return null;
 
-  const performedByName = getPerformedByFullName(order);
+  const performedByName = order.performedBy ? getEmployeeFullName(order.performedBy) : null;
   const hasResults =
     order.resultText || order.resultFileUrl || order.resultData;
 
@@ -96,7 +82,7 @@ export const ServiceOrderResultDialog = ({
             <div className="flex items-center gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">Статус</div>
-                <Badge variant={getStatusVariant(order.status)}>
+                <Badge variant={getOrderStatusVariant(order.status)}>
                   {ORDER_STATUS_LABELS[order.status]}
                 </Badge>
               </div>

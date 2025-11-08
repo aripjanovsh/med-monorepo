@@ -139,4 +139,6 @@ export interface FindAllInvoicesQueryDto {
   search?: string; // Search by invoice number or patient name
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }

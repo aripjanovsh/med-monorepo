@@ -8,46 +8,9 @@ import type {
   InvoiceListItemDto,
   PaymentResponseDto,
 } from "./invoice.dto";
-
-// =============================================
-// Patient Name Utilities
-// =============================================
-
-type PatientInfo = {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-};
-
-export const getInvoicePatientFullName = (patient: PatientInfo): string => {
-  return [patient.lastName, patient.firstName, patient.middleName]
-    .filter(Boolean)
-    .join(" ");
-};
-
-export const getInvoicePatientShortName = (patient: PatientInfo): string => {
-  return `${patient.lastName} ${patient.firstName[0]}.${patient.middleName ? ` ${patient.middleName[0]}.` : ""}`;
-};
-
-// =============================================
-// Employee Name Utilities
-// =============================================
-
-type EmployeeInfo = {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-};
-
-export const getEmployeeFullName = (employee: EmployeeInfo): string => {
-  return [employee.firstName, employee.middleName, employee.lastName]
-    .filter(Boolean)
-    .join(" ");
-};
-
-export const getEmployeeShortName = (employee: EmployeeInfo): string => {
-  return `${employee.firstName} ${employee.lastName}`;
-};
+import { getPatientFullName } from "@/features/patients";
+import { getEmployeeShortName } from "@/features/employees";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/currency.utils";
 
 // =============================================
 // Payment Utilities
@@ -104,24 +67,6 @@ export const calculateItemTotal = (
 };
 
 // =============================================
-// Amount Formatting Utilities
-// =============================================
-
-export const formatAmountWithCurrency = (amount: number): string => {
-  return `${amount.toLocaleString()} сум`;
-};
-
-export const formatAmountCompact = (amount: number): string => {
-  if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(1)}М сум`;
-  }
-  if (amount >= 1_000) {
-    return `${(amount / 1_000).toFixed(1)}К сум`;
-  }
-  return formatAmountWithCurrency(amount);
-};
-
-// =============================================
 // Invoice Summary Utilities
 // =============================================
 
@@ -152,7 +97,7 @@ export const getInvoiceDisplayTitle = (invoice: InvoiceResponseDto): string => {
 export const getInvoicePatientDisplay = (
   invoice: InvoiceResponseDto | InvoiceListItemDto
 ): string => {
-  return getInvoicePatientFullName(invoice.patient);
+  return getPatientFullName(invoice.patient);
 };
 
 export const getInvoiceCreatedByDisplay = (

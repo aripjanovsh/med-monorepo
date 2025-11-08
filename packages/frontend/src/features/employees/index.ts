@@ -60,6 +60,7 @@ export {
 // Model/Utility exports
 export {
   getEmployeeFullName,
+  getEmployeeShortName,
   getEmployeeInitials,
   getEmployeePhone,
   getEmployeeTitle,

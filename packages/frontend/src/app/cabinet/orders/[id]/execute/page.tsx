@@ -1,10 +1,12 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { use, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingState, ErrorState } from "@/components/states";
+import { ROUTES, url } from "@/constants/route.constants";
 
 import {
   useGetServiceOrderQuery,
@@ -12,72 +14,75 @@ import {
   ServiceOrderExecutionCard,
 } from "@/features/service-order";
 
-export default function ExecuteServiceOrderPage() {
-  const params = useParams();
+export default function ExecuteServiceOrderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: orderId } = use(params);
   const router = useRouter();
-  const orderId = params.id as string;
 
-  const { data: order, isLoading } = useGetServiceOrderQuery(orderId);
+  const { data: order, isLoading, error, refetch } = useGetServiceOrderQuery(orderId);
   const [updateServiceOrder, { isLoading: isUpdating }] = useUpdateServiceOrderMutation();
 
-  const handleStartWork = async () => {
+  const handleStartWork = useCallback(async () => {
     await updateServiceOrder({
       id: orderId,
       status: "IN_PROGRESS",
     }).unwrap();
-  };
+  }, [orderId, updateServiceOrder]);
 
-  const handleSaveDraft = async (data: {
-    resultText?: string;
-    resultData?: Record<string, any>;
-  }) => {
-    await updateServiceOrder({
-      id: orderId,
-      ...data,
-    }).unwrap();
-  };
+  const handleSaveDraft = useCallback(
+    async (data: {
+      resultText?: string;
+      resultData?: Record<string, any>;
+    }) => {
+      await updateServiceOrder({
+        id: orderId,
+        ...data,
+      }).unwrap();
+    },
+    [orderId, updateServiceOrder]
+  );
 
-  const handleComplete = async (data: {
-    resultText?: string;
-    resultData?: Record<string, any>;
-  }) => {
-    await updateServiceOrder({
-      id: orderId,
-      status: "COMPLETED",
-      ...data,
-    }).unwrap();
+  const handleComplete = useCallback(
+    async (data: {
+      resultText?: string;
+      resultData?: Record<string, any>;
+    }) => {
+      await updateServiceOrder({
+        id: orderId,
+        status: "COMPLETED",
+        ...data,
+      }).unwrap();
 
-    // Redirect to order detail page after completion
-    router.push(`/cabinet/orders/${orderId}`);
-  };
+      router.push(url(ROUTES.ORDER_DETAIL, { id: orderId }));
+    },
+    [orderId, updateServiceOrder, router]
+  );
 
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
     await updateServiceOrder({
       id: orderId,
       status: "CANCELLED",
     }).unwrap();
 
-    // Redirect to orders list after cancellation
-    router.push("/cabinet/orders");
-  };
+    router.push(url(ROUTES.ORDERS));
+  }, [orderId, updateServiceOrder, router]);
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-96" />
-      </div>
-    );
+    return <LoadingState title="Загрузка назначения..." />;
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <h2 className="text-2xl font-semibold">Назначение не найдено</h2>
-        <Button onClick={() => router.push("/cabinet/orders")} className="mt-4">
-          Вернуться к списку
-        </Button>
-      </div>
+      <ErrorState
+        title="Назначение не найдено"
+        description="Не удалось загрузить информацию о назначении"
+        onRetry={refetch}
+        onBack={() => router.push(url(ROUTES.ORDERS))}
+        backLabel="Вернуться к списку"
+      />
     );
   }
 
@@ -87,7 +92,7 @@ export default function ExecuteServiceOrderPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.push(`/cabinet/orders/${orderId}`)}
+          onClick={() => router.push(url(ROUTES.ORDER_DETAIL, { id: orderId }))}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
