@@ -110,9 +110,6 @@ export const AnalysisTemplateForm = ({
 
   const isLoading = isCreating || isUpdating;
 
-  console.log("form.errors", form.formState.errors);
-  console.log("form.values.parameters", parameters);
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {/* Preset Templates */}

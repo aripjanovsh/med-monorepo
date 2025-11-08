@@ -4,6 +4,7 @@ import { use } from "react";
 
 import { LayoutHeader } from "@/components/layouts/cabinet";
 import { PageAnalysisTemplateForm } from "@/features/analysis-template";
+import { url, ROUTES } from "@/constants/route.constants";
 
 export default function EditAnalysisTemplatePage({
   params,
@@ -16,7 +17,7 @@ export default function EditAnalysisTemplatePage({
     <div className="space-y-6">
       <LayoutHeader
         title="Редактировать шаблон анализа"
-        backHref={`/cabinet/settings/analysis-templates/${id}`}
+        backHref={url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id })}
       />
       <PageAnalysisTemplateForm mode="edit" templateId={id} />
     </div>

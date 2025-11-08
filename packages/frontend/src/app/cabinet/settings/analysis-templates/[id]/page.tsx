@@ -1,9 +1,10 @@
 "use client";
 
-import { use } from "react";
+import { use, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Edit } from "lucide-react";
+import { Edit } from "lucide-react";
 
+import { LoadingState, ErrorState } from "@/components/states";
 import { LayoutHeader } from "@/components/layouts/cabinet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import {
   formatReferenceRange,
   type AnalysisParameterDto,
 } from "@/features/analysis-template";
+import { url, ROUTES } from "@/constants/route.constants";
 
 export default function AnalysisTemplateDetailPage({
   params,
@@ -25,41 +27,25 @@ export default function AnalysisTemplateDetailPage({
   const { id } = use(params);
   const router = useRouter();
 
-  const { data: template, isLoading, error } = useGetAnalysisTemplateQuery(id);
+  const { data: template, isLoading, error, refetch } = useGetAnalysisTemplateQuery(id);
 
-  const handleEdit = () => {
-    router.push(`/cabinet/settings/analysis-templates/${id}/edit`);
-  };
+  const handleEdit = useCallback(() => {
+    router.push(url(ROUTES.ANALYSIS_TEMPLATE_EDIT, { id }));
+  }, [router, id]);
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <LayoutHeader
-          title="Шаблон анализа"
-          backHref="/cabinet/settings/analysis-templates"
-        />
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </div>
-    );
+    return <LoadingState title="Загрузка шаблона анализа..." />;
   }
 
   if (error || !template) {
     return (
-      <div className="space-y-6">
-        <LayoutHeader
-          title="Шаблон анализа"
-          backHref="/cabinet/settings/analysis-templates"
-        />
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <p className="text-destructive">Шаблон анализа не найден</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ErrorState
+        title="Шаблон анализа не найден"
+        description="Возможно, шаблон был удален или у вас нет доступа к нему"
+        onRetry={refetch}
+        onBack={() => router.push(ROUTES.ANALYSIS_TEMPLATES)}
+        backLabel="Вернуться к списку"
+      />
     );
   }
 
@@ -71,7 +57,7 @@ export default function AnalysisTemplateDetailPage({
       {/* Header */}
       <LayoutHeader
         title={template.name}
-        backHref="/cabinet/settings/analysis-templates"
+        backHref={ROUTES.ANALYSIS_TEMPLATES}
         right={
           <Button onClick={handleEdit}>
             <Edit className="h-4 w-4 mr-2" />

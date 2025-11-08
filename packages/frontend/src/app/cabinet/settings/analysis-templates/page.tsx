@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search } from "lucide-react";
+import { Plus, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -15,16 +27,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DataTable } from "@/components/data-table/data-table";
-import { useDebounce } from "@/hooks/use-debounce";
 
 import {
   useGetAnalysisTemplatesQuery,
   useDeleteAnalysisTemplateMutation,
-  createAnalysisTemplateColumns,
+  analysisTemplateColumns,
   ANALYSIS_TEMPLATE_CATEGORY_OPTIONS,
   type AnalysisTemplateResponseDto,
 } from "@/features/analysis-template";
+import { url, ROUTES } from "@/constants/route.constants";
+import PageHeader from "@/components/layouts/page-header";
+import { useConfirmDialog } from "@/components/dialogs";
+import { useDataTableState } from "@/hooks/use-data-table-state";
 
 const CATEGORY_FILTER_OPTIONS = [
   { value: "ALL", label: "Все категории" },
@@ -33,122 +47,141 @@ const CATEGORY_FILTER_OPTIONS = [
 
 export default function AnalysisTemplatesPage() {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
+  const confirm = useConfirmDialog();
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  
-  const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const queryParams = {
-    search: debouncedSearch,
-    category: selectedCategory === "ALL" ? undefined : (selectedCategory as any),
-    page: 1,
-    limit: 50,
-  };
+  const { queryParams, handlers, setters, values } = useDataTableState({
+    defaultLimit: 50,
+    defaultSorting: [{ id: "name", desc: false }],
+    searchDebounceMs: 300,
+  });
 
-  const { data, isLoading, error, refetch } =
-    useGetAnalysisTemplatesQuery(queryParams);
+  // Reset to first page when category changes
+  useEffect(() => {
+    setters.setPage(1);
+  }, [selectedCategory, setters]);
+
+  // Add category filter to query params
+  const finalQueryParams = useMemo(() => {
+    const category = selectedCategory === "ALL" ? undefined : selectedCategory;
+    return {
+      ...queryParams,
+      ...(category && { category }),
+    };
+  }, [queryParams, selectedCategory]);
+
+  const {
+    data: templatesData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetAnalysisTemplatesQuery(finalQueryParams);
 
   const [deleteTemplate] = useDeleteAnalysisTemplateMutation();
 
-  const handleView = (template: AnalysisTemplateResponseDto) => {
-    router.push(`/cabinet/settings/analysis-templates/${template.id}`);
-  };
+  const handleEdit = useCallback(
+    (template: AnalysisTemplateResponseDto) => {
+      router.push(url(ROUTES.ANALYSIS_TEMPLATE_EDIT, { id: template.id }));
+    },
+    [router]
+  );
 
-  const handleEdit = (template: AnalysisTemplateResponseDto) => {
-    router.push(`/cabinet/settings/analysis-templates/${template.id}/edit`);
-  };
+  const handleDelete = useCallback(
+    async (template: AnalysisTemplateResponseDto) => {
+      confirm({
+        title: "Удалить шаблон?",
+        description: `Вы уверены, что хотите удалить шаблон "${template.name}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteTemplate(template.id).unwrap();
+            toast.success("Шаблон анализа успешно удален");
+            refetch();
+          } catch (error: any) {
+            console.error("Error deleting template:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении шаблона";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteTemplate, refetch]
+  );
 
-  const handleDelete = async (template: AnalysisTemplateResponseDto) => {
-    if (!confirm(`Удалить шаблон "${template.name}"?`)) {
-      return;
-    }
-
-    try {
-      await deleteTemplate(template.id).unwrap();
-      toast.success("Шаблон анализа успешно удален");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message ?? "Ошибка при удалении шаблона");
-    }
-  };
-
-  const handleCreate = () => {
-    router.push("/cabinet/settings/analysis-templates/create");
-  };
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Шаблоны анализов</h1>
-            <p className="text-muted-foreground">
-              Управление шаблонами лабораторных анализов
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground">Загрузка...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Шаблоны анализов</h1>
-            <p className="text-muted-foreground">
-              Управление шаблонами лабораторных анализов
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <p className="text-destructive mb-4">Ошибка загрузки шаблонов</p>
-              <Button onClick={() => refetch()}>Повторить</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const templates = data?.data ?? [];
+  const templates = templatesData?.data || [];
+  const totalTemplates = templatesData?.meta?.total || 0;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Шаблоны анализов</h1>
-          <p className="text-muted-foreground">
-            Управление шаблонами лабораторных анализов
-          </p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Создать шаблон
-        </Button>
-      </div>
+      <PageHeader
+        title="Шаблоны анализов"
+        description="Управление шаблонами лабораторных анализов"
+        actions={
+          <Button asChild>
+            <Link href={ROUTES.ANALYSIS_TEMPLATE_CREATE}>
+              <Plus />
+              Создать шаблон
+            </Link>
+          </Button>
+        }
+      />
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
+      <DataTable
+        columns={[
+          ...analysisTemplateColumns,
+          {
+            id: "actions",
+            cell: ({ row }) => {
+              const template = row.original;
+
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Открыть меню</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleEdit(template)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Редактировать
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => handleDelete(template)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Удалить
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            },
+          },
+        ]}
+        data={templates}
+        isLoading={isLoading}
+        pagination={{
+          ...handlers.pagination,
+          total: totalTemplates,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
           <div className="flex gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск по названию, коду или описанию..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <DataTableToolbar
+                table={table}
+                searchKey="name"
+                searchPlaceholder="Поиск по названию, коду или описанию..."
+                searchValue={values.searchImmediate}
+                onSearchChange={handlers.search.onChange}
+              />
             </div>
             <div className="w-48">
               <Select
@@ -168,34 +201,25 @@ export default function AnalysisTemplatesPage() {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Data Table */}
-      {templates.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">
-                Шаблоны не найдены. Создайте первый шаблон анализа.
-              </p>
-              <Button onClick={handleCreate}>
-                <Plus className="h-4 w-4 mr-2" />
-                Создать шаблон
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <DataTable
-          columns={createAnalysisTemplateColumns(
-            handleView,
-            handleEdit,
-            handleDelete
-          )}
-          data={templates}
-        />
-      )}
+        )}
+        emptyState={
+          error ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке шаблонов"
+              error={error}
+              onRetry={refetch}
+            />
+          ) : (
+            <DataTableEmptyState
+              title="Шаблоны не найдены"
+              description="Попробуйте изменить параметры поиска или создайте первый шаблон анализа"
+            />
+          )
+        }
+        onRowClick={(row) => {
+          router.push(url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id }));
+        }}
+      />
     </div>
   );
 }

@@ -59,6 +59,6 @@ export {
 } from "./analysis-template.api";
 
 // Components
-export { createAnalysisTemplateColumns } from "./components/analysis-template-columns";
+export { analysisTemplateColumns } from "./components/analysis-template-columns";
 export { AnalysisTemplateForm } from "./components/analysis-template-form";
 export { PageAnalysisTemplateForm } from "./components/page-analysis-template-form";
