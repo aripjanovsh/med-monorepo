@@ -12,6 +12,7 @@ import {
   useUpdateProtocolTemplateMutation,
 } from "../protocol-template.api";
 import type { UpdateProtocolTemplateRequestDto } from "../protocol-template.dto";
+import PageHeader from "@/components/layouts/page-header";
 
 type PageProtocolTemplateFormProps = {
   mode: "create" | "edit";
@@ -104,23 +105,16 @@ export const PageProtocolTemplateForm = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={handleCancel}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {mode === "create"
-              ? "Создание протокола"
-              : "Редактирование протокола"}
-          </h1>
-          <p className="text-muted-foreground">
-            {mode === "create"
-              ? "Создайте новый шаблон медицинского протокола"
-              : "Измените шаблон медицинского протокола"}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title={
+          mode === "create" ? "Создание протокола" : "Редактирование протокола"
+        }
+        description={
+          mode === "create"
+            ? "Создайте новый шаблон медицинского протокола"
+            : "Измените шаблон медицинского протокола"
+        }
+      />
 
       <ProtocolTemplateForm
         mode={mode}

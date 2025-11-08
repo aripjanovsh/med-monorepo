@@ -40,7 +40,7 @@ import { toast } from "sonner";
 
 interface ServiceFormProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   service?: Service | null;
   onSuccess?: () => void;
 }
@@ -103,7 +103,7 @@ const validationSchema = yup.object().shape({
 
 export function ServiceForm({
   open,
-  onClose,
+  onOpenChange,
   service,
   onSuccess,
 }: ServiceFormProps) {
@@ -184,7 +184,7 @@ export function ServiceForm({
         toast.success("Услуга успешно создана");
       }
 
-      onClose();
+      onOpenChange(false);
       onSuccess?.();
     } catch (error) {
       const errorMessage = isEditing
@@ -196,7 +196,7 @@ export function ServiceForm({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -400,7 +400,7 @@ export function ServiceForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onClose}
+                onClick={() => onOpenChange(false)}
                 disabled={isLoading}
               >
                 Отмена

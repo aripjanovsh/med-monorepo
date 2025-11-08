@@ -36,7 +36,7 @@ export const settingsSections: SettingsSection[] = [
   },
   {
     id: "master-data",
-    label: "Master Data",
+    label: "Справочные данные",
     icon: Database,
     description: "Manage reference data and dictionaries",
     href: "/cabinet/settings/master-data",
@@ -100,17 +100,19 @@ export default function SettingsLayout({
     pathname.startsWith(section.href)
   );
 
+  const isMasterDataPage = pathname.startsWith("/cabinet/settings/master-data");
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-row items-center justify-between w-full mb-4">
         <div className="flex flex-row gap-2 items-center min-h-9 w-full">
           {isMainPage && (
-            <h1 className="text-2xl font-gilroy font-bold">Settings</h1>
+            <h1 className="text-2xl font-gilroy font-bold">Настройки</h1>
           )}
-          {!isMainPage && currentSection && (
+          {!isMainPage && !isMasterDataPage && currentSection && (
             <>
               <Link href="/cabinet/settings">
-                <h1 className="text-2xl font-gilroy font-bold">Settings</h1>
+                <h1 className="text-2xl font-gilroy font-bold">Настройки</h1>
               </Link>
               <ChevronRight className="size-4 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
@@ -118,10 +120,24 @@ export default function SettingsLayout({
               </p>
             </>
           )}
+
+          {!isMainPage && isMasterDataPage && currentSection && (
+            <>
+              <Link href="/cabinet/settings">
+                <h1 className="text-2xl font-gilroy font-bold">Настройки</h1>
+              </Link>
+              <ChevronRight className="size-4 text-muted-foreground" />
+              <Link href="/cabinet/settings/master-data">
+                <p className="text-sm text-muted-foreground">
+                  {currentSection.label}
+                </p>
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="flex-1 py-6">{children}</div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

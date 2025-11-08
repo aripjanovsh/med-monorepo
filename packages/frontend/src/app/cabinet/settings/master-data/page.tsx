@@ -7,13 +7,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Database, Users, Wrench, Globe, Languages, Building2, Stethoscope, FileText, FlaskConical } from "lucide-react";
-import Link from "next/link";
+import {
+  ArrowRight,
+  Users,
+  Wrench,
+  Globe,
+  Languages,
+  Building2,
+  Stethoscope,
+  FileText,
+  FlaskConical,
+} from "lucide-react";
 import { ROUTES } from "@/constants/route.constants";
 import PageHeader from "@/components/layouts/page-header";
+import { useRouter } from "next/navigation";
 
 const masterDataModules = [
+  {
+    title: "Шаблоны протоколов",
+    description: "Управление шаблонами медицинских протоколов",
+    icon: FileText,
+    href: ROUTES.PROTOCOL_TEMPLATES,
+    color: "text-cyan-600",
+  },
+  {
+    title: "Шаблоны анализов",
+    description: "Управление шаблонами лабораторных анализов",
+    icon: FlaskConical,
+    href: ROUTES.ANALYSIS_TEMPLATES,
+    color: "text-pink-600",
+  },
   {
     title: "Должности",
     description: "Управление должностями сотрудников",
@@ -49,30 +72,11 @@ const masterDataModules = [
     href: ROUTES.MASTER_DATA_LANGUAGES,
     color: "text-orange-600",
   },
-  {
-    title: "Геолокации",
-    description: "Управление странами, регионами, городами и районами",
-    icon: Globe,
-    href: ROUTES.MASTER_DATA_GEOLOCATION,
-    color: "text-purple-600",
-  },
-  {
-    title: "Шаблоны протоколов",
-    description: "Управление шаблонами медицинских протоколов",
-    icon: FileText,
-    href: ROUTES.PROTOCOL_TEMPLATES,
-    color: "text-cyan-600",
-  },
-  {
-    title: "Шаблоны анализов",
-    description: "Управление шаблонами лабораторных анализов",
-    icon: FlaskConical,
-    href: ROUTES.ANALYSIS_TEMPLATES,
-    color: "text-pink-600",
-  },
 ];
 
 export default function MasterDataPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -80,44 +84,34 @@ export default function MasterDataPage() {
         description="Управление основными справочными данными системы"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {masterDataModules.map((module) => {
-          const IconComponent = module.icon;
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {masterDataModules.map((section) => {
+          const Icon = section.icon;
           return (
             <Card
-              key={module.href}
-              className="hover:shadow-lg transition-shadow"
+              key={section.href}
+              className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50 group"
+              onClick={() => router.push(section.href)}
             >
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <IconComponent className={`h-8 w-8 ${module.color}`} />
-                  <CardTitle>{module.title}</CardTitle>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Icon className="size-6" />
+                  </div>
+                  <ArrowRight className="size-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <CardDescription>{module.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={module.href}>
-                  <Button className="w-full">Перейти к управлению</Button>
-                </Link>
+
+                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                  {section.title}
+                </h3>
+
+                <p className="text-sm text-muted-foreground">
+                  {section.description}
+                </p>
               </CardContent>
             </Card>
           );
         })}
-      </div>
-
-      <div className="mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Информация</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Справочные данные используются во всей системе для обеспечения
-              консистентности и стандартизации информации. Все изменения в
-              справочных данных требуют соответствующих прав доступа.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

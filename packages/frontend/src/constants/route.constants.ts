@@ -57,16 +57,19 @@ export const ROUTES = {
   MASTER_DATA_GEOLOCATION: "/cabinet/settings/master-data/geolocation",
 
   // Analysis Templates routes (Settings)
-  ANALYSIS_TEMPLATES: "/cabinet/settings/analysis-templates",
-  ANALYSIS_TEMPLATE_DETAIL: "/cabinet/settings/analysis-templates/[id]",
-  ANALYSIS_TEMPLATE_CREATE: "/cabinet/settings/analysis-templates/create",
-  ANALYSIS_TEMPLATE_EDIT: "/cabinet/settings/analysis-templates/[id]/edit",
+  ANALYSIS_TEMPLATES: "/cabinet/settings/master-data/analysis-templates",
+  ANALYSIS_TEMPLATE_DETAIL:
+    "/cabinet/settings/master-data/analysis-templates/[id]",
+  ANALYSIS_TEMPLATE_CREATE:
+    "/cabinet/settings/master-data/analysis-templates/create",
+  ANALYSIS_TEMPLATE_EDIT:
+    "/cabinet/settings/master-data/analysis-templates/[id]/edit",
 
   // Protocol Templates routes (Settings)
-  PROTOCOL_TEMPLATES: "/cabinet/settings/protocol-templates",
-  PROTOCOL_TEMPLATE_DETAIL: "/cabinet/settings/protocol-templates/[id]",
-  PROTOCOL_TEMPLATE_CREATE: "/cabinet/settings/protocol-templates/create",
-  PROTOCOL_TEMPLATE_EDIT: "/cabinet/settings/protocol-templates/[id]/edit",
+  PROTOCOL_TEMPLATES: "/cabinet/settings/master-data/protocols",
+  PROTOCOL_TEMPLATE_DETAIL: "/cabinet/settings/master-data/protocols/[id]",
+  PROTOCOL_TEMPLATE_CREATE: "/cabinet/settings/master-data/protocols/create",
+  PROTOCOL_TEMPLATE_EDIT: "/cabinet/settings/master-data/protocols/[id]/edit",
 } as const;
 
 // Helper functions for routes with parameters
@@ -104,7 +107,7 @@ export const url = (
   Object.entries(params).forEach(([key, value]) => {
     const encodedValue = encodeURIComponent(String(value));
     resolvedRoute = resolvedRoute.replace(
-      new RegExp(`\\[${key}\\]`, 'g'),
+      new RegExp(`\\[${key}\\]`, "g"),
       encodedValue
     );
   });

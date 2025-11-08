@@ -1,86 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Filter, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash, Building2 } from "lucide-react";
 import {
   useGetDepartmentsQuery,
   useDeleteDepartmentMutation,
 } from "@/features/master-data/master-data-departments.api";
-import { Department } from "@/features/master-data/master-data.types";
+import type { Department } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
 import PageHeader from "@/components/layouts/page-header";
-import { DataTable } from "@/components/data-table/data-table";
-import { createDepartmentColumns } from "@/features/master-data/components/departments/department-columns";
+import {
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import { departmentColumns } from "@/features/master-data/components/departments/department-columns";
 import { DepartmentForm } from "@/features/master-data/components/departments/department-form";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useDialog } from "@/lib/dialog-manager";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function DepartmentsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(
-    null
-  );
+  const confirm = useConfirmDialog();
+  const departmentFormDialog = useDialog(DepartmentForm);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, values } = useDataTableState({
+    defaultLimit: 10,
+    defaultSorting: [{ id: "createdAt", desc: true }],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
 
-  // API hooks
+  // Fetch departments with managed state
   const {
     data: departmentsResponse,
     isLoading,
     error,
     refetch,
-  } = useGetDepartmentsQuery({
-    page,
-    limit,
-    search: debouncedSearchTerm || undefined,
-  });
+  } = useGetDepartmentsQuery(queryParams);
 
-  const [deleteDepartment, { isLoading: isDeleting }] =
-    useDeleteDepartmentMutation();
+  const [deleteDepartment] = useDeleteDepartmentMutation();
 
   const departments = departmentsResponse?.data || [];
-  const meta = departmentsResponse?.meta;
+  const totalDepartments = departmentsResponse?.meta?.total || 0;
 
-  // Handlers
-  const handleCreate = () => {
-    setEditingDepartment(null);
-    setIsFormOpen(true);
-  };
+  // Handlers wrapped in useCallback
+  const handleCreate = useCallback(() => {
+    departmentFormDialog.open({
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  }, [departmentFormDialog, refetch]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteDepartment(id).unwrap();
-      toast.success("Отделение успешно удалено");
-      refetch();
-    } catch (error) {
-      toast.error("Ошибка при удалении отделения");
-      console.error("Error deleting department:", error);
-    }
-  };
+  const handleEdit = useCallback(
+    (department: Department) => {
+      departmentFormDialog.open({
+        department,
+        onSuccess: () => {
+          refetch();
+        },
+      });
+    },
+    [departmentFormDialog, refetch]
+  );
 
-  const handleEdit = (department: Department) => {
-    setEditingDepartment(department);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingDepartment(null);
-  };
-
-  // Column definitions
-  const departmentColumns = createDepartmentColumns(
-    handleEdit,
-    handleDelete,
-    isDeleting
+  const handleDelete = useCallback(
+    (department: Department) => {
+      confirm({
+        title: "Удалить отделение?",
+        description: `Вы уверены, что хотите удалить отделение "${department.name}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteDepartment(department.id).unwrap();
+            toast.success("Отделение успешно удалено");
+            refetch();
+          } catch (error: any) {
+            console.error("Error deleting department:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении отделения";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteDepartment, refetch]
   );
 
   return (
@@ -88,69 +99,81 @@ export default function DepartmentsPage() {
       <PageHeader
         title="Отделения"
         description="Управление отделениями медицинской организации"
-        backUrl="/cabinet/settings/master-data"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus />
             Добавить отделение
           </Button>
         }
       />
 
-      {/* Search and Filters */}
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Поиск отделений..."
-          className="w-full max-w-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Фильтры
-          </Button>
-        </div>
-      </div>
+      <DataTable
+        columns={[
+          ...departmentColumns,
+          {
+            id: "actions",
+            size: 100,
+            cell: ({ row }) => {
+              const department = row.original;
 
-      {/* Data Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-500">Ошибка при загрузке данных</p>
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              className="mt-2"
-            >
-              Повторить
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <DataTable
-          columns={departmentColumns}
-          data={departments}
-          isLoading={isLoading}
-          pagination={{
-            page,
-            limit,
-            total: meta?.total || 0,
-          }}
-          emptyState="Отделения не найдены"
-        />
-      )}
-
-      {/* Form Dialog */}
-      <DepartmentForm
-        open={isFormOpen}
-        onOpenChange={handleFormClose}
-        department={editingDepartment}
-        onSuccess={handleFormSuccess}
+              return (
+                <div className="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(department)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(department)}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={departments}
+        isLoading={isLoading}
+        pagination={{
+          ...handlers.pagination,
+          total: totalDepartments,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="name"
+            searchPlaceholder="Поиск отделений..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          />
+        )}
+        emptyState={
+          error ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке отделений"
+              error={error}
+              onRetry={refetch}
+            />
+          ) : (
+            <DataTableEmptyState
+              title="Отделений пока нет"
+              description="Добавьте первое отделение для начала работы"
+              icon={Building2}
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus />
+                  Добавить отделение
+                </Button>
+              }
+            />
+          )
+        }
       />
     </div>
   );

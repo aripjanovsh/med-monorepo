@@ -1,84 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Filter, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash, Stethoscope } from "lucide-react";
 import {
   useGetServicesQuery,
   useDeleteServiceMutation,
 } from "@/features/master-data/master-data-services.api";
-import { Service } from "@/features/master-data/master-data.types";
+import type { Service } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
 import PageHeader from "@/components/layouts/page-header";
-import { DataTable } from "@/components/data-table/data-table";
-import { createServiceColumns } from "@/features/master-data/components/services/service-columns";
+import {
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import { serviceColumns } from "@/features/master-data/components/services/service-columns";
 import { ServiceForm } from "@/features/master-data/components/services/service-form";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useDialog } from "@/lib/dialog-manager";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function ServicesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const confirm = useConfirmDialog();
+  const serviceFormDialog = useDialog(ServiceForm);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, values } = useDataTableState({
+    defaultLimit: 10,
+    defaultSorting: [{ id: "createdAt", desc: true }],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
 
-  // API hooks
+  // Fetch services with managed state
   const {
     data: servicesResponse,
     isLoading,
     error,
     refetch,
-  } = useGetServicesQuery({
-    page,
-    limit,
-    search: debouncedSearchTerm || undefined,
-  });
+  } = useGetServicesQuery(queryParams);
 
-  const [deleteService, { isLoading: isDeleting }] =
-    useDeleteServiceMutation();
+  const [deleteService] = useDeleteServiceMutation();
 
   const services = servicesResponse?.data || [];
-  const meta = servicesResponse?.meta;
+  const totalServices = servicesResponse?.meta?.total || 0;
 
-  // Handlers
-  const handleCreate = () => {
-    setEditingService(null);
-    setIsFormOpen(true);
-  };
+  // Handlers wrapped in useCallback
+  const handleCreate = useCallback(() => {
+    serviceFormDialog.open({
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  }, [serviceFormDialog, refetch]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteService(id).unwrap();
-      toast.success("Услуга успешно удалена");
-      refetch();
-    } catch (error) {
-      toast.error("Ошибка при удалении услуги");
-      console.error("Error deleting service:", error);
-    }
-  };
+  const handleEdit = useCallback(
+    (service: Service) => {
+      serviceFormDialog.open({
+        service,
+        onSuccess: () => {
+          refetch();
+        },
+      });
+    },
+    [serviceFormDialog, refetch]
+  );
 
-  const handleEdit = (service: Service) => {
-    setEditingService(service);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingService(null);
-  };
-
-  // Column definitions
-  const serviceColumns = createServiceColumns(
-    handleEdit,
-    handleDelete,
-    isDeleting
+  const handleDelete = useCallback(
+    (service: Service) => {
+      confirm({
+        title: "Удалить услугу?",
+        description: `Вы уверены, что хотите удалить услугу "${service.name}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteService(service.id).unwrap();
+            toast.success("Услуга успешно удалена");
+            refetch();
+          } catch (error: any) {
+            console.error("Error deleting service:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении услуги";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteService, refetch]
   );
 
   return (
@@ -86,69 +99,81 @@ export default function ServicesPage() {
       <PageHeader
         title="Услуги"
         description="Управление медицинскими услугами"
-        backUrl="/cabinet/settings/master-data"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus />
             Добавить услугу
           </Button>
         }
       />
 
-      {/* Search and Filters */}
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Поиск услуг..."
-          className="w-full max-w-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Фильтры
-          </Button>
-        </div>
-      </div>
+      <DataTable
+        columns={[
+          ...serviceColumns,
+          {
+            id: "actions",
+            size: 100,
+            cell: ({ row }) => {
+              const service = row.original;
 
-      {/* Data Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-500">Ошибка при загрузке данных</p>
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              className="mt-2"
-            >
-              Повторить
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <DataTable
-          columns={serviceColumns}
-          data={services}
-          isLoading={isLoading}
-          pagination={{
-            page,
-            limit,
-            total: meta?.total || 0,
-          }}
-          emptyState="Услуги не найдены"
-        />
-      )}
-
-      {/* Form Dialog */}
-      <ServiceForm
-        open={isFormOpen}
-        onClose={handleFormClose}
-        service={editingService}
-        onSuccess={handleFormSuccess}
+              return (
+                <div className="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(service)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(service)}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={services}
+        isLoading={isLoading}
+        pagination={{
+          ...handlers.pagination,
+          total: totalServices,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="name"
+            searchPlaceholder="Поиск услуг..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          />
+        )}
+        emptyState={
+          error ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке услуг"
+              error={error}
+              onRetry={refetch}
+            />
+          ) : (
+            <DataTableEmptyState
+              title="Услуг пока нет"
+              description="Добавьте первую услугу для начала работы"
+              icon={Stethoscope}
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus />
+                  Добавить услугу
+                </Button>
+              }
+            />
+          )
+        }
       />
     </div>
   );

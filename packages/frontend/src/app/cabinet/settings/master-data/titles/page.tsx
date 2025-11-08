@@ -1,149 +1,186 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Filter, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash, Briefcase } from "lucide-react";
 import {
   useGetTitlesQuery,
   useDeleteTitleMutation,
 } from "@/features/master-data/master-data-titles.api";
-import { Title } from "@/features/master-data/master-data.types";
+import type { Title } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
 import PageHeader from "@/components/layouts/page-header";
-import { DataTable } from "@/components/data-table/data-table";
-import { createTitleColumns } from "@/features/master-data/components/titles/title-columns";
+import {
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import { titleColumns } from "@/features/master-data/components/titles/title-columns";
 import { TitleForm } from "@/features/master-data/components/titles/title-form";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useDialog } from "@/lib/dialog-manager";
+import { useConfirmDialog } from "@/components/dialogs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function TitlesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTitle, setEditingTitle] = useState<Title | null>(null);
+  const confirm = useConfirmDialog();
+  const titleFormDialog = useDialog(TitleForm);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, values } = useDataTableState({
+    defaultLimit: 10,
+    defaultSorting: [{ id: "createdAt", desc: true }],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
 
-  // API hooks
+  // Fetch titles with managed state
   const {
     data: titlesResponse,
     isLoading,
     error,
     refetch,
-  } = useGetTitlesQuery({
-    page,
-    limit,
-    search: debouncedSearchTerm || undefined,
-  });
+  } = useGetTitlesQuery(queryParams);
 
-  const [deleteTitle, { isLoading: isDeleting }] = useDeleteTitleMutation();
+  const [deleteTitle] = useDeleteTitleMutation();
 
   const titles = titlesResponse?.data || [];
-  const meta = titlesResponse?.meta;
+  const totalTitles = titlesResponse?.meta?.total || 0;
 
-  // Handlers
-  const handleCreate = () => {
-    setEditingTitle(null);
-    setIsFormOpen(true);
-  };
+  // Handlers wrapped in useCallback
+  const handleCreate = useCallback(() => {
+    titleFormDialog.open({
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  }, [titleFormDialog, refetch]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteTitle(id).unwrap();
-      toast.success("Должность успешно удалена");
-      refetch();
-    } catch (error) {
-      toast.error("Ошибка при удалении должности");
-      console.error("Error deleting title:", error);
-    }
-  };
+  const handleEdit = useCallback(
+    (title: Title) => {
+      titleFormDialog.open({
+        title,
+        onSuccess: () => {
+          refetch();
+        },
+      });
+    },
+    [titleFormDialog, refetch]
+  );
 
-  const handleEdit = (title: Title) => {
-    setEditingTitle(title);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingTitle(null);
-  };
-
-  // Column definitions
-  const titleColumns = createTitleColumns(handleEdit, handleDelete, isDeleting);
+  const handleDelete = useCallback(
+    (title: Title) => {
+      confirm({
+        title: "Удалить должность?",
+        description: `Вы уверены, что хотите удалить должность "${title.name}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteTitle(title.id).unwrap();
+            toast.success("Должность успешно удалена");
+            refetch();
+          } catch (error: any) {
+            console.error("Error deleting title:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении должности";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteTitle, refetch]
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Должности"
         description="Управление должностями сотрудников"
-        backUrl="/cabinet/settings/master-data"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus />
             Добавить должность
           </Button>
         }
       />
 
-      {/* Search and Filters */}
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Поиск должностей..."
-          className="w-full max-w-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Фильтры
-          </Button>
-        </div>
-      </div>
+      <DataTable
+        columns={[
+          ...titleColumns,
+          {
+            id: "actions",
+            size: 100,
+            cell: ({ row }) => {
+              const title = row.original;
 
-      {/* Data Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-500">Ошибка при загрузке данных</p>
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              className="mt-2"
-            >
-              Повторить
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <DataTable
-          columns={titleColumns}
-          data={titles}
-          isLoading={isLoading}
-          pagination={{
-            page,
-            limit,
-            total: meta?.total || 0,
-          }}
-          emptyState="Должности не найдены"
-        />
-      )}
-
-      {/* Form Dialog */}
-      <TitleForm
-        open={isFormOpen}
-        onOpenChange={handleFormClose}
-        title={editingTitle}
-        onSuccess={handleFormSuccess}
+              return (
+                <div className="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(title)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(title)}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={titles}
+        isLoading={isLoading}
+        pagination={{
+          ...handlers.pagination,
+          total: totalTitles,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="name"
+            searchPlaceholder="Поиск должностей..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          />
+        )}
+        emptyState={
+          error ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке должностей"
+              error={error}
+              onRetry={refetch}
+            />
+          ) : (
+            <DataTableEmptyState
+              title="Должностей пока нет"
+              description="Добавьте первую должность для начала работы"
+              icon={Briefcase}
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus />
+                  Добавить должность
+                </Button>
+              }
+            />
+          )
+        }
       />
     </div>
   );

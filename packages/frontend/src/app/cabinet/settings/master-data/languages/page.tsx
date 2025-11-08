@@ -1,98 +1,125 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Filter, Loader2, Languages } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash,
+  ToggleLeft,
+  ToggleRight,
+  Languages,
+} from "lucide-react";
 import {
   useGetLanguagesQuery,
   useDeleteLanguageMutation,
   useToggleLanguageStatusMutation,
 } from "@/features/master-data/master-data-languages.api";
-import { Language } from "@/features/master-data/master-data.types";
+import type { Language } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
 import PageHeader from "@/components/layouts/page-header";
-import { DataTable } from "@/components/data-table/data-table";
-import { createLanguageColumns } from "@/features/master-data/components/languages/language-columns";
+import {
+  DataTable,
+  DataTableToolbar,
+  DataTableEmptyState,
+  DataTableErrorState,
+} from "@/components/data-table";
+import { languageColumns } from "@/features/master-data/components/languages/language-columns";
 import { LanguageForm } from "@/features/master-data/components/languages/language-form";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useDialog } from "@/lib/dialog-manager";
+import { useConfirmDialog } from "@/components/dialogs";
 
 export default function LanguagesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingLanguage, setEditingLanguage] = useState<Language | null>(null);
+  const confirm = useConfirmDialog();
+  const languageFormDialog = useDialog(LanguageForm);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, values } = useDataTableState({
+    defaultLimit: 10,
+    defaultSorting: [{ id: "createdAt", desc: true }],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
 
-  // API hooks
+  // Fetch languages with managed state
   const {
     data: languagesResponse,
     isLoading,
     error,
     refetch,
-  } = useGetLanguagesQuery({
-    page,
-    limit,
-    search: debouncedSearchTerm || undefined,
-  });
+  } = useGetLanguagesQuery(queryParams);
 
-  const [deleteLanguage, { isLoading: isDeleting }] = useDeleteLanguageMutation();
-  const [toggleLanguageStatus, { isLoading: isToggling }] = useToggleLanguageStatusMutation();
+  const [deleteLanguage] = useDeleteLanguageMutation();
+  const [toggleLanguageStatus, { isLoading: isToggling }] =
+    useToggleLanguageStatusMutation();
 
   const languages = languagesResponse?.data || [];
-  const meta = languagesResponse?.meta;
+  const totalLanguages = languagesResponse?.meta?.total || 0;
 
-  // Handlers
-  const handleCreate = () => {
-    setEditingLanguage(null);
-    setIsFormOpen(true);
-  };
+  // Handlers wrapped in useCallback
+  const handleCreate = useCallback(() => {
+    languageFormDialog.open({
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  }, [languageFormDialog, refetch]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteLanguage(id).unwrap();
-      toast.success("Язык успешно удален");
-      refetch();
-    } catch (error) {
-      toast.error("Ошибка при удалении языка");
-      console.error("Error deleting language:", error);
-    }
-  };
+  const handleEdit = useCallback(
+    (language: Language) => {
+      languageFormDialog.open({
+        language,
+        onSuccess: () => {
+          refetch();
+        },
+      });
+    },
+    [languageFormDialog, refetch]
+  );
 
-  const handleEdit = (language: Language) => {
-    setEditingLanguage(language);
-    setIsFormOpen(true);
-  };
+  const handleToggleStatus = useCallback(
+    async (language: Language) => {
+      try {
+        await toggleLanguageStatus(language.id).unwrap();
+        toast.success("Статус языка успешно изменен");
+        refetch();
+      } catch (error: any) {
+        console.error("Error toggling language status:", error);
+        const errorMessage =
+          error?.data?.message ||
+          error?.message ||
+          "Ошибка при изменении статуса языка";
+        toast.error(errorMessage);
+      }
+    },
+    [toggleLanguageStatus, refetch]
+  );
 
-  const handleToggleStatus = async (id: string) => {
-    try {
-      await toggleLanguageStatus(id).unwrap();
-      toast.success("Статус языка успешно изменен");
-      refetch();
-    } catch (error) {
-      toast.error("Ошибка при изменении статуса языка");
-      console.error("Error toggling language status:", error);
-    }
-  };
-
-  const handleFormSuccess = () => {
-    refetch();
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingLanguage(null);
-  };
-
-  // Column definitions
-  const languageColumns = createLanguageColumns(
-    handleEdit,
-    handleDelete,
-    handleToggleStatus,
-    isDeleting,
-    isToggling
+  const handleDelete = useCallback(
+    (language: Language) => {
+      confirm({
+        title: "Удалить язык?",
+        description: `Вы уверены, что хотите удалить язык "${language.name}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: async () => {
+          try {
+            await deleteLanguage(language.id).unwrap();
+            toast.success("Язык успешно удален");
+            refetch();
+          } catch (error: any) {
+            console.error("Error deleting language:", error);
+            const errorMessage =
+              error?.data?.message ||
+              error?.message ||
+              "Ошибка при удалении языка";
+            toast.error(errorMessage);
+          }
+        },
+      });
+    },
+    [confirm, deleteLanguage, refetch]
   );
 
   return (
@@ -100,69 +127,97 @@ export default function LanguagesPage() {
       <PageHeader
         title="Языки"
         description="Управление языками системы"
-        backUrl="/cabinet/settings/master-data"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus />
             Добавить язык
           </Button>
         }
       />
 
-      {/* Search and Filters */}
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Поиск языков..."
-          className="w-full max-w-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Фильтры
-          </Button>
-        </div>
-      </div>
+      <DataTable
+        columns={[
+          ...languageColumns,
+          {
+            id: "actions",
+            size: 140,
+            cell: ({ row }) => {
+              const language = row.original;
 
-      {/* Data Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-500">Ошибка при загрузке данных</p>
-            <Button
-              onClick={() => refetch()}
-              variant="outline"
-              className="mt-2"
-            >
-              Повторить
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <DataTable
-          columns={languageColumns}
-          data={languages}
-          isLoading={isLoading}
-          pagination={{
-            page,
-            limit,
-            total: meta?.total || 0,
-          }}
-          emptyState="Языки не найдены"
-        />
-      )}
-
-      {/* Form Dialog */}
-      <LanguageForm
-        open={isFormOpen}
-        onOpenChange={handleFormClose}
-        language={editingLanguage}
-        onSuccess={handleFormSuccess}
+              return (
+                <div className="flex gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(language)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleToggleStatus(language)}
+                    disabled={isToggling}
+                    title={
+                      language.isActive ? "Деактивировать" : "Активировать"
+                    }
+                  >
+                    {language.isActive ? (
+                      <ToggleRight className="text-green-600" />
+                    ) : (
+                      <ToggleLeft className="text-gray-400" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-600"
+                    onClick={() => handleDelete(language)}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={languages}
+        isLoading={isLoading}
+        pagination={{
+          ...handlers.pagination,
+          total: totalLanguages,
+        }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="name"
+            searchPlaceholder="Поиск языков..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          />
+        )}
+        emptyState={
+          error ? (
+            <DataTableErrorState
+              title="Ошибка при загрузке языков"
+              error={error}
+              onRetry={refetch}
+            />
+          ) : (
+            <DataTableEmptyState
+              title="Языков пока нет"
+              description="Добавьте первый язык для начала работы"
+              icon={Languages}
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus />
+                  Добавить язык
+                </Button>
+              }
+            />
+          )
+        }
       />
     </div>
   );

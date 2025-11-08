@@ -29,6 +29,7 @@ import {
 } from "@/features/master-data/master-data-departments.api";
 import { Department } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
+import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
 
 interface DepartmentFormProps {
   open: boolean;
@@ -238,12 +239,12 @@ export function DepartmentForm({
                 name="headId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ID заведующего</FormLabel>
+                    <FormLabel>Заведующий (необязательно)</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="UUID заведующего"
+                      <EmployeeSelectField
+                        value={field.value}
+                        onChange={field.onChange}
                         disabled={isLoading}
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
