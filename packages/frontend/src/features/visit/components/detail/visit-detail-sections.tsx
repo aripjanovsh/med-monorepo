@@ -1,8 +1,12 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDialog } from "@/lib/dialog-manager";
 import { VisitProtocol } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { AddPrescriptionDialog } from "@/features/prescription/components/add-prescription-dialog";
@@ -10,14 +14,15 @@ import { ServiceOrderList } from "@/features/service-order/components/service-or
 import { AddServicesButton } from "@/features/service-order/components/add-services-button";
 import {
   AddParameterDialog,
-  EditParameterDialog,
-} from "@/features/patient-parameter/components";
+  useGetLatestPatientParametersQuery,
+  formatParameterValue,
+} from "@/features/patient-parameter";
 import {
   AddPatientAllergyDialog,
-  EditPatientAllergyDialog,
   useGetPatientAllergiesQuery,
+  getAllergySeverityLabel,
 } from "@/features/patient-allergy";
-import { useGetLatestPatientParametersQuery } from "@/features/patient-parameter/patient-parameter.api";
+import type { PatientAllergy } from "@/features/patient-allergy";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
 import type { FilledFormData } from "@/features/protocol-template";
@@ -31,7 +36,12 @@ export const VisitDetailSections = ({
   visit,
   isEditable,
 }: VisitDetailSectionsProps) => {
+  // Dialog managers
+  const addPrescriptionDialog = useDialog(AddPrescriptionDialog);
+  const addAllergyDialog = useDialog(AddPatientAllergyDialog);
+  const addParameterDialog = useDialog(AddParameterDialog);
 
+  // Data queries
   const { data: latestParameters } = useGetLatestPatientParametersQuery(
     visit.patient.id
   );
@@ -43,38 +53,43 @@ export const VisitDetailSections = ({
   const { data: definitionsData } = useGetParameterDefinitionsQuery({
     isActive: true,
   });
-  const parameterDefinitions = definitionsData?.data ?? [];
 
-  const getParameterName = (code: string) => {
-    return parameterDefinitions.find((p) => p.code === code)?.name ?? code;
-  };
+  // Memoized values
+  const parameterDefinitions = useMemo(
+    () => definitionsData?.data ?? [],
+    [definitionsData?.data]
+  );
 
-  const formatParameterValue = (param: {
-    valueNumeric?: number | null;
-    valueText?: string | null;
-    valueBoolean?: boolean | null;
-    unit?: string | null;
-  }) => {
-    if (param.valueNumeric !== null && param.valueNumeric !== undefined) {
-      return `${param.valueNumeric} ${param.unit ?? ""}`;
-    }
-    if (param.valueText) return param.valueText;
-    if (param.valueBoolean !== null) return param.valueBoolean ? "Да" : "Нет";
-    return "-";
-  };
+  const getParameterName = useMemo(
+    () => (code: string) => {
+      return parameterDefinitions.find((p) => p.code === code)?.name ?? code;
+    },
+    [parameterDefinitions]
+  );
 
-  const getSeverityLabel = (severity?: string) => {
-    switch (severity) {
-      case "MILD":
-        return "Легкая";
-      case "MODERATE":
-        return "Средняя";
-      case "SEVERE":
-        return "Тяжелая";
-      default:
-        return "-";
-    }
-  };
+  // Handlers
+  const handleAddPrescription = useCallback(() => {
+    addPrescriptionDialog.open({
+      visitId: visit.id,
+      employeeId: visit.employee.id,
+    });
+  }, [addPrescriptionDialog, visit.id, visit.employee.id]);
+
+  const handleAddAllergy = useCallback(() => {
+    addAllergyDialog.open({
+      patientId: visit.patient.id,
+      visitId: visit.id,
+      recordedById: visit.employee.id,
+    });
+  }, [addAllergyDialog, visit.patient.id, visit.id, visit.employee.id]);
+
+  const handleAddParameter = useCallback(() => {
+    addParameterDialog.open({
+      patientId: visit.patient.id,
+      visitId: visit.id,
+      recordedById: visit.employee.id,
+    });
+  }, [addParameterDialog, visit.patient.id, visit.id, visit.employee.id]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -127,10 +142,13 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Рецепты</CardTitle>
               {isEditable && (
-                <AddPrescriptionDialog
-                  visitId={visit.id}
-                  employeeId={visit.employee.id}
-                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleAddPrescription}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               )}
             </div>
           </CardHeader>
@@ -145,11 +163,13 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Аллергии</CardTitle>
               {isEditable && (
-                <AddPatientAllergyDialog
-                  patientId={visit.patient.id}
-                  visitId={visit.id}
-                  recordedById={visit.employee.id}
-                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleAddAllergy}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               )}
             </div>
           </CardHeader>
@@ -160,7 +180,7 @@ export const VisitDetailSections = ({
               </p>
             ) : (
               <div className="space-y-3">
-                {allergiesData.data.map((allergy) => (
+                {allergiesData.data.map((allergy: PatientAllergy) => (
                   <div key={allergy.id} className="border-b pb-3 last:border-0">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1 flex-1">
@@ -174,15 +194,11 @@ export const VisitDetailSections = ({
                         )}
                         {allergy.severity && (
                           <p className="text-xs">
-                            Степень: {getSeverityLabel(allergy.severity)}
+                            Степень: {getAllergySeverityLabel(allergy.severity)}
                           </p>
                         )}
                       </div>
-                      {isEditable && (
-                        <div className="ml-2">
-                          <EditPatientAllergyDialog allergy={allergy} />
-                        </div>
-                      )}
+                      {/* TODO: Добавить кнопку редактирования через dialog manager */}
                     </div>
                   </div>
                 ))}
@@ -197,11 +213,13 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Показатели</CardTitle>
               {isEditable && (
-                <AddParameterDialog
-                  patientId={visit.patient.id}
-                  visitId={visit.id}
-                  recordedById={visit.employee.id}
-                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleAddParameter}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               )}
             </div>
           </CardHeader>
@@ -235,7 +253,7 @@ export const VisitDetailSections = ({
                       <p className="font-semibold text-sm">
                         {formatParameterValue(param)}
                       </p>
-                      {isEditable && <EditParameterDialog parameter={param} />}
+                      {/* TODO: Добавить кнопку редактирования через dialog manager */}
                     </div>
                   </div>
                 ))}

@@ -25,3 +25,16 @@ export type CreatePatientAllergyRequest = {
 };
 
 export type UpdatePatientAllergyRequest = Partial<CreatePatientAllergyRequest>;
+
+export const getAllergySeverityLabel = (severity?: AllergySeverity | string): string => {
+  switch (severity) {
+    case "MILD":
+      return "Легкая";
+    case "MODERATE":
+      return "Средняя";
+    case "SEVERE":
+      return "Тяжелая";
+    default:
+      return "-";
+  }
+};
