@@ -20,10 +20,10 @@ import {
 
 export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
   {
-    title: "Clinc",
+    title: "Клиника",
     children: [
       {
-        title: "Dashboard",
+        title: "Панель управления",
         url: ROUTES.DASHBOARD,
         icon: LayoutDashboardIcon,
       },
@@ -38,7 +38,7 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         icon: UserCog,
       },
       {
-        title: "Reservations",
+        title: "Записи",
         url: ROUTES.APPOINTMENTS,
         icon: CalendarIcon,
       },
@@ -65,7 +65,7 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
     ],
   },
   {
-    title: "Finance",
+    title: "Финансы",
     children: [
       {
         title: "Счета",
@@ -75,20 +75,20 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
     ],
   },
   {
-    title: "Physical Asset",
+    title: "Материальные активы",
     children: [
       {
-        title: "Stocks",
+        title: "Склады",
         url: ROUTES.STOCKS,
         icon: BoxIcon,
       },
     ],
   },
   {
-    title: "Pheriperals",
+    title: "Периферия",
     children: [
       {
-        title: "Report",
+        title: "Отчеты",
         url: ROUTES.REPORT,
         icon: FileTextIcon,
       },
