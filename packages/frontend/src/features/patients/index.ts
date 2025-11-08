@@ -24,3 +24,5 @@ export * from "./components/patient-quick-create-sheet";
 // Detail Components
 export * from "./components/detail/patient-overview";
 export * from "./components/detail/patient-medical-history";
+export * from "./components/detail/patient-service-orders";
+export * from "./components/detail/patient-invoices";
