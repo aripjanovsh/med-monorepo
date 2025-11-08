@@ -1,268 +1,206 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useGetProtocolTemplatesQuery } from "@/features/protocol-template";
-import type {
-  FormBuilderContent,
-  FormField,
-  FormSection,
-  FilledFormData,
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileInput, History } from "lucide-react";
+import { ProtocolTemplateAutocompleteField } from "@/features/protocol-template";
+import type { ProtocolTemplateResponseDto } from "@/features/protocol-template/protocol-template.dto";
+import {
+  FormBuilderInteractive,
+  FormBuilderView,
+  isFormBuilderContent,
+  type FilledFormData,
 } from "@/features/form-builder";
+import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 
-export interface ProtocolResultData {
-  templateId: string;
-  templateName: string;
-  formData: FilledFormData;
-}
+// Используем SavedProtocolData из visit feature
+export type { SavedProtocolData as ProtocolResultData };
 
 interface ResultInputProtocolProps {
-  value: ProtocolResultData | null;
-  onChange: (value: ProtocolResultData) => void;
+  value: SavedProtocolData | null;
+  onChange: (value: SavedProtocolData) => void;
   disabled?: boolean;
+  patientId?: string; // Опциональный для выбора ранее заполненных
+  readonly?: boolean; // Для просмотра завершенных
 }
 
 export const ResultInputProtocol = ({
   value,
   onChange,
   disabled = false,
+  patientId,
+  readonly = false,
 }: ResultInputProtocolProps) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
     value?.templateId || ""
   );
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ProtocolTemplateResponseDto | null>(null);
+  const formDataRef = useRef<FilledFormData>(value?.filledData ?? {});
+  const [activeTab, setActiveTab] = useState<string>("new");
 
-  const { data: templatesData } = useGetProtocolTemplatesQuery({
-    page: 1,
-    limit: 100,
-  });
+  const parsedContent = selectedTemplate?.content
+    ? (() => {
+        try {
+          return JSON.parse(selectedTemplate.content);
+        } catch {
+          return null;
+        }
+      })()
+    : null;
 
-  const templates = templatesData?.data || [];
-  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+  const isFormBuilder = parsedContent && isFormBuilderContent(parsedContent);
 
-  let parsedContent: FormBuilderContent | null = null;
-  if (selectedTemplate && selectedTemplate.templateType === "formbuilder") {
+  const handleNewTemplateSelect = useCallback(
+    (
+      templateId: string | undefined,
+      template?: ProtocolTemplateResponseDto
+    ) => {
+      if (!templateId || disabled) return;
+
+      setSelectedTemplateId(templateId);
+      if (template) {
+        setSelectedTemplate(template);
+        formDataRef.current = {};
+
+        onChange({
+          templateId: template.id,
+          templateName: template.name,
+          templateContent: template.content,
+          filledData: {},
+          metadata: {
+            filledAt: new Date().toISOString(),
+            patientId: patientId || "",
+            visitId: "",
+          },
+        });
+      }
+      setActiveTab("new");
+    },
+    [onChange, disabled, patientId]
+  );
+
+  const handleDataChange = useCallback(
+    (data: FilledFormData) => {
+      formDataRef.current = data;
+
+      if (selectedTemplate) {
+        onChange({
+          templateId: selectedTemplate.id,
+          templateName: selectedTemplate.name,
+          templateContent: selectedTemplate.content,
+          filledData: data,
+          metadata: {
+            filledAt: new Date().toISOString(),
+            patientId: patientId || "",
+            visitId: "",
+          },
+        });
+      }
+    },
+    [onChange, selectedTemplate, patientId]
+  );
+
+  // Инициализация при загрузке существующих данных
+  if (value && !selectedTemplate) {
     try {
-      parsedContent = JSON.parse(selectedTemplate.content) as FormBuilderContent;
-    } catch (e) {
-      console.error("Failed to parse protocol content:", e);
+      const template: ProtocolTemplateResponseDto = {
+        id: value.templateId,
+        name: value.templateName,
+        content: value.templateContent,
+        description: "",
+        templateType: "formbuilder",
+        isActive: true,
+        organizationId: "",
+        createdAt: "",
+        updatedAt: "",
+        createdBy: "",
+      };
+      setSelectedTemplate(template);
+      formDataRef.current = value.filledData;
+    } catch (error) {
+      console.error("Failed to initialize template:", error);
     }
   }
-
-  const handleTemplateSelect = (templateId: string) => {
-    const template = templates.find((t) => t.id === templateId);
-    if (!template) return;
-
-    setSelectedTemplateId(templateId);
-
-    onChange({
-      templateId: template.id,
-      templateName: template.name,
-      formData: {},
-    });
-  };
-
-  const handleFieldChange = (fieldId: string, fieldValue: any) => {
-    if (!value) return;
-
-    onChange({
-      ...value,
-      formData: {
-        ...value.formData,
-        [fieldId]: fieldValue,
-      },
-    });
-  };
-
-  const renderField = (field: FormField) => {
-    const fieldValue = value?.formData[field.id];
-
-    switch (field.type) {
-      case "text":
-      case "number":
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Input
-              id={field.id}
-              type={field.type}
-              value={(fieldValue as string) || ""}
-              onChange={(e) => handleFieldChange(field.id, e.target.value)}
-              placeholder={field.placeholder}
-              disabled={disabled || field.readonly}
-              required={field.required}
-            />
-          </div>
-        );
-
-      case "textarea":
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Textarea
-              id={field.id}
-              value={(fieldValue as string) || ""}
-              onChange={(e) => handleFieldChange(field.id, e.target.value)}
-              placeholder={field.placeholder}
-              disabled={disabled || field.readonly}
-              required={field.required}
-              className="min-h-[100px]"
-            />
-          </div>
-        );
-
-      case "select":
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Select
-              value={(fieldValue as string) || ""}
-              onValueChange={(val) => handleFieldChange(field.id, val)}
-              disabled={disabled || field.readonly}
-            >
-              <SelectTrigger id={field.id}>
-                <SelectValue placeholder={field.placeholder || "Выберите значение"} />
-              </SelectTrigger>
-              <SelectContent>
-                {field.options?.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-
-      case "radio":
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label>
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <RadioGroup
-              value={(fieldValue as string) || ""}
-              onValueChange={(val) => handleFieldChange(field.id, val)}
-              disabled={disabled || field.readonly}
-            >
-              {field.options?.map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={`${field.id}-${option}`} />
-                  <Label htmlFor={`${field.id}-${option}`} className="font-normal">
-                    {option}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-        );
-
-      case "checkbox":
-        return (
-          <div key={field.id} className="flex items-center space-x-2">
-            <Checkbox
-              id={field.id}
-              checked={(fieldValue as boolean) || false}
-              onCheckedChange={(checked) => handleFieldChange(field.id, checked)}
-              disabled={disabled || field.readonly}
-            />
-            <Label htmlFor={field.id} className="font-normal">
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const renderSection = (section: FormSection) => {
-    return (
-      <Card key={section.id}>
-        <CardHeader>
-          <CardTitle className="text-lg">{section.title}</CardTitle>
-          {section.description && (
-            <p className="text-sm text-muted-foreground">{section.description}</p>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {section.fields.map((field) => renderField(field))}
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="space-y-4">
       <div>
-        <Label className="text-base font-semibold">
-          📋 Протокол по шаблону
-        </Label>
+        <Label className="text-base font-semibold">📋 Протокол по шаблону</Label>
         <p className="text-sm text-muted-foreground mt-1">
           Выберите шаблон протокола и заполните форму
         </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="protocol-template-select">Шаблон протокола</Label>
-        <Select
-          value={selectedTemplateId}
-          onValueChange={handleTemplateSelect}
-          disabled={disabled}
-        >
-          <SelectTrigger id="protocol-template-select">
-            <SelectValue placeholder="Выберите шаблон протокола" />
-          </SelectTrigger>
-          <SelectContent>
-            {templates
-              .filter((t) => t.templateType === "formbuilder")
-              .map((template) => (
-                <SelectItem key={template.id} value={template.id}>
-                  {template.name}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Template Selection - только для не readonly режима */}
+      {!readonly && (
+        <Card>
+          <CardContent className="pt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-1">
+                <TabsTrigger value="new" className="gap-2">
+                  <FileInput className="h-4 w-4" />
+                  Выбрать шаблон
+                </TabsTrigger>
+              </TabsList>
 
-      {parsedContent && parsedContent.sections && (
-        <div className="space-y-4">
-          <Separator />
-          {parsedContent.sections.map((section) => renderSection(section))}
-        </div>
+              <TabsContent value="new" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Выберите шаблон протокола</Label>
+                  <ProtocolTemplateAutocompleteField
+                    value={selectedTemplateId}
+                    onChange={(templateId) => handleNewTemplateSelect(templateId)}
+                    onTemplateSelected={(template) =>
+                      handleNewTemplateSelect(template.id, template)
+                    }
+                    placeholder="Выберите шаблон протокола..."
+                    searchPlaceholder="Поиск шаблона..."
+                    empty="Шаблоны не найдены"
+                    disabled={disabled}
+                  />
+                </div>
+
+                {selectedTemplateId && selectedTemplate && (
+                  <div className="rounded-md bg-muted/50 p-3 text-sm">
+                    <p className="font-medium">{selectedTemplate.name}</p>
+                    {selectedTemplate.description && (
+                      <p className="mt-1 text-muted-foreground">
+                        {selectedTemplate.description}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
 
-      {!parsedContent && selectedTemplate && (
-        <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-4 text-center text-yellow-800">
-          Выбранный шаблон не поддерживает структурированный ввод
-        </div>
+      {/* Form Renderer */}
+      {selectedTemplateId && selectedTemplate && isFormBuilder && (
+        <>
+          {readonly ? (
+            <FormBuilderView
+              templateJson={selectedTemplate.content}
+              data={formDataRef.current}
+              compact={false}
+            />
+          ) : (
+            <FormBuilderInteractive
+              key={selectedTemplateId}
+              templateJson={selectedTemplate.content}
+              initialData={formDataRef.current}
+              onChange={handleDataChange}
+              readonly={disabled}
+            />
+          )}
+        </>
       )}
 
-      {!selectedTemplate && (
+      {/* Empty State */}
+      {!selectedTemplateId && (
         <div className="border border-dashed rounded-lg p-8 text-center text-muted-foreground">
           Выберите шаблон протокола для начала заполнения
         </div>

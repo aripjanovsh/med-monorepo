@@ -61,6 +61,12 @@ export const ROUTES = {
   ANALYSIS_TEMPLATE_DETAIL: "/cabinet/settings/analysis-templates/[id]",
   ANALYSIS_TEMPLATE_CREATE: "/cabinet/settings/analysis-templates/create",
   ANALYSIS_TEMPLATE_EDIT: "/cabinet/settings/analysis-templates/[id]/edit",
+
+  // Protocol Templates routes (Settings)
+  PROTOCOL_TEMPLATES: "/cabinet/settings/protocol-templates",
+  PROTOCOL_TEMPLATE_DETAIL: "/cabinet/settings/protocol-templates/[id]",
+  PROTOCOL_TEMPLATE_CREATE: "/cabinet/settings/protocol-templates/create",
+  PROTOCOL_TEMPLATE_EDIT: "/cabinet/settings/protocol-templates/[id]/edit",
 } as const;
 
 // Helper functions for routes with parameters

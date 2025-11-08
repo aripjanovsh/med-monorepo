@@ -34,7 +34,8 @@ import {
 
 import { ResultInputText } from "./result-input-text";
 import { ResultInputAnalysis, type AnalysisResultData } from "./result-input-analysis";
-import { ResultInputProtocol, type ProtocolResultData } from "./result-input-protocol";
+import { ResultInputProtocol } from "./result-input-protocol";
+import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 
 type ResultInputMode = "text" | "protocol" | "analysis";
 
@@ -63,7 +64,7 @@ export const ServiceOrderExecutionCard = ({
 }: ServiceOrderExecutionCardProps) => {
   const parseResultData = (data: Record<string, any> | null | undefined): {
     analysis: AnalysisResultData | null;
-    protocol: ProtocolResultData | null;
+    protocol: SavedProtocolData | null;
   } => {
     if (!data) return { analysis: null, protocol: null };
     
@@ -71,8 +72,26 @@ export const ServiceOrderExecutionCard = ({
       return { analysis: data as AnalysisResultData, protocol: null };
     }
     
+    // Поддержка новой структуры SavedProtocolData
+    if ("filledData" in data && "templateId" in data) {
+      return { analysis: null, protocol: data as SavedProtocolData };
+    }
+    
+    // Обратная совместимость со старой структурой
     if ("formData" in data && "templateId" in data) {
-      return { analysis: null, protocol: data as ProtocolResultData };
+      const oldData = data as any;
+      const newData: SavedProtocolData = {
+        templateId: oldData.templateId,
+        templateName: oldData.templateName || "",
+        templateContent: "",
+        filledData: oldData.formData,
+        metadata: {
+          filledAt: new Date().toISOString(),
+          patientId: "",
+          visitId: "",
+        },
+      };
+      return { analysis: null, protocol: newData };
     }
     
     return { analysis: null, protocol: null };
@@ -91,7 +110,7 @@ export const ServiceOrderExecutionCard = ({
   const [inputMode, setInputMode] = useState<ResultInputMode>(getInitialInputMode());
   const [textResult, setTextResult] = useState<string>(order.resultText || "");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultData | null>(parsedData.analysis);
-  const [protocolResult, setProtocolResult] = useState<ProtocolResultData | null>(parsedData.protocol);
+  const [protocolResult, setProtocolResult] = useState<SavedProtocolData | null>(parsedData.protocol);
 
   const patientName = getPatientFullName(order.patient);
   const doctorName = getEmployeeFullName(order.doctor);
@@ -300,6 +319,8 @@ export const ServiceOrderExecutionCard = ({
                 value={protocolResult}
                 onChange={setProtocolResult}
                 disabled={isLoading}
+                patientId={order.patient.id}
+                readonly={isCompleted}
               />
             )}
 

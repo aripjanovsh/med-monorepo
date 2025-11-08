@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Database, Users, Wrench, Globe, Languages, Building2, Stethoscope } from "lucide-react";
+import { Database, Users, Wrench, Globe, Languages, Building2, Stethoscope, FileText, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/route.constants";
 import PageHeader from "@/components/layouts/page-header";
@@ -55,6 +55,20 @@ const masterDataModules = [
     icon: Globe,
     href: ROUTES.MASTER_DATA_GEOLOCATION,
     color: "text-purple-600",
+  },
+  {
+    title: "Шаблоны протоколов",
+    description: "Управление шаблонами медицинских протоколов",
+    icon: FileText,
+    href: ROUTES.PROTOCOL_TEMPLATES,
+    color: "text-cyan-600",
+  },
+  {
+    title: "Шаблоны анализов",
+    description: "Управление шаблонами лабораторных анализов",
+    icon: FlaskConical,
+    href: ROUTES.ANALYSIS_TEMPLATES,
+    color: "text-pink-600",
   },
 ];
 

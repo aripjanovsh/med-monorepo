@@ -22,7 +22,7 @@ import { ORDER_STATUS_LABELS } from "../service-order.constants";
 import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
 import type { AnalysisResultData } from "./result-input-analysis";
-import type { ProtocolResultData } from "./result-input-protocol";
+import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 
 type ServiceOrderResultDialogProps = {
   order: ServiceOrderResponseDto | null;
@@ -51,8 +51,8 @@ export const ServiceOrderResultDialog = ({
 
   const isProtocolResult =
     order.resultData &&
-    "formData" in order.resultData &&
-    "templateId" in order.resultData;
+    "templateId" in order.resultData &&
+    ("filledData" in order.resultData || "formData" in order.resultData);
 
   // Вычисляем возраст пациента
   const patientAge = order.patient.dateOfBirth
@@ -142,7 +142,22 @@ export const ServiceOrderResultDialog = ({
               {/* Результаты протокола */}
               {isProtocolResult && order.resultData && (
                 <ProtocolResultView
-                  data={order.resultData as unknown as ProtocolResultData}
+                  data={
+                    "filledData" in order.resultData
+                      ? (order.resultData as unknown as SavedProtocolData)
+                      : // Обратная совместимость со старой структурой
+                        ({
+                          templateId: (order.resultData as any).templateId,
+                          templateName: (order.resultData as any).templateName || "",
+                          templateContent: "",
+                          filledData: (order.resultData as any).formData || {},
+                          metadata: {
+                            filledAt: new Date().toISOString(),
+                            patientId: order.patient.id,
+                            visitId: "",
+                          },
+                        } as SavedProtocolData)
+                  }
                 />
               )}
 
