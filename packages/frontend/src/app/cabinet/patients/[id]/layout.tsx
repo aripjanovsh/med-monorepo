@@ -53,11 +53,6 @@ export default function PatientDetailLayout({
     },
     { label: "Визиты", href: `/cabinet/patients/${id}/visits`, value: "visits" },
     {
-      label: "Записи",
-      href: `/cabinet/patients/${id}/appointments`,
-      value: "appointments",
-    },
-    {
       label: "История",
       href: `/cabinet/patients/${id}/history`,
       value: "history",

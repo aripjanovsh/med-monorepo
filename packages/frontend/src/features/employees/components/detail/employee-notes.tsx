@@ -1,44 +1,21 @@
 "use client";
 
-import { Employee } from "@/types/employee";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { FileText, Plus, Edit, Trash2, Eye, EyeOff, Calendar, User } from "lucide-react";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-interface EmployeeNotesProps {
+import type { Employee } from "@/types/employee";
+import { useConfirmDialog } from "@/components/dialogs/use-confirm-dialog";
+
+type EmployeeNotesProps = {
   employee: Employee;
-}
+};
 
-export function EmployeeNotes({ employee }: EmployeeNotesProps) {
+export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
+  const confirm = useConfirmDialog();
   const [notes, setNotes] = useState(employee.notes || []);
-  const [isAddingNote, setIsAddingNote] = useState(false);
-  const [newNote, setNewNote] = useState({
-    title: "",
-    content: "",
-    type: "GENERAL" as const,
-    isPrivate: false,
-  });
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -55,29 +32,17 @@ export function EmployeeNotes({ employee }: EmployeeNotesProps) {
     }
   };
 
-  const handleAddNote = () => {
-    if (newNote.title.trim() && newNote.content.trim()) {
-      const note = {
-        id: Date.now().toString(),
-        ...newNote,
-        author: "Current User", // In real app, get from auth context
-        date: new Date().toISOString(),
-      };
-      
-      setNotes([note, ...notes]);
-      setNewNote({
-        title: "",
-        content: "",
-        type: "GENERAL",
-        isPrivate: false,
-      });
-      setIsAddingNote(false);
-    }
-  };
-
-  const handleDeleteNote = (noteId: string) => {
-    setNotes(notes.filter(note => note.id !== noteId));
-  };
+  const handleDeleteNote = useCallback((noteId: string, noteTitle: string) => {
+    confirm({
+      title: "Удалить заметку?",
+      description: `Вы уверены, что хотите удалить заметку "${noteTitle}"? Это действие нельзя отменить.`,
+      variant: "destructive",
+      confirmText: "Удалить",
+      onConfirm: () => {
+        setNotes((prevNotes) => prevNotes.filter(note => note.id !== noteId));
+      },
+    });
+  }, [confirm]);
 
   const publicNotes = notes.filter(note => !note.isPrivate);
   const privateNotes = notes.filter(note => note.isPrivate);
@@ -92,78 +57,11 @@ export function EmployeeNotes({ employee }: EmployeeNotesProps) {
             Add and manage notes about this employee
           </p>
         </div>
-        <Dialog open={isAddingNote} onOpenChange={setIsAddingNote}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Note
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px]">
-            <DialogHeader>
-              <DialogTitle>Add New Note</DialogTitle>
-              <DialogDescription>
-                Add a note about {employee.name}. Choose the appropriate type and privacy setting.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={newNote.title}
-                  onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                  placeholder="Note title..."
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  value={newNote.type}
-                  onValueChange={(value: any) => setNewNote({ ...newNote, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GENERAL">General</SelectItem>
-                    <SelectItem value="PERFORMANCE">Performance</SelectItem>
-                    <SelectItem value="DISCIPLINARY">Disciplinary</SelectItem>
-                    <SelectItem value="ACHIEVEMENT">Achievement</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={newNote.content}
-                  onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                  placeholder="Write your note here..."
-                  rows={4}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="private"
-                  checked={newNote.isPrivate}
-                  onChange={(e) => setNewNote({ ...newNote, isPrivate: e.target.checked })}
-                  className="rounded border-gray-300"
-                />
-                <Label htmlFor="private" className="text-sm">
-                  Private note (only visible to authorized personnel)
-                </Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddingNote(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddNote}>Add Note</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* TODO: Implement Add Note dialog using useDialog pattern when note management API is ready */}
+        <Button disabled>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Note
+        </Button>
       </div>
 
       {/* Notes Stats */}
@@ -266,13 +164,13 @@ export function EmployeeNotes({ employee }: EmployeeNotesProps) {
                         </div>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" disabled>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteNote(note.id)}
+                          onClick={() => handleDeleteNote(note.id, note.title)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />

@@ -23,7 +23,9 @@ export const getPatientFullName = (
     .join(" ");
 };
 
-export const getPatientInitials = (patient: PatientResponseDto): string => {
+export const getPatientInitials = (
+  patient: PatientResponseDto | SimplePatientDto | { firstName: string; lastName: string }
+): string => {
   return [patient.lastName?.[0], patient.firstName?.[0]]
     .filter(Boolean)
     .join("");

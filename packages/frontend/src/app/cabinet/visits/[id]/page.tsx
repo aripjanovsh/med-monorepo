@@ -1,20 +1,28 @@
 "use client";
 
-import { use } from "react";
+import { use, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { toast } from "sonner";
 
-import { useGetVisitQuery, useUpdateVisitStatusMutation } from "@/features/visit";
-import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge";
-import { getPatientFullName, getEmployeeFullName } from "@/features/visit";
+import {
+  useGetVisitQuery,
+  useUpdateVisitStatusMutation,
+  VisitStatusBadge,
+  isVisitEditable,
+  canCompleteVisit,
+} from "@/features/visit";
+import { getPatientFullName } from "@/features/patients/patient.model";
+import { getEmployeeFullName } from "@/features/employees/employee.model";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
+import { LoadingState, ErrorState } from "@/components/states";
+import { useConfirmDialog } from "@/components/dialogs";
+import { ROUTES, url } from "@/constants/route.constants";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -23,42 +31,49 @@ type PageProps = {
 export default function VisitDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { data: visit, isLoading } = useGetVisitQuery(id);
+  const confirm = useConfirmDialog();
+  const { data: visit, isLoading, error, refetch } = useGetVisitQuery(id);
   const [updateStatus] = useUpdateVisitStatusMutation();
 
-  const handleCompleteVisit = async () => {
-    if (!confirm("Завершить прием?")) return;
-
-    try {
-      await updateStatus({ id, status: "COMPLETED" }).unwrap();
-      toast.success("Прием завершен");
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при завершении");
-    }
-  };
+  const handleCompleteVisit = useCallback(() => {
+    confirm({
+      title: "Завершить прием?",
+      description: "Вы уверены, что хотите завершить прием?",
+      confirmText: "Завершить",
+      onConfirm: async () => {
+        try {
+          await updateStatus({ id, status: "COMPLETED" }).unwrap();
+          toast.success("Прием успешно завершен");
+          refetch();
+        } catch (error: any) {
+          console.error("Error completing visit:", error);
+          const errorMessage =
+            error?.data?.message ||
+            error?.message ||
+            "Ошибка при завершении приема";
+          toast.error(errorMessage);
+        }
+      },
+    });
+  }, [confirm, id, updateStatus, refetch]);
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <LoadingState title="Загрузка визита..." />;
   }
 
-  if (!visit) {
+  if (error || !visit) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/cabinet/visits")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-3xl font-bold">Визит не найден</h1>
-        </div>
-      </div>
+      <ErrorState
+        title="Визит не найден"
+        description="Не удалось загрузить информацию о визите"
+        onRetry={refetch}
+        onBack={() => router.push(ROUTES.VISITS)}
+        backLabel="Вернуться к списку визитов"
+      />
     );
   }
 
-  const isEditable = visit.status === "IN_PROGRESS";
+  const editable = isVisitEditable(visit);
 
   return (
     <div className="space-y-6">
@@ -67,7 +82,7 @@ export default function VisitDetailPage({ params }: PageProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/cabinet/visits")}
+            onClick={() => router.push(ROUTES.VISITS)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -81,11 +96,11 @@ export default function VisitDetailPage({ params }: PageProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          {isEditable && (
+          {editable && (
             <>
               <Button
                 variant="outline"
-                onClick={() => router.push(`/cabinet/visits/${id}/edit`)}
+                onClick={() => router.push(url(ROUTES.VISIT_EDIT, { id }))}
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Редактировать
@@ -125,7 +140,9 @@ export default function VisitDetailPage({ params }: PageProps) {
 
               <div>
                 <p className="text-sm text-muted-foreground">Пациент</p>
-                <p className="font-medium text-lg">{getPatientFullName(visit)}</p>
+                <p className="font-medium text-lg">
+                  {getPatientFullName(visit.patient)}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Дата рождения:{" "}
                   {format(new Date(visit.patient.dateOfBirth), "dd.MM.yyyy", {
@@ -136,7 +153,9 @@ export default function VisitDetailPage({ params }: PageProps) {
 
               <div>
                 <p className="text-sm text-muted-foreground">Врач</p>
-                <p className="font-medium">{getEmployeeFullName(visit)}</p>
+                <p className="font-medium">
+                  {getEmployeeFullName(visit.employee)}
+                </p>
               </div>
 
               {visit.protocol && (

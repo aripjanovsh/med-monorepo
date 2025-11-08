@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
 import { VisitForm } from "@/features/visit/components/visit-form";
+import { ROUTES } from "@/constants/route.constants";
 
 export default function CreateVisitPage() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function CreateVisitPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.push("/cabinet/visits")}
+          onClick={() => router.push(ROUTES.VISITS)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>

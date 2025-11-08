@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
-import { useGetVisitQuery } from "@/features/visit";
+import { useGetVisitQuery, isVisitEditable } from "@/features/visit";
 import { VisitForm } from "@/features/visit/components/visit-form";
+import { LoadingState, ErrorState } from "@/components/states";
+import { ROUTES, url } from "@/constants/route.constants";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -16,37 +18,32 @@ type PageProps = {
 export default function EditVisitPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { data: visit, isLoading } = useGetVisitQuery(id);
+  const { data: visit, isLoading, error, refetch } = useGetVisitQuery(id);
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <LoadingState title="Загрузка визита..." />;
   }
 
-  if (!visit) {
+  if (error || !visit) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/cabinet/visits")}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-3xl font-bold">Визит не найден</h1>
-        </div>
-      </div>
+      <ErrorState
+        title="Визит не найден"
+        description="Не удалось загрузить информацию о визите"
+        onRetry={refetch}
+        onBack={() => router.push(ROUTES.VISITS)}
+        backLabel="Вернуться к списку визитов"
+      />
     );
   }
 
-  if (visit.status !== "IN_PROGRESS") {
+  if (!isVisitEditable(visit)) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push(`/cabinet/visits/${id}`)}
+            onClick={() => router.push(url(ROUTES.VISIT_DETAIL, { id }))}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -57,7 +54,7 @@ export default function EditVisitPage({ params }: PageProps) {
             </p>
           </div>
         </div>
-        <Button onClick={() => router.push(`/cabinet/visits/${id}`)}>
+        <Button onClick={() => router.push(url(ROUTES.VISIT_DETAIL, { id }))}>
           Вернуться к визиту
         </Button>
       </div>
@@ -70,7 +67,7 @@ export default function EditVisitPage({ params }: PageProps) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.push(`/cabinet/visits/${id}`)}
+          onClick={() => router.push(url(ROUTES.VISIT_DETAIL, { id }))}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -91,10 +88,10 @@ export default function EditVisitPage({ params }: PageProps) {
               id: visit.id,
               patientId: visit.patient.id,
               employeeId: visit.employee.id,
-              visitDate: visit.visitDate.split('T')[0], // Convert ISO to yyyy-MM-dd for DatePickerField
+              visitDate: visit.visitDate.split("T")[0], // Convert ISO to yyyy-MM-dd for DatePickerField
               notes: visit.notes || "",
             }}
-            onSuccess={() => router.push(`/cabinet/visits/${id}`)}
+            onSuccess={() => router.push(url(ROUTES.VISIT_DETAIL, { id }))}
           />
         </CardContent>
       </Card>

@@ -1,34 +1,37 @@
 "use client";
 
 import { use } from "react";
+import { useRouter } from "next/navigation";
 import { useGetEmployeeQuery } from "@/features/employees";
 import { EmployeePatients } from "@/features/employees/components/detail/employee-patients";
+import { LoadingState, ErrorState } from "@/components/states";
+import { ROUTES } from "@/constants/route.constants";
 
 export default function EmployeePatientsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id } = use(params);
-  const { data: employee, isLoading } = useGetEmployeeQuery(id as string, {
+  const { data: employee, isLoading, error, refetch } = useGetEmployeeQuery(id as string, {
     skip: !id,
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Загрузка данных сотрудника...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingState title="Загрузка данных сотрудника..." />;
   }
 
-  if (!employee) {
-    return null;
+  if (error || !employee) {
+    return (
+      <ErrorState
+        title="Сотрудник не найден"
+        description="Сотрудник, которого вы ищете, не существует или был удален."
+        onRetry={refetch}
+        onBack={() => router.push(ROUTES.EMPLOYEES)}
+        backLabel="Вернуться к списку сотрудников"
+      />
+    );
   }
 
   return (

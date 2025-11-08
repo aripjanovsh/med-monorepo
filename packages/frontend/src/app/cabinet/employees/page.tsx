@@ -19,7 +19,7 @@ import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
 } from "@/features/employees";
-import { getEmployeeDetailRoute, ROUTES } from "@/constants/route.constants";
+import { url, ROUTES } from "@/constants/route.constants";
 import { ActionTabs } from "@/components/action-tabs";
 import PageHeader from "@/components/layouts/page-header";
 import { useConfirmDialog } from "@/components/dialogs";
@@ -85,14 +85,14 @@ export default function EmployeesPage() {
 
   const handleEditEmployee = useCallback(
     (employee: Employee) => {
-      router.push(`/cabinet/employees/${employee.id}/edit`);
+      router.push(url(ROUTES.EMPLOYEE_EDIT, { id: employee.id }));
     },
     [router]
   );
 
   const handleViewEmployee = useCallback(
     (employee: Employee) => {
-      router.push(getEmployeeDetailRoute(employee.id));
+      router.push(url(ROUTES.EMPLOYEE_DETAIL, { id: employee.id }));
     },
     [router]
   );
@@ -224,7 +224,7 @@ export default function EmployeesPage() {
           )
         }
         onRowClick={(row) => {
-          router.push(getEmployeeDetailRoute(row.original.id));
+          router.push(url(ROUTES.EMPLOYEE_DETAIL, { id: row.original.id }));
         }}
       />
     </div>

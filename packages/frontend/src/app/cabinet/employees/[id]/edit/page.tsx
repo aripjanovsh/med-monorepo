@@ -1,13 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageEmployeeForm } from "@/features/employees/components/page-employee-form";
 import { useGetEmployeeQuery } from "@/features/employees";
-import { Loader2 } from "lucide-react";
+import { LoadingState, ErrorState } from "@/components/states";
+import { ROUTES } from "@/constants/route.constants";
 
 export default function EditEmployeePage() {
+  const router = useRouter();
   const params = useParams();
   const employeeId = params.id as string;
 
@@ -20,11 +22,9 @@ export default function EditEmployeePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <LayoutHeader backHref="/cabinet/employees" backTitle="Сотрудники" />
+        <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
         <PageHeader title="Редактирование сотрудника" />
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
+        <LoadingState title="Загрузка данных сотрудника..." />
       </div>
     );
   }
@@ -32,22 +32,21 @@ export default function EditEmployeePage() {
   if (error || !employee) {
     return (
       <div className="space-y-6">
-        <LayoutHeader backHref="/cabinet/employees" backTitle="Сотрудники" />
+        <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
         <PageHeader title="Редактирование сотрудника" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-500">
-              Ошибка при загрузке данных сотрудника
-            </p>
-          </div>
-        </div>
+        <ErrorState
+          title="Сотрудник не найден"
+          description="Не удалось загрузить данные сотрудника."
+          onBack={() => router.push(ROUTES.EMPLOYEES)}
+          backLabel="Вернуться к списку сотрудников"
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <LayoutHeader backHref="/cabinet/employees" backTitle="Сотрудники" />
+      <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
       <PageHeader 
         title={`Редактирование: ${employee.firstName} ${employee.lastName}`} 
       />

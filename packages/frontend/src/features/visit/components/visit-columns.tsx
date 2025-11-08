@@ -1,52 +1,23 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Eye, Edit, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import type { VisitResponseDto } from "../visit.dto";
 import { formatVisitDate } from "../visit.model";
 import { VisitStatusBadge } from "./visit-status-badge";
-import { getPatientFullName } from "@/features/patients/patient.model";
+import {
+  getPatientFullName,
+  getPatientInitials,
+} from "@/features/patients/patient.model";
 import { getEmployeeFullName } from "@/features/employees/employee.model";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { Calendar, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { url, ROUTES } from "@/constants/route.constants";
 
-export const createVisitColumns = (
-  onEdit?: (visit: VisitResponseDto) => void,
-  onView?: (visit: VisitResponseDto) => void,
-  onDelete?: (visit: VisitResponseDto) => void
-): ColumnDef<VisitResponseDto>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Выбрать все"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Выбрать строку"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const visitColumns: ColumnDef<VisitResponseDto>[] = [
   {
     accessorKey: "visitDate",
     header: "ДАТА ВИЗИТА",
@@ -64,14 +35,7 @@ export const createVisitColumns = (
     header: "ПАЦИЕНТ",
     cell: ({ row }) => {
       const patientName = getPatientFullName(row.original.patient);
-      return (
-        <button
-          className="font-medium text-left hover:text-blue-600 transition-colors"
-          onClick={() => onView?.(row.original)}
-        >
-          {patientName}
-        </button>
-      );
+      return <div className="font-medium">{patientName}</div>;
     },
   },
   {
@@ -86,43 +50,6 @@ export const createVisitColumns = (
     accessorKey: "status",
     header: "СТАТУС",
     cell: ({ row }) => <VisitStatusBadge status={row.original.status} />,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const visit = row.original;
-      const isEditable = visit.status === "IN_PROGRESS";
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Открыть меню</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onView?.(visit)}>
-              <Eye className="mr-2 h-4 w-4" />
-              Просмотр
-            </DropdownMenuItem>
-            {isEditable && (
-              <DropdownMenuItem onClick={() => onEdit?.(visit)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Редактировать
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              onClick={() => onDelete?.(visit)}
-              className="text-red-600"
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Удалить
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
   },
 ];
 
@@ -154,6 +81,77 @@ export const patientVisitColumns: ColumnDef<VisitResponseDto>[] = [
     cell: ({ row }) => {
       const visit = row.original;
       return <VisitStatusBadge status={visit.status} />;
+    },
+  },
+];
+
+export const employeeVisitColumns: ColumnDef<VisitResponseDto>[] = [
+  {
+    accessorKey: "patient",
+    header: "Пациент",
+    cell: ({ row }) => {
+      const visit = row.original;
+      const patientName = visit.patient
+        ? getPatientFullName(visit.patient)
+        : "Не указан";
+      const initials = visit.patient ? getPatientInitials(visit.patient) : "?";
+
+      return (
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">{patientName}</div>
+            {visit.patient?.patientId && (
+              <div className="text-sm text-muted-foreground">
+                #{visit.patient.patientId}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "visitDate",
+    header: "Дата визита",
+    cell: ({ row }) => {
+      const visit = row.original;
+      return (
+        <div className="flex items-center whitespace-nowrap">
+          <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+          {formatVisitDate(visit.visitDate)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Статус",
+    cell: ({ row }) => {
+      const visit = row.original;
+      return <VisitStatusBadge status={visit.status} />;
+    },
+  },
+  {
+    id: "actions",
+    header: "Действия",
+    cell: ({ row }) => {
+      const visit = row.original;
+      if (!visit.patient?.id) return null;
+
+      return (
+        <div className="text-right">
+          <Link
+            href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}
+            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+          >
+            Открыть
+            <ExternalLink className="ml-1 h-3 w-3" />
+          </Link>
+        </div>
+      );
     },
   },
 ];

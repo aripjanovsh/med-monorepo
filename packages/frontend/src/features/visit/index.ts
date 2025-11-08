@@ -49,7 +49,7 @@ export {
 // Components
 export { VisitStatusBadge } from "./components/visit-status-badge";
 export {
-  createVisitColumns,
+  visitColumns,
   patientVisitColumns,
 } from "./components/visit-columns";
 export { VisitForm } from "./components/visit-form";

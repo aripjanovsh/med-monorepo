@@ -16,6 +16,7 @@ import {
   ClipboardList,
   Receipt,
   UserCog,
+  CalendarCheck,
 } from "lucide-react";
 
 export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
@@ -51,6 +52,11 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         title: "Пациенты",
         url: ROUTES.PATIENTS,
         icon: UserIcon,
+      },
+      {
+        title: "Визиты",
+        url: ROUTES.VISITS,
+        icon: CalendarCheck,
       },
       {
         title: "Назначения",

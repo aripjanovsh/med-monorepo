@@ -1,47 +1,36 @@
 "use client";
 
-import { EmployeeResponseDto } from "@/features/employees/employee.dto";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calendar, ExternalLink } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Users, Calendar } from "lucide-react";
+
+import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
 import { useGetPatientsQuery } from "@/features/patients";
 import type { PatientResponseDto } from "@/features/patients/patient.dto";
-import { calculatePatientAge, getPatientPrimaryPhone } from "@/features/patients/patient.model";
-import Link from "next/link";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { LoadingState } from "@/components/states";
+import { DataTable } from "@/components/data-table/data-table";
+import { employeePatientColumns } from "@/features/patients/components/patient-columns";
 
-interface EmployeePatientsProps {
+type EmployeePatientsProps = {
   employee: EmployeeResponseDto;
-}
+};
 
-export function EmployeePatients({ employee }: EmployeePatientsProps) {
+export const EmployeePatients = ({ employee }: EmployeePatientsProps) => {
   const { data, isLoading } = useGetPatientsQuery(
     { doctorId: employee.id, limit: 100 },
     { skip: !employee.id }
   );
-  
+
   const assignedPatients = data?.data || [];
   const total = data?.meta?.total || 0;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Загрузка пациентов...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingState title="Загрузка пациентов..." />;
   }
 
   return (
@@ -59,7 +48,7 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -67,7 +56,11 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
               <div>
                 <p className="text-sm font-medium">С последним визитом</p>
                 <p className="text-2xl font-bold">
-                  {assignedPatients.filter((p: PatientResponseDto) => p.lastVisitedAt).length}
+                  {
+                    assignedPatients.filter(
+                      (p: PatientResponseDto) => p.lastVisitedAt
+                    ).length
+                  }
                 </p>
               </div>
             </div>
@@ -82,96 +75,12 @@ export function EmployeePatients({ employee }: EmployeePatientsProps) {
             <Users className="mr-2 h-5 w-5" />
             Пациенты врача
           </CardTitle>
-          <CardDescription>
-            Закрепленные пациенты ({total})
-          </CardDescription>
+          <CardDescription>Закрепленные пациенты ({total})</CardDescription>
         </CardHeader>
         <CardContent>
-          {assignedPatients.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Пациент</TableHead>
-                  <TableHead>Возраст/Пол</TableHead>
-                  <TableHead>Телефон</TableHead>
-                  <TableHead>Последний визит</TableHead>
-                  <TableHead>Статус</TableHead>
-                  <TableHead className="text-right">Действия</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {assignedPatients.map((patient: PatientResponseDto) => {
-                  const fullName = `${patient.firstName} ${patient.lastName}`;
-                  const age = calculatePatientAge(patient.dateOfBirth);
-                  const phone = getPatientPrimaryPhone(patient);
-                  
-                  return (
-                    <TableRow key={patient.id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>
-                              {patient.firstName[0]}{patient.lastName[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{fullName}</div>
-                            {patient.patientId && (
-                              <div className="text-sm text-muted-foreground">
-                                #{patient.patientId}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {age} лет / {patient.gender === "MALE" ? "М" : "Ж"}
-                      </TableCell>
-                      <TableCell>
-                        {phone || "Не указан"}
-                      </TableCell>
-                      <TableCell>
-                        {patient.lastVisitedAt ? (
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                            {new Date(patient.lastVisitedAt).toLocaleDateString("ru-RU")}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">Не посещал</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={patient.status === "ACTIVE" ? "default" : "secondary"}
-                        >
-                          {patient.status === "ACTIVE" ? "Активен" : "Неактивен"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link
-                          href={`/cabinet/patients/${patient.id}`}
-                          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-                        >
-                          Открыть
-                          <ExternalLink className="ml-1 h-3 w-3" />
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-center py-8">
-              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Нет пациентов</h3>
-              <p className="text-sm text-gray-500">
-                У этого врача пока нет закрепленных пациентов.
-              </p>
-            </div>
-          )}
+          <DataTable columns={employeePatientColumns} data={assignedPatients} />
         </CardContent>
       </Card>
     </div>
   );
-}
+};

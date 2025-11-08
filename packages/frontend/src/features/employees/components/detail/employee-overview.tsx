@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ProfileField } from "@/components/ui/profile-field";
 import {
   User,
   Phone,
@@ -17,13 +18,19 @@ import {
   MapPin,
   Calendar,
   Briefcase,
-  GraduationCap,
   Languages,
   Award,
   DollarSign,
   Clock,
 } from "lucide-react";
 import { WEEK_DAYS, WEEK_DAYS_SHORT } from "../../employee.constants";
+import {
+  getEmployeeFullName,
+  formatEmployeeDate,
+  getGenderDisplay,
+  getEmployeeStatusDisplay,
+  formatSalary,
+} from "../../employee.model";
 
 interface EmployeeOverviewProps {
   employee: EmployeeResponseDto;
@@ -45,66 +52,50 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <User className="mr-2 h-5 w-5" />
-            Personal Information
+            Личная информация
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Full Name
-              </p>
-              <p className="text-sm">
-                {employee.firstName} {employee.lastName}
-              </p>
-            </div>
-            {employee.dateOfBirth && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Date of Birth
-                </p>
-                <p className="text-sm">
-                  {new Date(employee.dateOfBirth).toLocaleDateString()}
-                </p>
-              </div>
-            )}
+            <ProfileField
+              label="ФИО"
+              value={getEmployeeFullName(employee)}
+            />
+            <ProfileField
+              label="Дата рождения"
+              value={formatEmployeeDate(employee.dateOfBirth)}
+            />
             {age && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Age</p>
-                <p className="text-sm">{age} years old</p>
-              </div>
+              <ProfileField label="Возраст" value={`${age} лет`} />
             )}
-            {employee.gender && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Gender
-                </p>
-                <p className="text-sm">{employee.gender}</p>
-              </div>
-            )}
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Employee ID
-              </p>
-              <p className="text-sm">{employee.id}</p>
-            </div>
+            <ProfileField
+              label="Пол"
+              value={getGenderDisplay(employee.gender)}
+            />
+            <ProfileField label="ID сотрудника" value={employee.id} />
           </div>
 
           <Separator />
 
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{employee.phone}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{employee.email}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">San Francisco, CA</span>
-            </div>
+            <ProfileField
+              label="Телефон"
+              value={employee.phone}
+              icon={Phone}
+              variant="horizontal"
+            />
+            <ProfileField
+              label="Email"
+              value={employee.email}
+              icon={Mail}
+              variant="horizontal"
+            />
+            <ProfileField
+              label="Адрес"
+              value={employee.address}
+              icon={MapPin}
+              variant="horizontal"
+            />
           </div>
         </CardContent>
       </Card>
@@ -114,44 +105,32 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Briefcase className="mr-2 h-5 w-5" />
-            Employment Information
+            Информация о работе
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            <ProfileField label="Должность" value={employee.title.name} />
+            <ProfileField label="Отдел" value="Не указан" />
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Position
-              </p>
-              <p className="text-sm">{employee.title.name}</p>
+              <p className="text-xs text-muted-foreground">Тип занятости</p>
+              <Badge variant="outline" className="mt-1">
+                Полная занятость
+              </Badge>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Department
-              </p>
-              <p className="text-sm">{"Not specified"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Employment Type
-              </p>
-              <Badge variant="outline">Полная занятость</Badge>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Status
-              </p>
+              <p className="text-xs text-muted-foreground">Статус</p>
               <Badge
                 variant={employee.status === "ACTIVE" ? "default" : "secondary"}
                 className={
                   employee.status === "ACTIVE"
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-green-100 text-green-800 mt-1"
                     : employee.status === "ON_LEAVE"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
+                    ? "bg-yellow-100 text-yellow-800 mt-1"
+                    : "bg-red-100 text-red-800 mt-1"
                 }
               >
-                {employee.status}
+                {getEmployeeStatusDisplay(employee.status)}
               </Badge>
             </div>
           </div>
@@ -160,32 +139,28 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
 
           <div className="space-y-3">
             {employee.hireDate && (
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  Hired: {new Date(employee.hireDate).toLocaleDateString()}
-                </span>
-              </div>
+              <ProfileField
+                label="Дата найма"
+                value={formatEmployeeDate(employee.hireDate)}
+                icon={Calendar}
+                variant="horizontal"
+              />
             )}
             {yearsOfService && (
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {yearsOfService} years of service
-                </span>
-              </div>
+              <ProfileField
+                label="Стаж работы"
+                value={`${yearsOfService} лет`}
+                icon={Clock}
+                variant="horizontal"
+              />
             )}
-            <div className="flex items-center space-x-2">
-              <GraduationCap className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">20 years of experience</span>
-            </div>
             {employee.salary && (
-              <div className="flex items-center space-x-2">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  ${employee.salary.toLocaleString()}/year
-                </span>
-              </div>
+              <ProfileField
+                label="Зарплата"
+                value={formatSalary(employee.salary)}
+                icon={DollarSign}
+                variant="horizontal"
+              />
             )}
           </div>
         </CardContent>
@@ -196,37 +171,26 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Award className="mr-2 h-5 w-5" />
-            Skills & Languages
+            Навыки и языки
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {employee.skills && employee.skills.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">
-                Skills
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {employee.skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary">
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-2">
-              Languages
+              Языки
             </p>
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline">
                 <Languages className="mr-1 h-3 w-3" />
-                English
+                Английский
               </Badge>
               <Badge variant="outline">
                 <Languages className="mr-1 h-3 w-3" />
-                Russian
+                Русский
+              </Badge>
+              <Badge variant="outline">
+                <Languages className="mr-1 h-3 w-3" />
+                Узбекский
               </Badge>
             </div>
           </div>
@@ -236,9 +200,9 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
       {/* Working Days */}
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>Working Schedule</CardTitle>
+          <CardTitle>Рабочее расписание</CardTitle>
           <CardDescription>
-            Current working days and availability
+            Текущие рабочие дни и доступность
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -255,7 +219,7 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
                   {WEEK_DAYS_SHORT[day]}
                 </div>
                 <p className="text-xs mt-1 text-muted-foreground">
-                  {employee.workSchedule?.[day] ? "Available" : "Off"}
+                  {employee.workSchedule?.[day] ? "Работает" : "Выходной"}
                 </p>
               </div>
             ))}
