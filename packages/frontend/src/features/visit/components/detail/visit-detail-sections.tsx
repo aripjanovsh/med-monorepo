@@ -11,7 +11,7 @@ import { VisitProtocol } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { AddPrescriptionDialog } from "@/features/prescription/components/add-prescription-dialog";
 import { ServiceOrderList } from "@/features/service-order/components/service-order-list";
-import { AddServicesButton } from "@/features/service-order/components/add-services-button";
+import { AddServicesDialog } from "@/features/service-order/components/add-services-dialog";
 import {
   AddParameterDialog,
   useGetLatestPatientParametersQuery,
@@ -20,9 +20,8 @@ import {
 import {
   AddPatientAllergyDialog,
   useGetPatientAllergiesQuery,
-  getAllergySeverityLabel,
 } from "@/features/patient-allergy";
-import type { PatientAllergy } from "@/features/patient-allergy";
+import { AllergyListItem } from "./allergy-list-item";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
 import type { FilledFormData } from "@/features/protocol-template";
@@ -40,6 +39,7 @@ export const VisitDetailSections = ({
   const addPrescriptionDialog = useDialog(AddPrescriptionDialog);
   const addAllergyDialog = useDialog(AddPatientAllergyDialog);
   const addParameterDialog = useDialog(AddParameterDialog);
+  const addServicesDialog = useDialog(AddServicesDialog);
 
   // Data queries
   const { data: latestParameters } = useGetLatestPatientParametersQuery(
@@ -91,6 +91,14 @@ export const VisitDetailSections = ({
     });
   }, [addParameterDialog, visit.patient.id, visit.id, visit.employee.id]);
 
+  const handleAddServices = useCallback(() => {
+    addServicesDialog.open({
+      visitId: visit.id,
+      patientId: visit.patient.id,
+      doctorId: visit.employee.id,
+    });
+  }, [addServicesDialog, visit.id, visit.patient.id, visit.employee.id]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Main Content - Left Side (2/3 width) */}
@@ -120,11 +128,10 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">Назначения и услуги</CardTitle>
               {isEditable && (
-                <AddServicesButton
-                  visitId={visit.id}
-                  patientId={visit.patient.id}
-                  doctorId={visit.employee.id}
-                />
+                <Button onClick={handleAddServices} size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Добавить
+                </Button>
               )}
             </div>
           </CardHeader>
@@ -180,27 +187,8 @@ export const VisitDetailSections = ({
               </p>
             ) : (
               <div className="space-y-3">
-                {allergiesData.data.map((allergy: PatientAllergy) => (
-                  <div key={allergy.id} className="border-b pb-3 last:border-0">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
-                        <p className="font-medium text-sm">
-                          {allergy.substance}
-                        </p>
-                        {allergy.reaction && (
-                          <p className="text-xs text-muted-foreground">
-                            {allergy.reaction}
-                          </p>
-                        )}
-                        {allergy.severity && (
-                          <p className="text-xs">
-                            Степень: {getAllergySeverityLabel(allergy.severity)}
-                          </p>
-                        )}
-                      </div>
-                      {/* TODO: Добавить кнопку редактирования через dialog manager */}
-                    </div>
-                  </div>
+                {allergiesData.data.map((allergy) => (
+                  <AllergyListItem key={allergy.id} allergy={allergy} />
                 ))}
               </div>
             )}
