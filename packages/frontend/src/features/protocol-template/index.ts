@@ -47,6 +47,7 @@ export {
 export { createProtocolTemplateColumns } from "./components/protocol-template-columns";
 export { ProtocolTemplateForm } from "./components/protocol-template-form";
 export { PageProtocolTemplateForm } from "./components/page-protocol-template-form";
+export { ProtocolTemplateAutocompleteField } from "./components/protocol-template-autocomplete-field";
 
 // Note: Form Builder components moved to @/features/form-builder
 // Import from there: FormBuilderEditor, FormBuilderInteractive, FormBuilderView

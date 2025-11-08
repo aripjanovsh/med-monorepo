@@ -11,6 +11,7 @@ export type {
 } from "./visit.dto";
 export type { VisitStatus } from "./visit.constants";
 export type { VisitFormData } from "./visit.schema";
+export type { SavedProtocolData, FilledProtocolOption } from "./visit-protocol.types";
 
 // Constants
 export {

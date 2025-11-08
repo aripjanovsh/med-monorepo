@@ -383,7 +383,7 @@ export const FormBuilderInteractive = ({
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {content.sections.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <p>Нет доступных секций</p>
@@ -398,7 +398,7 @@ export const FormBuilderInteractive = ({
                 )}
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-6">
+                <div className="flex flex-wrap gap-4">
                   {section.fields.map((field) => (
                     <div
                       key={field.id}

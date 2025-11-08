@@ -10,7 +10,7 @@ import { useDialog } from "@/lib/dialog-manager";
 import { VisitProtocol } from "@/features/visit";
 import { PrescriptionList } from "@/features/prescription/components/prescription-list";
 import { AddPrescriptionDialog } from "@/features/prescription/components/add-prescription-dialog";
-import { ServiceOrderList } from "@/features/service-order/components/service-order-list";
+import { ServiceOrderListCompact } from "@/features/service-order";
 import { AddServicesDialog } from "@/features/service-order/components/add-services-dialog";
 import {
   AddParameterDialog,
@@ -24,7 +24,7 @@ import {
 import { AllergyListItem } from "./allergy-list-item";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
-import type { FilledFormData } from "@/features/form-builder";
+import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 
 type VisitDetailSectionsProps = {
   visit: VisitResponseDto;
@@ -111,38 +111,42 @@ export const VisitDetailSections = ({
           <CardContent>
             <VisitProtocol
               visitId={visit.id}
+              patientId={visit.patient.id}
               initialProtocolId={visit.protocol?.id}
               initialProtocolData={
                 visit.protocolData
-                  ? (JSON.parse(visit.protocolData) as FilledFormData)
-                  : {}
+                  ? (JSON.parse(visit.protocolData) as SavedProtocolData)
+                  : null
               }
               status={visit.status}
             />
-          </CardContent>
-        </Card>
-
-        {/* Services and Orders Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">Назначения и услуги</CardTitle>
-              {isEditable && (
-                <Button onClick={handleAddServices} size="sm" variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Добавить
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ServiceOrderList visitId={visit.id} isEditable={isEditable} />
           </CardContent>
         </Card>
       </div>
 
       {/* Sidebar - Right Side (1/3 width) */}
       <div className="lg:col-span-1 space-y-6">
+        {/* Services and Orders */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Назначения</CardTitle>
+              {isEditable && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleAddServices}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ServiceOrderListCompact visitId={visit.id} isEditable={isEditable} />
+          </CardContent>
+        </Card>
+
         {/* Prescriptions */}
         <Card>
           <CardHeader>

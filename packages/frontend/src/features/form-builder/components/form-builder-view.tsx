@@ -1,6 +1,6 @@
 /**
  * FormBuilderView - режим просмотра заполненной формы
- * 
+ *
  * Использование:
  * <FormBuilderView
  *   templateJson={jsonString}  // JSON template от Editor
@@ -9,7 +9,13 @@
  */
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
@@ -50,7 +56,10 @@ export const FormBuilderView = ({
     return dependentValue === field.visibleIf.value;
   };
 
-  const formatFieldValue = (field: FormField, value: FormFieldValue): React.ReactNode => {
+  const formatFieldValue = (
+    field: FormField,
+    value: FormFieldValue
+  ): React.ReactNode => {
     if (value === null || value === undefined || value === "") {
       return <span className="text-muted-foreground italic">Не заполнено</span>;
     }
@@ -71,7 +80,9 @@ export const FormBuilderView = ({
 
       case "tags":
         if (!Array.isArray(value) || value.length === 0) {
-          return <span className="text-muted-foreground italic">Не выбрано</span>;
+          return (
+            <span className="text-muted-foreground italic">Не выбрано</span>
+          );
         }
         return (
           <div className="flex flex-wrap gap-1">
@@ -115,7 +126,7 @@ export const FormBuilderView = ({
         className={compact ? "py-2" : "py-3"}
         style={
           field.width && field.width < 100
-            ? { 
+            ? {
                 flex: `0 0 calc(${field.width}% - 1rem)`,
                 minWidth: 0,
               }
@@ -152,13 +163,17 @@ export const FormBuilderView = ({
             <div className="mb-3">
               <h4 className="font-semibold text-lg">{section.title}</h4>
               {section.description && (
-                <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {section.description}
+                </p>
               )}
             </div>
             <div className="space-y-2">
               {section.fields.map((field) => renderField(field))}
             </div>
-            {sectionIndex < content.sections.length - 1 && <Separator className="mt-4" />}
+            {sectionIndex < content.sections.length - 1 && (
+              <Separator className="mt-4" />
+            )}
           </div>
         ))}
       </div>
@@ -167,7 +182,7 @@ export const FormBuilderView = ({
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {content.sections.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <p>Нет доступных секций</p>
