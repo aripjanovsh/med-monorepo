@@ -29,16 +29,6 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         icon: LayoutDashboardIcon,
       },
       {
-        title: "Панель врача",
-        url: ROUTES.DOCTOR_DASHBOARD,
-        icon: Stethoscope,
-      },
-      {
-        title: "Панель регистратуры",
-        url: ROUTES.RECEPTION_DASHBOARD,
-        icon: UserCog,
-      },
-      {
         title: "Очередь отделений",
         url: ROUTES.DEPARTMENT_QUEUE,
         icon: Building2,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,23 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 import {
   ReceptionStats,
-  QuickCreateVisitModal,
   DoctorsTodayBoard,
   CompletedVisitsPanel,
 } from "@/features/reception";
+import { QuickCreateVisitModal } from "@/features/reception";
 import { CreateInvoiceWithPaymentSheet } from "@/features/invoice/components/create-invoice-with-payment-sheet";
 import { useGetMeQuery } from "@/features/auth";
 
-export default function ReceptionDashboardPage() {
-  const [showCreateVisit, setShowCreateVisit] = useState(false);
+export const ReceptionDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
 
-  // Используем Dialog Manager для invoice sheet
+  const createVisitDialog = useDialog(QuickCreateVisitModal);
   const invoiceDialog = useDialog(CreateInvoiceWithPaymentSheet);
-
-  // Get current user
   const { data: currentUser, isLoading: isLoadingUser } = useGetMeQuery();
 
   if (isLoadingUser) {
@@ -46,30 +43,43 @@ export default function ReceptionDashboardPage() {
     );
   }
 
+  const handleCreateVisit = useCallback(() => {
+    createVisitDialog.open({
+      onSuccess: () => {
+        console.log("✅ Visit created successfully");
+      },
+    });
+  }, [createVisitDialog]);
+
+  const handleCreateInvoice = useCallback(
+    (visit: any) => {
+      invoiceDialog.open({
+        visitData: visit,
+        onSuccess: () => {
+          console.log("✅ Invoice paid successfully");
+          invoiceDialog.close();
+        },
+      });
+    },
+    [invoiceDialog]
+  );
+
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Ресепшн</h1>
-          <p className="text-sm text-muted-foreground">
-            Управление очередью и визитами
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.reload()}
-            title="Обновить"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-          </Button>
-          <Button size="sm" onClick={() => setShowCreateVisit(true)}>
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Быстрый визит
-          </Button>
-        </div>
+      {/* Header Actions */}
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+          title="Обновить"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+        </Button>
+        <Button size="sm" onClick={handleCreateVisit}>
+          <Plus className="mr-1.5 h-3.5 w-3.5" />
+          Быстрый визит
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -89,27 +99,10 @@ export default function ReceptionDashboardPage() {
         <TabsContent value="completed" className="mt-4">
           <CompletedVisitsPanel
             organizationId={currentUser.organizationId}
-            onCreateInvoice={(visit) => {
-              invoiceDialog.open({
-                visitData: visit,
-                onSuccess: () => {
-                  console.log("✅ Invoice paid successfully");
-                  invoiceDialog.close();
-                },
-              });
-            }}
+            onCreateInvoice={handleCreateInvoice}
           />
         </TabsContent>
       </Tabs>
-
-      {/* Quick Create Visit Modal */}
-      <QuickCreateVisitModal
-        open={showCreateVisit}
-        onOpenChange={setShowCreateVisit}
-        onSuccess={() => {
-          console.log("✅ Visit created successfully");
-        }}
-      />
     </div>
   );
-}
+};

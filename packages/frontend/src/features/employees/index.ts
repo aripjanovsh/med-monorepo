@@ -97,6 +97,8 @@ export {
 export { EmployeeForm } from "./components/employee-form";
 export { PageEmployeeForm } from "./components/page-employee-form";
 export { default as WorkScheduleField } from "./components/work-schedule-field";
+export { EmployeeSelectField } from "./components/employee-select-field";
+export { EmployeeSelect } from "./components/employee-select";
 export {
   employeeColumns,
   patientDoctorColumns,
