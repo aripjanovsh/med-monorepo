@@ -58,12 +58,12 @@ import type {
   FormField,
   FormSection,
   FieldType,
-} from "../../types/form-builder.types";
+} from "../../../types/form-builder.types";
 import {
   FIELD_CONFIGS,
   createNewField,
-} from "../../utils/form-builder-helpers";
-import { FieldPreview } from "./field-preview";
+} from "../../../utils/form-builder.helpers";
+import { FieldPreview } from "../shared/field-preview";
 import { FieldEditor } from "./field-editor";
 import { cn } from "@/lib/utils";
 
@@ -184,6 +184,8 @@ export const SectionEditor = ({
       newFields[selectedFieldIndex] = updatedField;
       onUpdate({ fields: newFields });
     }
+    // Close the editor and reset state
+    setIsFieldEditorOpen(false);
     setSelectedField(null);
     setSelectedFieldIndex(null);
     setIsNewField(false);

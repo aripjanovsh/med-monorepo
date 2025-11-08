@@ -21,8 +21,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { X, Plus } from "lucide-react";
-import type { FormField, FieldType } from "../../types/form-builder.types";
-import { FIELD_CONFIGS } from "../../utils/form-builder-helpers";
+import type { FormField, FieldType } from "../../../types/form-builder.types";
+import { FIELD_CONFIGS } from "../../../utils/form-builder.helpers";
 
 type FieldEditorProps = {
   field: FormField | null;
@@ -60,7 +60,7 @@ export const FieldEditor = ({
     };
 
     onSave(updatedField);
-    onClose();
+    // Don't call onClose() here - let the parent handle closing
   };
 
   const handleTypeChange = (newType: FieldType) => {

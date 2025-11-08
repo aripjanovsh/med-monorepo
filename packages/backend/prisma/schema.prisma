@@ -790,8 +790,8 @@ model ProtocolTemplate {
   id           String   @id @default(uuid())
   name         String
   description  String
-  content      String   // JSON content from editor or form builder
-  templateType String   @default("richtext") // "richtext" | "formbuilder"
+  content      String   // JSON content from form builder
+  templateType String   @default("formbuilder") // Only "formbuilder" supported
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

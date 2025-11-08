@@ -18,17 +18,17 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { FormBuilderContent, FormSection } from "../../types/form-builder.types";
+import type { FormBuilderContent, FormSection } from "../../../types/form-builder.types";
 import {
   createNewSection,
   createEmptyFormBuilderContent,
   validateFormBuilderContent,
   updateSection,
   deleteSection,
-  moveSectionInContent,
+  moveSection,
   deserializeFormBuilderContent,
   serializeFormBuilderContent,
-} from "../../utils/form-builder-helpers";
+} from "../../../utils/form-builder.helpers";
 import { SectionEditor } from "./section-editor";
 import { toast } from "sonner";
 
@@ -82,7 +82,7 @@ export const FormBuilderEditor = ({
   };
 
   const handleMoveSection = (fromIndex: number, toIndex: number) => {
-    setContent(moveSectionInContent(content, fromIndex, toIndex));
+    setContent(moveSection(content, fromIndex, toIndex));
   };
 
   const sensors = useSensors(

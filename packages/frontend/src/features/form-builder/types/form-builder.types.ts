@@ -17,11 +17,6 @@ export type FieldType =
   | "date";
 
 /**
- * Тип шаблона протокола
- */
-export type TemplateType = "richtext" | "formbuilder";
-
-/**
  * Базовое поле формы
  */
 export type FormField = {
@@ -53,7 +48,7 @@ export type FormSection = {
 };
 
 /**
- * Содержимое Form Builder протокола
+ * Содержимое Form Builder протокола (JSON output от Editor)
  */
 export type FormBuilderContent = {
   version: number;
@@ -61,20 +56,22 @@ export type FormBuilderContent = {
 };
 
 /**
- * Содержимое Rich Text протокола
+ * Заполненные данные формы (JSON output от Interactive)
  */
-export type RichTextContent = {
-  version?: number;
-  content: string; // JSON string from editor
+export type FormFieldValue = string | boolean | string[] | number | null;
+
+export type FilledFormData = Record<string, FormFieldValue>;
+
+/**
+ * Полный протокол с заполненными данными
+ */
+export type FilledProtocol = {
+  template: FormBuilderContent;
+  data: FilledFormData;
 };
 
 /**
- * Объединенный тип содержимого протокола
- */
-export type ProtocolContent = FormBuilderContent | RichTextContent;
-
-/**
- * Type guards для определения типа контента
+ * Type guard для определения типа контента
  */
 export const isFormBuilderContent = (
   content: unknown
@@ -96,22 +93,6 @@ export const isFormBuilderContent = (
   );
 };
 
-export const isRichTextContent = (
-  content: unknown
-): content is RichTextContent => {
-  if (!content || typeof content !== "object") return false;
-  const obj = content as Record<string, unknown>;
-  return typeof obj.content === "string";
-};
-
-/**
- * Опции поля для select, radio, tags
- */
-export type FieldOption = {
-  value: string;
-  label: string;
-};
-
 /**
  * Конфигурация поля для редактора
  */
@@ -122,10 +103,3 @@ export type FieldConfig = {
   icon?: string;
   defaultProps?: Partial<FormField>;
 };
-
-/**
- * Заполненные данные формы (для врача)
- */
-export type FormFieldValue = string | boolean | string[] | number | null;
-
-export type FilledFormData = Record<string, FormFieldValue>;

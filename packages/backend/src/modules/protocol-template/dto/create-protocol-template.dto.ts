@@ -40,11 +40,11 @@ export class CreateProtocolTemplateDto {
   @Expose()
   @ApiProperty({
     description: "Template type",
-    enum: ["richtext", "formbuilder"],
-    example: "richtext",
+    enum: ["formbuilder"],
+    example: "formbuilder",
   })
   @IsString()
-  @IsIn(["richtext", "formbuilder"])
+  @IsIn(["formbuilder"])
   @IsNotEmpty()
   templateType: string;
 }

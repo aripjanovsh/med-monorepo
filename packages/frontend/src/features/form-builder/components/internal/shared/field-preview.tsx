@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, GripVertical } from "lucide-react";
-import type { FormField } from "../../types/form-builder.types";
+import type { FormField } from "../../../types/form-builder.types";
 import { cn } from "@/lib/utils";
 
 type FieldPreviewProps = {

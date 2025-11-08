@@ -40,11 +40,11 @@ export class UpdateProtocolTemplateDto {
   @Expose()
   @ApiPropertyOptional({
     description: "Template type",
-    enum: ["richtext", "formbuilder"],
+    enum: ["formbuilder"],
   })
   @IsOptional()
   @IsString()
-  @IsIn(["richtext", "formbuilder"])
+  @IsIn(["formbuilder"])
   templateType?: string;
 
   @Expose()

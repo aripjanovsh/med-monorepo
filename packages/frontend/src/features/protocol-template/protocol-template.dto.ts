@@ -1,5 +1,6 @@
 import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
-import type { TemplateType } from "./types/form-builder.types";
+
+export type TemplateType = "formbuilder";
 
 export interface ProtocolTemplateResponseDto {
   id: string;
@@ -43,15 +44,3 @@ export interface ProtocolTemplateQueryDto extends QueryParamsDto {
 
 export type ProtocolTemplatesListResponseDto = PaginatedResponseDto<ProtocolTemplateResponseDto>;
 
-export interface CustomElement {
-  type: "text" | "select" | "radio" | "checkbox" | "textarea";
-  id: string;
-  label?: string;
-  placeholder?: string;
-  required?: boolean;
-  options?: Array<{
-    value: string;
-    label: string;
-  }>;
-  defaultValue?: string | boolean | string[];
-}

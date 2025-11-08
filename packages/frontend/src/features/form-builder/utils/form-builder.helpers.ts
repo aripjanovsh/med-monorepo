@@ -5,6 +5,7 @@ import type {
   FormBuilderContent,
   FieldType,
   FieldConfig,
+  FilledFormData,
 } from "../types/form-builder.types";
 
 /**
@@ -202,7 +203,11 @@ export const serializeFormBuilderContent = (
 export const deserializeFormBuilderContent = (
   json: string
 ): FormBuilderContent => {
-  return JSON.parse(json) as FormBuilderContent;
+  try {
+    return JSON.parse(json) as FormBuilderContent;
+  } catch {
+    return createEmptyFormBuilderContent();
+  }
 };
 
 /**
@@ -314,7 +319,7 @@ export const deleteField = (
 /**
  * Переместить секцию
  */
-export const moveSectionInContent = (
+export const moveSection = (
   content: FormBuilderContent,
   fromIndex: number,
   toIndex: number
@@ -342,4 +347,34 @@ export const moveFieldInSection = (
         : section
     ),
   };
+};
+
+/**
+ * Получить начальные значения для формы на основе template
+ */
+export const getInitialFormData = (
+  content: FormBuilderContent
+): FilledFormData => {
+  const data: FilledFormData = {};
+
+  for (const section of content.sections) {
+    for (const field of section.fields) {
+      if (field.defaultValue !== undefined) {
+        data[field.id] = field.defaultValue;
+      }
+    }
+  }
+
+  return data;
+};
+
+/**
+ * Форматировать JSON для отображения
+ */
+export const formatJson = (json: string): string => {
+  try {
+    return JSON.stringify(JSON.parse(json), null, 2);
+  } catch {
+    return json;
+  }
 };

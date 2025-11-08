@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import type { TemplateType } from "./protocol-template.dto";
 
 export const protocolTemplateFormSchema = yup.object({
   name: yup
@@ -11,7 +12,7 @@ export const protocolTemplateFormSchema = yup.object({
     .required("Описание протокола обязательно"),
   templateType: yup
     .string()
-    .oneOf(["richtext", "formbuilder"], "Тип шаблона должен быть richtext или formbuilder")
+    .oneOf(["formbuilder"], "Тип шаблона должен быть formbuilder")
     .required("Тип шаблона обязателен"),
   content: yup
     .string()
@@ -33,7 +34,7 @@ export const createProtocolTemplateRequestSchema = yup.object({
   description: yup.string().required("Описание протокола обязательно"),
   templateType: yup
     .string()
-    .oneOf(["richtext", "formbuilder"])
+    .oneOf(["formbuilder"])
     .required("Тип шаблона обязателен"),
   content: yup
     .string()

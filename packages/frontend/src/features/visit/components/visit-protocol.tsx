@@ -10,11 +10,13 @@ import { toast } from "sonner";
 import {
   useGetProtocolTemplatesQuery,
   useGetProtocolTemplateQuery,
-  type FilledFormData,
 } from "@/features/protocol-template";
-import { FormRenderer } from "@/features/protocol-template/components/form-renderer/form-renderer";
-import { TemplatePreview } from "@/features/protocol-template/components/form-builder/template-preview";
-import { isFormBuilderContent } from "@/features/protocol-template/types/form-builder.types";
+import {
+  FormBuilderInteractive,
+  FormBuilderView,
+  isFormBuilderContent,
+  type FilledFormData,
+} from "@/features/form-builder";
 import { useUpdateVisitMutation } from "../visit.api";
 import type { VisitStatus } from "../visit.dto";
 
@@ -173,7 +175,10 @@ export const VisitProtocol = ({
             <CardTitle>Предпросмотр шаблона</CardTitle>
           </CardHeader>
           <CardContent>
-            <TemplatePreview content={parsedContent} showTitle={false} />
+            <FormBuilderInteractive
+              templateJson={selectedTemplate.content}
+              readonly={true}
+            />
           </CardContent>
         </Card>
       )}
@@ -200,9 +205,9 @@ export const VisitProtocol = ({
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
             ) : (
-              <FormRenderer
+              <FormBuilderInteractive
                 key={selectedTemplateId}
-                content={parsedContent}
+                templateJson={selectedTemplate.content}
                 initialData={initialProtocolData}
                 onChange={handleDataChange}
                 readonly={!isEditable}

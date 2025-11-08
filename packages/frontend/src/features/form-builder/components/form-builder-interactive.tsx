@@ -1,3 +1,15 @@
+/**
+ * FormBuilderInteractive - режим заполнения формы
+ *
+ * Использование:
+ * <FormBuilderInteractive
+ *   templateJson={jsonString}  // JSON template от Editor
+ *   initialData={{}}           // начальные значения (опционально)
+ *   onChange={(data) => {}}    // возвращает FilledFormData
+ *   readonly={false}           // опционально, по умолчанию false
+ * />
+ */
+
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -13,44 +25,68 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type {
   FormBuilderContent,
   FormField,
   FilledFormData,
-} from "../../types/form-builder.types";
+} from "../types/form-builder.types";
+import {
+  deserializeFormBuilderContent,
+  getInitialFormData,
+} from "../utils/form-builder.helpers";
 import { cn } from "@/lib/utils";
 
-type FormRendererProps = {
-  content: FormBuilderContent;
+type FormBuilderInteractiveProps = {
+  templateJson: string;
   initialData?: FilledFormData;
   onChange?: (data: FilledFormData) => void;
   readonly?: boolean;
 };
 
-export const FormRenderer = ({
-  content,
+export const FormBuilderInteractive = ({
+  templateJson,
   initialData = {},
   onChange,
   readonly = false,
-}: FormRendererProps) => {
-  const { control, watch, getValues } = useForm<FilledFormData>({
-    defaultValues: initialData,
+}: FormBuilderInteractiveProps) => {
+  let content: FormBuilderContent;
+  let parseError = false;
+
+  try {
+    content = deserializeFormBuilderContent(templateJson);
+  } catch {
+    parseError = true;
+    content = { version: 1, sections: [] };
+  }
+
+  const defaultValues = { ...getInitialFormData(content), ...initialData };
+
+  const { control, watch } = useForm<FilledFormData>({
+    defaultValues,
   });
 
   const formData = watch();
 
-  // Используем дебаунс для onChange
+  // Отправляем изменения с дебаунсом
   useEffect(() => {
-    if (!onChange) return;
+    if (!onChange || parseError) return;
 
     const timeoutId = setTimeout(() => {
       onChange(formData);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [formData]); // Убрали onChange из зависимостей
+  }, [formData, onChange, parseError]);
 
   const checkVisibility = (field: FormField): boolean => {
     if (!field.visibleIf) return true;
@@ -69,10 +105,12 @@ export const FormRenderer = ({
     switch (field.type) {
       case "text":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label htmlFor={field.id}>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -94,10 +132,12 @@ export const FormRenderer = ({
 
       case "textarea":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label htmlFor={field.id}>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -119,10 +159,12 @@ export const FormRenderer = ({
 
       case "number":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label htmlFor={field.id}>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -135,7 +177,11 @@ export const FormRenderer = ({
                   placeholder={field.placeholder}
                   {...formField}
                   value={(formField.value as number) ?? ""}
-                  onChange={(e) => formField.onChange(Number.parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    formField.onChange(
+                      Number.parseFloat(e.target.value) || null
+                    )
+                  }
                   disabled={isDisabled}
                 />
               )}
@@ -145,10 +191,12 @@ export const FormRenderer = ({
 
       case "date":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label htmlFor={field.id}>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -169,10 +217,12 @@ export const FormRenderer = ({
 
       case "select":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label htmlFor={field.id}>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -185,7 +235,9 @@ export const FormRenderer = ({
                   disabled={isDisabled}
                 >
                   <SelectTrigger id={field.id}>
-                    <SelectValue placeholder={field.placeholder ?? "Выберите значение"} />
+                    <SelectValue
+                      placeholder={field.placeholder ?? "Выберите значение"}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {field.options?.map((option) => (
@@ -202,10 +254,12 @@ export const FormRenderer = ({
 
       case "radio":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Label>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -219,8 +273,14 @@ export const FormRenderer = ({
                 >
                   {field.options?.map((option) => (
                     <div key={option} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} id={`${field.id}-${option}`} />
-                      <Label htmlFor={`${field.id}-${option}`} className="font-normal">
+                      <RadioGroupItem
+                        value={option}
+                        id={`${field.id}-${option}`}
+                      />
+                      <Label
+                        htmlFor={`${field.id}-${option}`}
+                        className="font-normal"
+                      >
                         {option}
                       </Label>
                     </div>
@@ -233,13 +293,13 @@ export const FormRenderer = ({
 
       case "checkbox":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2">
             <Controller
               name={field.id}
               control={control}
               rules={{ required: field.required }}
               render={({ field: formField }) => (
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-row items-center space-x-2">
                   <Checkbox
                     id={field.id}
                     checked={(formField.value as boolean) ?? false}
@@ -248,7 +308,9 @@ export const FormRenderer = ({
                   />
                   <Label htmlFor={field.id} className="font-normal">
                     {field.label}
-                    {field.required && <span className="text-destructive ml-1">*</span>}
+                    {field.required && (
+                      <span className="text-destructive ml-1">*</span>
+                    )}
                   </Label>
                 </div>
               )}
@@ -258,10 +320,12 @@ export const FormRenderer = ({
 
       case "tags":
         return (
-          <div className="space-y-2" style={{ width: field.width ? `${field.width}%` : "100%" }}>
+          <div className="space-y-2 w-full">
             <Label>
               {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
+              {field.required && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
             <Controller
               name={field.id}
@@ -279,7 +343,8 @@ export const FormRenderer = ({
                           variant={isSelected ? "default" : "outline"}
                           className={cn(
                             "cursor-pointer transition-colors",
-                            !isDisabled && "hover:bg-primary hover:text-primary-foreground"
+                            !isDisabled &&
+                              "hover:bg-primary hover:text-primary-foreground"
                           )}
                           onClick={() => {
                             if (isDisabled) return;
@@ -305,6 +370,17 @@ export const FormRenderer = ({
     }
   };
 
+  if (parseError) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Ошибка парсинга шаблона формы. Проверьте корректность JSON.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
     <ScrollArea className="h-full">
       <div className="p-6 space-y-6">
@@ -322,15 +398,18 @@ export const FormRenderer = ({
                 )}
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-6">
                   {section.fields.map((field) => (
                     <div
                       key={field.id}
-                      className={cn(
+                      className="min-w-0"
+                      style={
                         field.width && field.width < 100
-                          ? `flex-[0_0_calc(${field.width}%-1rem)]`
-                          : "flex-1 min-w-full"
-                      )}
+                          ? {
+                              flex: `0 0 calc(${field.width}% - 1rem)`,
+                            }
+                          : { flex: 1, minWidth: "100%" }
+                      }
                     >
                       {renderField(field)}
                     </div>

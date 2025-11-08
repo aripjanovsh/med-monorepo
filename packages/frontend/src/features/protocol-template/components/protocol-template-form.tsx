@@ -9,16 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Save,
   Code,
-  FileText,
   Copy,
   ClipboardPaste,
   Loader2,
@@ -26,29 +18,15 @@ import {
   Blocks,
 } from "lucide-react";
 import { toast } from "sonner";
-import dynamic from "next/dynamic";
 import type { ProtocolTemplateFormData } from "../protocol-template.schema";
 import { protocolTemplateFormSchema } from "../protocol-template.schema";
 import { formatProtocolContent } from "../protocol-template.model";
-import type { TemplateType } from "../types/form-builder.types";
-import { FormBuilderEditor } from "./form-builder/form-builder-editor";
-import { TemplatePreview } from "./form-builder/template-preview";
-import {
-  deserializeFormBuilderContent,
+import { 
+  FormBuilderEditor,
+  FormBuilderInteractive,
   createEmptyFormBuilderContent,
-} from "../utils/form-builder-helpers";
-
-const ProtocolEditor = dynamic(
-  () => import("@/components/editor/ProtocolEditor"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="border rounded-lg p-8 text-center text-muted-foreground animate-pulse">
-        Загрузка редактора...
-      </div>
-    ),
-  }
-);
+  deserializeFormBuilderContent,
+} from "@/features/form-builder";
 
 type ProtocolTemplateFormProps = {
   mode: "create" | "edit";
@@ -69,16 +47,14 @@ export const ProtocolTemplateForm = ({
 }: ProtocolTemplateFormProps) => {
   const [activeTab, setActiveTab] = useState("editor");
   const [jsonContent, setJsonContent] = useState(initialData?.content ?? "");
-  const [selectedTemplateType, setSelectedTemplateType] =
-    useState<TemplateType>(initialData?.templateType ?? "richtext");
 
   const form = useForm<ProtocolTemplateFormData>({
     resolver: yupResolver(protocolTemplateFormSchema),
     defaultValues: initialData ?? {
       name: "",
       description: "",
-      content: "",
-      templateType: "richtext",
+      content: JSON.stringify(createEmptyFormBuilderContent()),
+      templateType: "formbuilder",
       isActive: true,
     },
   });
@@ -159,29 +135,6 @@ export const ProtocolTemplateForm = ({
     }
   };
 
-  const handleTemplateTypeChange = (newType: TemplateType) => {
-    if (form.watch("content") && form.watch("content").trim()) {
-      if (
-        !confirm("Смена типа шаблона очистит текущее содержимое. Продолжить?")
-      ) {
-        return;
-      }
-    }
-
-    setSelectedTemplateType(newType);
-    form.setValue("templateType", newType);
-
-    // Initialize empty content based on type
-    if (newType === "formbuilder") {
-      const emptyContent = createEmptyFormBuilderContent();
-      const serialized = JSON.stringify(emptyContent);
-      form.setValue("content", serialized);
-      setJsonContent(serialized);
-    } else {
-      form.setValue("content", "");
-      setJsonContent("");
-    }
-  };
 
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -217,60 +170,13 @@ export const ProtocolTemplateForm = ({
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="template-type">Тип шаблона *</Label>
-          <Select
-            value={selectedTemplateType}
-            onValueChange={(value) =>
-              handleTemplateTypeChange(value as TemplateType)
-            }
-            disabled={mode === "edit"}
-          >
-            <SelectTrigger id="template-type" className="h-auto!">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="richtext">
-                <div className="flex items-center gap-2">
-                  <FileText className="size-6" />
-                  <div className="flex flex-col items-left text-left">
-                    <div className="font-medium">Rich Text Editor</div>
-                    <div className="text-xs text-muted-foreground">
-                      Свободный текст с форматированием
-                    </div>
-                  </div>
-                </div>
-              </SelectItem>
-              <SelectItem value="formbuilder">
-                <div className="flex items-center gap-2">
-                  <Blocks className="size-6" />
-                  <div className="flex flex-col items-left text-left">
-                    <div className="font-medium">Form Builder</div>
-                    <div className="text-xs text-muted-foreground">
-                      Конструктор форм с секциями
-                    </div>
-                  </div>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          {mode === "edit" && (
-            <p className="text-xs text-muted-foreground">
-              Тип шаблона нельзя изменить после создания
-            </p>
-          )}
-        </div>
 
         <div className="space-y-2">
           <Label>Содержимое протокола *</Label>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="editor">
-                {selectedTemplateType === "richtext" ? (
-                  <FileText className="mr-2 h-4 w-4" />
-                ) : (
-                  <Blocks className="mr-2 h-4 w-4" />
-                )}
+                <Blocks className="mr-2 h-4 w-4" />
                 Редактор
               </TabsTrigger>
               <TabsTrigger value="preview">
@@ -284,39 +190,21 @@ export const ProtocolTemplateForm = ({
             </TabsList>
 
             <TabsContent value="editor" className="mt-4">
-              {selectedTemplateType === "richtext" ? (
-                <ProtocolEditor
+              <div className="border rounded-lg overflow-hidden">
+                <FormBuilderEditor
                   initialContent={form.watch("content")}
                   onChange={handleEditorChange}
-                  placeholder="Начните вводить текст протокола или добавьте элементы формы..."
                 />
-              ) : (
-                <div className="border rounded-lg overflow-hidden">
-                  <FormBuilderEditor
-                    initialContent={form.watch("content")}
-                    onChange={handleEditorChange}
-                  />
-                </div>
-              )}
+              </div>
             </TabsContent>
 
             <TabsContent value="preview" className="mt-4">
-              {selectedTemplateType === "formbuilder" ? (
-                <div className="border rounded-lg overflow-hidden min-h-[500px]">
-                  <TemplatePreview
-                    content={
-                      form.watch("content")
-                        ? deserializeFormBuilderContent(form.watch("content"))
-                        : createEmptyFormBuilderContent()
-                    }
-                  />
-                </div>
-              ) : (
-                <div className="border rounded-lg p-8 text-center text-muted-foreground">
-                  <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Предпросмотр доступен только для Form Builder</p>
-                </div>
-              )}
+              <div className="border rounded-lg overflow-hidden min-h-[500px]">
+                <FormBuilderInteractive
+                  templateJson={form.watch("content") || JSON.stringify(createEmptyFormBuilderContent())}
+                  readonly={true}
+                />
+              </div>
             </TabsContent>
 
             <TabsContent value="json" className="mt-4">

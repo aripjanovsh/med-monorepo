@@ -4,7 +4,7 @@ export type {
   UpdateProtocolTemplateRequestDto,
   ProtocolTemplateQueryDto,
   ProtocolTemplatesListResponseDto,
-  CustomElement,
+  TemplateType,
 } from "./protocol-template.dto";
 
 export type { ProtocolTemplateFormData } from "./protocol-template.schema";
@@ -43,36 +43,10 @@ export {
   useDeleteProtocolTemplateMutation,
 } from "./protocol-template.api";
 
+// Components
 export { createProtocolTemplateColumns } from "./components/protocol-template-columns";
 export { ProtocolTemplateForm } from "./components/protocol-template-form";
 export { PageProtocolTemplateForm } from "./components/page-protocol-template-form";
 
-// Form Builder exports
-export type {
-  FormField,
-  FormSection,
-  FormBuilderContent,
-  FieldType,
-  TemplateType,
-  FilledFormData,
-} from "./types/form-builder.types";
-
-export {
-  FormBuilderEditor,
-  SectionEditor,
-  FieldEditor,
-  FieldPreview,
-  TemplatePreview,
-} from "./components/form-builder";
-
-export { FormRenderer } from "./components/form-renderer";
-
-export {
-  createNewSection,
-  createNewField,
-  createEmptyFormBuilderContent,
-  validateFormBuilderContent,
-  serializeFormBuilderContent,
-  deserializeFormBuilderContent,
-  FIELD_CONFIGS,
-} from "./utils/form-builder-helpers";
+// Note: Form Builder components moved to @/features/form-builder
+// Import from there: FormBuilderEditor, FormBuilderInteractive, FormBuilderView

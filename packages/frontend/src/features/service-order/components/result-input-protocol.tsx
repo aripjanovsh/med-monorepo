@@ -21,7 +21,7 @@ import type {
   FormField,
   FormSection,
   FilledFormData,
-} from "@/features/protocol-template/types/form-builder.types";
+} from "@/features/form-builder";
 
 export interface ProtocolResultData {
   templateId: string;

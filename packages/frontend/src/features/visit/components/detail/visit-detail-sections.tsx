@@ -24,7 +24,7 @@ import {
 import { AllergyListItem } from "./allergy-list-item";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
-import type { FilledFormData } from "@/features/protocol-template";
+import type { FilledFormData } from "@/features/form-builder";
 
 type VisitDetailSectionsProps = {
   visit: VisitResponseDto;
