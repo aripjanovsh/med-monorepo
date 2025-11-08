@@ -14,8 +14,9 @@ import {
   TestTube,
   ClipboardList,
   Receipt,
-  UserCog,
   CalendarCheck,
+  UserCog,
+  Building2,
 } from "lucide-react";
 
 export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
@@ -36,6 +37,11 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         title: "Панель регистратуры",
         url: ROUTES.RECEPTION_DASHBOARD,
         icon: UserCog,
+      },
+      {
+        title: "Очередь отделений",
+        url: ROUTES.DEPARTMENT_QUEUE,
+        icon: Building2,
       },
       {
         title: "Записи",

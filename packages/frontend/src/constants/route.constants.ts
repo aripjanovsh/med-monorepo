@@ -21,6 +21,7 @@ export const ROUTES = {
   EMPLOYEE_CREATE: "/cabinet/employees/create",
   DOCTOR_DASHBOARD: "/cabinet/doctor-dashboard",
   RECEPTION_DASHBOARD: "/cabinet/reception",
+  DEPARTMENT_QUEUE: "/cabinet/departments/queue",
 
   // Visit routes
   VISITS: "/cabinet/visits",
