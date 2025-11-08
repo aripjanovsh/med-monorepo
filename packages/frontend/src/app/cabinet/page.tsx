@@ -93,7 +93,7 @@ export default function DashboardPageClient() {
       </div>
 
       {/* Additional Analytics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Patient Demographics */}
         <div className="bg-white p-6 rounded-lg border">
           <h3 className="text-sm font-medium text-gray-900 mb-4">
@@ -136,58 +136,6 @@ export default function DashboardPageClient() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Popular Treatments */}
-        <div className="bg-white p-6 rounded-lg border">
-          <h3 className="text-sm font-medium text-gray-900 mb-4">
-            Popular Treatments
-          </h3>
-          <div className="space-y-3">
-            {mockDashboardStats.treatments.popular
-              .slice(0, 4)
-              .map((treatment, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 truncate">
-                    {treatment.treatmentName}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">
-                      {treatment.count}
-                    </span>
-                    <span className="text-xs text-green-600">
-                      +{treatment.trend}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* Revenue Breakdown */}
-        <div className="bg-white p-6 rounded-lg border">
-          <h3 className="text-sm font-medium text-gray-900 mb-4">
-            Revenue by Category
-          </h3>
-          <div className="space-y-3">
-            {mockDashboardStats.treatments.byCategory
-              .slice(0, 4)
-              .map((category, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    {category.category}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">
-                      ${category.revenue.toLocaleString()}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      ({category.percentage}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
           </div>
         </div>
       </div>

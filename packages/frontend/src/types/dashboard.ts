@@ -3,7 +3,6 @@ export interface DashboardStats {
   appointments: AppointmentStats;
   revenue: RevenueStats;
   employees: EmployeeStats;
-  treatments: TreatmentStats;
 }
 
 export interface PatientStats {
@@ -72,7 +71,6 @@ export interface RevenueStats {
   today: number;
   trend: number;
   monthlyRevenue: MonthlyRevenue[];
-  byTreatment: TreatmentRevenue[];
   averagePerPatient: number;
   averagePerAppointment: number;
 }
@@ -81,14 +79,6 @@ export interface MonthlyRevenue {
   month: string;
   revenue: number;
   appointments: number;
-}
-
-export interface TreatmentRevenue {
-  treatmentId: string;
-  treatmentName: string;
-  revenue: number;
-  count: number;
-  averagePrice: number;
 }
 
 export interface EmployeeStats {
@@ -116,28 +106,6 @@ export interface EmployeeWorkload {
   todayAppointments: number;
   weekAppointments: number;
   utilization: number; // percentage
-}
-
-export interface TreatmentStats {
-  total: number;
-  active: number;
-  popular: PopularTreatment[];
-  byCategory: TreatmentCategoryStats[];
-}
-
-export interface PopularTreatment {
-  treatmentId: string;
-  treatmentName: string;
-  count: number;
-  revenue: number;
-  trend: number;
-}
-
-export interface TreatmentCategoryStats {
-  category: string;
-  count: number;
-  revenue: number;
-  percentage: number;
 }
 
 export interface QuickAction {

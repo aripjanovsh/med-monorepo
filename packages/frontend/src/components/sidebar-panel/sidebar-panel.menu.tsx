@@ -4,7 +4,6 @@ import {
   LayoutDashboardIcon,
   CalendarIcon,
   UserIcon,
-  Activity,
   Users,
   DollarSignIcon,
   ShoppingCartIcon,
@@ -44,11 +43,6 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         icon: CalendarIcon,
       },
       {
-        title: "Счета",
-        url: ROUTES.INVOICES,
-        icon: Receipt,
-      },
-      {
         title: "Пациенты",
         url: ROUTES.PATIENTS,
         icon: UserIcon,
@@ -64,11 +58,6 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
         icon: ClipboardList,
       },
       {
-        title: "Treatments",
-        url: ROUTES.TREATMENTS,
-        icon: Activity,
-      },
-      {
         title: "Сотрудники",
         url: ROUTES.EMPLOYEES,
         icon: Users,
@@ -79,25 +68,9 @@ export const SIDEBAR_PANEL_NAV_MENU: SidebarPanelNavModel[] = [
     title: "Finance",
     children: [
       {
-        title: "Accounts",
-        url: ROUTES.ACCOUNTS,
-        icon: DollarSignIcon,
-      },
-
-      {
-        title: "Sales",
-        url: ROUTES.SALES,
-        icon: ShoppingCartIcon,
-      },
-      {
-        title: "Purchases",
-        url: ROUTES.PURCHASES,
-        icon: ShoppingCartIcon,
-      },
-      {
-        title: "Payment Method",
-        url: ROUTES.PAYMENT_METHOD,
-        icon: CreditCardIcon,
+        title: "Счета",
+        url: ROUTES.INVOICES,
+        icon: Receipt,
       },
     ],
   },

@@ -85,20 +85,16 @@ export function RevenueChart({ data, trend, totalRevenue }: RevenueChartProps) {
             <h4 className="text-sm font-medium mb-3">Revenue Breakdown</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Treatments</span>
-                <span className="font-medium">85%</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-muted-foreground">Consultations</span>
-                <span className="font-medium">10%</span>
+                <span className="font-medium">88%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Products</span>
-                <span className="font-medium">3%</span>
+                <span className="font-medium">9%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Other</span>
-                <span className="font-medium">2%</span>
+                <span className="font-medium">3%</span>
               </div>
             </div>
           </div>

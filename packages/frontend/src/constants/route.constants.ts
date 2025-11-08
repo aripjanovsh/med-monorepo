@@ -15,7 +15,6 @@ export const ROUTES = {
   SETTINGS: "/cabinet/settings",
   LOGOUT: "/logout",
 
-  TREATMENTS: "/cabinet/treatments",
   EMPLOYEES: "/cabinet/employees",
   EMPLOYEE_DETAIL: "/cabinet/employees/[id]",
   EMPLOYEE_EDIT: "/cabinet/employees/[id]/edit",

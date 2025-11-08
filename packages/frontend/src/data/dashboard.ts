@@ -95,43 +95,6 @@ export const mockDashboardStats: DashboardStats = {
       { month: "Sep", revenue: 43100, appointments: 703 },
       { month: "Aug", revenue: 45200, appointments: 738 },
     ],
-    byTreatment: [
-      {
-        treatmentId: "2",
-        treatmentName: "Root Canal Treatment",
-        revenue: 12800,
-        count: 16,
-        averagePrice: 800,
-      },
-      {
-        treatmentId: "3",
-        treatmentName: "Dental Implant Placement",
-        revenue: 10000,
-        count: 4,
-        averagePrice: 2500,
-      },
-      {
-        treatmentId: "7",
-        treatmentName: "Crown Preparation",
-        revenue: 7200,
-        count: 12,
-        averagePrice: 600,
-      },
-      {
-        treatmentId: "4",
-        treatmentName: "Teeth Whitening",
-        revenue: 6400,
-        count: 16,
-        averagePrice: 400,
-      },
-      {
-        treatmentId: "1",
-        treatmentName: "Regular Dental Cleaning",
-        revenue: 4500,
-        count: 30,
-        averagePrice: 150,
-      },
-    ],
     averagePerPatient: 391,
     averagePerAppointment: 141,
   },
@@ -191,49 +154,6 @@ export const mockDashboardStats: DashboardStats = {
       },
     ],
   },
-  treatments: {
-    total: 8,
-    active: 8,
-    popular: [
-      {
-        treatmentId: "1",
-        treatmentName: "Regular Dental Cleaning",
-        count: 156,
-        revenue: 23400,
-        trend: 12,
-      },
-      {
-        treatmentId: "2",
-        treatmentName: "Root Canal Treatment",
-        count: 45,
-        revenue: 36000,
-        trend: 8,
-      },
-      {
-        treatmentId: "4",
-        treatmentName: "Teeth Whitening",
-        count: 67,
-        revenue: 26800,
-        trend: 25,
-      },
-      {
-        treatmentId: "6",
-        treatmentName: "Pediatric Dental Exam",
-        count: 89,
-        revenue: 10680,
-        trend: 15,
-      },
-    ],
-    byCategory: [
-      { category: "Preventive Care", count: 245, revenue: 34080, percentage: 35 },
-      { category: "General Dentistry", count: 178, revenue: 28450, percentage: 25 },
-      { category: "Cosmetic Dentistry", count: 89, revenue: 32100, percentage: 13 },
-      { category: "Endodontics", count: 67, revenue: 45200, percentage: 10 },
-      { category: "Oral Surgery", count: 34, revenue: 78500, percentage: 5 },
-      { category: "Orthodontics", count: 45, revenue: 23400, percentage: 6 },
-      { category: "Pediatric Dentistry", count: 123, revenue: 18900, percentage: 18 },
-    ],
-  },
 };
 
 export const quickActions: QuickAction[] = [
@@ -252,14 +172,6 @@ export const quickActions: QuickAction[] = [
     icon: "UserPlus",
     action: "/cabinet/patients/new",
     color: "green",
-  },
-  {
-    id: "3",
-    title: "Quick Treatment",
-    description: "Start emergency treatment",
-    icon: "Zap",
-    action: "/cabinet/treatments/emergency",
-    color: "red",
   },
   {
     id: "4",

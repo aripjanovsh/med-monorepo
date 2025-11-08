@@ -9,7 +9,6 @@ import {
   TrendingUp, 
   TrendingDown,
   Activity,
-  Stethoscope,
 } from "lucide-react";
 import { DashboardStats } from "@/types/dashboard";
 
@@ -51,14 +50,6 @@ export function StatsCards({ stats }: StatsCardsProps) {
       trend: 0,
       color: "orange",
     },
-    {
-      title: "Treatments",
-      value: stats.treatments.active.toString(),
-      subtitle: "Active treatments",
-      icon: Stethoscope,
-      trend: 0,
-      color: "teal",
-    },
   ];
 
   const getColorClasses = (color: string) => {
@@ -85,7 +76,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {cards.map((card, index) => {
         const IconComponent = card.icon;
         const TrendIcon = getTrendIcon(card.trend);
