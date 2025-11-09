@@ -8,7 +8,10 @@ import {
   Delete,
   UseGuards,
   Query,
+  Res,
+  StreamableFile,
 } from "@nestjs/common";
+import { Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import {
   ApiTags,
@@ -18,6 +21,7 @@ import {
 } from "@nestjs/swagger";
 import { ServiceOrderService } from "./service-order.service";
 import { ServiceOrderQueueService } from "./service-order-queue.service";
+import { ServiceOrderPdfService } from "./service-order-pdf.service";
 import { CreateServiceOrderDto } from "./dto/create-service-order.dto";
 import { UpdateServiceOrderDto } from "./dto/update-service-order.dto";
 import { FindAllServiceOrderDto } from "./dto/find-all-service-order.dto";
@@ -43,6 +47,7 @@ export class ServiceOrderController {
   constructor(
     private readonly serviceOrderService: ServiceOrderService,
     private readonly queueService: ServiceOrderQueueService,
+    private readonly pdfService: ServiceOrderPdfService,
   ) {}
 
   @Post()
@@ -206,5 +211,39 @@ export class ServiceOrderController {
   ) {
     await this.queueService.returnToQueue(id, dto.organizationId);
     return { message: "Patient returned to queue successfully" };
+  }
+
+  // ==========================================
+  // PDF EXPORT ENDPOINT
+  // ==========================================
+
+  @Get(":id/download-pdf")
+  @RequirePermission({ resource: "service-orders", action: "READ" })
+  @ApiOperation({ summary: "Download service order results as PDF" })
+  @ApiResponse({ status: 200, description: "PDF file generated successfully" })
+  @ApiResponse({ status: 404, description: "Service order not found" })
+  @ApiResponse({ status: 400, description: "No results available for this order" })
+  async downloadPdf(
+    @Param("id") id: string,
+    @CurrentUser() user: CurrentUserData,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    // Get service order with all related data
+    const order = await this.serviceOrderService.findOne(
+      id,
+      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+    );
+
+    // Generate PDF buffer
+    const pdfBuffer = await this.pdfService.generateResultsPdf(order);
+
+    // Set response headers
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="service-order-${order.id}.pdf"`,
+      "Content-Length": pdfBuffer.length,
+    });
+
+    return new StreamableFile(pdfBuffer);
   }
 }

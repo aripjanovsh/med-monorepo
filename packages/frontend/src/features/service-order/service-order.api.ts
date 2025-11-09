@@ -1,5 +1,6 @@
 import { rootApi } from "@/store/api/root.api";
 import { API_TAG_OPERATIONS_SERVICE_ORDERS } from "@/constants/api-tags.constants";
+import { API_ENDPOINT } from "@/constants/app.constants";
 import type {
   CreateServiceOrderRequestDto,
   UpdateServiceOrderRequestDto,
@@ -71,3 +72,49 @@ export const {
   useUpdateServiceOrderMutation,
   useDeleteServiceOrderMutation,
 } = serviceOrderApi;
+
+/**
+ * Download service order results as PDF
+ * @param orderId - Service order ID
+ * @param token - JWT token for authorization
+ * @returns Promise that resolves when download starts
+ */
+export const downloadServiceOrderPdf = async (
+  orderId: string,
+  token: string
+): Promise<void> => {
+  const response = await fetch(
+    `${API_ENDPOINT}/api/v1/service-orders/${orderId}/download-pdf`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to download PDF");
+  }
+
+  // Get filename from Content-Disposition header or use default
+  const contentDisposition = response.headers.get("Content-Disposition");
+  const filename = contentDisposition
+    ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+    : `service-order-${orderId}.pdf`;
+
+  // Create blob from response
+  const blob = await response.blob();
+
+  // Create download link and trigger download
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};

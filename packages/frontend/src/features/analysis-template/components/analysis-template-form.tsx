@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
-import { Copy, Wand2 } from "lucide-react";
+import { Copy, Wand2, Code, Eye, Blocks, ClipboardPaste } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   useCreateAnalysisTemplateMutation,
@@ -19,8 +20,10 @@ import {
 import type { AnalysisTemplateFormData } from "../analysis-template.schema";
 import { analysisTemplateFormSchema } from "../analysis-template.schema";
 import { PRESET_TEMPLATES } from "../analysis-template.constants";
-import { AnalysisFormEditor } from "@/features/analysis-form-builder";
+import { AnalysisFormEditor, AnalysisFormInteractive } from "@/features/analysis-form-builder";
+import type { FilledAnalysisData } from "@/features/analysis-form-builder";
 import { convertFormDataToDto } from "../utils/template.helpers";
+import { formatTemplateContent } from "../analysis-template.model";
 
 type AnalysisTemplateFormProps = {
   mode: "create" | "edit";
@@ -41,6 +44,9 @@ export const AnalysisTemplateForm = ({
     useUpdateAnalysisTemplateMutation();
 
   const [selectedPreset, setSelectedPreset] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("editor");
+  const [jsonContent, setJsonContent] = useState("");
+  const [previewData, setPreviewData] = useState<FilledAnalysisData | null>(null);
 
   const form = useForm<AnalysisTemplateFormData>({
     resolver: yupResolver(analysisTemplateFormSchema) as any,
@@ -58,6 +64,12 @@ export const AnalysisTemplateForm = ({
 
   const { watch, setValue, reset } = form;
   const template = watch("template") ?? { version: 1, sections: [] };
+  const name = watch("name") ?? "";
+
+  // Sync jsonContent when template changes
+  useEffect(() => {
+    setJsonContent(JSON.stringify(template, null, 2));
+  }, [template]);
 
   // Reset form when initialData changes (important for edit mode)
   useEffect(() => {
@@ -80,7 +92,7 @@ export const AnalysisTemplateForm = ({
         id: (Date.now() + index).toString(),
       }));
       
-      setValue("template", {
+      const newTemplate = {
         version: 1,
         sections: [
           {
@@ -90,7 +102,10 @@ export const AnalysisTemplateForm = ({
             parameters: newParameters,
           },
         ],
-      });
+      };
+      
+      setValue("template", newTemplate);
+      setJsonContent(JSON.stringify(newTemplate, null, 2));
     }
   };
 
@@ -118,6 +133,56 @@ export const AnalysisTemplateForm = ({
         error?.data?.message ??
           `Ошибка при ${mode === "create" ? "создании" : "обновлении"} шаблона`
       );
+    }
+  };
+
+  const handleEditorChange = (newTemplate: any) => {
+    setValue("template", newTemplate);
+    setJsonContent(JSON.stringify(newTemplate, null, 2));
+  };
+
+  const handleJsonChange = (value: string) => {
+    setJsonContent(value);
+    try {
+      const parsed = JSON.parse(value);
+      setValue("template", parsed);
+      form.clearErrors("template");
+    } catch {
+      form.setError("template", {
+        type: "manual",
+        message: "Невалидный JSON",
+      });
+    }
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(jsonContent);
+      toast.success("JSON скопирован в буфер обмена");
+    } catch (error) {
+      toast.error("Ошибка при копировании");
+    }
+  };
+
+  const pasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      JSON.parse(text);
+      setJsonContent(text);
+      setValue("template", JSON.parse(text));
+      toast.success("JSON вставлен из буфера обмена");
+    } catch (error) {
+      toast.error("Невалидный JSON в буфере обмена");
+    }
+  };
+
+  const formatJson = () => {
+    try {
+      const formatted = formatTemplateContent(jsonContent);
+      setJsonContent(formatted);
+      toast.success("JSON отформатирован");
+    } catch (error) {
+      toast.error("Невалидный JSON");
     }
   };
 
@@ -218,13 +283,92 @@ export const AnalysisTemplateForm = ({
           <CardTitle>Параметры анализа</CardTitle>
         </CardHeader>
         <CardContent>
-          <AnalysisFormEditor
-            template={template}
-            onChange={(newTemplate) => setValue("template", newTemplate)}
-          />
-          {form.formState.errors.template?.sections && (
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="editor">
+                <Blocks className="mr-2 h-4 w-4" />
+                Редактор
+              </TabsTrigger>
+              <TabsTrigger value="preview">
+                <Eye className="mr-2 h-4 w-4" />
+                Предпросмотр
+              </TabsTrigger>
+              <TabsTrigger value="json">
+                <Code className="mr-2 h-4 w-4" />
+                JSON
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="editor" className="mt-4">
+              <AnalysisFormEditor
+                template={template}
+                onChange={handleEditorChange}
+              />
+            </TabsContent>
+
+            <TabsContent value="preview" className="mt-4">
+              <div className="border rounded-lg p-4 min-h-[500px]">
+                {template.sections && template.sections.length > 0 ? (
+                  <AnalysisFormInteractive
+                    template={{
+                      id: "preview",
+                      name: name || "Предпросмотр",
+                      sections: template.sections,
+                    }}
+                    value={previewData}
+                    onChange={setPreviewData}
+                    disabled={true}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+                    Добавьте параметры в редакторе для предпросмотра
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="json" className="mt-4">
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyToClipboard}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Копировать
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={pasteFromClipboard}
+                  >
+                    <ClipboardPaste className="mr-2 h-4 w-4" />
+                    Вставить
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={formatJson}
+                  >
+                    Форматировать
+                  </Button>
+                </div>
+                <Textarea
+                  value={jsonContent}
+                  onChange={(e) => handleJsonChange(e.target.value)}
+                  className="font-mono text-sm min-h-[500px]"
+                  placeholder="JSON представление шаблона анализа..."
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+          {form.formState.errors.template && (
             <p className="text-sm text-destructive mt-2">
-              {form.formState.errors.template.sections.message}
+              {form.formState.errors.template.message ?? "Ошибка в шаблоне"}
             </p>
           )}
         </CardContent>

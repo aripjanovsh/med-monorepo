@@ -15,7 +15,11 @@ import {
   useGetAnalysisTemplateQuery,
   getParameterTypeLabel,
   formatReferenceRange,
+  getTotalParametersCount,
+  getRequiredParametersCount,
+  getOptionalParametersCount,
   type AnalysisParameterDto,
+  type AnalysisTemplateContentDto,
 } from "@/features/analysis-template";
 import { url, ROUTES } from "@/constants/route.constants";
 
@@ -49,8 +53,30 @@ export default function AnalysisTemplateDetailPage({
     );
   }
 
-  const requiredParams = template.parameters.filter((p) => p.isRequired);
-  const optionalParams = template.parameters.filter((p) => !p.isRequired);
+  // Parse template content (supports both old and new formats)
+  const getAllParameters = (): AnalysisParameterDto[] => {
+    try {
+      const data = JSON.parse(template.content);
+      if (Array.isArray(data)) {
+        // Old format
+        return data;
+      }
+      // New format with sections
+      return (data as AnalysisTemplateContentDto).sections.flatMap(
+        (section) => section.parameters
+      );
+    } catch {
+      return [];
+    }
+  };
+
+  const allParameters = getAllParameters();
+  const requiredParams = allParameters.filter((p) => p.isRequired);
+  const optionalParams = allParameters.filter((p) => !p.isRequired);
+
+  const totalCount = getTotalParametersCount(template);
+  const requiredCount = getRequiredParametersCount(template);
+  const optionalCount = getOptionalParametersCount(template);
 
   return (
     <div className="space-y-6">
@@ -87,17 +113,15 @@ export default function AnalysisTemplateDetailPage({
           <div className="grid grid-cols-3 gap-4 pt-4 border-t">
             <div>
               <p className="text-sm text-muted-foreground">Всего параметров</p>
-              <p className="text-2xl font-bold mt-1">
-                {template.parameters.length}
-              </p>
+              <p className="text-2xl font-bold mt-1">{totalCount}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Обязательных</p>
-              <p className="text-2xl font-bold mt-1">{requiredParams.length}</p>
+              <p className="text-2xl font-bold mt-1">{requiredCount}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Опциональных</p>
-              <p className="text-2xl font-bold mt-1">{optionalParams.length}</p>
+              <p className="text-2xl font-bold mt-1">{optionalCount}</p>
             </div>
           </div>
         </CardContent>
@@ -112,18 +136,18 @@ export default function AnalysisTemplateDetailPage({
           <Tabs defaultValue="all">
             <TabsList>
               <TabsTrigger value="all">
-                Все ({template.parameters.length})
+                Все ({totalCount})
               </TabsTrigger>
               <TabsTrigger value="required">
-                Обязательные ({requiredParams.length})
+                Обязательные ({requiredCount})
               </TabsTrigger>
               <TabsTrigger value="optional">
-                Опциональные ({optionalParams.length})
+                Опциональные ({optionalCount})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="space-y-4 mt-4">
-              {template.parameters.map((param) => (
+              {allParameters.map((param) => (
                 <ParameterCard key={param.id} parameter={param} />
               ))}
             </TabsContent>

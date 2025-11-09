@@ -7,6 +7,10 @@ export type {
   AnalysisTemplatesListResponseDto,
   AnalysisParameterDto,
   ParameterTypeDto,
+  AnalysisTemplateContentDto,
+  AnalysisSectionDto,
+  ReferenceRangeDto,
+  ReferenceRangesDto,
 } from "./analysis-template.dto";
 
 export type {
@@ -45,6 +49,7 @@ export {
   getAnalysisTemplateDisplayName,
   hasReferenceRanges,
   formatReferenceRange,
+  getTotalParametersCount,
   getRequiredParametersCount,
   getOptionalParametersCount,
 } from "./analysis-template.model";

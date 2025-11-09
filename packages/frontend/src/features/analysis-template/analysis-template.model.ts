@@ -102,3 +102,15 @@ export const getTotalParametersCount = (
 ): number => {
   return getAllParameters(template.content).length;
 };
+
+/**
+ * Format template content JSON for better readability
+ */
+export const formatTemplateContent = (content: string): string => {
+  try {
+    const parsed = JSON.parse(content);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return content;
+  }
+};

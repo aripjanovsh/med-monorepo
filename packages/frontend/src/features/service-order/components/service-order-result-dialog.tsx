@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { FileText, Calendar, User } from "lucide-react";
+import { FileText, Calendar, User, Download } from "lucide-react";
 import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
+import { toast } from "sonner";
 
 import {
   Sheet,
@@ -17,10 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { getEmployeeFullName } from "@/features/employees";
+import { useAppSelector } from "@/store/hooks";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 import { getOrderStatusVariant } from "../service-order.model";
 import { ORDER_STATUS_LABELS } from "../service-order.constants";
+import { downloadServiceOrderPdf } from "../service-order.api";
 import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
 import type { SavedAnalysisData } from "@/features/analysis-form-builder";
@@ -39,10 +43,30 @@ export const ServiceOrderResultSheet = ({
   order,
   onEdit,
 }: ServiceOrderResultSheetProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const token = useAppSelector((state) => state.auth.token);
 
   const performedByName = order.performedBy ? getEmployeeFullName(order.performedBy) : null;
   const hasResults =
     order.resultText || order.resultFileUrl || order.resultData;
+
+  const handleDownloadPdf = async () => {
+    if (!token) {
+      toast.error("Необходима авторизация");
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+      await downloadServiceOrderPdf(order.id, token);
+      toast.success("PDF файл успешно загружен");
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast.error("Ошибка при загрузке PDF");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Определяем тип результата
   const isAnalysisResult =
@@ -117,11 +141,24 @@ export const ServiceOrderResultSheet = ({
               )}
             </div>
 
-            {onEdit && order.status === "COMPLETED" && (
-              <Button variant="outline" size="sm" onClick={onEdit}>
-                Редактировать
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {hasResults && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloading}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {isDownloading ? "Загрузка..." : "Скачать PDF"}
+                </Button>
+              )}
+              {onEdit && order.status === "COMPLETED" && (
+                <Button variant="outline" size="sm" onClick={onEdit}>
+                  Редактировать
+                </Button>
+              )}
+            </div>
           </div>
 
           {performedByName && (
