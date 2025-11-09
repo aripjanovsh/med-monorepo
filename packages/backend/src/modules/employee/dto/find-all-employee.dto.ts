@@ -25,4 +25,16 @@ export class FindAllEmployeeDto extends FindAllQueryDto {
   @IsOptional()
   @IsUUID()
   patientId?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Filter by title ID",
+  })
+  titleId?: string;
+
+  @ApiPropertyOptional({
+    description: "Filter by department ID",
+  })
+  @Expose()
+  departmentId?: string;
 }

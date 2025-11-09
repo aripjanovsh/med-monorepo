@@ -31,6 +31,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  DepartmentFacetedSelectField,
+  TitleFacetedSelectField,
+} from "@/features/master-data/components";
 
 export default function EmployeesPage() {
   const router = useRouter();
@@ -59,19 +63,34 @@ export default function EmployeesPage() {
     }
   };
 
+  // Get filter values from columnFilters
+  const departmentFilter = values.columnFilters.find(
+    (f) => f.id === "departmentId"
+  );
+  const titleFilter = values.columnFilters.find((f) => f.id === "titleId");
+
+  const selectedDepartments = (departmentFilter?.value as string[]) || [];
+  const selectedTitles = (titleFilter?.value as string[]) || [];
+
   // Reset to first page when activeTab changes
   useEffect(() => {
     setters.setPage(1);
   }, [activeTab, setters]);
 
-  // Add role filter to query params
+  // Add role, department and title filters to query params
   const finalQueryParams = useMemo(() => {
     const role = getRoleFilter(activeTab);
     return {
       ...queryParams,
       ...(role && { role }),
+      ...(selectedDepartments.length > 0 && {
+        departmentId: selectedDepartments.join(","),
+      }),
+      ...(selectedTitles.length > 0 && {
+        titleId: selectedTitles.join(","),
+      }),
     };
-  }, [queryParams, activeTab]);
+  }, [queryParams, activeTab, selectedDepartments, selectedTitles]);
 
   // Fetch employees with managed state
   const {
@@ -127,6 +146,31 @@ export default function EmployeesPage() {
 
   const employees = employeesData?.data || [];
   const totalEmployees = employeesData?.meta?.total || 0;
+
+  // Handlers for filters
+  const handleDepartmentChange = useCallback(
+    (value: string[]) => {
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "departmentId"
+      );
+      if (value.length > 0) {
+        newFilters.push({ id: "departmentId", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handleTitleChange = useCallback(
+    (value: string[]) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "titleId");
+      if (value.length > 0) {
+        newFilters.push({ id: "titleId", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
 
   return (
     <div className="space-y-6">
@@ -207,7 +251,16 @@ export default function EmployeesPage() {
             searchPlaceholder="Поиск по имени..."
             searchValue={values.searchImmediate}
             onSearchChange={handlers.search.onChange}
-          />
+          >
+            <DepartmentFacetedSelectField
+              value={selectedDepartments}
+              onChange={handleDepartmentChange}
+            />
+            <TitleFacetedSelectField
+              value={selectedTitles}
+              onChange={handleTitleChange}
+            />
+          </DataTableToolbar>
         )}
         emptyState={
           employeesError ? (

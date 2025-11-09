@@ -15,7 +15,7 @@ export class EmployeeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createEmployeeDto: CreateEmployeeDto,
+    createEmployeeDto: CreateEmployeeDto
   ): Promise<EmployeeResponseDto> {
     const { userAccountPhone, userAccountRoleIds, ...employeeData } =
       createEmployeeDto;
@@ -89,7 +89,7 @@ export class EmployeeService {
         ? {
             ...employeeWithRelations,
             serviceTypes: employeeWithRelations.serviceTypes.map(
-              (st) => st.serviceType,
+              (st) => st.serviceType
             ),
           }
         : null;
@@ -99,7 +99,7 @@ export class EmployeeService {
   }
 
   async findAll(
-    query: FindAllEmployeeDto,
+    query: FindAllEmployeeDto
   ): Promise<PaginatedResponseDto<EmployeeResponseDto>> {
     const {
       page,
@@ -110,6 +110,8 @@ export class EmployeeService {
       status,
       organizationId,
       patientId,
+      titleId,
+      departmentId,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -131,6 +133,18 @@ export class EmployeeService {
           isActive: true,
         },
       };
+    }
+
+    if (titleId) {
+      where.titleId = titleId.includes(",")
+        ? { in: titleId.split(",") }
+        : titleId;
+    }
+
+    if (departmentId) {
+      where.departmentId = departmentId.includes(",")
+        ? { in: departmentId.split(",") }
+        : departmentId;
     }
 
     if (search) {
@@ -190,7 +204,7 @@ export class EmployeeService {
 
   async findById(
     id: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<EmployeeResponseDto> {
     const where: Prisma.EmployeeWhereUniqueInput = { id };
 
@@ -230,7 +244,7 @@ export class EmployeeService {
 
   async update(
     id: string,
-    updateEmployeeDto: UpdateEmployeeDto,
+    updateEmployeeDto: UpdateEmployeeDto
   ): Promise<EmployeeResponseDto> {
     // Check if employee exists
     const existingEmployee = await this.prisma.employee.findUnique({
@@ -274,7 +288,7 @@ export class EmployeeService {
 
         const toAdd = serviceTypeIds.filter((sid) => !existingIds.has(sid));
         const toRemove = [...existingIds].filter(
-          (sid) => !incomingIds.has(sid),
+          (sid) => !incomingIds.has(sid)
         );
 
         if (toAdd.length > 0) {
@@ -313,7 +327,7 @@ export class EmployeeService {
         ? {
             ...updatedEmployee,
             serviceTypes: updatedEmployee.serviceTypes.map(
-              (st) => st.serviceType,
+              (st) => st.serviceType
             ),
           }
         : null;
@@ -324,7 +338,7 @@ export class EmployeeService {
   async updateStatus(
     id: string,
     status: EmployeeStatus,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<EmployeeResponseDto> {
     try {
       // Build where clause with organizationId filter if provided

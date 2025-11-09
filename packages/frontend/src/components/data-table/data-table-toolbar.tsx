@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { Table } from "@tanstack/react-table";
 
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ interface DataTableToolbarProps<TData> {
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
+  children?: ReactNode;
 }
 
 export function DataTableToolbar<TData>({
@@ -18,6 +20,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = "Search...",
   searchValue,
   onSearchChange,
+  children,
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex items-center justify-between">
@@ -41,6 +44,7 @@ export function DataTableToolbar<TData>({
             className="h-10 w-[150px] lg:w-[400px]"
           />
         )}
+        {children}
       </div>
       {/* <DataTableViewOptions table={table} /> */}
     </div>

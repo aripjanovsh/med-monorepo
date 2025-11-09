@@ -142,6 +142,9 @@ export interface UpdateEmployeeStatusRequestDto {
 export interface EmployeesQueryParamsDto extends QueryParamsDto {
   status?: EmployeeStatusDto;
   patientId?: string;
+  role?: string;
+  departmentId?: string;
+  titleId?: string;
 }
 
 // API Response DTOs using PaginatedResponseDto
