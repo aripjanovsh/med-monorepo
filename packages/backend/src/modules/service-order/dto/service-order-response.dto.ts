@@ -201,6 +201,14 @@ export class ServiceOrderResponseDto {
   @Type(() => ServiceOrderPerformedByDto)
   performedBy?: ServiceOrderPerformedByDto;
 
+  @ApiPropertyOptional()
+  @Expose()
+  startedAt?: Date;
+
+  @ApiPropertyOptional()
+  @Expose()
+  finishedAt?: Date;
+
   @ApiProperty()
   @Expose()
   organizationId: string;

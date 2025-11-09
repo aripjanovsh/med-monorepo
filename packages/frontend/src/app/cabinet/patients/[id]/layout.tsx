@@ -63,6 +63,11 @@ export default function PatientDetailLayout({
       value: "invoices",
     },
     {
+      label: "Файлы",
+      href: `/cabinet/patients/${id}/files`,
+      value: "files",
+    },
+    {
       label: "История",
       href: `/cabinet/patients/${id}/history`,
       value: "history",

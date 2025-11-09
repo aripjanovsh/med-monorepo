@@ -20,11 +20,6 @@ export const ProtocolResultView = ({ data }: ProtocolResultViewProps) => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">{templateName}</h3>
-        <p className="text-sm text-muted-foreground">Результаты протокола</p>
-      </div>
-
       <FormBuilderView
         templateJson={templateContent}
         data={filledData}

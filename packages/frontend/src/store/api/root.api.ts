@@ -25,6 +25,7 @@ import {
   API_TAG_OPERATIONS_PARAMETER_DEFINITIONS,
   API_TAG_OPERATIONS_INVOICES,
   API_TAG_OPERATIONS_RECEPTION,
+  API_TAG_OPERATIONS_FILES,
 } from "@/constants/api-tags.constants";
 
 const prepareHeaders = (
@@ -72,6 +73,7 @@ export const rootApi = createApi({
     API_TAG_OPERATIONS_PARAMETER_DEFINITIONS,
     API_TAG_OPERATIONS_INVOICES,
     API_TAG_OPERATIONS_RECEPTION,
+    API_TAG_OPERATIONS_FILES,
   ],
   endpoints: () => ({}),
 });

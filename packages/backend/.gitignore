@@ -124,3 +124,5 @@ build/
 # Keep prisma folder but ignore generated client in some setups
 # /prisma/migrations is typically kept in version control
 # /generated can be ignored if you're generating clients locally
+
+uploads/*

@@ -1,9 +1,9 @@
 /**
  * Analysis Form View
- * 
+ *
  * Компонент для просмотра результатов анализа (read-only).
  * Показывает результаты с индикаторами нормы/отклонений.
- * 
+ *
  * @example
  * ```tsx
  * <AnalysisFormView
@@ -81,13 +81,6 @@ export const AnalysisFormView = ({
 }: AnalysisFormViewProps) => {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{data.templateName}</h3>
-          <p className="text-sm text-muted-foreground">Результаты анализа</p>
-        </div>
-      </div>
-
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -102,7 +95,11 @@ export const AnalysisFormView = ({
           <TableBody>
             {data.rows.map((row, index) => {
               const range = row.referenceRanges
-                ? getApplicableRange(row.referenceRanges, patientGender, patientAge)
+                ? getApplicableRange(
+                    row.referenceRanges,
+                    patientGender,
+                    patientAge
+                  )
                 : null;
 
               const status = getReferenceStatus(row.value, range);

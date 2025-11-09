@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 type PageHeaderProps = {
   className?: string;
   title: string;
+  titleSuffix?: ReactNode;
   titleLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   description?: string;
   meta?: ReactNode;
@@ -17,6 +18,7 @@ type PageHeaderProps = {
 export default function PageHeader({
   className,
   title,
+  titleSuffix,
   titleLevel = 2,
   description,
   meta,
@@ -39,18 +41,21 @@ export default function PageHeader({
           </Link>
         )}
         <div className="flex flex-col">
-          <h2
-            className={cn("text-2xl font-gilroy font-bold", {
-              "text-2xl": titleLevel === 1,
-              "text-xl": titleLevel === 2,
-              "text-lg": titleLevel === 3,
-              "text-base": titleLevel === 4,
-              "text-sm": titleLevel === 5,
-              "text-xs": titleLevel === 6,
-            })}
-          >
-            {title}
-          </h2>
+          <div className="flex flex-row items-center gap-4">
+            <h2
+              className={cn("text-2xl font-gilroy font-bold", {
+                "text-2xl": titleLevel === 1,
+                "text-xl": titleLevel === 2,
+                "text-lg": titleLevel === 3,
+                "text-base": titleLevel === 4,
+                "text-sm": titleLevel === 5,
+                "text-xs": titleLevel === 6,
+              })}
+            >
+              {title}
+            </h2>
+            {titleSuffix}
+          </div>
           {description && (
             <p className="text-sm text-muted-foreground">{description}</p>
           )}

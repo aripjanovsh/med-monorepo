@@ -25,6 +25,7 @@ import { ParameterDefinitionModule } from "./modules/parameter-definition/parame
 import { AppointmentModule } from "./modules/appointment/appointment.module";
 import { InvoiceModule } from "./modules/invoice/invoice.module";
 import { ReceptionModule } from "./modules/reception/reception.module";
+import { FileModule } from "./modules/file/file.module";
 import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 
@@ -55,6 +56,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     AppointmentModule,
     InvoiceModule,
     ReceptionModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [

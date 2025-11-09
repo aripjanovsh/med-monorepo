@@ -71,6 +71,8 @@ export interface ServiceOrderResponseDto {
   resultAt?: string; // ISO
   performedById?: string;
   performedBy?: SimplePerformedByDto;
+  startedAt?: string; // ISO
+  finishedAt?: string; // ISO
   organizationId: string;
   createdAt: string; // ISO
   updatedAt: string; // ISO

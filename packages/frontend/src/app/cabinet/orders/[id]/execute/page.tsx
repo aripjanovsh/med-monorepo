@@ -2,11 +2,17 @@
 
 import { use, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
-import { Button } from "@/components/ui/button";
-import { LoadingState, ErrorState } from "@/components/states";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProfileField } from "@/components/ui/profile-field";
 import { ROUTES, url } from "@/constants/route.constants";
+import {
+  getPatientFullName,
+  calculatePatientAge,
+  getGenderDisplay,
+} from "@/features/patients";
 
 import {
   useGetServiceOrderQuery,
@@ -22,8 +28,9 @@ export default function ExecuteServiceOrderPage({
   const { id: orderId } = use(params);
   const router = useRouter();
 
-  const { data: order, isLoading, error, refetch } = useGetServiceOrderQuery(orderId);
-  const [updateServiceOrder, { isLoading: isUpdating }] = useUpdateServiceOrderMutation();
+  const { data: order } = useGetServiceOrderQuery(orderId);
+  const [updateServiceOrder, { isLoading: isUpdating }] =
+    useUpdateServiceOrderMutation();
 
   const handleStartWork = useCallback(async () => {
     await updateServiceOrder({
@@ -70,40 +77,44 @@ export default function ExecuteServiceOrderPage({
     router.push(url(ROUTES.ORDERS));
   }, [orderId, updateServiceOrder, router]);
 
-  if (isLoading) {
-    return <LoadingState title="Загрузка назначения..." />;
-  }
-
-  if (error || !order) {
-    return (
-      <ErrorState
-        title="Назначение не найдено"
-        description="Не удалось загрузить информацию о назначении"
-        onRetry={refetch}
-        onBack={() => router.push(url(ROUTES.ORDERS))}
-        backLabel="Вернуться к списку"
-      />
-    );
-  }
+  if (!order) return null;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push(url(ROUTES.ORDER_DETAIL, { id: orderId }))}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Выполнение назначения</h1>
-          <p className="text-muted-foreground">
-            Прием в работу и ввод результатов
-          </p>
-        </div>
-      </div>
+      {/* Patient Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Информация о пациенте</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ProfileField
+              label="Пациент"
+              value={getPatientFullName(order.patient)}
+            />
+            {order.patient.dateOfBirth && (
+              <ProfileField
+                label="Возраст"
+                value={`${calculatePatientAge(order.patient.dateOfBirth)} лет`}
+              />
+            )}
+            <ProfileField
+              label="Пол"
+              value={order.patient.gender ? getGenderDisplay(order.patient.gender) : "—"}
+            />
+            {order.patient.dateOfBirth && (
+              <ProfileField
+                label="Дата рождения"
+                value={format(new Date(order.patient.dateOfBirth), "dd.MM.yyyy", {
+                  locale: ru,
+                })}
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Execution Form */}
       <ServiceOrderExecutionCard
         order={order}
         onStartWork={handleStartWork}

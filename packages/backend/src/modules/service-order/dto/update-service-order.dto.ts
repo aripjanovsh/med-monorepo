@@ -37,6 +37,16 @@ export class UpdateServiceOrderDto {
   @IsUUID()
   performedById?: string;
 
+  @ApiPropertyOptional({ description: "Started at date" })
+  @IsOptional()
+  @IsDateString()
+  startedAt?: Date;
+
+  @ApiPropertyOptional({ description: "Finished at date" })
+  @IsOptional()
+  @IsDateString()
+  finishedAt?: Date;
+
   @ApiPropertyOptional({ description: "Organization ID for validation" })
   @IsOptional()
   @IsUUID()

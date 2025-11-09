@@ -10,8 +10,12 @@ export * from "./components/service-order-columns";
 export * from "./components/service-order-filters";
 export * from "./components/service-order-execution-card";
 export * from "./components/result-input-text";
-export * from "./components/result-input-analysis";
-export * from "./components/result-input-protocol";
+export { ResultInputAnalysis } from "./components/result-input-analysis";
+export { ResultInputProtocol } from "./components/result-input-protocol";
 export * from "./components/service-order-result-dialog";
-export * from "./components/analysis-result-view";
-export * from "./components/protocol-result-view";
+export { AnalysisResultView, type AnalysisResultData } from "./components/analysis-result-view";
+export { ProtocolResultView } from "./components/protocol-result-view";
+
+// Re-export types from other features for convenience
+export type { SavedAnalysisData } from "@/features/analysis-form-builder";
+export type { SavedProtocolData } from "@/features/visit/visit-protocol.types";

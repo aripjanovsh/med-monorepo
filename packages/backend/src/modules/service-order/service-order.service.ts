@@ -454,9 +454,18 @@ export class ServiceOrderService {
       );
     }
 
-    // Update resultAt when completing
-    if (updateData.status === OrderStatus.COMPLETED && !updateData.resultAt) {
-      updateData.resultAt = new Date();
+    // Auto-set timestamps based on status changes
+    if (updateData.status === OrderStatus.IN_PROGRESS && !existing.startedAt) {
+      updateData.startedAt = new Date();
+    }
+
+    if (updateData.status === OrderStatus.COMPLETED) {
+      if (!updateData.resultAt) {
+        updateData.resultAt = new Date();
+      }
+      if (!existing.finishedAt) {
+        updateData.finishedAt = new Date();
+      }
     }
 
     const updated = await this.prisma.serviceOrder.update({
