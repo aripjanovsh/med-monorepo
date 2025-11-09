@@ -3,14 +3,16 @@
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { FileText, Calendar, User } from "lucide-react";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetBody,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -21,23 +23,22 @@ import { getOrderStatusVariant } from "../service-order.model";
 import { ORDER_STATUS_LABELS } from "../service-order.constants";
 import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
-import type { AnalysisResultData } from "./result-input-analysis";
+import type { SavedAnalysisData } from "@/features/analysis-form-builder";
 import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 
-type ServiceOrderResultDialogProps = {
-  order: ServiceOrderResponseDto | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+type ServiceOrderResultSheetOwnProps = {
+  order: ServiceOrderResponseDto;
   onEdit?: () => void;
 };
 
-export const ServiceOrderResultDialog = ({
-  order,
+type ServiceOrderResultSheetProps = ServiceOrderResultSheetOwnProps & DialogProps;
+
+export const ServiceOrderResultSheet = ({
   open,
   onOpenChange,
+  order,
   onEdit,
-}: ServiceOrderResultDialogProps) => {
-  if (!order) return null;
+}: ServiceOrderResultSheetProps) => {
 
   const performedByName = order.performedBy ? getEmployeeFullName(order.performedBy) : null;
   const hasResults =
@@ -46,13 +47,23 @@ export const ServiceOrderResultDialog = ({
   // Определяем тип результата
   const isAnalysisResult =
     order.resultData &&
-    "rows" in order.resultData &&
-    "templateId" in order.resultData;
+    "templateId" in order.resultData &&
+    (
+      // Новый формат SavedAnalysisData
+      ("filledData" in order.resultData && "rows" in (order.resultData as any).filledData) ||
+      // Старый формат FilledAnalysisData (обратная совместимость)
+      ("rows" in order.resultData && !("formData" in order.resultData))
+    );
 
   const isProtocolResult =
     order.resultData &&
     "templateId" in order.resultData &&
-    ("filledData" in order.resultData || "formData" in order.resultData);
+    (
+      // Новый формат SavedProtocolData
+      ("filledData" in order.resultData && !("rows" in (order.resultData as any).filledData)) ||
+      // Старый формат (обратная совместимость)
+      "formData" in order.resultData
+    );
 
   // Вычисляем возраст пациента
   const patientAge = order.patient.dateOfBirth
@@ -63,18 +74,19 @@ export const ServiceOrderResultDialog = ({
     : undefined;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-3xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Результаты назначения
-          </DialogTitle>
-          <DialogDescription>
+          </SheetTitle>
+          <SheetDescription>
             {order.service.name}
             {order.service.code && ` (${order.service.code})`}
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
+        <SheetBody>
 
         <div className="space-y-4">
           {/* Статус и даты */}
@@ -133,7 +145,23 @@ export const ServiceOrderResultDialog = ({
               {/* Результаты анализа */}
               {isAnalysisResult && order.resultData && (
                 <AnalysisResultView
-                  data={order.resultData as unknown as AnalysisResultData}
+                  data={
+                    "filledData" in order.resultData
+                      ? // Новый формат SavedAnalysisData
+                        (order.resultData as unknown as SavedAnalysisData)
+                      : // Старый формат FilledAnalysisData - конвертируем в новый
+                        ({
+                          templateId: (order.resultData as any).templateId,
+                          templateName: (order.resultData as any).templateName || "",
+                          templateContent: { version: 1, sections: [] },
+                          filledData: order.resultData as any,
+                          metadata: {
+                            filledAt: new Date().toISOString(),
+                            patientId: order.patient.id,
+                            serviceOrderId: order.id,
+                          },
+                        } as unknown as SavedAnalysisData)
+                  }
                   patientGender={order.patient.gender}
                   patientAge={patientAge}
                 />
@@ -202,7 +230,8 @@ export const ServiceOrderResultDialog = ({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+        </SheetBody>
+      </SheetContent>
+    </Sheet>
   );
 };

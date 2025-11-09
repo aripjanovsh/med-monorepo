@@ -35,10 +35,24 @@ export class AnalysisTemplateService {
       );
     }
 
-    // Validate parameters array
-    if (!Array.isArray(createDto.parameters) || createDto.parameters.length === 0) {
+    // Validate content (JSON string)
+    if (!createDto.content || createDto.content.trim() === "") {
       throw new BadRequestException(
-        "At least one parameter is required for analysis template",
+        "Template content is required for analysis template",
+      );
+    }
+
+    // Validate JSON structure
+    try {
+      const parsed = JSON.parse(createDto.content);
+      if (!parsed.sections || !Array.isArray(parsed.sections) || parsed.sections.length === 0) {
+        throw new BadRequestException(
+          "Template must have at least one section with parameters",
+        );
+      }
+    } catch (error) {
+      throw new BadRequestException(
+        "Invalid JSON content format",
       );
     }
 
@@ -47,7 +61,7 @@ export class AnalysisTemplateService {
         name: createDto.name,
         code: createDto.code,
         description: createDto.description,
-        parameters: createDto.parameters as any,
+        content: createDto.content,
         organizationId: createDto.organizationId,
         createdBy: userId,
       },
@@ -167,11 +181,25 @@ export class AnalysisTemplateService {
       }
     }
 
-    // Validate parameters if provided
-    if (updateDto.parameters) {
-      if (!Array.isArray(updateDto.parameters) || updateDto.parameters.length === 0) {
+    // Validate content if provided
+    if (updateDto.content) {
+      if (updateDto.content.trim() === "") {
         throw new BadRequestException(
-          "At least one parameter is required for analysis template",
+          "Template content cannot be empty",
+        );
+      }
+      
+      // Validate JSON structure
+      try {
+        const parsed = JSON.parse(updateDto.content);
+        if (!parsed.sections || !Array.isArray(parsed.sections) || parsed.sections.length === 0) {
+          throw new BadRequestException(
+            "Template must have at least one section with parameters",
+          );
+        }
+      } catch (error) {
+        throw new BadRequestException(
+          "Invalid JSON content format",
         );
       }
     }
@@ -182,7 +210,6 @@ export class AnalysisTemplateService {
       where: { id },
       data: {
         ...updateData,
-        parameters: updateData.parameters as any,
         updatedBy: userId,
       },
       include: {

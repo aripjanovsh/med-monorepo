@@ -31,13 +31,28 @@ export interface AnalysisParameterDto {
   isRequired: boolean;
 }
 
+// Analysis Section (new format)
+export interface AnalysisSectionDto {
+  id: string;
+  title: string;
+  description?: string;
+  parameters: AnalysisParameterDto[];
+}
+
+// Analysis Template Content (new format with sections)
+export interface AnalysisTemplateContentDto {
+  version: number;
+  sections: AnalysisSectionDto[];
+}
+
 // Analysis Template Response DTO from API
 export interface AnalysisTemplateResponseDto {
   id: string;
   name: string;
   code: string;
   description?: string;
-  parameters: AnalysisParameterDto[];
+  // content - JSON string with sections structure
+  content: string;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }
@@ -47,7 +62,7 @@ export interface CreateAnalysisTemplateRequestDto {
   name: string;
   code: string;
   description?: string;
-  parameters: Omit<AnalysisParameterDto, "id">[];
+  content: string; // JSON string
 }
 
 // Update Analysis Template Request DTO

@@ -22,26 +22,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ReferenceRangesModal } from "./reference-ranges-modal";
-import { PARAMETER_TYPE_OPTIONS } from "../analysis-template.constants";
+import type { AnalysisParameter } from "../../types/analysis-form.types";
+import { PARAMETER_TYPE_OPTIONS } from "../../constants/analysis-form.constants";
+import {
+  createNewParameter,
+  getSimpleRange,
+  updateSimpleRange,
+  formatRangePreview,
+} from "../../utils/analysis-form.helpers";
 
-type Parameter = {
-  id: string;
-  name: string;
-  unit?: string;
-  type: "NUMBER" | "TEXT" | "BOOLEAN";
-  referenceRanges?: Record<string, { min?: number; max?: number }>;
-  isRequired: boolean;
+type ParametersEditorTableProps = {
+  parameters: AnalysisParameter[];
+  onParametersChange: (parameters: AnalysisParameter[]) => void;
 };
 
-type ParametersTableProps = {
-  parameters: Parameter[];
-  onParametersChange: (parameters: Parameter[]) => void;
-};
-
-export const ParametersTable = ({
+export const ParametersEditorTable = ({
   parameters,
   onParametersChange,
-}: ParametersTableProps) => {
+}: ParametersEditorTableProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParameterId, setSelectedParameterId] = useState<string | null>(
     null
@@ -50,14 +48,7 @@ export const ParametersTable = ({
   const selectedParameter = parameters.find((p) => p.id === selectedParameterId);
 
   const addParameter = () => {
-    const newParameter: Parameter = {
-      id: Date.now().toString(),
-      name: "",
-      unit: "",
-      type: "NUMBER",
-      referenceRanges: {},
-      isRequired: false,
-    };
+    const newParameter = createNewParameter();
     onParametersChange([...parameters, newParameter]);
   };
 
@@ -68,7 +59,7 @@ export const ParametersTable = ({
   const duplicateParameter = (id: string) => {
     const param = parameters.find((p) => p.id === id);
     if (param) {
-      const newParam: Parameter = {
+      const newParam: AnalysisParameter = {
         ...param,
         id: Date.now().toString(),
         name: `${param.name} (копия)`,
@@ -77,7 +68,7 @@ export const ParametersTable = ({
     }
   };
 
-  const updateParameter = (id: string, field: keyof Parameter, value: any) => {
+  const updateParameter = (id: string, field: keyof AnalysisParameter, value: unknown) => {
     onParametersChange(
       parameters.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
@@ -88,32 +79,13 @@ export const ParametersTable = ({
     setModalOpen(true);
   };
 
-  const handleRangesSave = (
-    ranges: Record<string, { min?: number; max?: number }>
-  ) => {
+  const handleRangesSave = (ranges: Record<string, { min?: number; max?: number }>) => {
     if (selectedParameterId) {
       updateParameter(selectedParameterId, "referenceRanges", ranges);
     }
   };
 
-  const getSimpleRange = (
-    ranges?: Record<string, { min?: number; max?: number }>
-  ): { min?: number; max?: number } => {
-    if (!ranges || Object.keys(ranges).length === 0) {
-      return {};
-    }
-    // Prioritize default range if exists
-    if (ranges.default) {
-      return ranges.default;
-    }
-    // Otherwise get first non-empty range
-    const firstRange = Object.values(ranges).find(
-      (r) => r && (r.min !== undefined || r.max !== undefined)
-    );
-    return firstRange || {};
-  };
-
-  const updateSimpleRange = (
+  const updateSimpleRangeValue = (
     id: string,
     field: "min" | "max",
     value: string
@@ -122,50 +94,9 @@ export const ParametersTable = ({
     if (!param) return;
 
     const numValue = value === "" ? undefined : parseFloat(value);
-    const currentRanges = param.referenceRanges || {};
+    const updatedRanges = updateSimpleRange(param.referenceRanges, field, numValue);
     
-    // If has extended ranges, update first one only
-    if (Object.keys(currentRanges).length > 0) {
-      const firstKey = Object.keys(currentRanges)[0];
-      const updatedRanges = {
-        ...currentRanges,
-        [firstKey]: {
-          ...currentRanges[firstKey],
-          [field]: numValue,
-        },
-      };
-      updateParameter(id, "referenceRanges", updatedRanges);
-    } else {
-      // Create default range
-      updateParameter(id, "referenceRanges", {
-        default: { [field]: numValue },
-      });
-    }
-  };
-
-  const formatRangePreview = (
-    ranges?: Record<string, { min?: number; max?: number }>
-  ): string => {
-    if (!ranges || Object.keys(ranges).length === 0) {
-      return "Нет диапазонов";
-    }
-
-    const groupLabels: Record<string, string> = {
-      men: "М",
-      women: "Ж",
-      children: "Д",
-      default: "Общий",
-    };
-
-    return Object.entries(ranges)
-      .slice(0, 3)
-      .map(([key, range]) => {
-        const label = groupLabels[key] || key;
-        const min = range.min !== undefined ? range.min : "—";
-        const max = range.max !== undefined ? range.max : "—";
-        return `${label}: ${min}-${max}`;
-      })
-      .join(", ") + (Object.keys(ranges).length > 3 ? "..." : "");
+    updateParameter(id, "referenceRanges", updatedRanges);
   };
 
   return (
@@ -262,7 +193,7 @@ export const ParametersTable = ({
                                       .min ?? ""
                                   }
                                   onChange={(e) =>
-                                    updateSimpleRange(
+                                    updateSimpleRangeValue(
                                       parameter.id,
                                       "min",
                                       e.target.value
@@ -280,7 +211,7 @@ export const ParametersTable = ({
                                       .max ?? ""
                                   }
                                   onChange={(e) =>
-                                    updateSimpleRange(
+                                    updateSimpleRangeValue(
                                       parameter.id,
                                       "max",
                                       e.target.value

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,398 +7,256 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Organization (Tenant)
 model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  address     String?
-  phone       String?
-  email       String?
-  website     String?
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  users         User[]
-  patients      Patient[]
-  employees     Employee[]
-  appointments  Appointment[]
-  medicalRecords MedicalRecord[]
-  departments   Department[]
-  services      Service[]
-  roles         Role[]
-  titles Title[]
-  serviceTypes  ServiceType[]
-  protocolTemplates ProtocolTemplate[]
-  analysisTemplates AnalysisTemplate[]
-  visits        Visit[] // визиты организации
-  serviceOrders ServiceOrder[] // назначения услуг
+  id                   String                @id @default(uuid())
+  name                 String
+  slug                 String                @unique
+  address              String?
+  phone                String?
+  email                String?
+  website              String?
+  description          String?
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  analysisTemplates    AnalysisTemplate[]
+  appointments         Appointment[]
+  departments          Department[]
+  employees            Employee[]
+  invoices             Invoice[]
+  medicalRecords       MedicalRecord[]
   parameterDefinitions ParameterDefinition[]
-  patientParameters    PatientParameter[]
   allergies            PatientAllergy[]
-  invoices      Invoice[]
-  payments      Payment[]
+  patientParameters    PatientParameter[]
+  patients             Patient[]
+  payments             Payment[]
+  protocolTemplates    ProtocolTemplate[]
+  roles                Role[]
+  serviceOrders        ServiceOrder[]
+  serviceTypes         ServiceType[]
+  services             Service[]
+  titles               Title[]
+  users                User[]
+  visits               Visit[]
 
   @@map("organizations")
 }
 
-// User roles enum
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  DOCTOR
-  NURSE
-  RECEPTIONIST
-  PATIENT
-}
-
-// Employee status enum
-enum EmployeeStatus {
-  ACTIVE
-  INACTIVE
-  ON_LEAVE
-  TERMINATED
-}
-
-// Permission actions enum
-enum PermissionAction {
-  CREATE
-  READ
-  UPDATE
-  DELETE
-  MANAGE
-}
-
-// Users
 model User {
-  id             String    @id @default(uuid())
-  phone          String    @unique
-  password       String
-  role           UserRole
-  isActive       Boolean   @default(true)
-  lastLoginAt    DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Multi-tenant
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  employee                  Employee?
-  createdAppointments       Appointment[] @relation("AppointmentCreatedBy")
-  confirmedAppointments     Appointment[] @relation("AppointmentConfirmedBy")
-  canceledAppointments      Appointment[] @relation("AppointmentCanceledBy")
-  roleAssignments           UserRole_Assignment[]
-  performedOrders           ServiceOrder[] @relation("PerformedBy") // выполненные заказы
+  id                    String                @id @default(uuid())
+  phone                 String                @unique
+  password              String
+  role                  UserRole
+  isActive              Boolean               @default(true)
+  lastLoginAt           DateTime?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  organizationId        String?
+  canceledAppointments  Appointment[]         @relation("AppointmentCanceledBy")
+  confirmedAppointments Appointment[]         @relation("AppointmentConfirmedBy")
+  createdAppointments   Appointment[]         @relation("AppointmentCreatedBy")
+  employee              Employee?
+  performedOrders       ServiceOrder[]        @relation("PerformedBy")
+  roleAssignments       UserRole_Assignment[]
+  organization          Organization?         @relation(fields: [organizationId], references: [id])
 
   @@map("users")
 }
 
-
-
-// Patients
 model Patient {
-  id                String        @id @default(uuid())
-  patientId         String?       // Unique by organization
-  firstName         String
-  middleName        String?       // Отчество
-  lastName          String
-  dateOfBirth       DateTime      @db.Date
-  gender            Gender
-  status            PatientStatus @default(ACTIVE)
-  lastVisitedAt     DateTime?
-  
-  // Passport Data
-  passportSeries    String?       // Серия паспорта
-  passportNumber    String?       // Номер паспорта
-  passportIssuedBy  String?       // Кем выдан
-  passportIssueDate DateTime?     @db.Date // Дата выдачи
-  passportExpiryDate DateTime?    @db.Date // Действителен до
-  
-  // Languages (relations to Language model)
+  id                  String             @id @default(uuid())
+  patientId           String?
+  firstName           String
+  middleName          String?
+  lastName            String
+  dateOfBirth         DateTime           @db.Date
+  gender              Gender
+  status              PatientStatus      @default(ACTIVE)
+  lastVisitedAt       DateTime?
+  passportSeries      String?
+  passportNumber      String?
+  passportIssuedBy    String?
+  passportIssueDate   DateTime?          @db.Date
+  passportExpiryDate  DateTime?          @db.Date
   primaryLanguageId   String?
-  primaryLanguage     Language? @relation("PatientPrimaryLanguage", fields: [primaryLanguageId], references: [id])
-  
   secondaryLanguageId String?
-  secondaryLanguage   Language? @relation("PatientSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
-  
-  // Address (relations to Location model)
-  countryId  String?
-  country    Location? @relation("PatientCountry", fields: [countryId], references: [id])
-  
-  regionId   String?
-  region     Location? @relation("PatientRegion", fields: [regionId], references: [id])
-  
-  cityId     String?
-  city       Location? @relation("PatientCity", fields: [cityId], references: [id])
-  
-  districtId String?
-  district   Location? @relation("PatientDistrict", fields: [districtId], references: [id])
-  
-  address    String? // Specific street address
-  
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Multi-tenant
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-  contacts       PatientContact[]
-  doctors        PatientDoctor[] // Many-to-many relation with doctors
-  visits         Visit[] // визиты пациента
-  serviceOrders  ServiceOrder[] // назначения пациента
-  allergies      PatientAllergy[] // аллергии пациента
-  patientParameters PatientParameter[] // параметры пациента
-  invoices       Invoice[] // счета пациента
+  countryId           String?
+  regionId            String?
+  cityId              String?
+  districtId          String?
+  address             String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  organizationId      String
+  appointments        Appointment[]
+  invoices            Invoice[]
+  medicalRecords      MedicalRecord[]
+  allergies           PatientAllergy[]
+  contacts            PatientContact[]
+  doctors             PatientDoctor[]
+  patientParameters   PatientParameter[]
+  city                Location?          @relation("PatientCity", fields: [cityId], references: [id])
+  country             Location?          @relation("PatientCountry", fields: [countryId], references: [id])
+  district            Location?          @relation("PatientDistrict", fields: [districtId], references: [id])
+  organization        Organization       @relation(fields: [organizationId], references: [id])
+  primaryLanguage     Language?          @relation("PatientPrimaryLanguage", fields: [primaryLanguageId], references: [id])
+  region              Location?          @relation("PatientRegion", fields: [regionId], references: [id])
+  secondaryLanguage   Language?          @relation("PatientSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
+  serviceOrders       ServiceOrder[]
+  visits              Visit[]
 
   @@unique([patientId, organizationId])
   @@map("patients")
 }
 
-// Patient Contacts
 model PatientContact {
-  id                      String             @id @default(uuid())
-  relation                ContactRelationType
-  type                    ContactType
-  firstName               String?
-  lastName                String?
-  primaryPhone            String
-  secondaryPhone          String?
-  address                 String?
-  city                    String?
-  state                   String?
-  country                 String?
-  textNotificationsEnabled  Boolean         @default(false)
-  emailNotificationsEnabled Boolean         @default(false)
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
-
-  // Relations
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id                        String              @id @default(uuid())
+  relation                  ContactRelationType
+  type                      ContactType
+  firstName                 String?
+  lastName                  String?
+  primaryPhone              String
+  secondaryPhone            String?
+  address                   String?
+  city                      String?
+  state                     String?
+  country                   String?
+  textNotificationsEnabled  Boolean             @default(false)
+  emailNotificationsEnabled Boolean             @default(false)
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+  patientId                 String
+  patient                   Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@map("patient_contacts")
 }
 
-// Junction table for Patient-Doctor many-to-many relation
 model PatientDoctor {
   id         String   @id @default(uuid())
   patientId  String
-  employeeId String   // Doctor is an Employee
+  employeeId String
   assignedAt DateTime @default(now())
   isActive   Boolean  @default(true)
-
-  // Relations
-  patient  Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@unique([patientId, employeeId])
   @@map("patient_doctors")
 }
 
-// Departments
 model Department {
-  id          String   @id @default(uuid())
-  name        String
-  code        String?  // короткий код, например: LAB, USG, SURG
-  description String?
-  headId      String?  // заведующий отделением
-  isActive    Boolean  @default(true)
-  order       Int?     // для сортировки в интерфейсе
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Multi-tenant
+  id             String         @id @default(uuid())
+  name           String
+  code           String?
+  description    String?
+  headId         String?
+  isActive       Boolean        @default(true)
+  order          Int?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  head     Employee? @relation("DepartmentHead", fields: [headId], references: [id])
-  services Service[]
-  staff    Employee[] @relation("DepartmentStaff")
-  serviceOrders ServiceOrder[] // заказы, выполняемые отделением
+  head           Employee?      @relation("DepartmentHead", fields: [headId], references: [id])
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  staff          Employee[]     @relation("DepartmentStaff")
+  serviceOrders  ServiceOrder[]
+  services       Service[]
 
   @@unique([organizationId, name])
   @@unique([organizationId, code])
   @@map("departments")
 }
 
-// Service Type enum
-enum ServiceTypeEnum {
-  CONSULTATION   // приёмы врачей
-  LAB            // лабораторные анализы
-  DIAGNOSTIC     // инструментальные обследования
-  PROCEDURE      // манипуляции
-  OTHER
-}
-
-// Services
 model Service {
-  id           String          @id @default(uuid())
-  code         String
-  name         String
-  description  String?
-  type         ServiceTypeEnum
-  price        Decimal?        @db.Decimal(12, 2) // до 9 999 999 999.99
-  durationMin  Int?           // длительность в минутах
-  isActive     Boolean         @default(true)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-
-  // Multi-tenant
+  id             String          @id @default(uuid())
+  code           String
+  name           String
+  description    String?
+  type           ServiceTypeEnum
+  price          Decimal?        @db.Decimal(12, 2)
+  durationMin    Int?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-  employeeId   String?
-  employee     Employee?   @relation(fields: [employeeId], references: [id])
-  appointments Appointment[]
-  serviceOrders ServiceOrder[] // заказы этой услуги
-  invoiceItems  InvoiceItem[] // позиции в счетах
+  departmentId   String?
+  employeeId     String?
+  appointments   Appointment[]
+  invoiceItems   InvoiceItem[]
+  serviceOrders  ServiceOrder[]
+  department     Department?     @relation(fields: [departmentId], references: [id])
+  employee       Employee?       @relation(fields: [employeeId], references: [id])
+  organization   Organization    @relation(fields: [organizationId], references: [id])
 
   @@unique([code, organizationId])
   @@map("services")
 }
 
-// Appointment status enum
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  IN_QUEUE      // добавлено: пациент в очереди
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-// Appointment type enum
-enum AppointmentType {
-  STANDARD      // обычная запись
-  WITHOUT_QUEUE // без очереди
-  EMERGENCY     // экстренно
-}
-
-// Visit status enum
-enum VisitStatus {
-  WAITING      // пациент в очереди
-  IN_PROGRESS  // прием идет
-  COMPLETED    // прием завершен
-  CANCELED     // отменен
-}
-
-// Medical record type enum
-enum RecordType {
-  COMPLAINTS     // жалобы
-  EXAMINATION    // осмотр
-  DIAGNOSIS      // диагноз
-  PRESCRIPTION   // назначения
-  NOTE           // дополнительные записи
-}
-
-// Appointments
 model Appointment {
-  id          String            @id @default(uuid())
-  scheduledAt DateTime
-  duration    Int               // in minutes
-  status      AppointmentStatus @default(SCHEDULED)
-  type        AppointmentType   @default(STANDARD)
-  notes       String?
-  reason      String?
-  
-  // Дополнительные поля для управления записью
-  roomNumber    String?           // номер кабинета
-  confirmedById String?           // кто подтвердил запись
-  confirmedBy   User?   @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
-  confirmedAt   DateTime?         // время подтверждения
-  canceledById  String?           // кто отменил запись
-  canceledBy    User?   @relation("AppointmentCanceledBy", fields: [canceledById], references: [id])
-  canceledAt    DateTime?         // время отмены
-  cancelReason  String?           // причина отмены
-  checkInAt     DateTime?         // время отметки прихода
-  checkOutAt    DateTime?         // время выхода
-  
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  // Multi-tenant
+  id             String            @id @default(uuid())
+  scheduledAt    DateTime
+  duration       Int
+  status         AppointmentStatus @default(SCHEDULED)
+  type           AppointmentType   @default(STANDARD)
+  notes          String?
+  reason         String?
+  roomNumber     String?
+  confirmedById  String?
+  confirmedAt    DateTime?
+  canceledById   String?
+  canceledAt     DateTime?
+  cancelReason   String?
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-  
-  employeeId  String
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  
-  serviceId String?
-  service   Service? @relation(fields: [serviceId], references: [id])
-  
-  createdById String
-  createdBy   User   @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
-
-  visits        Visit[]           // один appointment может иметь несколько попыток визита
-  medicalRecord MedicalRecord?    // legacy, будет удалено после миграции
+  patientId      String
+  employeeId     String
+  serviceId      String?
+  createdById    String
+  canceledBy     User?             @relation("AppointmentCanceledBy", fields: [canceledById], references: [id])
+  confirmedBy    User?             @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
+  createdBy      User              @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
+  employee       Employee          @relation(fields: [employeeId], references: [id])
+  organization   Organization      @relation(fields: [organizationId], references: [id])
+  patient        Patient           @relation(fields: [patientId], references: [id])
+  service        Service?          @relation(fields: [serviceId], references: [id])
+  medicalRecord  MedicalRecord?
+  visits         Visit[]
 
   @@map("appointments")
 }
 
-// Visits (Medical visits/appointments)
 model Visit {
-  id          String      @id @default(uuid())
-  visitDate   DateTime    @default(now())
-  status      VisitStatus @default(WAITING)
-  notes       String?
-  
-  // Queue management
-  queueNumber Int?        // позиция в очереди
-  queuedAt    DateTime?   // время постановки в очередь
-  
-  // Time tracking
-  startedAt   DateTime?   // начало приема
-  completedAt DateTime?   // завершение приема
-  
-  // Computed metrics (in minutes)
-  waitingTimeMinutes  Int? // время ожидания в минутах
-  serviceTimeMinutes  Int? // время приема в минутах
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  // Multi-tenant
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  appointmentId String?
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
-
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-
-  employeeId String // doctor (Employee)
-  employee   Employee @relation("VisitDoctor", fields: [employeeId], references: [id])
-
-  protocolId   String?
-  protocol     ProtocolTemplate? @relation(fields: [protocolId], references: [id])
-  protocolData String? // JSON string of filled protocol data
-
-  medicalRecords MedicalRecord[]
-  prescriptions  Prescription[]
-  serviceOrders  ServiceOrder[] // назначения в рамках визита
-  allergies      PatientAllergy[]
-  patientParameters PatientParameter[]
-  invoices       Invoice[] // счета за визит
+  id                 String             @id @default(uuid())
+  visitDate          DateTime           @default(now())
+  status             VisitStatus        @default(WAITING)
+  notes              String?
+  queueNumber        Int?
+  queuedAt           DateTime?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  waitingTimeMinutes Int?
+  serviceTimeMinutes Int?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  organizationId     String
+  appointmentId      String?
+  patientId          String
+  employeeId         String
+  protocolId         String?
+  protocolData       String?
+  invoices           Invoice[]
+  medicalRecords     MedicalRecord[]
+  allergies          PatientAllergy[]
+  patientParameters  PatientParameter[]
+  prescriptions      Prescription[]
+  serviceOrders      ServiceOrder[]
+  appointment        Appointment?       @relation(fields: [appointmentId], references: [id])
+  employee           Employee           @relation("VisitDoctor", fields: [employeeId], references: [id])
+  organization       Organization       @relation(fields: [organizationId], references: [id])
+  patient            Patient            @relation(fields: [patientId], references: [id])
+  protocol           ProtocolTemplate?  @relation(fields: [protocolId], references: [id])
 
   @@index([organizationId, employeeId, visitDate])
   @@index([organizationId, status])
@@ -409,349 +264,238 @@ model Visit {
   @@map("visits")
 }
 
-// Medical Records (structured records based on templates)
 model MedicalRecord {
-  id        String     @id @default(uuid())
-  type      RecordType
-  content   Json       // хранит заполненные данные по шаблону ProtocolTemplate
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  // Multi-tenant
+  id             String       @id @default(uuid())
+  type           RecordType
+  content        Json
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
   organizationId String
+  visitId        String
+  patientId      String
+  createdById    String
+  employeeId     String?
+  appointmentId  String?      @unique
+  diagnosis      String?
+  symptoms       String?
+  treatment      String?
+  medications    String?
+  notes          String?
+  followUp       DateTime?
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+  createdBy      Employee     @relation(fields: [createdById], references: [id])
+  employee       Employee?    @relation("LegacyMedicalRecordEmployee", fields: [employeeId], references: [id])
   organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  visitId String
-  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-
-  createdById String   // doctor who created the record
-  createdBy   Employee @relation(fields: [createdById], references: [id])
-
-  // Legacy fields - will be removed after migration
-  employeeId    String?  // deprecated, use createdById
-  employee      Employee? @relation("LegacyMedicalRecordEmployee", fields: [employeeId], references: [id])
-  appointmentId String?  @unique // deprecated, use visitId
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
-  diagnosis     String?  // deprecated
-  symptoms      String?  // deprecated
-  treatment     String?  // deprecated
-  medications   String?  // deprecated
-  notes         String?  // deprecated
-  followUp      DateTime? // deprecated
+  patient        Patient      @relation(fields: [patientId], references: [id])
+  visit          Visit        @relation(fields: [visitId], references: [id], onDelete: Cascade)
 
   @@map("medical_records")
 }
 
-// Prescriptions (назначенные лекарства)
 model Prescription {
-  id        String   @id @default(uuid())
-  name      String   // название препарата
-  dosage    String?  // дозировка
-  frequency String?  // частота приёма
-  duration  String?  // длительность
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  visitId String
-  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
-  createdById String   // doctor who created the prescription
+  id          String   @id @default(uuid())
+  name        String
+  dosage      String?
+  frequency   String?
+  duration    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  visitId     String
+  createdById String
   createdBy   Employee @relation(fields: [createdById], references: [id])
+  visit       Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
 
   @@map("prescriptions")
 }
 
-// Gender enum
-enum Gender {
-  MALE
-  FEMALE
-}
-
-// Patient status enum
-enum PatientStatus {
-  ACTIVE
-  INACTIVE
-  DECEASED
-}
-
-// Contact relation type enum
-enum ContactRelationType {
-  SELF
-  PARENT
-  GUARDIAN
-  EMERGENCY
-  OTHER
-}
-
-// Contact type enum
-enum ContactType {
-  PRIMARY
-  SECONDARY
-}
-
-// Employees
 model Employee {
-  id           String         @id @default(uuid())
-  userId       String?        @unique // Optional - not all employees can login
-  employeeId   String?       
-  firstName     String
-  middleName   String?        // Отчество
-  lastName     String
-  dateOfBirth  DateTime?      @db.Date
-  gender       Gender?
-  email        String?        // For employees without user accounts
-  phone        String?
-  secondaryPhone String?
-  workPhone    String?
-  
-  // Passport Data
-  passportSeries    String?       // Серия паспорта
-  passportNumber    String?       // Номер паспорта
-  passportIssuedBy  String?       // Кем выдан
-  passportIssueDate DateTime?     @db.Date // Дата выдачи
-  passportExpiryDate DateTime?    @db.Date // Действителен до
-  
-  titleId      String?        // Reference to Title model
-  title        Title?         @relation(fields: [titleId], references: [id])
-  
-  // Employment Details
-  salary       Decimal?       @db.Decimal(12, 2) // до 9 999 999 999.99
-  hireDate     DateTime?      @db.Date
-  terminationDate DateTime?   @db.Date
-  status       EmployeeStatus @default(ACTIVE)
-  
-  workSchedule   Json?      // JSON or string describing work schedule
-  
-  // Languages (relations to Language model)
-  primaryLanguageId   String?
-  primaryLanguage     Language? @relation("EmployeePrimaryLanguage", fields: [primaryLanguageId], references: [id])
-  
-  secondaryLanguageId String?
-  secondaryLanguage   Language? @relation("EmployeeSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
-  
-  // Address (relations to Location model)
-  countryId  String?
-  country    Location? @relation("EmployeeCountry", fields: [countryId], references: [id])
-  
-  regionId   String?
-  region     Location? @relation("EmployeeRegion", fields: [regionId], references: [id])
-  
-  cityId     String?
-  city       Location? @relation("EmployeeCity", fields: [cityId], references: [id])
-  
-  districtId String?
-  district   Location? @relation("EmployeeDistrict", fields: [districtId], references: [id])
-  
-  address    String? // Specific street address
-  
-  // Notifications
-  textNotificationsEnabled Boolean @default(false)
-  
-  // Additional Info
-  notes        String?
-  
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-
-  // Multi-tenant
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  user           User?         @relation(fields: [userId], references: [id])
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[] @relation("LegacyMedicalRecordEmployee")
-  medicalRecordsCreated MedicalRecord[] // медицинские записи, созданные этим врачом
-  services       Service[]
-  serviceTypes   EmployeeServiceType[]
-  patientDoctors PatientDoctor[] // Many-to-many relation with patients
-  visits         Visit[] @relation("VisitDoctor") // визиты как врач
-  prescriptions  Prescription[] // назначенные лекарства
-  doctorOrders   ServiceOrder[] @relation("DoctorOrders") // назначения врача
-  departmentsAsHead Department[] @relation("DepartmentHead") // отделения, которыми руководит
-  departmentId   String?
-  department     Department? @relation("DepartmentStaff", fields: [departmentId], references: [id])
-  recordedParameters PatientParameter[]
-  recordedAllergies  PatientAllergy[]
-  createdInvoices    Invoice[]  @relation("EmployeeInvoices") // созданные счета
-  processedPayments  Payment[]  @relation("EmployeePayments") // обработанные платежи
+  id                       String                @id @default(uuid())
+  userId                   String?               @unique
+  employeeId               String?
+  firstName                String
+  middleName               String?
+  lastName                 String
+  dateOfBirth              DateTime?             @db.Date
+  gender                   Gender?
+  email                    String?
+  phone                    String?
+  secondaryPhone           String?
+  workPhone                String?
+  passportSeries           String?
+  passportNumber           String?
+  passportIssuedBy         String?
+  passportIssueDate        DateTime?             @db.Date
+  passportExpiryDate       DateTime?             @db.Date
+  titleId                  String?
+  salary                   Decimal?              @db.Decimal(12, 2)
+  hireDate                 DateTime?             @db.Date
+  terminationDate          DateTime?             @db.Date
+  status                   EmployeeStatus        @default(ACTIVE)
+  workSchedule             Json?
+  primaryLanguageId        String?
+  secondaryLanguageId      String?
+  countryId                String?
+  regionId                 String?
+  cityId                   String?
+  districtId               String?
+  address                  String?
+  textNotificationsEnabled Boolean               @default(false)
+  notes                    String?
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  organizationId           String
+  departmentId             String?
+  appointments             Appointment[]
+  departmentsAsHead        Department[]          @relation("DepartmentHead")
+  serviceTypes             EmployeeServiceType[]
+  city                     Location?             @relation("EmployeeCity", fields: [cityId], references: [id])
+  country                  Location?             @relation("EmployeeCountry", fields: [countryId], references: [id])
+  department               Department?           @relation("DepartmentStaff", fields: [departmentId], references: [id])
+  district                 Location?             @relation("EmployeeDistrict", fields: [districtId], references: [id])
+  organization             Organization          @relation(fields: [organizationId], references: [id])
+  primaryLanguage          Language?             @relation("EmployeePrimaryLanguage", fields: [primaryLanguageId], references: [id])
+  region                   Location?             @relation("EmployeeRegion", fields: [regionId], references: [id])
+  secondaryLanguage        Language?             @relation("EmployeeSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
+  title                    Title?                @relation(fields: [titleId], references: [id])
+  user                     User?                 @relation(fields: [userId], references: [id])
+  createdInvoices          Invoice[]             @relation("EmployeeInvoices")
+  medicalRecordsCreated    MedicalRecord[]
+  medicalRecords           MedicalRecord[]       @relation("LegacyMedicalRecordEmployee")
+  recordedAllergies        PatientAllergy[]
+  patientDoctors           PatientDoctor[]
+  recordedParameters       PatientParameter[]
+  processedPayments        Payment[]             @relation("EmployeePayments")
+  prescriptions            Prescription[]
+  doctorOrders             ServiceOrder[]        @relation("DoctorOrders")
+  services                 Service[]
+  visits                   Visit[]               @relation("VisitDoctor")
 
   @@unique([employeeId, organizationId])
-
   @@map("employees")
 }
 
-// Roles (custom roles beyond basic UserRole enum)
 model Role {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  isSystem    Boolean  @default(false) // System roles cannot be deleted
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Multi-tenant
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  permissions    RolePermission[]
+  id              String                @id @default(uuid())
+  name            String
+  description     String?
+  isActive        Boolean               @default(true)
+  isSystem        Boolean               @default(false)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  organizationId  String
+  permissions     RolePermission[]
+  organization    Organization          @relation(fields: [organizationId], references: [id])
   userAssignments UserRole_Assignment[]
 
   @@unique([name, organizationId])
   @@map("roles")
 }
 
-// Permissions
 model Permission {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  resource    String   // e.g., 'users', 'patients', 'appointments'
-  action      PermissionAction
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  id              String           @id @default(uuid())
+  name            String           @unique
+  resource        String
+  action          PermissionAction
+  description     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   rolePermissions RolePermission[]
 
   @@unique([resource, action])
   @@map("permissions")
 }
 
-// Role-Permission junction table
 model RolePermission {
-  id           String @id @default(uuid())
+  id           String     @id @default(uuid())
   roleId       String
   permissionId String
-
-  // Relations
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
 }
 
-// User-Role assignments (for custom roles)
 model UserRole_Assignment {
-  id        String   @id @default(uuid())
-  userId    String
-  roleId    String
-  assignedAt DateTime @default(now())
-  assignedBy String?  // User ID who assigned this role
+  id         String    @id @default(uuid())
+  userId     String
+  roleId     String
+  assignedAt DateTime  @default(now())
+  assignedBy String?
   expiresAt  DateTime?
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role       Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@map("user_role_assignments")
 }
 
-// Title Dictionary (Master Data)
 model Title {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Multi-tenant
+  id             String       @id @default(uuid())
+  name           String
+  description    String?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
   organizationId String
+  employees      Employee[]
   organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  employees Employee[]
 
   @@unique([name, organizationId])
   @@map("titles")
 }
 
-// Service Type Dictionary (Master Data)
 model ServiceType {
-  id          String   @id @default(uuid())
-  name        String
-  code        String?  // Код типа услуги (например, "CONSULTATION", "DIAGNOSTICS")
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Multi-tenant
+  id             String                @id @default(uuid())
+  name           String
+  code           String?
+  description    String?
+  isActive       Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  employees EmployeeServiceType[]
+  employees      EmployeeServiceType[]
+  organization   Organization          @relation(fields: [organizationId], references: [id])
 
   @@unique([name, organizationId])
   @@unique([code, organizationId])
   @@map("service_types")
 }
 
-// Junction table for Employee-ServiceType many-to-many relation
 model EmployeeServiceType {
-  id           String      @id @default(uuid())
-  employeeId   String
+  id            String      @id @default(uuid())
+  employeeId    String
   serviceTypeId String
-  
-  employee     Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  serviceType  ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
 
   @@unique([employeeId, serviceTypeId])
   @@map("employee_service_types")
 }
 
-// Geographical Entities (Master Data)
-
-// Location type enum
-enum LocationType {
-  COUNTRY   // Country (Узбекистан)
-  REGION    // Region/Oblast/Republic (Ташкентская область, город Ташкент, Республика Каракалпакстан)
-  CITY      // City (Андижан, Бухара)
-  DISTRICT  // District/Tuman (Чиланзарский район, Бустанлыкский район)
-}
-
-// Location Dictionary (Master Data) - Hierarchical structure
 model Location {
-  id          String       @id @default(uuid())
-  name        String
-  code        String?      // Location code (e.g., "UZ", "TAS", "CHI")
-  type        LocationType
-  weight      Int          @default(0) // For sorting within the same level
-  description String?
-  // Precomputed search field containing keywords and transliterations (lowercased)
-  searchField String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  // Self-referencing hierarchy
-  parentId String?
-  parent   Location? @relation("LocationHierarchy", fields: [parentId], references: [id])
-  children Location[] @relation("LocationHierarchy")
-
-  // Relations to Employee
-  employeesAsCountry  Employee[] @relation("EmployeeCountry")
-  employeesAsRegion   Employee[] @relation("EmployeeRegion")
-  employeesAsCity     Employee[] @relation("EmployeeCity")
-  employeesAsDistrict Employee[] @relation("EmployeeDistrict")
-  
-  // Relations to Patient
-  patientsAsCountry   Patient[]  @relation("PatientCountry")
-  patientsAsRegion    Patient[]  @relation("PatientRegion")
-  patientsAsCity      Patient[]  @relation("PatientCity")
-  patientsAsDistrict  Patient[]  @relation("PatientDistrict")
+  id                  String       @id @default(uuid())
+  name                String
+  code                String?
+  type                LocationType
+  weight              Int          @default(0)
+  description         String?
+  searchField         String?
+  isActive            Boolean      @default(true)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  parentId            String?
+  employeesAsCity     Employee[]   @relation("EmployeeCity")
+  employeesAsCountry  Employee[]   @relation("EmployeeCountry")
+  employeesAsDistrict Employee[]   @relation("EmployeeDistrict")
+  employeesAsRegion   Employee[]   @relation("EmployeeRegion")
+  parent              Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children            Location[]   @relation("LocationHierarchy")
+  patientsAsCity      Patient[]    @relation("PatientCity")
+  patientsAsCountry   Patient[]    @relation("PatientCountry")
+  patientsAsDistrict  Patient[]    @relation("PatientDistrict")
+  patientsAsRegion    Patient[]    @relation("PatientRegion")
 
   @@index([parentId])
   @@index([type])
@@ -762,19 +506,16 @@ model Location {
   @@map("locations")
 }
 
-// Language Dictionary (Master Data)
 model Language {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  code        String?  @unique // ISO language code (e.g., "uz" for Uzbek, "ru" for Russian)
-  nativeName  String?  // Native name of the language (e.g., "O'zbek tili" for Uzbek)
-  weight      Int      @default(0) // For sorting (lower values appear first)
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  id                 String     @id @default(uuid())
+  name               String     @unique
+  code               String?    @unique
+  nativeName         String?
+  weight             Int        @default(0)
+  description        String?
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
   primaryEmployees   Employee[] @relation("EmployeePrimaryLanguage")
   secondaryEmployees Employee[] @relation("EmployeeSecondaryLanguage")
   primaryPatients    Patient[]  @relation("PatientPrimaryLanguage")
@@ -785,51 +526,36 @@ model Language {
   @@map("languages")
 }
 
-// Protocol Templates
 model ProtocolTemplate {
-  id           String   @id @default(uuid())
-  name         String
-  description  String
-  content      String   // JSON content from form builder
-  templateType String   @default("formbuilder") // Only "formbuilder" supported
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  updatedBy    String?
-
-  // Multi-tenant
+  id             String         @id @default(uuid())
+  name           String
+  description    String
+  content        String
+  templateType   String         @default("richtext")
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  createdBy      String?
+  updatedBy      String?
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Relations
-  visits Visit[] // визиты, использующие этот шаблон
-  serviceOrders ServiceOrder[] // заказы с протоколом
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  serviceOrders  ServiceOrder[]
+  visits         Visit[]
 
   @@map("protocol_templates")
 }
 
-// Parameter Types
-enum ParameterType {
-  NUMBER
-  TEXT
-  BOOLEAN
-}
-
-// Analysis Templates
 model AnalysisTemplate {
-  id          String   @id @default(uuid())
-  name        String
-  code        String
-  description String?
-  parameters  Json // Array of parameter objects
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String?
-  updatedBy   String?
-
-  // Multi-tenant
+  id             String       @id @default(uuid())
+  name           String
+  code           String
+  description    String?
+  content        String       // JSON content with sections structure
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  createdBy      String?
+  updatedBy      String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
@@ -839,78 +565,42 @@ model AnalysisTemplate {
   @@map("analysis_templates")
 }
 
-// Order Status enum
-enum OrderStatus {
-  ORDERED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-// Payment Status enum
-enum PaymentStatus {
-  UNPAID
-  PAID
-  PARTIALLY_PAID
-  REFUNDED
-}
-
-// Queue Status enum (for department queues)
-enum QueueStatus {
-  WAITING       // В очереди
-  IN_PROGRESS   // Обслуживается
-  COMPLETED     // Завершено
-  SKIPPED       // Пропущено (временно убран из очереди)
-}
-
 /// ===============================
-///  SERVICE ORDER (назначения врача)
+/// SERVICE ORDER (назначения врача)
 /// ===============================
 model ServiceOrder {
-  id                String   @id @default(uuid())
-
-  patientId         String
-  patient           Patient  @relation(fields: [patientId], references: [id])
-
-  visitId           String?
-  visit             Visit?   @relation(fields: [visitId], references: [id])
-
-  doctorId          String
-  doctor            Employee @relation("DoctorOrders", fields: [doctorId], references: [id])
-
-  serviceId         String
-  service           Service  @relation(fields: [serviceId], references: [id])
-
-  departmentId      String?
-  department        Department? @relation(fields: [departmentId], references: [id])
-
+  id                 String             @id @default(uuid())
+  patientId          String
+  visitId            String?
+  doctorId           String
+  serviceId          String
+  departmentId       String?
   protocolTemplateId String?
-  protocolTemplate   ProtocolTemplate? @relation(fields: [protocolTemplateId], references: [id])
-
-  status            OrderStatus   @default(ORDERED)
-  paymentStatus     PaymentStatus @default(UNPAID)
-
-  // Queue fields (populated after payment)
-  queueNumber       Int?          // Position in department queue
-  queueStatus       QueueStatus?  // Queue status
-  queuedAt          DateTime?     // When added to queue (after payment)
-  startedAt         DateTime?     // When service started
-  finishedAt        DateTime?     // When service finished
-
-  resultText        String?
-  resultData        Json?
-  resultFileUrl     String?
-  resultAt          DateTime?
-  performedById     String?
-  performedBy       User?        @relation("PerformedBy", fields: [performedById], references: [id])
-  patientParameters PatientParameter[]
-  invoiceItem       InvoiceItem? // связь со счетом
-
-  organizationId    String
-  organization      Organization @relation(fields: [organizationId], references: [id])
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  status             OrderStatus        @default(ORDERED)
+  paymentStatus      PaymentStatus      @default(UNPAID)
+  queueNumber        Int?
+  queueStatus        QueueStatus?
+  queuedAt           DateTime?
+  startedAt          DateTime?
+  finishedAt         DateTime?
+  resultText         String?
+  resultData         Json?
+  resultFileUrl      String?
+  resultAt           DateTime?
+  performedById      String?
+  organizationId     String
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  invoiceItem        InvoiceItem?
+  patientParameters  PatientParameter[]
+  department         Department?        @relation(fields: [departmentId], references: [id])
+  doctor             Employee           @relation("DoctorOrders", fields: [doctorId], references: [id])
+  organization       Organization       @relation(fields: [organizationId], references: [id])
+  patient            Patient            @relation(fields: [patientId], references: [id])
+  performedBy        User?              @relation("PerformedBy", fields: [performedById], references: [id])
+  protocolTemplate   ProtocolTemplate?  @relation(fields: [protocolTemplateId], references: [id])
+  service            Service            @relation(fields: [serviceId], references: [id])
+  visit              Visit?             @relation(fields: [visitId], references: [id])
 
   @@index([patientId])
   @@index([visitId])
@@ -926,84 +616,48 @@ model ServiceOrder {
   @@map("service_orders")
 }
 
-/// ===============================
-///  PARAMETER & ALLERGY SUPPORT
-/// ===============================
-
-// Источник данных для параметра пациента
-enum ParameterSource {
-  MANUAL   // ручной ввод
-  LAB      // из лаборатории
-  DEVICE   // с медицинского устройства
-  IMPORT   // импорт данных
-}
-
-// Справочник определений параметров пациента
 model ParameterDefinition {
-  id             String         @id @default(uuid())
-  code           String         // уникальный код параметра, например: PULSE, BP_SYS
-  name           String         // человекочитаемое название
-  category       String         // категория: VITALS, ANTHROPOMETRY, etc.
-  valueType      ParameterType  // NUMBER | TEXT | BOOLEAN
+  id             String        @id @default(uuid())
+  code           String
+  name           String
+  category       String
+  valueType      ParameterType
   defaultUnit    String?
   normalRange    Json?
   description    String?
-  isActive       Boolean        @default(true)
-
-  // Multi-tenant
+  isActive       Boolean       @default(true)
   organizationId String
-  organization   Organization   @relation(fields: [organizationId], references: [id])
-
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization   Organization  @relation(fields: [organizationId], references: [id])
 
   @@unique([code, organizationId])
   @@index([organizationId])
   @@map("parameter_definitions")
 }
 
-// Измеряемые параметры пациента (история)
 model PatientParameter {
-  id             String   @id @default(uuid())
-
+  id             String          @id @default(uuid())
   patientId      String
-  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-
-  // Опциональные связи
   visitId        String?
-  visit          Visit?   @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
   serviceOrderId String?
-  serviceOrder   ServiceOrder? @relation(fields: [serviceOrderId], references: [id])
-
-  // Идентификатор параметра по коду справочника
   parameterCode  String
-
-  // Значения
-  valueNumeric   Decimal? @db.Decimal(12, 4)
+  valueNumeric   Decimal?        @db.Decimal(12, 4)
   valueText      String?
   valueBoolean   Boolean?
   valueJson      Json?
-
-  // Единица измерения
   unit           String?
-
-  // Время измерения
-  measuredAt     DateTime @default(now())
-
-  // Кто записал
+  measuredAt     DateTime        @default(now())
   recordedById   String
-  recordedBy     Employee @relation(fields: [recordedById], references: [id])
-
-  // Источник
   source         ParameterSource @default(MANUAL)
-
-  // Мульти-арендность
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  patient        Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy     Employee        @relation(fields: [recordedById], references: [id])
+  serviceOrder   ServiceOrder?   @relation(fields: [serviceOrderId], references: [id])
+  visit          Visit?          @relation(fields: [visitId], references: [id], onDelete: Cascade)
 
   @@index([patientId, parameterCode, measuredAt])
   @@index([visitId])
@@ -1012,39 +666,22 @@ model PatientParameter {
   @@map("patient_parameters")
 }
 
-// Степень тяжести аллергии
-enum AllergySeverity {
-  MILD
-  MODERATE
-  SEVERE
-}
-
-// Аллергии пациента
 model PatientAllergy {
-  id             String   @id @default(uuid())
-
+  id             String           @id @default(uuid())
   patientId      String
-  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-
-  // Связь с визитом (опционально)
   visitId        String?
-  visit          Visit?   @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
-  // Кто записал
   recordedById   String
-  recordedBy     Employee @relation(fields: [recordedById], references: [id])
-
   substance      String
   reaction       String?
   severity       AllergySeverity?
   note           String?
-
-  // Multi-tenant
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  patient        Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy     Employee         @relation(fields: [recordedById], references: [id])
+  visit          Visit?           @relation(fields: [visitId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
   @@index([visitId])
@@ -1052,52 +689,27 @@ model PatientAllergy {
   @@map("patient_allergies")
 }
 
-/// ===============================
-///  INVOICE & PAYMENT SYSTEM
-/// ===============================
-
-// Payment Method enum
-enum PaymentMethod {
-  CASH
-  CARD
-  ONLINE
-  TRANSFER
-}
-
-// Invoice (счет)
 model Invoice {
   id             String        @id @default(uuid())
-  invoiceNumber  String        // auto-generated, format: INV-YYYYMM-NNNN
-  
-  // Relations
+  invoiceNumber  String
   patientId      String
-  patient        Patient       @relation(fields: [patientId], references: [id])
-  
   visitId        String?
-  visit          Visit?        @relation(fields: [visitId], references: [id])
-  
-  // Financial data
   totalAmount    Decimal       @db.Decimal(12, 2)
-  paidAmount     Decimal       @db.Decimal(12, 2) @default(0)
+  paidAmount     Decimal       @default(0) @db.Decimal(12, 2)
   status         PaymentStatus @default(UNPAID)
-  
-  // Metadata
   notes          String?
   dueDate        DateTime?     @db.Date
-  
   createdById    String
-  createdBy      Employee      @relation("EmployeeInvoices", fields: [createdById], references: [id])
-  
   organizationId String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  
-  // Relations
   items          InvoiceItem[]
+  createdBy      Employee      @relation("EmployeeInvoices", fields: [createdById], references: [id])
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  visit          Visit?        @relation(fields: [visitId], references: [id])
   payments       Payment[]
-  
+
   @@unique([invoiceNumber, organizationId])
   @@index([patientId])
   @@index([visitId])
@@ -1107,59 +719,187 @@ model Invoice {
   @@map("invoices")
 }
 
-// Invoice Item (позиция в счете)
 model InvoiceItem {
-  id          String   @id @default(uuid())
-  
-  invoiceId   String
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  
-  serviceId   String
-  service     Service  @relation(fields: [serviceId], references: [id])
-  
-  serviceOrderId String? @unique
+  id             String        @id @default(uuid())
+  invoiceId      String
+  serviceId      String
+  serviceOrderId String?       @unique
+  description    String?
+  quantity       Int           @default(1)
+  unitPrice      Decimal       @db.Decimal(12, 2)
+  totalPrice     Decimal       @db.Decimal(12, 2)
+  discount       Decimal?      @default(0) @db.Decimal(12, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  invoice        Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  service        Service       @relation(fields: [serviceId], references: [id])
   serviceOrder   ServiceOrder? @relation(fields: [serviceOrderId], references: [id])
-  
-  description String?
-  quantity    Int      @default(1)
-  unitPrice   Decimal  @db.Decimal(12, 2)
-  totalPrice  Decimal  @db.Decimal(12, 2)
-  discount    Decimal? @db.Decimal(12, 2) @default(0)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
   @@index([invoiceId])
   @@index([serviceId])
   @@index([serviceOrderId])
   @@map("invoice_items")
 }
 
-// Payment (платеж)
 model Payment {
   id             String        @id @default(uuid())
-  
   invoiceId      String
-  invoice        Invoice       @relation(fields: [invoiceId], references: [id])
-  
   amount         Decimal       @db.Decimal(12, 2)
   paymentMethod  PaymentMethod
-  
-  transactionId  String?       // ID транзакции для онлайн платежей
+  transactionId  String?
   notes          String?
-  
   paidById       String
-  paidBy         Employee      @relation("EmployeePayments", fields: [paidById], references: [id])
-  
   organizationId String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  
   paidAt         DateTime      @default(now())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  
+  invoice        Invoice       @relation(fields: [invoiceId], references: [id])
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  paidBy         Employee      @relation("EmployeePayments", fields: [paidById], references: [id])
+
   @@index([invoiceId])
   @@index([organizationId])
   @@index([paidAt])
   @@map("payments")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PATIENT
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  MANAGE
+}
+
+enum ServiceTypeEnum {
+  CONSULTATION
+  LAB
+  DIAGNOSTIC
+  PROCEDURE
+  OTHER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_QUEUE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AppointmentType {
+  STANDARD
+  WITHOUT_QUEUE
+  EMERGENCY
+}
+
+enum VisitStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum RecordType {
+  COMPLAINTS
+  EXAMINATION
+  DIAGNOSIS
+  PRESCRIPTION
+  NOTE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum PatientStatus {
+  ACTIVE
+  INACTIVE
+  DECEASED
+}
+
+enum ContactRelationType {
+  SELF
+  PARENT
+  GUARDIAN
+  EMERGENCY
+  OTHER
+}
+
+enum ContactType {
+  PRIMARY
+  SECONDARY
+}
+
+enum LocationType {
+  COUNTRY
+  REGION
+  CITY
+  DISTRICT
+}
+
+enum ParameterType {
+  NUMBER
+  TEXT
+  BOOLEAN
+}
+
+enum OrderStatus {
+  ORDERED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+}
+
+enum QueueStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum ParameterSource {
+  MANUAL
+  LAB
+  DEVICE
+  IMPORT
+}
+
+enum AllergySeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  ONLINE
+  TRANSFER
 }

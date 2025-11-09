@@ -122,12 +122,10 @@ export class CreateAnalysisTemplateDto {
 
   @Expose()
   @ApiProperty({
-    description: "Array of analysis parameters",
-    type: [AnalysisParameterDto],
+    description: "Analysis template content (JSON string with sections structure)",
+    example: '{"version":1,"sections":[{"id":"section-1","title":"Основные показатели","parameters":[...]}]}',
   })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AnalysisParameterDto)
+  @IsString()
   @IsNotEmpty()
-  parameters: AnalysisParameterDto[];
+  content: string;
 }

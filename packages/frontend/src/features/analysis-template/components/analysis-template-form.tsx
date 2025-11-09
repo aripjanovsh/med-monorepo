@@ -19,7 +19,8 @@ import {
 import type { AnalysisTemplateFormData } from "../analysis-template.schema";
 import { analysisTemplateFormSchema } from "../analysis-template.schema";
 import { PRESET_TEMPLATES } from "../analysis-template.constants";
-import { ParametersTable } from "./parameters-table";
+import { AnalysisFormEditor } from "@/features/analysis-form-builder";
+import { convertFormDataToDto } from "../utils/template.helpers";
 
 type AnalysisTemplateFormProps = {
   mode: "create" | "edit";
@@ -48,12 +49,15 @@ export const AnalysisTemplateForm = ({
       name: "",
       code: "",
       description: "",
-      parameters: [],
+      template: {
+        version: 1,
+        sections: [],
+      },
     },
   });
 
   const { watch, setValue, reset } = form;
-  const parameters = watch("parameters") ?? [];
+  const template = watch("template") ?? { version: 1, sections: [] };
 
   // Reset form when initialData changes (important for edit mode)
   useEffect(() => {
@@ -70,20 +74,29 @@ export const AnalysisTemplateForm = ({
       setValue("code", preset.code);
       setValue("description", preset.description);
 
+      // Convert old flat parameters to new section structure
       const newParameters = preset.parameters.map((param, index) => ({
         ...param,
         id: (Date.now() + index).toString(),
       }));
-      setValue("parameters", newParameters);
+      
+      setValue("template", {
+        version: 1,
+        sections: [
+          {
+            id: Date.now().toString(),
+            title: "Основные показатели",
+            description: "",
+            parameters: newParameters,
+          },
+        ],
+      });
     }
   };
 
   const onSubmit = async (data: AnalysisTemplateFormData) => {
     try {
-      const requestData = {
-        ...data,
-        parameters: data.parameters.map(({ id, ...param }) => param as any),
-      };
+      const requestData = convertFormDataToDto(data);
 
       if (mode === "create") {
         await createTemplate(requestData as any).unwrap();
@@ -205,15 +218,13 @@ export const AnalysisTemplateForm = ({
           <CardTitle>Параметры анализа</CardTitle>
         </CardHeader>
         <CardContent>
-          <ParametersTable
-            parameters={parameters as any}
-            onParametersChange={(newParameters) =>
-              setValue("parameters", newParameters as any)
-            }
+          <AnalysisFormEditor
+            template={template}
+            onChange={(newTemplate) => setValue("template", newTemplate)}
           />
-          {form.formState.errors.parameters && (
+          {form.formState.errors.template?.sections && (
             <p className="text-sm text-destructive mt-2">
-              {form.formState.errors.parameters.message}
+              {form.formState.errors.template.sections.message}
             </p>
           )}
         </CardContent>

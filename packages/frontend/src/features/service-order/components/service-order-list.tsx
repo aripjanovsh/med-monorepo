@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Eye } from "lucide-react";
+import { Trash2, Eye, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useDialog } from "@/lib/dialog-manager";
 import {
   Table,
   TableBody,
@@ -32,7 +33,7 @@ import {
   useDeleteServiceOrderMutation,
 } from "../service-order.api";
 import { canCancelOrder } from "../service-order.model";
-import { ServiceOrderResultDialog } from "./service-order-result-dialog";
+import { ServiceOrderResultSheet } from "./service-order-result-dialog";
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 
 type ServiceOrderListProps = {
@@ -46,8 +47,7 @@ export const ServiceOrderList = ({
 }: ServiceOrderListProps) => {
   const router = useRouter();
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] =
-    useState<ServiceOrderResponseDto | null>(null);
+  const resultSheet = useDialog(ServiceOrderResultSheet);
 
   const { data, isLoading } = useGetServiceOrdersQuery({
     visitId,
@@ -61,14 +61,15 @@ export const ServiceOrderList = ({
   const orders = data?.data ?? [];
 
   const handleViewResult = (order: ServiceOrderResponseDto) => {
-    setSelectedOrder(order);
-  };
-
-  const handleEditResult = () => {
-    if (selectedOrder) {
-      router.push(`/cabinet/orders/${selectedOrder.id}/execute`);
-      setSelectedOrder(null);
-    }
+    resultSheet.open({
+      order,
+      onEdit: isEditable
+        ? () => {
+            router.push(`/cabinet/orders/${order.id}/execute`);
+            resultSheet.close();
+          }
+        : undefined,
+    });
   };
 
   const handleDelete = async () => {
@@ -180,13 +181,6 @@ export const ServiceOrderList = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <ServiceOrderResultDialog
-        order={selectedOrder}
-        open={selectedOrder !== null}
-        onOpenChange={(open) => !open && setSelectedOrder(null)}
-        onEdit={isEditable ? handleEditResult : undefined}
-      />
     </>
   );
 };

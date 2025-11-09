@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -21,6 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { ReferenceRanges } from "../../types/analysis-form.types";
+import { DEFAULT_REFERENCE_RANGE_GROUPS } from "../../constants/analysis-form.constants";
 
 type DemographicRange = {
   group: string;
@@ -33,15 +34,9 @@ type ReferenceRangesModalProps = {
   onOpenChange: (open: boolean) => void;
   parameterName: string;
   unit?: string;
-  ranges: Record<string, { min?: number; max?: number }>;
-  onSave: (ranges: Record<string, { min?: number; max?: number }>) => void;
+  ranges: ReferenceRanges;
+  onSave: (ranges: ReferenceRanges) => void;
 };
-
-const DEFAULT_GROUPS = [
-  { key: "men", label: "Мужчины" },
-  { key: "women", label: "Женщины" },
-  { key: "children", label: "Дети" },
-];
 
 export const ReferenceRangesModal = ({
   open,
@@ -53,30 +48,25 @@ export const ReferenceRangesModal = ({
 }: ReferenceRangesModalProps) => {
   const [localRanges, setLocalRanges] = useState<DemographicRange[]>([]);
 
-  // Update local ranges when modal opens or ranges change
   useEffect(() => {
     if (open) {
       const initial: DemographicRange[] = [];
       
-      // Check if we have simple default range
       const hasDefault = ranges.default;
       
-      // Add default groups
-      DEFAULT_GROUPS.forEach(({ key, label }) => {
+      DEFAULT_REFERENCE_RANGE_GROUPS.forEach(({ key, label }) => {
         if (ranges[key]) {
           initial.push({ group: label, ...ranges[key] });
         } else if (hasDefault) {
-          // Copy default range to all groups
           initial.push({ group: label, ...ranges.default });
         } else {
           initial.push({ group: label });
         }
       });
 
-      // Add custom groups (skip "default" key)
       Object.entries(ranges).forEach(([key, value]) => {
         if (key === "default") return;
-        const isDefault = DEFAULT_GROUPS.some((g) => g.key === key);
+        const isDefault = DEFAULT_REFERENCE_RANGE_GROUPS.some((g) => g.key === key);
         if (!isDefault) {
           initial.push({ group: key, ...value });
         }
@@ -110,12 +100,11 @@ export const ReferenceRangesModal = ({
   };
 
   const handleSave = () => {
-    const result: Record<string, { min?: number; max?: number }> = {};
+    const result: ReferenceRanges = {};
     
     localRanges.forEach((range) => {
       if (range.group.trim()) {
-        // Convert label back to key for default groups
-        const defaultGroup = DEFAULT_GROUPS.find((g) => g.label === range.group);
+        const defaultGroup = DEFAULT_REFERENCE_RANGE_GROUPS.find((g) => g.label === range.group);
         const key = defaultGroup ? defaultGroup.key : range.group.toLowerCase().replace(/\s+/g, "_");
         
         result[key] = {

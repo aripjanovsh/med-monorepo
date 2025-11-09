@@ -123,7 +123,6 @@ export const FormBuilderView = ({
     return (
       <div
         key={field.id}
-        className={compact ? "py-2" : "py-3"}
         style={
           field.width && field.width < 100
             ? {

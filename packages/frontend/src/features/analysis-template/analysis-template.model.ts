@@ -2,8 +2,28 @@ import type {
   AnalysisTemplateResponseDto,
   AnalysisParameterDto,
   ParameterTypeDto,
+  AnalysisTemplateContentDto,
 } from "./analysis-template.dto";
 import { PARAMETER_TYPE_OPTIONS } from "./analysis-template.constants";
+
+/**
+ * Получить все параметры из шаблона (поддержка обоих форматов)
+ */
+const getAllParameters = (content: string): AnalysisParameterDto[] => {
+  try {
+    const data = JSON.parse(content);
+    if (Array.isArray(data)) {
+      // Старый формат
+      return data;
+    }
+    // Новый формат с секциями
+    return (data as AnalysisTemplateContentDto).sections.flatMap(
+      (section) => section.parameters
+    );
+  } catch {
+    return [];
+  }
+};
 
 /**
  * Get display label for parameter type
@@ -60,7 +80,8 @@ export const formatReferenceRange = (
 export const getRequiredParametersCount = (
   template: AnalysisTemplateResponseDto
 ): number => {
-  return template.parameters.filter((param) => param.isRequired).length;
+  const allParameters = getAllParameters(template.content);
+  return allParameters.filter((param) => param.isRequired).length;
 };
 
 /**
@@ -69,5 +90,15 @@ export const getRequiredParametersCount = (
 export const getOptionalParametersCount = (
   template: AnalysisTemplateResponseDto
 ): number => {
-  return template.parameters.filter((param) => !param.isRequired).length;
+  const allParameters = getAllParameters(template.content);
+  return allParameters.filter((param) => !param.isRequired).length;
+};
+
+/**
+ * Get total parameters count
+ */
+export const getTotalParametersCount = (
+  template: AnalysisTemplateResponseDto
+): number => {
+  return getAllParameters(template.content).length;
 };

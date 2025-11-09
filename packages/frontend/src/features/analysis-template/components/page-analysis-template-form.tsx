@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { convertDtoToFormData } from "../utils/template.helpers";
 
 import { useGetAnalysisTemplateQuery } from "../analysis-template.api";
 import { AnalysisTemplateForm } from "./analysis-template-form";
@@ -38,20 +39,7 @@ export const PageAnalysisTemplateForm = ({
   const initialData = useMemo(
     () =>
       mode === "edit" && template
-        ? {
-            id: template.id,
-            name: template.name,
-            code: template.code,
-            description: template.description,
-            parameters: template.parameters.map((param, index) => {
-              console.log("Backend parameter:", param);
-              return {
-                ...param,
-                // Ensure each parameter has an id for UI state management
-                id: param.id ?? `param-${Date.now()}-${index}`,
-              };
-            }),
-          }
+        ? convertDtoToFormData(template)
         : undefined,
     [mode, template]
   );

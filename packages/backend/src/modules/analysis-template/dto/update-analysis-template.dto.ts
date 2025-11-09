@@ -3,14 +3,9 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsIn,
-  IsArray,
-  ValidateNested,
 } from "class-validator";
-import { Type } from "class-transformer";
 import { Exclude, Expose } from "class-transformer";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
-import { AnalysisParameterDto } from "./create-analysis-template.dto";
 
 @Exclude()
 export class UpdateAnalysisTemplateDto {
@@ -47,14 +42,12 @@ export class UpdateAnalysisTemplateDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Array of analysis parameters",
-    type: [AnalysisParameterDto],
+    description: "Analysis template content (JSON string with sections structure)",
+    example: '{"version":1,"sections":[{"id":"section-1","title":"Основные показатели","parameters":[...]}]}',
   })
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AnalysisParameterDto)
-  parameters?: AnalysisParameterDto[];
+  @IsString()
+  content?: string;
 
   @Expose()
   @ApiPropertyOptional({

@@ -174,6 +174,7 @@ export const FormBuilderInteractive = ({
                 <Input
                   id={field.id}
                   type="number"
+                  className="max-w-[200px]"
                   placeholder={field.placeholder}
                   {...formField}
                   value={(formField.value as number) ?? ""}

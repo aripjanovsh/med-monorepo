@@ -33,6 +33,18 @@ const analysisParameterFormSchema = yup.object({
   isRequired: yup.boolean().default(false),
 });
 
+// Analysis section schema for form
+const analysisSectionFormSchema = yup.object({
+  id: yup.string().required(),
+  title: yup.string().min(2, "Название секции должно содержать минимум 2 символа").required("Название секции обязательно"),
+  description: yup.string().optional(),
+  parameters: yup
+    .array()
+    .of(analysisParameterFormSchema)
+    .min(1, "Добавьте хотя бы один параметр в секцию")
+    .required(),
+});
+
 // Analysis parameter schema for API request (without id)
 const analysisParameterRequestSchema = yup.object({
   name: yup.string().min(2).required(),
@@ -40,6 +52,13 @@ const analysisParameterRequestSchema = yup.object({
   type: yup.string().oneOf(Object.values(PARAMETER_TYPE)).required(),
   referenceRanges: referenceRangesSchema.optional(),
   isRequired: yup.boolean().default(false),
+});
+
+// Analysis section schema for API request (without id)
+const analysisSectionRequestSchema = yup.object({
+  title: yup.string().min(2).required(),
+  description: yup.string().optional(),
+  parameters: yup.array().of(analysisParameterRequestSchema).min(1).required(),
 });
 
 // Form schema (includes UI-only fields)
@@ -54,11 +73,14 @@ export const analysisTemplateFormSchema = yup.object({
     .min(2, "Код должен содержать минимум 2 символа")
     .required("Код обязателен"),
   description: yup.string().optional(),
-  parameters: yup
-    .array()
-    .of(analysisParameterFormSchema)
-    .min(1, "Добавьте хотя бы один параметр")
-    .required(),
+  template: yup.object({
+    version: yup.number().default(1),
+    sections: yup
+      .array()
+      .of(analysisSectionFormSchema)
+      .min(1, "Добавьте хотя бы одну секцию")
+      .required(),
+  }).required(),
 });
 
 // Create request schema
@@ -66,7 +88,7 @@ export const createAnalysisTemplateRequestSchema = yup.object({
   name: yup.string().min(2).required(),
   code: yup.string().min(2).required(),
   description: yup.string().optional(),
-  parameters: yup.array().of(analysisParameterRequestSchema).min(1).required(),
+  content: yup.string().required(), // JSON string
 });
 
 // Update request schema
