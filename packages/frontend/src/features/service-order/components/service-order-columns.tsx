@@ -4,20 +4,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-import { Badge } from "@/components/ui/badge";
 import { getPatientFullName } from "@/features/patients";
 import { getEmployeeFullName } from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
+import { SERVICE_TYPE_LABELS } from "../service-order.constants";
 import {
-  getOrderStatusVariant,
-  getPaymentStatusVariant,
-} from "../service-order.model";
-import {
-  ORDER_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
-  SERVICE_TYPE_LABELS,
-} from "../service-order.constants";
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "./service-order-status-badge";
 
 export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
@@ -87,24 +82,14 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     accessorKey: "status",
     header: "СТАТУС",
     cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge variant={getOrderStatusVariant(status)}>
-          {ORDER_STATUS_LABELS[status]}
-        </Badge>
-      );
+      return <OrderStatusBadge status={row.original.status} />;
     },
   },
   {
     accessorKey: "paymentStatus",
     header: "ОПЛАТА",
     cell: ({ row }) => {
-      const paymentStatus = row.original.paymentStatus;
-      return (
-        <Badge variant={getPaymentStatusVariant(paymentStatus)}>
-          {PAYMENT_STATUS_LABELS[paymentStatus]}
-        </Badge>
-      );
+      return <PaymentStatusBadge status={row.original.paymentStatus} />;
     },
   },
   {

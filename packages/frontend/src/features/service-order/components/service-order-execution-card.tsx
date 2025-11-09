@@ -7,7 +7,6 @@ import { Play, Save, CheckCircle, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,15 +21,11 @@ import { getPatientFullName } from "@/features/patients";
 import { getEmployeeFullName } from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
+import { SERVICE_TYPE_LABELS } from "../service-order.constants";
 import {
-  getOrderStatusVariant,
-  getPaymentStatusVariant,
-} from "../service-order.model";
-import {
-  ORDER_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
-  SERVICE_TYPE_LABELS,
-} from "../service-order.constants";
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "./service-order-status-badge";
 
 import { ResultInputText } from "./result-input-text";
 import { ResultInputAnalysis, type AnalysisResultData } from "./result-input-analysis";
@@ -217,12 +212,8 @@ export const ServiceOrderExecutionCard = ({
               </p>
             </div>
             <div className="flex gap-2">
-              <Badge variant={getOrderStatusVariant(order.status)}>
-                {ORDER_STATUS_LABELS[order.status]}
-              </Badge>
-              <Badge variant={getPaymentStatusVariant(order.paymentStatus)}>
-                {PAYMENT_STATUS_LABELS[order.paymentStatus]}
-              </Badge>
+              <OrderStatusBadge status={order.status} />
+              <PaymentStatusBadge status={order.paymentStatus} />
             </div>
           </div>
         </CardHeader>

@@ -15,16 +15,14 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { getEmployeeFullName } from "@/features/employees";
 import { useAppSelector } from "@/store/hooks";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
-import { getOrderStatusVariant } from "../service-order.model";
-import { ORDER_STATUS_LABELS } from "../service-order.constants";
 import { downloadServiceOrderPdf } from "../service-order.api";
+import { OrderStatusBadge } from "./service-order-status-badge";
 import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
 import type { SavedAnalysisData } from "@/features/analysis-form-builder";
@@ -118,9 +116,7 @@ export const ServiceOrderResultSheet = ({
             <div className="flex items-center gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">Статус</div>
-                <Badge variant={getOrderStatusVariant(order.status)}>
-                  {ORDER_STATUS_LABELS[order.status]}
-                </Badge>
+                <OrderStatusBadge status={order.status} />
               </div>
 
               {order.resultAt && (

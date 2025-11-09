@@ -6,11 +6,14 @@ import { ClipboardList } from "lucide-react";
 import Link from "next/link";
 
 import type { PatientResponseDto } from "@/features/patients/patient.dto";
-import { useGetServiceOrdersQuery } from "@/features/service-order";
+import {
+  useGetServiceOrdersQuery,
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "@/features/service-order";
 import { DataTable, DataTableEmptyState } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/layouts/page-header";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/date.utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ServiceOrderResponseDto } from "@/features/service-order/service-order.dto";
@@ -18,20 +21,6 @@ import type { ServiceOrderResponseDto } from "@/features/service-order/service-o
 interface PatientServiceOrdersProps {
   patient: PatientResponseDto;
 }
-
-const STATUS_MAP = {
-  ORDERED: { label: "Назначено", variant: "default" },
-  IN_PROGRESS: { label: "В процессе", variant: "secondary" },
-  COMPLETED: { label: "Выполнено", variant: "secondary" },
-  CANCELLED: { label: "Отменено", variant: "destructive" },
-} as const;
-
-const PAYMENT_STATUS_MAP = {
-  UNPAID: { label: "Не оплачено", variant: "destructive" },
-  PAID: { label: "Оплачено", variant: "secondary" },
-  PARTIALLY_PAID: { label: "Частично оплачено", variant: "default" },
-  REFUNDED: { label: "Возвращено", variant: "outline" },
-} as const;
 
 const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
@@ -72,24 +61,14 @@ const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     accessorKey: "status",
     header: "Статус",
     cell: ({ row }) => {
-      const statusInfo = STATUS_MAP[row.original.status];
-      return (
-        <Badge variant={statusInfo.variant as any}>
-          {statusInfo.label}
-        </Badge>
-      );
+      return <OrderStatusBadge status={row.original.status} />;
     },
   },
   {
     accessorKey: "paymentStatus",
     header: "Оплата",
     cell: ({ row }) => {
-      const statusInfo = PAYMENT_STATUS_MAP[row.original.paymentStatus];
-      return (
-        <Badge variant={statusInfo.variant as any}>
-          {statusInfo.label}
-        </Badge>
-      );
+      return <PaymentStatusBadge status={row.original.paymentStatus} />;
     },
   },
   {

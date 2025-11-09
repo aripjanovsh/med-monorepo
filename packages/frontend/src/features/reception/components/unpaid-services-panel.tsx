@@ -2,11 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, FileText, User, Activity } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useGetUnpaidServicesQuery } from "../api/unpaid-services.api";
+import { OrderStatusBadge } from "@/features/service-order";
 
 type UnpaidService = {
   id: string;
@@ -50,29 +50,8 @@ export const UnpaidServicesPanel = ({
     );
   };
 
-  const getStatusBadge = (status: string, queueStatus?: string) => {
-    if (queueStatus === "COMPLETED") {
-      return (
-        <Badge variant="default" className="bg-green-500">
-          Завершено
-        </Badge>
-      );
-    }
-    if (status === "COMPLETED") {
-      return (
-        <Badge variant="default" className="bg-green-500">
-          Завершено
-        </Badge>
-      );
-    }
-    if (status === "IN_PROGRESS" || queueStatus === "IN_PROGRESS") {
-      return <Badge variant="secondary">В процессе</Badge>;
-    }
-    return <Badge variant="outline">{status}</Badge>;
-  };
-
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ru-RU").format(price) + " ₸";
+    return new Intl.NumberFormat("ru-RU").format(price) + " сум";
   };
 
   const formatPatientName = (patient: UnpaidService["patient"]) => {
@@ -147,7 +126,9 @@ export const UnpaidServicesPanel = ({
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {getStatusBadge(service.status, service.queueStatus)}
+                    <OrderStatusBadge
+                      status={service.status as any}
+                    />
                     <div className="text-right">
                       <div className="text-sm font-medium text-muted-foreground">
                         Цена
