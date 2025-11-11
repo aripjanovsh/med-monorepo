@@ -11,6 +11,7 @@ export * from "./components/service-order-execution-card";
 export * from "./components/result-input-text";
 export { ResultInputAnalysis } from "./components/result-input-analysis";
 export { ResultInputProtocol } from "./components/result-input-protocol";
+export { ResultInputFile, type SavedFileData } from "./components/result-input-file";
 export * from "./components/service-order-result-dialog";
 export { AnalysisResultView, type AnalysisResultData } from "./components/analysis-result-view";
 export { ProtocolResultView } from "./components/protocol-result-view";

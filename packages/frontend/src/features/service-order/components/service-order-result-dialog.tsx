@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { FileText, Calendar, User, Download } from "lucide-react";
+import { FileText, Calendar, User, Download, File, Image as ImageIcon, Eye } from "lucide-react";
 import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
 import { toast } from "sonner";
 
@@ -27,6 +27,8 @@ import { AnalysisResultView } from "./analysis-result-view";
 import { ProtocolResultView } from "./protocol-result-view";
 import type { SavedAnalysisData } from "@/features/analysis-form-builder";
 import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
+import type { SavedFileData } from "./result-input-file";
+import { fileHelpers, FilePreviewDialog, type FileResponseDto } from "@/features/file";
 
 type ServiceOrderResultSheetOwnProps = {
   order: ServiceOrderResponseDto;
@@ -42,6 +44,8 @@ export const ServiceOrderResultSheet = ({
   onEdit,
 }: ServiceOrderResultSheetProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<FileResponseDto | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const token = useAppSelector((state) => state.auth.token);
 
   const performedByName = order.performedBy ? getEmployeeFullName(order.performedBy) : null;
@@ -87,6 +91,11 @@ export const ServiceOrderResultSheet = ({
       "formData" in order.resultData
     );
 
+  const isFileResult =
+    order.resultData &&
+    "fileId" in order.resultData &&
+    "filename" in order.resultData;
+
   // Вычисляем возраст пациента
   const patientAge = order.patient.dateOfBirth
     ? Math.floor(
@@ -94,6 +103,59 @@ export const ServiceOrderResultSheet = ({
           (1000 * 60 * 60 * 24 * 365.25)
       )
     : undefined;
+
+  const handleDownloadFile = async () => {
+    if (!isFileResult || !token) return;
+
+    const fileData = order.resultData as SavedFileData;
+    try {
+      await fileHelpers.downloadFile(fileData.fileId, fileData.filename, token);
+      toast.success("Файл успешно загружен");
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast.error("Ошибка при загрузке файла");
+    }
+  };
+
+  const handlePreviewFile = () => {
+    if (!isFileResult) return;
+
+    const fileData = order.resultData as SavedFileData;
+    // Создаем FileResponseDto объект для предпросмотра
+    const fileForPreview: FileResponseDto = {
+      id: fileData.fileId,
+      filename: fileData.filename,
+      storedName: fileData.fileId,
+      path: '',
+      mimeType: fileData.mimeType,
+      size: fileData.size,
+      category: 'ANALYSIS_RESULT' as any,
+      uploadedById: '',
+      uploadedAt: fileData.uploadedAt,
+      description: fileData.description,
+    };
+
+    setPreviewFile(fileForPreview);
+    setPreviewOpen(true);
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith("image/")) {
+      return <ImageIcon className="h-5 w-5" />;
+    }
+    if (mimeType === "application/pdf") {
+      return <FileText className="h-5 w-5 text-red-500" />;
+    }
+    return <File className="h-5 w-5" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -222,8 +284,70 @@ export const ServiceOrderResultSheet = ({
                 />
               )}
 
+              {/* Результаты файла */}
+              {isFileResult && order.resultData && (
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    Файл результата
+                  </div>
+                  {(() => {
+                    const fileData = order.resultData as SavedFileData;
+                    return (
+                      <div className="space-y-3">
+                        {fileData.description && (
+                          <div className="rounded-md bg-muted/50 p-3 border">
+                            <p className="text-sm text-muted-foreground mb-1">
+                              Описание:
+                            </p>
+                            <p className="text-sm whitespace-pre-wrap">
+                              {fileData.description}
+                            </p>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {getFileIcon(fileData.mimeType)}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {fileData.filename}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatFileSize(fileData.size)} •{" "}
+                                {format(
+                                  new Date(fileData.uploadedAt),
+                                  "dd.MM.yyyy HH:mm",
+                                  { locale: ru }
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handlePreviewFile}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Просмотр
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleDownloadFile}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Скачать
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Текстовый результат (если нет структурированных данных) */}
-              {!isAnalysisResult && !isProtocolResult && order.resultText && (
+              {!isAnalysisResult && !isProtocolResult && !isFileResult && order.resultText && (
                 <div>
                   <div className="text-sm font-medium text-muted-foreground mb-2">
                     Текстовый результат
@@ -265,6 +389,12 @@ export const ServiceOrderResultSheet = ({
         </div>
         </SheetBody>
       </SheetContent>
+
+      <FilePreviewDialog
+        file={previewFile}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </Sheet>
   );
 };

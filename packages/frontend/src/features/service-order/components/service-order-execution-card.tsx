@@ -30,10 +30,11 @@ import {
 import { ResultInputText } from "./result-input-text";
 import { ResultInputAnalysis, type AnalysisResultData } from "./result-input-analysis";
 import { ResultInputProtocol } from "./result-input-protocol";
+import { ResultInputFile, type SavedFileData } from "./result-input-file";
 import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
 import type { SavedAnalysisData } from "@/features/analysis-form-builder";
 
-type ResultInputMode = "text" | "protocol" | "analysis";
+type ResultInputMode = "text" | "protocol" | "analysis" | "file";
 
 interface ServiceOrderExecutionCardProps {
   order: ServiceOrderResponseDto;
@@ -61,12 +62,18 @@ export const ServiceOrderExecutionCard = ({
   const parseResultData = (data: Record<string, any> | null | undefined): {
     analysis: SavedAnalysisData | null;
     protocol: SavedProtocolData | null;
+    file: SavedFileData | null;
   } => {
-    if (!data) return { analysis: null, protocol: null };
+    if (!data) return { analysis: null, protocol: null, file: null };
+    
+    // Проверка на SavedFileData
+    if ("fileId" in data && "filename" in data) {
+      return { analysis: null, protocol: null, file: data as SavedFileData };
+    }
     
     // Новая структура SavedAnalysisData
     if ("filledData" in data && "templateContent" in data && "rows" in data.filledData) {
-      return { analysis: data as SavedAnalysisData, protocol: null };
+      return { analysis: data as SavedAnalysisData, protocol: null, file: null };
     }
     
     // Старая структура FilledAnalysisData (обратная совместимость)
@@ -83,12 +90,12 @@ export const ServiceOrderExecutionCard = ({
           serviceOrderId: "",
         },
       };
-      return { analysis: newData, protocol: null };
+      return { analysis: newData, protocol: null, file: null };
     }
     
     // Новая структура SavedProtocolData
     if ("filledData" in data && "templateContent" in data && !("rows" in data)) {
-      return { analysis: null, protocol: data as SavedProtocolData };
+      return { analysis: null, protocol: data as SavedProtocolData, file: null };
     }
     
     // Старая структура протокола (обратная совместимость)
@@ -105,16 +112,17 @@ export const ServiceOrderExecutionCard = ({
           visitId: "",
         },
       };
-      return { analysis: null, protocol: newData };
+      return { analysis: null, protocol: newData, file: null };
     }
     
-    return { analysis: null, protocol: null };
+    return { analysis: null, protocol: null, file: null };
   };
 
   const parsedData = parseResultData(order.resultData);
   
   // Определяем начальный режим ввода на основе существующих данных
   const getInitialInputMode = (): ResultInputMode => {
+    if (parsedData.file) return "file";
     if (parsedData.analysis) return "analysis";
     if (parsedData.protocol) return "protocol";
     if (order.resultText) return "text";
@@ -125,6 +133,7 @@ export const ServiceOrderExecutionCard = ({
   const [textResult, setTextResult] = useState<string>(order.resultText || "");
   const [analysisResult, setAnalysisResult] = useState<SavedAnalysisData | null>(parsedData.analysis);
   const [protocolResult, setProtocolResult] = useState<SavedProtocolData | null>(parsedData.protocol);
+  const [fileResult, setFileResult] = useState<SavedFileData | null>(parsedData.file);
 
   const patientName = getPatientFullName(order.patient);
   const doctorName = getEmployeeFullName(order.doctor);
@@ -193,6 +202,9 @@ export const ServiceOrderExecutionCard = ({
     }
     if (inputMode === "protocol" && protocolResult) {
       return { resultData: protocolResult as Record<string, any> };
+    }
+    if (inputMode === "file" && fileResult) {
+      return { resultData: fileResult as Record<string, any> };
     }
     return {};
   };
@@ -301,6 +313,7 @@ export const ServiceOrderExecutionCard = ({
                   <SelectItem value="text">Произвольный текст</SelectItem>
                   <SelectItem value="protocol">Шаблон протокола</SelectItem>
                   <SelectItem value="analysis">Шаблон анализа</SelectItem>
+                  <SelectItem value="file">Загрузка файла</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -333,6 +346,16 @@ export const ServiceOrderExecutionCard = ({
                 disabled={isLoading}
                 patientId={order.patient.id}
                 readonly={isCompleted}
+              />
+            )}
+
+            {inputMode === "file" && (
+              <ResultInputFile
+                value={fileResult}
+                onChange={setFileResult}
+                disabled={isLoading}
+                patientId={order.patient.id}
+                serviceOrderId={order.id}
               />
             )}
 

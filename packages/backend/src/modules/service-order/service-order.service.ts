@@ -3,7 +3,12 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { Prisma, OrderStatus, PaymentStatus, ServiceTypeEnum } from "@prisma/client";
+import {
+  Prisma,
+  OrderStatus,
+  PaymentStatus,
+  ServiceTypeEnum,
+} from "@prisma/client";
 import { PrismaService } from "@/common/prisma/prisma.service";
 import { CreateServiceOrderDto } from "./dto/create-service-order.dto";
 import { UpdateServiceOrderDto } from "./dto/update-service-order.dto";
@@ -11,6 +16,7 @@ import { FindAllServiceOrderDto } from "./dto/find-all-service-order.dto";
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { ServiceOrderResponseDto } from "./dto/service-order-response.dto";
 import { plainToInstance } from "class-transformer";
+import { PatientByIdDto } from "../patient/dto/patient-by-id.dto";
 
 @Injectable()
 export class ServiceOrderService {
@@ -170,6 +176,7 @@ export class ServiceOrderService {
       search,
       dateFrom,
       dateTo,
+      patientId,
     } = query;
 
     const pageNumber = page ?? 1;
@@ -203,13 +210,19 @@ export class ServiceOrderService {
     if (status) {
       where.status = status.includes(",")
         ? { in: status.split(",") as OrderStatus[] }
-        : status as OrderStatus;
+        : (status as OrderStatus);
     }
 
     if (paymentStatus) {
       where.paymentStatus = paymentStatus.includes(",")
         ? { in: paymentStatus.split(",") as PaymentStatus[] }
-        : paymentStatus as PaymentStatus;
+        : (paymentStatus as PaymentStatus);
+    }
+
+    if (patientId) {
+      where.patientId = patientId.includes(",")
+        ? { in: patientId.split(",") }
+        : patientId;
     }
 
     // Build service filter conditions
@@ -247,11 +260,9 @@ export class ServiceOrderService {
           },
         },
       ];
-      
+
       if (Object.keys(serviceConditions).length > 0) {
-        where.AND = [
-          { OR: searchConditions },
-        ];
+        where.AND = [{ OR: searchConditions }];
       } else {
         where.OR = searchConditions;
       }
