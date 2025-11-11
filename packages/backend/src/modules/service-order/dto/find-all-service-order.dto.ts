@@ -28,11 +28,6 @@ export class FindAllServiceOrderDto {
   @IsUUID()
   visitId?: string;
 
-  @ApiPropertyOptional({ description: "Patient ID" })
-  @IsOptional()
-  @IsUUID()
-  patientId?: string;
-
   @ApiPropertyOptional({ description: "Doctor ID" })
   @IsOptional()
   @IsUUID()
@@ -43,20 +38,20 @@ export class FindAllServiceOrderDto {
   @IsUUID()
   serviceId?: string;
 
-  @ApiPropertyOptional({ description: "Department ID" })
+  @ApiPropertyOptional({ description: "Department ID (comma-separated for multiple)" })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   departmentId?: string;
 
-  @ApiPropertyOptional({ description: "Order status", enum: OrderStatus })
+  @ApiPropertyOptional({ description: "Order status (comma-separated for multiple)" })
   @IsOptional()
-  @IsEnum(OrderStatus)
-  status?: OrderStatus;
+  @IsString()
+  status?: string;
 
-  @ApiPropertyOptional({ description: "Payment status", enum: PaymentStatus })
+  @ApiPropertyOptional({ description: "Payment status (comma-separated for multiple)" })
   @IsOptional()
-  @IsEnum(PaymentStatus)
-  paymentStatus?: PaymentStatus;
+  @IsString()
+  paymentStatus?: string;
 
   @ApiPropertyOptional({ description: "Service type (LAB, DIAGNOSTIC, PROCEDURE, CONSULTATION)" })
   @IsOptional()

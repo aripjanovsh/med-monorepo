@@ -161,7 +161,6 @@ export class ServiceOrderService {
       sortOrder,
       organizationId,
       visitId,
-      patientId,
       doctorId,
       serviceId,
       departmentId,
@@ -187,10 +186,6 @@ export class ServiceOrderService {
       where.visitId = visitId;
     }
 
-    if (patientId) {
-      where.patientId = patientId;
-    }
-
     if (doctorId) {
       where.doctorId = doctorId;
     }
@@ -200,15 +195,21 @@ export class ServiceOrderService {
     }
 
     if (departmentId) {
-      where.departmentId = departmentId;
+      where.departmentId = departmentId.includes(",")
+        ? { in: departmentId.split(",") }
+        : departmentId;
     }
 
     if (status) {
-      where.status = status;
+      where.status = status.includes(",")
+        ? { in: status.split(",") as OrderStatus[] }
+        : status as OrderStatus;
     }
 
     if (paymentStatus) {
-      where.paymentStatus = paymentStatus;
+      where.paymentStatus = paymentStatus.includes(",")
+        ? { in: paymentStatus.split(",") as PaymentStatus[] }
+        : paymentStatus as PaymentStatus;
     }
 
     // Build service filter conditions

@@ -7,7 +7,6 @@ export * from "./components/service-order-list-compact";
 export * from "./components/service-order-status-badge";
 export * from "./components/add-services-dialog";
 export * from "./components/service-order-columns";
-export * from "./components/service-order-filters";
 export * from "./components/service-order-execution-card";
 export * from "./components/result-input-text";
 export { ResultInputAnalysis } from "./components/result-input-analysis";

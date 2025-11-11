@@ -12,46 +12,75 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DataTable } from "@/components/data-table/data-table";
+import {
+  DataTable,
+  DataTableToolbar,
+} from "@/components/data-table";
 import PageHeader from "@/components/layouts/page-header";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useConfirmDialog } from "@/components/dialogs";
 import { ROUTES, url } from "@/constants/route.constants";
+import {
+  DepartmentFacetedSelectField,
+} from "@/features/master-data/components";
 
 import {
   useGetServiceOrdersQuery,
   useUpdateServiceOrderMutation,
   serviceOrderColumns,
-  ServiceOrderFiltersComponent,
   canCancelOrder,
   type ServiceOrderResponseDto,
+  type OrderStatus,
 } from "@/features/service-order";
-import type { ServiceOrderFilters } from "@/features/service-order/components/service-order-filters";
+import { StatusFacetedSelectField } from "@/features/service-order/components/status-faceted-select-field";
+import { PaymentStatusFacetedSelectField } from "@/features/service-order/components/payment-status-faceted-select-field";
+import { ServiceTypeFacetedSelectField } from "@/features/service-order/components/service-type-faceted-select-field";
 
 export default function ServiceOrdersPage() {
   const router = useRouter();
   const confirm = useConfirmDialog();
-  const [filters, setFilters] = useState<ServiceOrderFilters>({});
 
-  const { queryParams, handlers } = useDataTableState({
+  // DataTable state management with built-in debounce
+  const { queryParams, handlers, values } = useDataTableState({
     defaultLimit: 20,
     defaultSorting: [{ id: "createdAt", desc: true }],
     sortFormat: "split",
     searchDebounceMs: 300,
   });
 
+  // Get filter values from columnFilters
+  const statusFilter = values.columnFilters.find((f) => f.id === "status");
+  const departmentFilter = values.columnFilters.find((f) => f.id === "departmentId");
+  const paymentStatusFilter = values.columnFilters.find((f) => f.id === "paymentStatus");
+  const serviceTypeFilter = values.columnFilters.find((f) => f.id === "serviceType");
+
+  const selectedStatuses = (statusFilter?.value as OrderStatus[]) || [];
+  const selectedDepartments = (departmentFilter?.value as string[]) || [];
+  const selectedPaymentStatuses = (paymentStatusFilter?.value as string[]) || [];
+  const selectedServiceTypes = (serviceTypeFilter?.value as string[]) || [];
+
+  // Add filters to query params
   const finalQueryParams = useMemo(() => {
     const params: any = { ...queryParams };
-
-    if (filters.status) params.status = filters.status;
-    if (filters.paymentStatus) params.paymentStatus = filters.paymentStatus;
-    if (filters.serviceType) params.serviceType = filters.serviceType;
-    if (filters.search) params.search = filters.search;
-    if (filters.dateFrom) params.dateFrom = filters.dateFrom.toISOString();
-    if (filters.dateTo) params.dateTo = filters.dateTo.toISOString();
+    
+    // Remove the filters object that useDataTableState adds
+    delete params.filters;
+    
+    if (selectedStatuses.length > 0) {
+      params.status = selectedStatuses.join(",");
+    }
+    if (selectedDepartments.length > 0) {
+      params.departmentId = selectedDepartments.join(",");
+    }
+    if (selectedPaymentStatuses.length > 0) {
+      params.paymentStatus = selectedPaymentStatuses.join(",");
+    }
+    if (selectedServiceTypes.length > 0) {
+      params.serviceType = selectedServiceTypes.join(",");
+    }
 
     return params;
-  }, [queryParams, filters]);
+  }, [queryParams, selectedStatuses, selectedDepartments, selectedPaymentStatuses, selectedServiceTypes]);
 
   const { data, isLoading, refetch } = useGetServiceOrdersQuery(finalQueryParams);
 
@@ -88,21 +117,56 @@ export default function ServiceOrdersPage() {
     [confirm, updateServiceOrder, refetch]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters({});
-  }, []);
+  // Handlers for filters
+  const handleStatusChange = useCallback(
+    (value: string[] | undefined) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "status");
+      if (value && value.length > 0) {
+        newFilters.push({ id: "status", value: value as OrderStatus[] });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handleDepartmentChange = useCallback(
+    (value: string[] | undefined) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "departmentId");
+      if (value && value.length > 0) {
+        newFilters.push({ id: "departmentId", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handlePaymentStatusChange = useCallback(
+    (value: string[] | undefined) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "paymentStatus");
+      if (value && value.length > 0) {
+        newFilters.push({ id: "paymentStatus", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handleServiceTypeChange = useCallback(
+    (value: string[] | undefined) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "serviceType");
+      if (value && value.length > 0) {
+        newFilters.push({ id: "serviceType", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Назначения"
         description="Просмотр и управление назначениями услуг"
-      />
-
-      <ServiceOrderFiltersComponent
-        filters={filters}
-        onFiltersChange={setFilters}
-        onReset={handleResetFilters}
       />
 
       <DataTable
@@ -160,6 +224,33 @@ export default function ServiceOrdersPage() {
           ...handlers.pagination,
           total: data?.meta?.total || 0,
         }}
+        sort={handlers.sorting}
+        toolbar={(table) => (
+          <DataTableToolbar
+            table={table}
+            searchKey="search"
+            searchPlaceholder="Поиск по услуге или пациенту..."
+            searchValue={values.searchImmediate}
+            onSearchChange={handlers.search.onChange}
+          >
+            <StatusFacetedSelectField
+              value={selectedStatuses}
+              onChange={handleStatusChange}
+            />
+            <PaymentStatusFacetedSelectField
+              value={selectedPaymentStatuses}
+              onChange={handlePaymentStatusChange}
+            />
+            <ServiceTypeFacetedSelectField
+              value={selectedServiceTypes}
+              onChange={handleServiceTypeChange}
+            />
+            <DepartmentFacetedSelectField
+              value={selectedDepartments}
+              onChange={handleDepartmentChange}
+            />
+          </DataTableToolbar>
+        )}
         onRowClick={(row) => {
           router.push(url(ROUTES.ORDER_DETAIL, { id: row.original.id }));
         }}
