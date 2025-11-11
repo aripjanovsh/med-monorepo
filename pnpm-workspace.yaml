@@ -1,2 +1,13 @@
 packages:
-  - 'packages/*'
+  - packages/*
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bcrypt
+  - core-js-pure
+  - nx
+  - prisma
+  - sharp
+  - unrs-resolver
