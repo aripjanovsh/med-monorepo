@@ -2,11 +2,13 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, MoreHorizontal } from "lucide-react";
+import { Edit, MoreHorizontal, Clock, MapPin, User, ArrowRight, Activity } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,6 +108,34 @@ export default function PatientDetailLayout({
   const age = calculatePatientAge(patient.dateOfBirth);
   const statusDisplay = getPatientDisplayStatus(patient.status);
 
+  // Mock данные активного визита - в реальном приложении загружать через API
+  const activeVisit = {
+    id: "visit-123",
+    status: "IN_PROGRESS",
+    startTime: "2024-06-30T10:30:00",
+    doctor: {
+      firstName: "Иван",
+      lastName: "Петров",
+      specialty: "Кардиолог"
+    },
+    department: "Кардиология",
+    room: "205"
+  };
+
+  // Функция для форматирования времени визита
+  const getVisitDuration = (startTime: string) => {
+    const start = new Date(startTime);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - start.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 60) {
+      return `${diffMinutes} мин`;
+    }
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    return `${hours}ч ${minutes}м`;
+  };
+
   return (
     <div className="space-y-6">
       <LayoutHeader backHref="/cabinet/patients" backTitle="Пациенты" />
@@ -158,6 +188,77 @@ export default function PatientDetailLayout({
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Активный визит */}
+      {activeVisit && (
+        <Card className="border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                {/* Статус индикатор */}
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                  <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                    <Activity className="h-3 w-3 mr-1" />
+                    Активный визит
+                  </Badge>
+                </div>
+
+                {/* Информация о визите */}
+                <div className="flex items-center gap-6 flex-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {new Date(activeVisit.startTime).toLocaleTimeString('ru-RU', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
+                    <span className="text-muted-foreground">
+                      ({getVisitDuration(activeVisit.startTime)})
+                    </span>
+                  </div>
+
+                  <Separator orientation="vertical" className="h-6" />
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {activeVisit.doctor.firstName} {activeVisit.doctor.lastName}
+                    </span>
+                    <span className="text-muted-foreground">
+                      • {activeVisit.doctor.specialty}
+                    </span>
+                  </div>
+
+                  <Separator orientation="vertical" className="h-6" />
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{activeVisit.department}</span>
+                    <span className="text-muted-foreground">
+                      • Кабинет {activeVisit.room}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Кнопка перехода */}
+              <Button 
+                size="sm" 
+                onClick={() => router.push(`/cabinet/patients/${id}/visits/${activeVisit.id}`)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Открыть визит
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Navigation */}
       <DetailNavigation items={navItems} baseHref={`/cabinet/patients/${id}`} />

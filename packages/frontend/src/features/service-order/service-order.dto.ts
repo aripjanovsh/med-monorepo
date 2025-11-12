@@ -101,6 +101,7 @@ export interface UpdateServiceOrderRequestDto {
 }
 
 export interface ServiceOrderQueryParamsDto extends QueryParamsDto {
+  patientId?: string;
   visitId?: string;
   doctorId?: string;
   serviceId?: string;

@@ -35,7 +35,6 @@ export {
   getWaitTimeColor,
   RECEPTION_API_TAG,
   RECEPTION_QUERY_KEYS,
-  RECEPTION_SOCKET_EVENTS,
   REFRESH_INTERVALS,
 } from "./reception.constants";
 
@@ -79,6 +78,10 @@ export { DoctorSchedule } from "./components/doctor-schedule";
 export { DoctorsTodayBoard } from "./components/doctors-today-board";
 export { UnpaidServicesPanel } from "./components/unpaid-services-panel";
 export { CompletedVisitsPanel } from "./components/completed-visits-panel";
+export { PatientQuickSearch } from "./components/patient-quick-search";
+export { LiveQueueWidget } from "./components/live-queue-widget";
+export { QuickActionsPanel } from "./components/quick-actions-panel";
+export { DailyAppointmentsCalendar } from "./components/daily-appointments-calendar";
 
 // API
 export { useGetUnpaidServicesQuery } from "./api/unpaid-services.api";
