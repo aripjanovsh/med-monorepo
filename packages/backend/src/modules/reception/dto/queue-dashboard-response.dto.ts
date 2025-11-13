@@ -26,10 +26,6 @@ export class QueueVisitDto {
 
   @Expose()
   @ApiProperty()
-  queueNumber: number;
-
-  @Expose()
-  @ApiProperty()
   queuedAt: Date;
 
   @Expose()

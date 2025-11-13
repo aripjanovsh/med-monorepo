@@ -5,6 +5,8 @@ export type DoctorQueuePatient = {
   middleName?: string;
 };
 
+export type AppointmentType = "STANDARD" | "WITHOUT_QUEUE" | "EMERGENCY";
+
 export type DoctorQueueVisit = {
   id: string;
   queueNumber: number;
@@ -13,6 +15,8 @@ export type DoctorQueueVisit = {
   patient: DoctorQueuePatient;
   waitingMinutes: number;
   notes?: string;
+  appointmentType?: AppointmentType;
+  appointmentId?: string;
 };
 
 export type DoctorQueueStats = {

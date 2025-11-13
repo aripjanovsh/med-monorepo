@@ -6,18 +6,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type CompletedVisitsListProps = {
   employeeId: string;
-  organizationId: string;
   date?: string;
 };
 
 export const CompletedVisitsList = ({
   employeeId,
-  organizationId,
   date,
 }: CompletedVisitsListProps) => {
   const { data, isLoading } = useGetDoctorQueueQuery({
     employeeId,
-    organizationId,
     date,
   });
 

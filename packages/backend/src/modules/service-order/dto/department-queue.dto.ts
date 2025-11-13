@@ -1,10 +1,8 @@
-import { IsString } from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 
-export class QueueActionDto {
+export class DepartmentQueueDto {
   @Expose()
   @InjectOrganizationId()
-  organizationId!: string;
+  organizationId: string;
 }

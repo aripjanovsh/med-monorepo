@@ -158,22 +158,36 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
     setSearch("");
   }, [defaultPage, defaultLimit, defaultSorting, defaultFilters]);
 
-  // Return structured data
-  return {
-    // For RTK Query
-    queryParams,
+  // Memoize setters object to prevent unnecessary re-renders
+  const setters = useMemo(
+    () => ({
+      setPage,
+      setLimit,
+      setSorting,
+      setColumnFilters,
+      setSearch,
+      setSearchImmediate,
+      setDebouncedValue,
+    }),
+    [setDebouncedValue]
+  );
 
-    // For DataTable component
-    tableState: {
+  // Memoize values object
+  const values = useMemo(
+    () => ({
       page,
       limit,
       sorting,
       columnFilters,
       search,
-    },
+      searchImmediate,
+    }),
+    [page, limit, sorting, columnFilters, search, searchImmediate]
+  );
 
-    // Handlers
-    handlers: {
+  // Memoize handlers object
+  const handlers = useMemo(
+    () => ({
       pagination: {
         page,
         limit,
@@ -200,27 +214,42 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
         onChange: handleFiltersChange,
       },
       reset: handleReset,
-    },
+    }),
+    [
+      page,
+      limit,
+      sortArray,
+      search,
+      columnFilters,
+      handlePageChange,
+      handleLimitChange,
+      handleSearchChange,
+      handleFiltersChange,
+      handleReset,
+    ]
+  );
 
-    // Direct state setters (for advanced usage)
-    setters: {
-      setPage,
-      setLimit,
-      setSorting,
-      setColumnFilters,
-      setSearch,
-      setSearchImmediate,
-      setDebouncedValue,
-    },
+  // Return structured data
+  return {
+    // For RTK Query
+    queryParams,
 
-    // Current state values
-    values: {
+    // For DataTable component
+    tableState: {
       page,
       limit,
       sorting,
       columnFilters,
       search,
-      searchImmediate,
     },
+
+    // Handlers
+    handlers,
+
+    // Direct state setters (for advanced usage)
+    setters,
+
+    // Current state values
+    values,
   };
 }

@@ -5,12 +5,13 @@ export const doctorApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     getDoctorQueue: builder.query<
       DoctorQueueResponse,
-      { employeeId: string; organizationId: string; date?: string }
+      { employeeId: string; date?: string }
     >({
-      query: ({ employeeId, organizationId, date }) => {
-        const params = new URLSearchParams({ organizationId });
+      query: ({ employeeId, date }) => {
+        const params = new URLSearchParams();
         if (date) params.append("date", date);
-        return `/api/v1/visits/doctor/${employeeId}/queue?${params.toString()}`;
+        const queryString = params.toString();
+        return `/api/v1/visits/doctor/${employeeId}/queue${queryString ? `?${queryString}` : ''}`;
       },
       providesTags: (result, error, { employeeId }) => [
         { type: "Visit", id: `doctor-queue-${employeeId}` },
@@ -19,31 +20,33 @@ export const doctorApi = rootApi.injectEndpoints({
 
     startVisit: builder.mutation<
       void,
-      { visitId: string; organizationId: string }
+      { visitId: string; employeeId: string }
     >({
-      query: ({ visitId, organizationId }) => ({
+      query: ({ visitId }) => ({
         url: `/api/v1/visits/${visitId}/start`,
         method: "POST",
-        body: { organizationId },
+        body: {},
       }),
-      invalidatesTags: (result, error, { visitId }) => [
+      invalidatesTags: (result, error, { visitId, employeeId }) => [
         { type: "Visit", id: visitId },
         { type: "Visit", id: "LIST" },
+        { type: "Visit", id: `doctor-queue-${employeeId}` },
       ],
     }),
 
     completeVisit: builder.mutation<
       void,
-      { visitId: string; organizationId: string; notes?: string }
+      { visitId: string; employeeId: string; notes?: string }
     >({
-      query: ({ visitId, organizationId, notes }) => ({
+      query: ({ visitId, notes }) => ({
         url: `/api/v1/visits/${visitId}/complete`,
         method: "POST",
-        body: { organizationId, notes },
+        body: { notes },
       }),
-      invalidatesTags: (result, error, { visitId }) => [
+      invalidatesTags: (result, error, { visitId, employeeId }) => [
         { type: "Visit", id: visitId },
         { type: "Visit", id: "LIST" },
+        { type: "Visit", id: `doctor-queue-${employeeId}` },
       ],
     }),
   }),

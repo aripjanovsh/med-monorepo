@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import {
   useGetVisitQuery,
-  useUpdateVisitStatusMutation,
+  useCompleteVisitMutation,
   VisitStatusBadge,
   isVisitEditable,
   canCompleteVisit,
@@ -33,7 +33,7 @@ export default function VisitDetailPage({ params }: PageProps) {
   const router = useRouter();
   const confirm = useConfirmDialog();
   const { data: visit, isLoading, error, refetch } = useGetVisitQuery(id);
-  const [updateStatus] = useUpdateVisitStatusMutation();
+  const [completeVisit] = useCompleteVisitMutation();
 
   const handleCompleteVisit = useCallback(() => {
     confirm({
@@ -42,7 +42,7 @@ export default function VisitDetailPage({ params }: PageProps) {
       confirmText: "Завершить",
       onConfirm: async () => {
         try {
-          await updateStatus({ id, status: "COMPLETED" }).unwrap();
+          await completeVisit({ id }).unwrap();
           toast.success("Прием успешно завершен");
           refetch();
         } catch (error: any) {
@@ -55,7 +55,7 @@ export default function VisitDetailPage({ params }: PageProps) {
         }
       },
     });
-  }, [confirm, id, updateStatus, refetch]);
+  }, [confirm, id, completeVisit, refetch]);
 
   if (isLoading) {
     return <LoadingState title="Загрузка визита..." />;
@@ -138,18 +138,20 @@ export default function VisitDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div>
-                <p className="text-sm text-muted-foreground">Пациент</p>
-                <p className="font-medium text-lg">
-                  {getPatientFullName(visit.patient)}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Дата рождения:{" "}
-                  {format(new Date(visit.patient.dateOfBirth), "dd.MM.yyyy", {
-                    locale: ru,
-                  })}
-                </p>
-              </div>
+              {visit.patient && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Пациент</p>
+                  <p className="font-medium text-lg">
+                    {getPatientFullName(visit.patient)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Дата рождения:{" "}
+                    {format(new Date(visit.patient.dateOfBirth), "dd.MM.yyyy", {
+                      locale: ru,
+                    })}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <p className="text-sm text-muted-foreground">Врач</p>

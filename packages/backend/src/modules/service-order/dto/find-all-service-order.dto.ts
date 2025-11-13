@@ -8,8 +8,9 @@ import {
   IsString,
   IsDateString,
 } from "class-validator";
-import { Type } from "class-transformer";
+import { Type, Expose } from "class-transformer";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 
 export class FindAllServiceOrderDto {
   @ApiPropertyOptional({ description: "Page number", default: 1 })
@@ -26,9 +27,8 @@ export class FindAllServiceOrderDto {
   @Min(1)
   limit?: number;
 
-  @ApiPropertyOptional({ description: "Organization ID" })
-  @IsOptional()
-  @IsUUID()
+  @Expose()
+  @InjectOrganizationId()
   organizationId?: string;
 
   @ApiPropertyOptional({ description: "Visit ID" })

@@ -29,15 +29,17 @@ export const VisitInfoCards = ({ visit }: VisitInfoCardsProps) => {
               <p className="text-2xl font-semibold">
                 {getPatientFullName(visit.patient)}
               </p>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p>
-                  Дата рождения:{" "}
-                  {format(new Date(visit.patient.dateOfBirth), "dd.MM.yyyy", {
-                    locale: ru,
-                  })}
-                </p>
-                <p>Пол: {visit.patient.gender}</p>
-              </div>
+              {visit.patient && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>
+                    Дата рождения:{" "}
+                    {format(new Date(visit.patient.dateOfBirth), "dd.MM.yyyy", {
+                      locale: ru,
+                    })}
+                  </p>
+                  <p>Пол: {visit.patient.gender}</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -54,7 +56,7 @@ export const VisitInfoCards = ({ visit }: VisitInfoCardsProps) => {
               <p className="text-2xl font-semibold">
                 {getEmployeeFullName(visit.employee)}
               </p>
-              {visit.employee.employeeId && (
+              {visit.employee?.employeeId && (
                 <p className="text-sm text-muted-foreground">
                   ID: {visit.employee.employeeId}
                 </p>

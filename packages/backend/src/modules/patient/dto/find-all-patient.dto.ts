@@ -41,27 +41,6 @@ export class FindAllPatientDto extends FindAllQueryDto {
 
   @Expose()
   @ApiProperty({
-    description: "Sort by field",
-    required: false,
-    example: "firstName",
-  })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Sort order",
-    required: false,
-    example: "asc",
-    enum: ["asc", "desc"],
-  })
-  @IsOptional()
-  @IsEnum(["asc", "desc"])
-  sortOrder?: "asc" | "desc";
-
-  @Expose()
-  @ApiProperty({
     description: "Filter by doctor/employee ID",
     required: false,
   })

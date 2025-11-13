@@ -2,45 +2,22 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, FileText, User, Activity } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useGetUnpaidServicesQuery } from "../api/unpaid-services.api";
-import { OrderStatusBadge } from "@/features/service-order";
+import { useGetServiceOrdersQuery, OrderStatusBadge } from "@/features/service-order";
 
-type UnpaidService = {
-  id: string;
-  patient: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    middleName?: string;
-  };
-  service: {
-    id: string;
-    name: string;
-    price: number;
-  };
-  visit: {
-    id: string;
-  };
-  queueStatus?: string;
-  status: string;
-  finishedAt?: string;
-  resultText?: string;
-};
+import type { ServiceOrderResponseDto } from "@/features/service-order/service-order.dto";
 
-type UnpaidServicesPanelProps = {
-  organizationId: string;
-};
+type UnpaidServicesPanelProps = Record<string, never>;
 
-export const UnpaidServicesPanel = ({
-  organizationId,
-}: UnpaidServicesPanelProps) => {
+export const UnpaidServicesPanel = () => {
   const router = useRouter();
   
-  const { data: response, isLoading } = useGetUnpaidServicesQuery({
-    organizationId,
+  const { data: response, isLoading } = useGetServiceOrdersQuery({
+    paymentStatus: "UNPAID",
+    status: "COMPLETED",
   });
 
   const handleCreateInvoice = (patientId: string, visitId: string) => {
@@ -54,7 +31,7 @@ export const UnpaidServicesPanel = ({
     return new Intl.NumberFormat("ru-RU").format(price) + " сум";
   };
 
-  const formatPatientName = (patient: UnpaidService["patient"]) => {
+  const formatPatientName = (patient: ServiceOrderResponseDto["patient"]) => {
     return [patient.lastName, patient.firstName, patient.middleName]
       .filter(Boolean)
       .join(" ");
@@ -100,7 +77,7 @@ export const UnpaidServicesPanel = ({
           </div>
         ) : (
           <div className="space-y-3">
-            {data.map((service) => (
+            {data.map((service: ServiceOrderResponseDto) => (
               <div
                 key={service.id}
                 className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
@@ -144,8 +121,9 @@ export const UnpaidServicesPanel = ({
                   <Button
                     size="sm"
                     onClick={() =>
-                      handleCreateInvoice(service.patient.id, service.visit.id)
+                      handleCreateInvoice(service.patient.id, service.visitId ?? "")
                     }
+                    disabled={!service.visitId}
                   >
                     <DollarSign className="mr-1 h-4 w-4" />
                     Создать счёт

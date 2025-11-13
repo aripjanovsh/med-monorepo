@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES, url } from "@/constants/route.constants";
 import {
   useGetVisitQuery,
-  useUpdateVisitStatusMutation,
+  useCompleteVisitMutation,
   isVisitEditable,
 } from "@/features/visit";
 import {
@@ -27,7 +27,7 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
   const router = useRouter();
   const confirm = useConfirmDialog();
   const { data: visit, isLoading, error, refetch } = useGetVisitQuery(visitId);
-  const [updateStatus] = useUpdateVisitStatusMutation();
+  const [completeVisit] = useCompleteVisitMutation();
 
   const handleCompleteVisit = useCallback(async () => {
     confirm({
@@ -35,7 +35,7 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
       description: "Вы уверены, что хотите завершить прием пациента?",
       onConfirm: async () => {
         try {
-          await updateStatus({ id: visitId, status: "COMPLETED" }).unwrap();
+          await completeVisit({ id: visitId }).unwrap();
           toast.success("Прием завершен");
         } catch (error: unknown) {
           const errorMessage =
@@ -46,7 +46,7 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
         }
       },
     });
-  }, [confirm, updateStatus, visitId]);
+  }, [confirm, completeVisit, visitId]);
 
   if (isLoading) {
     return <LoadingState title="Загрузка данных визита..." />;

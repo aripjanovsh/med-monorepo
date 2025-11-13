@@ -27,7 +27,6 @@ export const employeeApi = rootApi.injectEndpoints({
         method: "GET",
         params, // DTO matches domain params
       }),
-      providesTags: [API_TAG_OPERATIONS_EMPLOYEES],
     }),
 
     // Get employee by ID

@@ -5,14 +5,15 @@ import { APPOINTMENT_TYPE } from "./reception.constants";
 export const quickCreateVisitFormSchema = yup.object({
   patientId: yup.string().required("Выберите пациента"),
   employeeId: yup.string().required("Выберите врача"),
-  serviceId: yup.string().required("Выберите услугу"),
+  serviceId: yup.string(),
   type: yup
     .string()
     .oneOf(Object.values(APPOINTMENT_TYPE), "Выберите тип записи")
-    .default(APPOINTMENT_TYPE.WITHOUT_QUEUE),
-  roomNumber: yup.string().optional(),
-  notes: yup.string().optional(),
-  createInvoice: yup.boolean().default(false),
+    .default(APPOINTMENT_TYPE.STANDARD),
+  notes: yup
+    .string()
+    .optional()
+    .transform((value) => value || undefined),
 });
 
 // Quick Create Visit Request Schema (API)
@@ -23,10 +24,9 @@ export const quickCreateVisitRequestSchema = yup.object({
   type: yup
     .string()
     .oneOf(Object.values(APPOINTMENT_TYPE))
-    .default(APPOINTMENT_TYPE.WITHOUT_QUEUE),
+    .default(APPOINTMENT_TYPE.STANDARD),
   roomNumber: yup.string().optional(),
   notes: yup.string().optional(),
-  createInvoice: yup.boolean().default(false),
 });
 
 // Dashboard Stats Query Schema
@@ -40,7 +40,17 @@ export const doctorScheduleQuerySchema = yup.object({
   departmentId: yup.string().optional(),
 });
 
-// Type inference
-export type QuickCreateVisitFormData = yup.InferType<typeof quickCreateVisitFormSchema>;
-export type DashboardStatsQueryData = yup.InferType<typeof dashboardStatsQuerySchema>;
-export type DoctorScheduleQueryData = yup.InferType<typeof doctorScheduleQuerySchema>;
+// Type inference with explicit optional fields
+export type QuickCreateVisitFormData = {
+  patientId: string;
+  employeeId: string;
+  serviceId: string;
+  type: "STANDARD" | "WITHOUT_QUEUE" | "EMERGENCY";
+  notes?: string | undefined;
+};
+export type DashboardStatsQueryData = yup.InferType<
+  typeof dashboardStatsQuerySchema
+>;
+export type DoctorScheduleQueryData = yup.InferType<
+  typeof doctorScheduleQuerySchema
+>;

@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { VISIT_STATUS_LABELS, VISIT_STATUS_COLORS } from "../visit.constants";
-import type { VisitStatus } from "../visit.dto";
+import type { VisitStatus } from "../visit.constants";
 
 type VisitStatusBadgeProps = {
   status: VisitStatus;

@@ -3,11 +3,13 @@ import { API_TAG_OPERATIONS_VISITS } from "@/constants/api-tags.constants";
 import type {
   CreateVisitRequestDto,
   UpdateVisitRequestDto,
-  UpdateVisitStatusRequestDto,
+  StartVisitRequestDto,
+  CompleteVisitRequestDto,
   VisitResponseDto,
   VisitsListResponseDto,
   VisitsQueryParamsDto,
 } from "./visit.dto";
+import { VisitIncludeRelation } from "./visit.dto";
 
 export const visitApi = rootApi.injectEndpoints({
   overrideExisting: false,
@@ -16,7 +18,14 @@ export const visitApi = rootApi.injectEndpoints({
       query: (params) => ({
         url: "/api/v1/visits",
         method: "GET",
-        params,
+        params: {
+          ...params,
+          // Default include patient and employee if not specified
+          include: params.include ?? [
+            VisitIncludeRelation.PATIENT,
+            VisitIncludeRelation.EMPLOYEE,
+          ],
+        },
       }),
       providesTags: [API_TAG_OPERATIONS_VISITS],
     }),
@@ -52,14 +61,44 @@ export const visitApi = rootApi.injectEndpoints({
       ],
     }),
 
-    updateVisitStatus: builder.mutation<
+    startVisit: builder.mutation<
       VisitResponseDto,
-      { id: string } & UpdateVisitStatusRequestDto
+      { id: string } & StartVisitRequestDto
     >({
       query: ({ id, ...data }) => ({
-        url: `/api/v1/visits/${id}/status`,
-        method: "PATCH",
+        url: `/api/v1/visits/${id}/start`,
+        method: "POST",
         body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: API_TAG_OPERATIONS_VISITS, id },
+        API_TAG_OPERATIONS_VISITS,
+      ],
+    }),
+
+    completeVisit: builder.mutation<
+      VisitResponseDto,
+      { id: string } & CompleteVisitRequestDto
+    >({
+      query: ({ id, ...data }) => ({
+        url: `/api/v1/visits/${id}/complete`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: API_TAG_OPERATIONS_VISITS, id },
+        API_TAG_OPERATIONS_VISITS,
+      ],
+    }),
+
+    cancelVisit: builder.mutation<
+      VisitResponseDto,
+      { id: string; cancelReason?: string }
+    >({
+      query: ({ id, cancelReason }) => ({
+        url: `/api/v1/visits/${id}/cancel`,
+        method: "POST",
+        body: { cancelReason },
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: API_TAG_OPERATIONS_VISITS, id },
@@ -85,6 +124,8 @@ export const {
   useGetVisitQuery,
   useCreateVisitMutation,
   useUpdateVisitMutation,
-  useUpdateVisitStatusMutation,
+  useStartVisitMutation,
+  useCompleteVisitMutation,
+  useCancelVisitMutation,
   useDeleteVisitMutation,
 } = visitApi;

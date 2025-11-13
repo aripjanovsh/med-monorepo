@@ -16,8 +16,11 @@ import {
 // =============================================
 
 export const getPatientFullName = (
-  patient: PatientResponseDto | SimplePatientDto | { firstName: string; lastName: string; middleName?: string }
+  patient?: PatientResponseDto | SimplePatientDto | { firstName: string; lastName: string; middleName?: string }
 ): string => {
+  if (!patient) {
+    return "—";
+  }
   return [patient.lastName, patient.firstName, patient.middleName]
     .filter(Boolean)
     .join(" ");

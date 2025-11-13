@@ -1,20 +1,20 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
-import { ApiPropertyOptional } from "@nestjs/swagger";
 
 @Exclude()
-export class CompleteVisitDto {
+export class CancelVisitDto {
   @Expose()
   @InjectOrganizationId()
   organizationId: string;
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Visit completion notes",
-    example: "Patient condition improved, prescribed medication",
+    description: "Reason for cancellation",
+    example: "Patient did not show up",
   })
   @IsOptional()
   @IsString()
-  notes?: string;
+  cancelReason?: string;
 }

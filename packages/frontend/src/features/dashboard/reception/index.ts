@@ -1,5 +1,5 @@
 // Reception Dashboard Page
-export { ReceptionDashboardPage } from "./reception-dashboard-page";
+export { ReceptionDashboardPage } from "../../reception/components/reception-dashboard-page";
 
 // Widgets
 export { StatsWidget as ReceptionStatsWidget } from "./widgets/stats-widget";

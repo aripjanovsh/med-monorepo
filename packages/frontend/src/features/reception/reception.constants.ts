@@ -6,8 +6,11 @@ export const APPOINTMENT_TYPE = {
 } as const;
 
 export const APPOINTMENT_TYPE_OPTIONS = [
-  { value: APPOINTMENT_TYPE.STANDARD, label: "Стандартная запись", color: "blue" },
-  { value: APPOINTMENT_TYPE.WITHOUT_QUEUE, label: "Без очереди", color: "green" },
+  {
+    value: APPOINTMENT_TYPE.STANDARD,
+    label: "Стандартная запись",
+    color: "blue",
+  },
   { value: APPOINTMENT_TYPE.EMERGENCY, label: "Экстренная", color: "red" },
 ] as const;
 
@@ -23,7 +26,12 @@ export const DOCTOR_STATUS_OPTIONS = [
   { value: DOCTOR_STATUS.FREE, label: "Свободен", color: "green", icon: "✓" },
   { value: DOCTOR_STATUS.BUSY, label: "Занят", color: "red", icon: "⏱" },
   { value: DOCTOR_STATUS.BREAK, label: "Перерыв", color: "orange", icon: "☕" },
-  { value: DOCTOR_STATUS.FINISHED, label: "Завершил", color: "gray", icon: "✓" },
+  {
+    value: DOCTOR_STATUS.FINISHED,
+    label: "Завершил",
+    color: "gray",
+    icon: "✓",
+  },
 ] as const;
 
 // Doctor Status Map
@@ -68,7 +76,8 @@ export const RECEPTION_API_TAG = "Reception" as const;
 // Query Keys
 export const RECEPTION_QUERY_KEYS = {
   all: ["reception"] as const,
-  stats: (date?: string) => [...RECEPTION_QUERY_KEYS.all, "stats", date] as const,
+  stats: (date?: string) =>
+    [...RECEPTION_QUERY_KEYS.all, "stats", date] as const,
   queue: () => [...RECEPTION_QUERY_KEYS.all, "queue"] as const,
   doctors: (date?: string, departmentId?: string) =>
     [...RECEPTION_QUERY_KEYS.all, "doctors", date, departmentId] as const,

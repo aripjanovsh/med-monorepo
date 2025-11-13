@@ -63,7 +63,7 @@ export const patientColumns: ColumnDef<PatientResponseDto>[] = [
     },
   },
   {
-    accessorKey: "lastVisit",
+    accessorKey: "lastVisitedAt",
     header: "Последний визит",
     enableSorting: true,
     cell: ({ row }) => {

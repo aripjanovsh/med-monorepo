@@ -2,33 +2,67 @@
 
 import { useState, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { useGetMeQuery } from "@/features/auth";
 import { EmployeeSelect } from "@/features/employees";
-import { useGetDoctorQueueQuery } from "@/features/doctor/api/doctor.api";
+import { useGetDoctorQueueQuery, useStartVisitMutation, useCompleteVisitMutation } from "@/features/doctor/api/doctor.api";
 import { CompletedVisitsList } from "@/features/doctor/components/completed-visits-list";
 import { StatsWidget } from "./widgets/stats-widget";
 import { QueueWidget } from "./widgets/queue-widget";
 import { CurrentPatientWidget } from "./widgets/current-patient-widget";
 
 export const DoctorDashboardPage = () => {
+  const { toast } = useToast();
   const { data: currentUser } = useGetMeQuery();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
-
-  const organizationId = currentUser?.organizationId ?? "";
 
   const { data, isLoading } = useGetDoctorQueueQuery(
     {
       employeeId: selectedEmployeeId,
-      organizationId,
     },
     {
-      skip: !selectedEmployeeId || !organizationId,
+      skip: !selectedEmployeeId,
     }
   );
+
+  const [startVisit, { isLoading: isStarting }] = useStartVisitMutation();
+  const [completeVisit, { isLoading: isCompleting }] = useCompleteVisitMutation();
 
   const handleEmployeeChange = useCallback((value: string) => {
     setSelectedEmployeeId(value);
   }, []);
+
+  const handleStartVisit = useCallback(async (visitId: string) => {
+    try {
+      await startVisit({ visitId, employeeId: selectedEmployeeId }).unwrap();
+      toast({
+        title: "Успех",
+        description: "Прием начат",
+      });
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось начать прием",
+        variant: "destructive",
+      });
+    }
+  }, [startVisit, selectedEmployeeId, toast]);
+
+  const handleCompleteVisit = useCallback(async (visitId: string) => {
+    try {
+      await completeVisit({ visitId, employeeId: selectedEmployeeId }).unwrap();
+      toast({
+        title: "Успех",
+        description: "Прием завершен",
+      });
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось завершить прием",
+        variant: "destructive",
+      });
+    }
+  }, [completeVisit, selectedEmployeeId, toast]);
 
   return (
     <div className="space-y-6">
@@ -69,18 +103,18 @@ export const DoctorDashboardPage = () => {
           <div className="grid gap-6 lg:grid-cols-2">
             <CurrentPatientWidget
               employeeId={selectedEmployeeId}
-              organizationId={organizationId}
+              onStartVisit={handleStartVisit}
+              onCompleteVisit={handleCompleteVisit}
             />
             <QueueWidget
               employeeId={selectedEmployeeId}
-              organizationId={organizationId}
+              onStartVisit={handleStartVisit}
             />
           </div>
 
           {/* Completed Visits */}
           <CompletedVisitsList
             employeeId={selectedEmployeeId}
-            organizationId={organizationId}
           />
         </>
       )}

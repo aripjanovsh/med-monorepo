@@ -53,7 +53,7 @@ export {
   useGetDashboardStatsQuery,
   useGetQueueQuery,
   useGetDoctorScheduleQuery,
-  useQuickCreateVisitMutation,
+  useCreateVisitMutation,
   useGetQueueDashboardQuery,
 } from "./reception.api";
 
@@ -71,7 +71,7 @@ export {
 } from "./reception.model";
 
 // Components
-export { QuickCreateVisitModal } from "./components/quick-create-visit-modal";
+export { QuickCreateVisitModal } from "../visit/components/quick-create-visit-modal";
 export { ReceptionStats } from "./components/reception-stats";
 export { WaitingQueue } from "./components/waiting-queue";
 export { DoctorSchedule } from "./components/doctor-schedule";
@@ -82,6 +82,3 @@ export { PatientQuickSearch } from "./components/patient-quick-search";
 export { LiveQueueWidget } from "./components/live-queue-widget";
 export { QuickActionsPanel } from "./components/quick-actions-panel";
 export { DailyAppointmentsCalendar } from "./components/daily-appointments-calendar";
-
-// API
-export { useGetUnpaidServicesQuery } from "./api/unpaid-services.api";

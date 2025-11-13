@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { useGetQueueDashboardQuery } from "../reception.api";
@@ -28,27 +27,26 @@ const DoctorRow = ({ doctor }: { doctor: DoctorQueue }) => {
 
   const statusInfo = statusConfig[doctor.status];
   const totalPatients = doctor.stats.waiting + doctor.stats.completed;
-  const progressPercent =
-    totalPatients > 0 ? (doctor.stats.completed / totalPatients) * 100 : 0;
 
   return (
     <div className="border-b last:border-b-0">
       {/* Main Row */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-muted/50"
+        className="flex w-full items-center gap-2 p-2.5 text-left transition-colors hover:bg-muted/50"
+        type="button"
       >
         {/* Status Indicator */}
-        <div className="flex items-center gap-1.5 min-w-[90px]">
-          <div className={`h-2.5 w-2.5 rounded-full ${statusInfo.bgColor}`} />
+        <div className="flex items-center gap-1.5 min-w-[80px]">
+          <div className={`h-2 w-2 rounded-full ${statusInfo.bgColor}`} />
           <span className={`text-xs font-medium ${statusInfo.color}`}>
             {statusInfo.label}
           </span>
         </div>
 
         {/* Doctor Name */}
-        <div className="min-w-[180px] flex-1">
-          <div className="text-sm font-medium">{fullName}</div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium truncate">{fullName}</div>
           <div className="text-xs text-muted-foreground">
             {doctor.stats.completed}/{totalPatients}
           </div>
@@ -56,42 +54,15 @@ const DoctorRow = ({ doctor }: { doctor: DoctorQueue }) => {
 
         {/* Queue Badge */}
         {doctor.stats.waiting > 0 && (
-          <Badge variant="secondary" className="h-6 text-xs">
+          <Badge variant="secondary" className="h-6 text-xs shrink-0">
             <Users className="mr-1 h-3 w-3" />
             {doctor.stats.waiting}
           </Badge>
         )}
 
-        {/* Current Patient */}
-        {doctor.queue.length > 0 && doctor.queue[0] && (
-          <div className="hidden min-w-[120px] text-xs md:block">
-            <span className="text-muted-foreground">Первый: </span>
-            <span>
-              {[
-                doctor.queue[0].patient.lastName,
-                doctor.queue[0].patient.firstName?.charAt(0) + ".",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            </span>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="hidden items-center gap-3 text-xs text-muted-foreground lg:flex">
-          <div className="flex items-center gap-1" title="Ср. ожидание">
-            <Clock className="h-3 w-3" />
-            <span>{doctor.stats.avgWaitingTime}м</span>
-          </div>
-          <div className="flex items-center gap-1" title="Ср. приём">
-            <Clock className="h-3 w-3" />
-            <span>{doctor.stats.avgServiceTime}м</span>
-          </div>
-        </div>
-
         {/* Expand Icon */}
         {doctor.queue.length > 0 && (
-          <div className="ml-auto">
+          <div className="shrink-0">
             {isExpanded ? (
               <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
@@ -103,11 +74,11 @@ const DoctorRow = ({ doctor }: { doctor: DoctorQueue }) => {
 
       {/* Expanded Queue */}
       {isExpanded && doctor.queue.length > 0 && (
-        <div className="border-t bg-muted/30 p-3">
-          <div className="mb-2 text-xs font-medium text-muted-foreground">
+        <div className="border-t bg-muted/30 p-2">
+          <div className="mb-1.5 text-xs font-medium text-muted-foreground px-1">
             Очередь ({doctor.queue.length})
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             {doctor.queue.map((visit) => {
               const patientName = [
                 visit.patient.lastName,
@@ -120,18 +91,18 @@ const DoctorRow = ({ doctor }: { doctor: DoctorQueue }) => {
               return (
                 <div
                   key={visit.id}
-                  className="flex items-center justify-between rounded-md bg-background p-2.5"
+                  className="flex items-center justify-between rounded-md bg-background p-2"
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <Badge
                       variant="outline"
-                      className="h-5 w-5 justify-center p-0 text-xs"
+                      className="h-5 w-5 justify-center p-0 text-xs shrink-0"
                     >
                       {visit.queueNumber}
                     </Badge>
-                    <span className="text-xs">{patientName}</span>
+                    <span className="text-xs truncate">{patientName}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 ml-2">
                     <Clock className="h-3 w-3" />
                     <span>{visit.waitingMinutes}м</span>
                   </div>
@@ -152,41 +123,33 @@ export const DoctorsTodayBoard = ({ date }: { date?: string }) => {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-0">
-          <div className="divide-y">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="p-4">
-                <Skeleton className="h-12 w-full" />
-              </div>
-            ))}
+      <div className="divide-y bg-card">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="p-4">
+            <Skeleton className="h-12 w-full" />
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-sm text-destructive">
-            Ошибка загрузки данных
-          </p>
-        </CardContent>
-      </Card>
+      <div className="bg-card p-6">
+        <p className="text-center text-sm text-destructive">
+          Ошибка загрузки данных
+        </p>
+      </div>
     );
   }
 
   if (!data || data.doctors.length === 0) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-sm text-muted-foreground">
-            Нет активных врачей сегодня
-          </p>
-        </CardContent>
-      </Card>
+      <div className="bg-card p-6">
+        <p className="text-center text-sm text-muted-foreground">
+          Нет активных врачей сегодня
+        </p>
+      </div>
     );
   }
 
@@ -198,12 +161,10 @@ export const DoctorsTodayBoard = ({ date }: { date?: string }) => {
   });
 
   return (
-    <Card className="p-0">
-      <CardContent className="p-0">
-        {sortedDoctors.map((doctor) => (
-          <DoctorRow key={doctor.id} doctor={doctor} />
-        ))}
-      </CardContent>
-    </Card>
+    <div className="divide-y bg-card">
+      {sortedDoctors.map((doctor) => (
+        <DoctorRow key={doctor.id} doctor={doctor} />
+      ))}
+    </div>
   );
 };

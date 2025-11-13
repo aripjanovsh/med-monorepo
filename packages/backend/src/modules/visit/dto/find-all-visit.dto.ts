@@ -1,10 +1,21 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsEnum, IsUUID, IsDateString } from "class-validator";
-import { Expose, Exclude } from "class-transformer";
+import { IsOptional, IsEnum, IsUUID, IsDateString, IsArray } from "class-validator";
+import { Expose, Exclude, Type, Transform } from "class-transformer";
 import { VisitStatus } from "@prisma/client";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 import { PaginationDto } from "@/common/dto/pagination.dto";
 import { TransformDate } from "@/common/decorators";
+
+export enum VisitIncludeRelation {
+  PATIENT = "patient",
+  EMPLOYEE = "employee",
+  APPOINTMENT = "appointment",
+  PROTOCOL = "protocol",
+  ORGANIZATION = "organization",
+  MEDICAL_RECORDS = "medicalRecords",
+  PRESCRIPTIONS = "prescriptions",
+  SERVICE_ORDERS = "serviceOrders",
+}
 
 @Exclude()
 export class FindAllVisitDto extends PaginationDto {
@@ -59,4 +70,22 @@ export class FindAllVisitDto extends PaginationDto {
   @IsDateString()
   @TransformDate()
   dateTo?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Relations to include in the response",
+    enum: VisitIncludeRelation,
+    isArray: true,
+    example: [VisitIncludeRelation.PATIENT, VisitIncludeRelation.EMPLOYEE],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(VisitIncludeRelation, { each: true })
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      return value.split(",").map((v) => v.trim());
+    }
+    return value;
+  })
+  include?: VisitIncludeRelation[];
 }

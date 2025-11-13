@@ -15,7 +15,7 @@ import {
   type FilledFormData,
 } from "@/features/form-builder";
 import { useUpdateVisitMutation } from "../visit.api";
-import type { VisitStatus } from "../visit.dto";
+import type { VisitStatus } from "../visit.constants";
 import type {
   SavedProtocolData,
   FilledProtocolOption,

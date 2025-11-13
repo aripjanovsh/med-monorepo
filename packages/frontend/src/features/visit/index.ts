@@ -3,12 +3,14 @@ export type {
   VisitResponseDto,
   CreateVisitRequestDto,
   UpdateVisitRequestDto,
-  UpdateVisitStatusRequestDto,
+  StartVisitRequestDto,
+  CompleteVisitRequestDto,
   VisitsQueryParamsDto,
   VisitsListResponseDto,
   SimplePatientDto,
   SimpleEmployeeDto,
 } from "./visit.dto";
+export { VisitIncludeRelation } from "./visit.dto";
 export type { VisitStatus } from "./visit.constants";
 export type { VisitFormData } from "./visit.schema";
 export type { SavedProtocolData, FilledProtocolOption } from "./visit-protocol.types";
@@ -35,6 +37,9 @@ export {
   canCompleteVisit,
   canCancelVisit,
   formatVisitDate,
+  getVisitUnpaidTotal,
+  hasVisitUnpaidServices,
+  formatDoctorShortName,
 } from "./visit.model";
 
 // API hooks
@@ -43,7 +48,9 @@ export {
   useGetVisitQuery,
   useCreateVisitMutation,
   useUpdateVisitMutation,
-  useUpdateVisitStatusMutation,
+  useStartVisitMutation,
+  useCompleteVisitMutation,
+  useCancelVisitMutation,
   useDeleteVisitMutation,
 } from "./visit.api";
 

@@ -35,6 +35,15 @@ export const VisitDetailSections = ({
   visit,
   isEditable,
 }: VisitDetailSectionsProps) => {
+  // Early return if required data is missing
+  if (!visit.patient || !visit.employee) {
+    return null;
+  }
+
+  // Extract required data (TypeScript now knows they're defined)
+  const patient = visit.patient;
+  const employee = visit.employee;
+
   // Dialog managers
   const addPrescriptionDialog = useDialog(AddPrescriptionDialog);
   const addAllergyDialog = useDialog(AddPatientAllergyDialog);
@@ -43,10 +52,10 @@ export const VisitDetailSections = ({
 
   // Data queries
   const { data: latestParameters } = useGetLatestPatientParametersQuery(
-    visit.patient.id
+    patient.id
   );
   const { data: allergiesData } = useGetPatientAllergiesQuery({
-    patientId: visit.patient.id,
+    patientId: patient.id,
     page: 1,
     limit: 100,
   });
@@ -71,33 +80,33 @@ export const VisitDetailSections = ({
   const handleAddPrescription = useCallback(() => {
     addPrescriptionDialog.open({
       visitId: visit.id,
-      employeeId: visit.employee.id,
+      employeeId: employee.id,
     });
-  }, [addPrescriptionDialog, visit.id, visit.employee.id]);
+  }, [addPrescriptionDialog, visit.id, employee.id]);
 
   const handleAddAllergy = useCallback(() => {
     addAllergyDialog.open({
-      patientId: visit.patient.id,
+      patientId: patient.id,
       visitId: visit.id,
-      recordedById: visit.employee.id,
+      recordedById: employee.id,
     });
-  }, [addAllergyDialog, visit.patient.id, visit.id, visit.employee.id]);
+  }, [addAllergyDialog, patient.id, visit.id, employee.id]);
 
   const handleAddParameter = useCallback(() => {
     addParameterDialog.open({
-      patientId: visit.patient.id,
+      patientId: patient.id,
       visitId: visit.id,
-      recordedById: visit.employee.id,
+      recordedById: employee.id,
     });
-  }, [addParameterDialog, visit.patient.id, visit.id, visit.employee.id]);
+  }, [addParameterDialog, patient.id, visit.id, employee.id]);
 
   const handleAddServices = useCallback(() => {
     addServicesDialog.open({
       visitId: visit.id,
-      patientId: visit.patient.id,
-      doctorId: visit.employee.id,
+      patientId: patient.id,
+      doctorId: employee.id,
     });
-  }, [addServicesDialog, visit.id, visit.patient.id, visit.employee.id]);
+  }, [addServicesDialog, visit.id, patient.id, employee.id]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -111,7 +120,7 @@ export const VisitDetailSections = ({
           <CardContent>
             <VisitProtocol
               visitId={visit.id}
-              patientId={visit.patient.id}
+              patientId={patient.id}
               initialProtocolId={visit.protocol?.id}
               initialProtocolData={
                 visit.protocolData

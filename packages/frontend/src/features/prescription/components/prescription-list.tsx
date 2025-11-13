@@ -11,7 +11,7 @@ import {
   useDeletePrescriptionMutation,
 } from "../prescription.api";
 import { getFrequencyLabel, getDurationLabel } from "../prescription.constants";
-import type { VisitStatus } from "@/features/visit/visit.dto";
+import type { VisitStatus } from "@/features/visit/visit.constants";
 
 type PrescriptionListProps = {
   visitId: string;

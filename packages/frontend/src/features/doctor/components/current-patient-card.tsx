@@ -7,18 +7,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type CurrentPatientCardProps = {
   employeeId: string;
-  organizationId: string;
   date?: string;
 };
 
 export const CurrentPatientCard = ({
   employeeId,
-  organizationId,
   date,
 }: CurrentPatientCardProps) => {
   const { data, isLoading } = useGetDoctorQueueQuery({
     employeeId,
-    organizationId,
     date,
   });
 
@@ -30,7 +27,6 @@ export const CurrentPatientCard = ({
     try {
       await completeVisit({
         visitId: data.inProgress.id,
-        organizationId,
       }).unwrap();
     } catch (error) {
       console.error("Failed to complete visit:", error);

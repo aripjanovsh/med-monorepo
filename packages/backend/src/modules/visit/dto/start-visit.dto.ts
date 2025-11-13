@@ -1,7 +1,9 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { Expose, Exclude } from "class-transformer";
+import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 
+@Exclude()
 export class StartVisitDto {
-  @IsNotEmpty()
-  @IsString()
+  @Expose()
+  @InjectOrganizationId()
   organizationId: string;
 }

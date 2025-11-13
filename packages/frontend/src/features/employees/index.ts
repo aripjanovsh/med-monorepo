@@ -1,28 +1,15 @@
 // Domain Types exports
 export type {
-  Employee,
-  EmployeeStats,
-  EmergencyContact,
-  Education,
-  Certification,
-  PerformanceRating,
-  Schedule,
-  EmployeeAppointment,
-  EmployeeNote,
-  Achievement,
-  EmployeesListResponse,
-  EmployeesQueryParams,
-} from "./employee.types";
-
-// DTO Types exports
-export type {
-  EmployeeDto,
+  EmployeeResponseDto,
+  EmployeeStatsDto,
+  EmployeesListResponseDto,
+  EmployeesQueryParamsDto,
   CreateEmployeeRequestDto,
   UpdateEmployeeRequestDto,
   UpdateEmployeeStatusRequestDto,
-  EmployeesQueryParamsDto,
-  EmployeesListResponseDto,
-  EmployeeStatsDto,
+  GenderDto,
+  EmployeeStatusDto,
+  WorkScheduleDto,
 } from "./employee.dto";
 
 // Form Types exports
@@ -99,6 +86,7 @@ export { PageEmployeeForm } from "./components/page-employee-form";
 export { default as WorkScheduleField } from "./components/work-schedule-field";
 export { EmployeeSelectField } from "./components/employee-select-field";
 export { EmployeeSelect } from "./components/employee-select";
+export { EmployeeAutocompleteField } from "./components/employee-autocomplete-field";
 export {
   employeeColumns,
   patientDoctorColumns,

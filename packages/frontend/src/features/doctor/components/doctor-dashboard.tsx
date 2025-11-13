@@ -14,15 +14,12 @@ export const DoctorDashboard = () => {
   const { data: currentUser } = useGetMeQuery();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
 
-  const organizationId = currentUser?.organizationId ?? "";
-
   const { data, isLoading } = useGetDoctorQueueQuery(
     {
       employeeId: selectedEmployeeId,
-      organizationId,
     },
     {
-      skip: !selectedEmployeeId || !organizationId,
+      skip: !selectedEmployeeId,
     }
   );
 
@@ -62,18 +59,15 @@ export const DoctorDashboard = () => {
           <div className="grid gap-6 lg:grid-cols-2">
             <CurrentPatientCard
               employeeId={selectedEmployeeId}
-              organizationId={organizationId}
             />
             <DoctorQueuePanel
               employeeId={selectedEmployeeId}
-              organizationId={organizationId}
             />
           </div>
 
           {/* Completed Visits */}
           <CompletedVisitsList
             employeeId={selectedEmployeeId}
-            organizationId={organizationId}
           />
         </>
       )}

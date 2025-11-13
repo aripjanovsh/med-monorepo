@@ -36,6 +36,12 @@ export class DoctorQueueVisitDto {
 
   @Expose()
   notes?: string;
+
+  @Expose()
+  appointmentType?: string;
+
+  @Expose()
+  appointmentId?: string;
 }
 
 export class DoctorQueueResponseDto {

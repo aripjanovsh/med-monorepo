@@ -12,8 +12,11 @@ import { SimpleEmployeeDto } from "../visit";
 // =============================================
 
 export const getEmployeeFullName = (
-  employee: EmployeeResponseDto | SimpleEmployeeDto
+  employee?: EmployeeResponseDto | SimpleEmployeeDto
 ): string => {
+  if (!employee) {
+    return "—";
+  }
   return [employee.lastName, employee.firstName, employee.middleName]
     .filter(Boolean)
     .join(" ");

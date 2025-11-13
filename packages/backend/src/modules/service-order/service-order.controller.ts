@@ -29,6 +29,7 @@ import { DepartmentQueueResponseDto } from "./dto/department-queue-response.dto"
 import { StartServiceDto } from "./dto/start-service.dto";
 import { CompleteServiceDto } from "./dto/complete-service.dto";
 import { QueueActionDto } from "./dto/queue-action.dto";
+import { DepartmentQueueDto } from "./dto/department-queue.dto";
 import { plainToInstance } from "class-transformer";
 import {
   RequirePermission,
@@ -112,11 +113,11 @@ export class ServiceOrderController {
   @ApiResponse({ status: 200, description: "Department queue with waiting, in-progress, and stats" })
   async getDepartmentQueue(
     @Param("departmentId") departmentId: string,
-    @Query("organizationId") organizationId: string,
+    @Query() query: DepartmentQueueDto,
   ): Promise<DepartmentQueueResponseDto> {
     const queue = await this.queueService.getDepartmentQueue(
       departmentId,
-      organizationId,
+      query.organizationId,
     );
 
     // Calculate waiting minutes for each item

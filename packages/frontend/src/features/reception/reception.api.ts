@@ -51,13 +51,13 @@ export const receptionApi = rootApi.injectEndpoints({
       ],
     }),
 
-    // Quick create visit (walk-in patient)
-    quickCreateVisit: builder.mutation<
+    // Create visit (walk-in patient)
+    createVisit: builder.mutation<
       QuickCreateVisitResponseDto,
       QuickCreateVisitRequestDto
     >({
       query: (data) => ({
-        url: "/api/v1/reception/visits/quick-create",
+        url: "/api/v1/visits",
         method: "POST",
         body: data,
       }),
@@ -68,7 +68,6 @@ export const receptionApi = rootApi.injectEndpoints({
         { type: RECEPTION_API_TAG, id: "queue-board" },
         "Visit",
         "Appointment",
-        "Invoice",
       ],
     }),
 
@@ -90,6 +89,6 @@ export const {
   useGetDashboardStatsQuery,
   useGetQueueQuery,
   useGetDoctorScheduleQuery,
-  useQuickCreateVisitMutation,
+  useCreateVisitMutation,
   useGetQueueDashboardQuery,
 } = receptionApi;

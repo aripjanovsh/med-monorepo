@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { VisitStatusBadge } from "@/features/visit/components/visit-status-badge";
-import type { VisitStatus } from "@/features/visit/visit.dto";
+import type { VisitStatus } from "@/features/visit/visit.constants";
 
 type VisitDetailHeaderProps = {
   visitDate: string;

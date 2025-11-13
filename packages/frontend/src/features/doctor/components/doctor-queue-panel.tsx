@@ -12,7 +12,6 @@ import type { DoctorQueueVisit } from "../types/doctor-queue";
 
 type DoctorQueuePanelProps = {
   employeeId: string;
-  organizationId: string;
   date?: string;
 };
 
@@ -82,12 +81,10 @@ const QueueItem = ({
 
 export const DoctorQueuePanel = ({
   employeeId,
-  organizationId,
   date,
 }: DoctorQueuePanelProps) => {
   const { data, isLoading, error } = useGetDoctorQueueQuery({
     employeeId,
-    organizationId,
     date,
   });
 
@@ -95,7 +92,7 @@ export const DoctorQueuePanel = ({
 
   const handleStart = async (visitId: string) => {
     try {
-      await startVisit({ visitId, organizationId }).unwrap();
+      await startVisit({ visitId }).unwrap();
     } catch (error) {
       console.error("Failed to start visit:", error);
     }

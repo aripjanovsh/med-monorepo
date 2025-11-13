@@ -116,7 +116,7 @@ export class PatientService {
       organizationId,
       doctorId,
     } = query;
-    const skip = 0; //(page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     const where: Prisma.PatientWhereInput = {};
 
@@ -162,7 +162,7 @@ export class PatientService {
     if (sortBy) {
       orderBy[sortBy] = sortOrder;
     } else {
-      orderBy.createdAt = "desc";
+      orderBy.updatedAt = "desc";
     }
 
     const [patients, total] = await Promise.all([

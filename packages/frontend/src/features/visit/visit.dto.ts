@@ -1,7 +1,16 @@
 import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
+import type { VisitStatus } from "./visit.constants";
 
-// Enums
-export type VisitStatus = "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+export enum VisitIncludeRelation {
+  PATIENT = "patient",
+  EMPLOYEE = "employee",
+  APPOINTMENT = "appointment",
+  PROTOCOL = "protocol",
+  ORGANIZATION = "organization",
+  MEDICAL_RECORDS = "medicalRecords",
+  PRESCRIPTIONS = "prescriptions",
+  SERVICE_ORDERS = "serviceOrders",
+}
 
 // Nested DTOs (simplified)
 export interface SimplePatientDto {
@@ -78,16 +87,21 @@ export interface VisitResponseDto {
   notes?: string;
   diagnosis?: string;
   queueNumber?: number;
-  finishedAt?: string;
-  patient: SimplePatientDto;
-  employee: SimpleEmployeeDto;
+  queuedAt?: string; // ISO - when visit was added to queue
+  startedAt?: string; // ISO - when visit status changed to IN_PROGRESS
+  completedAt?: string; // ISO - when visit was completed
+  finishedAt?: string; // ISO - deprecated, use completedAt
+  waitingTimeMinutes?: number; // Time spent waiting
+  serviceTimeMinutes?: number; // Time spent in service
+  patient?: SimplePatientDto;
+  employee?: SimpleEmployeeDto;
   appointment?: SimpleAppointmentDto;
   protocol?: SimpleProtocolTemplateDto;
   protocolData?: string; // JSON string of FilledFormData
-  medicalRecords: SimpleMedicalRecordDto[];
-  prescriptions: SimplePrescriptionDto[];
+  medicalRecords?: SimpleMedicalRecordDto[];
+  prescriptions?: SimplePrescriptionDto[];
   serviceOrders?: SimpleServiceOrderDto[];
-  organization: SimpleOrganizationDto;
+  organization?: SimpleOrganizationDto;
   createdAt: string; // ISO
   updatedAt: string; // ISO
 }
@@ -106,8 +120,13 @@ export interface UpdateVisitRequestDto extends Partial<CreateVisitRequestDto> {
   protocolData?: string; // JSON string of FilledFormData
 }
 
-export interface UpdateVisitStatusRequestDto {
-  status: VisitStatus;
+export interface StartVisitRequestDto {
+  // organizationId is automatically injected from JWT on backend
+}
+
+export interface CompleteVisitRequestDto {
+  notes?: string;
+  // organizationId is automatically injected from JWT on backend
 }
 
 export interface VisitsQueryParamsDto extends QueryParamsDto {
@@ -117,6 +136,7 @@ export interface VisitsQueryParamsDto extends QueryParamsDto {
   employeeId?: string;
   dateFrom?: string; // ISO
   dateTo?: string; // ISO
+  include?: VisitIncludeRelation[]; // Relations to include in the response
 }
 
 export type VisitsListResponseDto = PaginatedResponseDto<VisitResponseDto>;

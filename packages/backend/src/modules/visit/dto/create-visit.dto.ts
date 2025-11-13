@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsString, IsOptional, IsDate, IsUUID } from "class-validator";
+import { IsString, IsOptional, IsDate, IsUUID, IsEnum } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 import { TransformEmpty, TransformDate } from "@/common/decorators";
+import { AppointmentType } from "@prisma/client";
 
 @Exclude()
 export class CreateVisitDto {
@@ -76,4 +77,33 @@ export class CreateVisitDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Service ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID()
+  @TransformEmpty()
+  serviceId?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Room number",
+    example: "101",
+  })
+  @IsOptional()
+  @IsString()
+  roomNumber?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Appointment type",
+    enum: AppointmentType,
+    example: AppointmentType.STANDARD,
+  })
+  @IsOptional()
+  @IsEnum(AppointmentType)
+  type?: AppointmentType;
 }

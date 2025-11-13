@@ -12,8 +12,6 @@ const DEFAULT_WORK_SCHEDULE = {
   endTime: "17:00",
 } as const;
 import { DashboardStatsDto } from "./dto/dashboard-stats.dto";
-import { QuickCreateVisitDto } from "./dto/quick-create-visit.dto";
-import { CheckInVisitDto } from "./dto/check-in-visit.dto";
 import { DashboardStatsResponseDto } from "./dto/dashboard-stats-response.dto";
 import { QueueItemResponseDto } from "./dto/queue-item-response.dto";
 import { DoctorScheduleResponseDto } from "./dto/doctor-schedule-response.dto";
@@ -22,12 +20,7 @@ import {
   DoctorQueueDto,
   QueueVisitDto,
 } from "./dto/queue-dashboard-response.dto";
-import {
-  AppointmentStatus,
-  VisitStatus,
-  PaymentStatus,
-  AppointmentType,
-} from "@prisma/client";
+import { AppointmentStatus, VisitStatus, PaymentStatus } from "@prisma/client";
 
 @Injectable()
 export class ReceptionService {
@@ -129,78 +122,6 @@ export class ReceptionService {
     };
 
     return plainToInstance(DashboardStatsResponseDto, stats);
-  }
-
-  async getQueue(organizationId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const appointments = await this.prisma.appointment.findMany({
-      where: {
-        organizationId,
-        scheduledAt: { gte: today },
-        status: {
-          in: [AppointmentStatus.IN_QUEUE, AppointmentStatus.IN_PROGRESS],
-        },
-        checkInAt: { not: null },
-      },
-      include: {
-        patient: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-          },
-        },
-        employee: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-            title: { select: { name: true } },
-            department: {
-              select: {
-                id: true,
-                name: true,
-                code: true,
-              },
-            },
-          },
-        },
-        visits: {
-          where: { status: VisitStatus.IN_PROGRESS },
-          select: { id: true, visitDate: true },
-        },
-      },
-      orderBy: { checkInAt: "asc" },
-    });
-
-    const queueItems = appointments.map((apt, index) => {
-      const waitTime = apt.checkInAt
-        ? Math.floor((Date.now() - apt.checkInAt.getTime()) / 60000)
-        : 0;
-
-      const estimatedWaitTime = waitTime + index * 15; // Simple estimation: 15 min per patient
-
-      return {
-        position: index + 1,
-        appointment: {
-          id: apt.id,
-          scheduledAt: apt.scheduledAt.toISOString(),
-          checkInAt: apt.checkInAt?.toISOString(),
-          status: apt.status,
-          roomNumber: apt.roomNumber,
-        },
-        patient: apt.patient,
-        employee: apt.employee,
-        waitTime,
-        estimatedWaitTime,
-      };
-    });
-
-    return plainToInstance(QueueItemResponseDto, queueItems);
   }
 
   async getDoctorSchedule(
@@ -307,240 +228,6 @@ export class ReceptionService {
     return plainToInstance(DoctorScheduleResponseDto, schedules);
   }
 
-  async quickCreateVisit(dto: QuickCreateVisitDto, createdById: string) {
-    // Use new checkIn flow
-    const checkInDto: CheckInVisitDto = {
-      organizationId: dto.organizationId,
-      patientId: dto.patientId,
-      employeeId: dto.employeeId,
-      serviceId: dto.serviceId,
-      type: dto.type ?? AppointmentType.STANDARD,
-      roomNumber: dto.roomNumber,
-      notes: dto.notes,
-    };
-
-    const result = await this.checkIn(checkInDto, createdById);
-
-    // Create invoice if requested
-    let invoice = null;
-    if (dto.createInvoice) {
-      const service = await this.prisma.service.findFirst({
-        where: { id: dto.serviceId, organizationId: dto.organizationId },
-      });
-
-      if (service?.price) {
-        invoice = await this.prisma.invoice.create({
-          data: {
-            invoiceNumber: await this.generateInvoiceNumber(dto.organizationId),
-            patientId: dto.patientId,
-            visitId: result.visit.id,
-            totalAmount: service.price,
-            paidAmount: 0,
-            status: PaymentStatus.UNPAID,
-            createdById,
-            organizationId: dto.organizationId,
-            items: {
-              create: {
-                serviceId: dto.serviceId,
-                quantity: 1,
-                unitPrice: service.price,
-                totalPrice: service.price,
-                discount: 0,
-              },
-            },
-          },
-          include: {
-            items: {
-              include: { service: true },
-            },
-          },
-        });
-      }
-    }
-
-    return {
-      ...result,
-      invoice,
-    };
-  }
-
-  private async generateInvoiceNumber(organizationId: string): Promise<string> {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-
-    const count = await this.prisma.invoice.count({
-      where: {
-        organizationId,
-        createdAt: {
-          gte: new Date(year, now.getMonth(), 1),
-          lt: new Date(year, now.getMonth() + 1, 1),
-        },
-      },
-    });
-
-    const nextNumber = String(count + 1).padStart(4, "0");
-    return `INV-${year}${month}-${nextNumber}`;
-  }
-
-  async checkIn(dto: CheckInVisitDto, createdById: string) {
-    const {
-      organizationId,
-      patientId,
-      employeeId,
-      serviceId,
-      type = AppointmentType.STANDARD,
-      roomNumber,
-      notes,
-    } = dto;
-
-    // Validate patient
-    const patient = await this.prisma.patient.findFirst({
-      where: { id: patientId, organizationId },
-    });
-    if (!patient) {
-      throw new NotFoundException("Patient not found");
-    }
-
-    // Validate employee (doctor)
-    const employee = await this.prisma.employee.findFirst({
-      where: { id: employeeId, organizationId, status: "ACTIVE" },
-    });
-    if (!employee) {
-      throw new NotFoundException("Employee not found or inactive");
-    }
-
-    // Validate service if provided
-    let service = null;
-    if (serviceId) {
-      service = await this.prisma.service.findFirst({
-        where: { id: serviceId, organizationId, isActive: true },
-      });
-      if (!service) {
-        throw new NotFoundException("Service not found or inactive");
-      }
-    }
-
-    const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999));
-
-    // Check if doctor has any IN_PROGRESS visit
-    const currentVisit = await this.prisma.visit.findFirst({
-      where: {
-        organizationId,
-        employeeId,
-        visitDate: { gte: startOfDay, lte: endOfDay },
-        status: VisitStatus.IN_PROGRESS,
-      },
-    });
-
-    const doctorIsBusy = currentVisit != null;
-
-    // Determine queue behavior
-    let queueNumber: number;
-    let visitStatus: VisitStatus;
-    let appointmentStatus: AppointmentStatus;
-    let queuedAt: Date | null = null;
-    let startedAt: Date | null = null;
-
-    if (type === AppointmentType.WITHOUT_QUEUE && !doctorIsBusy) {
-      // Doctor is free, start immediately
-      visitStatus = VisitStatus.IN_PROGRESS;
-      appointmentStatus = AppointmentStatus.IN_PROGRESS;
-      startedAt = new Date();
-      queueNumber = 0; // No queue
-    } else if (
-      type === AppointmentType.EMERGENCY ||
-      type === AppointmentType.WITHOUT_QUEUE
-    ) {
-      // Insert at head of queue (position 1), shift others
-      await this.prisma.visit.updateMany({
-        where: {
-          organizationId,
-          employeeId,
-          visitDate: { gte: startOfDay, lte: endOfDay },
-          status: VisitStatus.WAITING,
-          queueNumber: { not: null },
-        },
-        data: {
-          queueNumber: { increment: 1 },
-        },
-      });
-      queueNumber = 1;
-      visitStatus = VisitStatus.WAITING;
-      appointmentStatus = AppointmentStatus.IN_QUEUE;
-      queuedAt = new Date();
-    } else {
-      // STANDARD: append to end of queue
-      const maxQueue = await this.prisma.visit.findFirst({
-        where: {
-          organizationId,
-          employeeId,
-          visitDate: { gte: startOfDay, lte: endOfDay },
-          status: VisitStatus.WAITING,
-          queueNumber: { not: null },
-        },
-        orderBy: { queueNumber: "desc" },
-      });
-      queueNumber = (maxQueue?.queueNumber ?? 0) + 1;
-      visitStatus = VisitStatus.WAITING;
-      appointmentStatus = AppointmentStatus.IN_QUEUE;
-      queuedAt = new Date();
-    }
-
-    // Create appointment
-    const appointment = await this.prisma.appointment.create({
-      data: {
-        patientId,
-        employeeId,
-        serviceId,
-        scheduledAt: new Date(),
-        duration: service?.durationMin ?? 30,
-        type,
-        status: appointmentStatus,
-        roomNumber,
-        notes,
-        checkInAt: new Date(),
-        createdById,
-        organizationId,
-      },
-      include: {
-        patient: true,
-        employee: true,
-        service: true,
-      },
-    });
-
-    // Create visit
-    const visit = await this.prisma.visit.create({
-      data: {
-        appointmentId: appointment.id,
-        patientId,
-        employeeId,
-        status: visitStatus,
-        queueNumber,
-        queuedAt,
-        startedAt,
-        notes,
-        organizationId,
-      },
-      include: {
-        patient: true,
-        employee: true,
-        appointment: true,
-      },
-    });
-
-    const result = {
-      visit,
-      appointment,
-      queuePosition: queueNumber,
-    };
-
-    return result;
-  }
-
   async getQueueDashboard(
     organizationId: string,
     date?: string
@@ -587,7 +274,7 @@ export class ReceptionService {
         title: { select: { name: true } },
         visits: {
           where: {
-            // visitDate: { gte: startOfDay, lte: endOfDay },
+            visitDate: { gte: startOfDay, lte: endOfDay },
           },
           include: {
             patient: {
@@ -599,7 +286,7 @@ export class ReceptionService {
               },
             },
           },
-          orderBy: { queueNumber: "asc" },
+          orderBy: { createdAt: "asc" },
         },
       },
     });
@@ -644,7 +331,6 @@ export class ReceptionService {
 
         return {
           id: visit.id,
-          queueNumber: visit.queueNumber,
           queuedAt: visit.queuedAt,
           status: visit.status,
           patient: visit.patient,

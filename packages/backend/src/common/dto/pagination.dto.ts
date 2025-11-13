@@ -8,8 +8,11 @@ import {
 } from "class-validator";
 import { Transform, Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";
+import { Expose } from "class-transformer";
+import { Default } from "../decorators/default.decorator";
 
 export class PaginationDto {
+  @Expose()
   @ApiPropertyOptional({
     description: "Items per page",
     minimum: 1,
@@ -22,8 +25,10 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit?: number = 10;
+  @Default(10)
+  limit?: number;
 
+  @Expose()
   @ApiPropertyOptional({
     description: "Page number",
     minimum: 1,
@@ -34,8 +39,10 @@ export class PaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page?: number = 1;
+  @Default(1)
+  page?: number;
 
+  @Expose()
   @ApiPropertyOptional({
     description: "Search term for filtering",
   })
@@ -43,6 +50,7 @@ export class PaginationDto {
   @IsString()
   search?: string;
 
+  @Expose()
   @ApiPropertyOptional({
     description: "Field to sort by",
   })
@@ -50,6 +58,7 @@ export class PaginationDto {
   @IsString()
   sortBy?: string;
 
+  @Expose()
   @ApiPropertyOptional({
     description: "Sort order",
     enum: ["asc", "desc"],
