@@ -11,7 +11,7 @@ export type {
   SimpleServiceDto,
   SimpleUserDto,
 } from "./appointment.dto";
-export type { AppointmentStatus, AppointmentType } from "./appointment.constants";
+export type { AppointmentStatus } from "./appointment.constants";
 export type { AppointmentFormData } from "./appointment.schema";
 
 // Constants
@@ -20,9 +20,6 @@ export {
   APPOINTMENT_STATUS_OPTIONS,
   APPOINTMENT_STATUS_LABELS,
   APPOINTMENT_STATUS_COLORS,
-  APPOINTMENT_TYPE,
-  APPOINTMENT_TYPE_LABELS,
-  APPOINTMENT_TYPE_OPTIONS,
 } from "./appointment.constants";
 
 // Schemas

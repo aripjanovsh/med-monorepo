@@ -36,29 +36,7 @@ export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
 };
 
 export const APPOINTMENT_STATUS_OPTIONS = Object.entries(
-  APPOINTMENT_STATUS_LABELS,
-).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-export const APPOINTMENT_TYPE = {
-  STANDARD: "STANDARD",
-  WITHOUT_QUEUE: "WITHOUT_QUEUE",
-  EMERGENCY: "EMERGENCY",
-} as const;
-
-export type AppointmentType =
-  (typeof APPOINTMENT_TYPE)[keyof typeof APPOINTMENT_TYPE];
-
-export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
-  STANDARD: "Обычная",
-  WITHOUT_QUEUE: "Без очереди",
-  EMERGENCY: "Экстренная",
-};
-
-export const APPOINTMENT_TYPE_OPTIONS = Object.entries(
-  APPOINTMENT_TYPE_LABELS,
+  APPOINTMENT_STATUS_LABELS
 ).map(([value, label]) => ({
   value,
   label,

@@ -30,3 +30,24 @@ export const VISIT_STATUS_COLORS: Record<
   COMPLETED: "outline",
   CANCELED: "destructive",
 };
+
+export const VISIT_TYPE = {
+  STANDARD: "STANDARD",
+  WITHOUT_QUEUE: "WITHOUT_QUEUE",
+  EMERGENCY: "EMERGENCY",
+} as const;
+
+export type VisitType = (typeof VISIT_TYPE)[keyof typeof VISIT_TYPE];
+
+export const VISIT_TYPE_LABELS: Record<VisitType, string> = {
+  STANDARD: "Обычная",
+  WITHOUT_QUEUE: "Без очереди",
+  EMERGENCY: "Экстренная",
+};
+
+export const VISIT_TYPE_OPTIONS = Object.entries(VISIT_TYPE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label,
+  })
+);

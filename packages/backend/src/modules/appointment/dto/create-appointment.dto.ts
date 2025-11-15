@@ -11,7 +11,6 @@ import {
 import { Expose, Exclude, Type } from "class-transformer";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 import { TransformEmpty, TransformDate } from "@/common/decorators";
-import { AppointmentType } from "@prisma/client";
 
 @Exclude()
 export class CreateAppointmentDto {
@@ -37,16 +36,6 @@ export class CreateAppointmentDto {
   @Min(1)
   @Type(() => Number)
   duration: number;
-
-  @Expose()
-  @ApiPropertyOptional({
-    description: "Appointment type",
-    enum: AppointmentType,
-    example: AppointmentType.STANDARD,
-  })
-  @IsOptional()
-  @IsEnum(AppointmentType)
-  type?: AppointmentType;
 
   @Expose()
   @ApiPropertyOptional({

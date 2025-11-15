@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsOptional, IsUUID, IsEnum, IsDate } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
-import { AppointmentStatus, AppointmentType } from "@prisma/client";
+import { AppointmentStatus } from "@prisma/client";
 import { TransformDate } from "@/common/decorators";
 import { PaginationDto } from "@/common/dto/pagination.dto";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
@@ -47,16 +47,6 @@ export class FindAllAppointmentDto extends PaginationDto {
   @IsOptional()
   @IsEnum(AppointmentStatus)
   status?: AppointmentStatus;
-
-  @Expose()
-  @ApiPropertyOptional({
-    description: "Filter by type",
-    enum: AppointmentType,
-    example: AppointmentType.STANDARD,
-  })
-  @IsOptional()
-  @IsEnum(AppointmentType)
-  type?: AppointmentType;
 
   @Expose()
   @ApiPropertyOptional({

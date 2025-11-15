@@ -6,7 +6,6 @@ export const appointmentFormSchema = yup.object({
     .number()
     .required("Длительность обязательна")
     .min(1, "Минимальная длительность 1 минута"),
-  type: yup.string().optional(),
   notes: yup.string().optional(),
   reason: yup.string().optional(),
   roomNumber: yup.string().optional(),
@@ -18,7 +17,6 @@ export const appointmentFormSchema = yup.object({
 export const createAppointmentRequestSchema = yup.object({
   scheduledAt: yup.string().required(),
   duration: yup.number().required().min(1),
-  type: yup.string().optional(),
   notes: yup.string().optional(),
   reason: yup.string().optional(),
   roomNumber: yup.string().optional(),

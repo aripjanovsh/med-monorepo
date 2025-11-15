@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Exclude, Expose, Type } from "class-transformer";
-import { AppointmentStatus, AppointmentType } from "@prisma/client";
+import { AppointmentStatus } from "@prisma/client";
 import { BaseResponseDto } from "@/common/dto/response.dto";
 
 // Simplified response DTOs for nested relations
@@ -134,14 +134,6 @@ export class AppointmentResponseDto extends BaseResponseDto {
     example: AppointmentStatus.SCHEDULED,
   })
   status: AppointmentStatus;
-
-  @Expose()
-  @ApiProperty({
-    description: "Appointment type",
-    enum: AppointmentType,
-    example: AppointmentType.STANDARD,
-  })
-  type: AppointmentType;
 
   @Expose()
   @ApiPropertyOptional({

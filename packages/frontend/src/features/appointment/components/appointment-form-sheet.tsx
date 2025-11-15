@@ -38,8 +38,6 @@ import {
   useUpdateAppointmentMutation,
   useGetAppointmentQuery,
 } from "../appointment.api";
-import { APPOINTMENT_TYPE_OPTIONS } from "../appointment.constants";
-import type { AppointmentType } from "../appointment.constants";
 import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
 import { useMe } from "@/features/auth/use-me";
 import { PatientAutocompleteField } from "@/features/patients";
@@ -125,7 +123,6 @@ export const AppointmentFormSheet = ({
         employeeId: data.employeeId,
         scheduledAt: new Date(data.scheduledAt).toISOString(),
         duration: data.duration,
-        type: data.type as AppointmentType | undefined,
         notes: data.notes,
         reason: data.reason,
         roomNumber: data.roomNumber,
@@ -230,35 +227,6 @@ export const AppointmentFormSheet = ({
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Тип записи</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Выберите тип" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {APPOINTMENT_TYPE_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

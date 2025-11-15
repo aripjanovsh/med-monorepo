@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { ReactElement } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
@@ -19,7 +18,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,17 +28,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
-import {
-  quickCreateVisitFormSchema,
-  APPOINTMENT_TYPE_OPTIONS,
-  useCreateVisitMutation,
-} from "@/features/reception";
-import type { QuickCreateVisitFormData } from "@/features/reception";
 import { PatientAutocompleteField } from "@/features/patients/components/patient-autocomplete-field";
 import { EmployeeAutocompleteField } from "@/features/employees/components/employee-autocomplete-field";
 import { ServiceAutocompleteField } from "@/features/master-data/components/service-autocomplete-field";
+import { VISIT_TYPE_OPTIONS } from "../visit.constants";
+import { useCreateVisitMutation } from "../visit.api";
+import { VisitFormData, createVisitRequestSchema } from "../visit.schema";
 
 type QuickCreateVisitModalProps = {
   open: boolean;
@@ -55,8 +49,8 @@ export const QuickCreateVisitModal = ({
 }: QuickCreateVisitModalProps) => {
   const [createVisit, { isLoading }] = useCreateVisitMutation();
 
-  const form = useForm<QuickCreateVisitFormData>({
-    resolver: yupResolver(quickCreateVisitFormSchema) as any,
+  const form = useForm<VisitFormData>({
+    resolver: yupResolver(createVisitRequestSchema) as any,
     defaultValues: {
       patientId: "",
       employeeId: "",
@@ -66,7 +60,7 @@ export const QuickCreateVisitModal = ({
     },
   });
 
-  const onSubmit = async (data: QuickCreateVisitFormData) => {
+  const onSubmit = async (data: VisitFormData) => {
     try {
       await createVisit(data).unwrap();
 
@@ -165,14 +159,9 @@ export const QuickCreateVisitModal = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {APPOINTMENT_TYPE_OPTIONS.map((option) => (
+                      {VISIT_TYPE_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
-                          <span className="flex items-center gap-2">
-                            <span
-                              className={`h-2 w-2 rounded-full bg-${option.color}-500`}
-                            />
-                            <span>{option.label}</span>
-                          </span>
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

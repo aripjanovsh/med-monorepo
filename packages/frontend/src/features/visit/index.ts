@@ -11,9 +11,12 @@ export type {
   SimpleEmployeeDto,
 } from "./visit.dto";
 export { VisitIncludeRelation } from "./visit.dto";
-export type { VisitStatus } from "./visit.constants";
+export type { VisitStatus, VisitType } from "./visit.constants";
 export type { VisitFormData } from "./visit.schema";
-export type { SavedProtocolData, FilledProtocolOption } from "./visit-protocol.types";
+export type {
+  SavedProtocolData,
+  FilledProtocolOption,
+} from "./visit-protocol.types";
 
 // Constants
 export {
@@ -21,6 +24,9 @@ export {
   VISIT_STATUS_OPTIONS,
   VISIT_STATUS_LABELS,
   VISIT_STATUS_COLORS,
+  VISIT_TYPE,
+  VISIT_TYPE_LABELS,
+  VISIT_TYPE_OPTIONS,
 } from "./visit.constants";
 
 // Schemas
@@ -56,10 +62,7 @@ export {
 
 // Components
 export { VisitStatusBadge } from "./components/visit-status-badge";
-export {
-  visitColumns,
-  patientVisitColumns,
-} from "./components/visit-columns";
+export { visitColumns, patientVisitColumns } from "./components/visit-columns";
 export { VisitForm } from "./components/visit-form";
 export { VisitFormDialog } from "./components/visit-form-dialog";
 export { VisitProtocol } from "./components/visit-protocol";

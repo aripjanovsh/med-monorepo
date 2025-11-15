@@ -196,7 +196,6 @@ model Appointment {
   scheduledAt    DateTime
   duration       Int
   status         AppointmentStatus @default(SCHEDULED)
-  type           AppointmentType   @default(STANDARD)
   notes          String?
   reason         String?
   roomNumber     String?
@@ -231,6 +230,7 @@ model Visit {
   id                 String             @id @default(uuid())
   visitDate          DateTime           @default(now())
   status             VisitStatus        @default(WAITING)
+  type               VisitType          @default(STANDARD)
   notes              String?
   queueNumber        Int?
   queuedAt           DateTime?
@@ -359,6 +359,8 @@ model Employee {
   secondaryLanguage        Language?             @relation("EmployeeSecondaryLanguage", fields: [secondaryLanguageId], references: [id])
   title                    Title?                @relation(fields: [titleId], references: [id])
   user                     User?                 @relation(fields: [userId], references: [id])
+  deletedFiles             File[]                @relation("FileDeletedBy")
+  uploadedFiles            File[]                @relation("FileUploadedBy")
   createdInvoices          Invoice[]             @relation("EmployeeInvoices")
   medicalRecordsCreated    MedicalRecord[]
   medicalRecords           MedicalRecord[]       @relation("LegacyMedicalRecordEmployee")
@@ -370,8 +372,6 @@ model Employee {
   doctorOrders             ServiceOrder[]        @relation("DoctorOrders")
   services                 Service[]
   visits                   Visit[]               @relation("VisitDoctor")
-  uploadedFiles            File[]                @relation("FileUploadedBy")
-  deletedFiles             File[]                @relation("FileDeletedBy")
 
   @@unique([employeeId, organizationId])
   @@map("employees")
@@ -552,7 +552,7 @@ model AnalysisTemplate {
   name           String
   code           String
   description    String?
-  content        String       // JSON content with sections structure
+  content        String
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -765,6 +765,34 @@ model Payment {
   @@map("payments")
 }
 
+model File {
+  id           String          @id @default(uuid())
+  filename     String
+  storedName   String          @unique
+  path         String
+  mimeType     String
+  size         Int
+  title        String?
+  description  String?
+  category     FileCategory    @default(GENERAL)
+  width        Int?
+  height       Int?
+  uploadedById String
+  uploadedAt   DateTime        @default(now())
+  entityType   FileEntityType?
+  entityId     String?
+  deletedAt    DateTime?
+  deletedById  String?
+  deletedBy    Employee?       @relation("FileDeletedBy", fields: [deletedById], references: [id])
+  uploadedBy   Employee        @relation("FileUploadedBy", fields: [uploadedById], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([category])
+  @@index([uploadedById])
+  @@index([uploadedAt])
+  @@map("files")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -807,7 +835,7 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
-enum AppointmentType {
+enum VisitType {
   STANDARD
   WITHOUT_QUEUE
   EMERGENCY
@@ -907,20 +935,14 @@ enum PaymentMethod {
 }
 
 enum FileCategory {
-  AVATAR           // Аватары пользователей
-  DOCUMENT         // Общие документы
-  ANALYSIS_RESULT  // Результаты анализов
-  XRAY             // Рентген снимки
-  ULTRASOUND       // УЗИ снимки
-  CT_SCAN          // КТ снимки
-  MRI              // МРТ снимки
-  ECG              // ЭКГ
-  PRESCRIPTION     // Рецепты
-  MEDICAL_HISTORY  // Медицинская история
-  INSURANCE_CARD   // Страховой полис
-  REFERRAL         // Направление
-  CONSENT_FORM     // Согласия
-  GENERAL          // Прочее
+  AVATAR
+  DOCUMENT
+  ANALYSIS_RESULT
+  XRAY
+  ULTRASOUND
+  PRESCRIPTION
+  CONSENT_FORM
+  GENERAL
 }
 
 enum FileEntityType {
@@ -929,46 +951,4 @@ enum FileEntityType {
   EMPLOYEE
   VISIT
   INVOICE
-}
-
-model File {
-  id          String   @id @default(uuid())
-  
-  // Основная информация
-  filename    String   // Оригинальное имя файла
-  storedName  String   @unique // Имя файла на диске (UUID)
-  path        String   // Полный путь: companyId/YYYY/MM/fileID
-  mimeType    String   // image/jpeg, application/pdf, etc.
-  size        Int      // Размер в байтах
-  
-  // Метаданные
-  title       String?  // Заголовок файла (опционально)
-  description String?  // Описание файла (опционально)
-  category    FileCategory @default(GENERAL) // AVATAR, DOCUMENT, ANALYSIS_RESULT, XRAY, etc.
-  
-  // Для изображений
-  width       Int?
-  height      Int?
-  
-  // Аудит
-  uploadedById String
-  uploadedBy   Employee @relation("FileUploadedBy", fields: [uploadedById], references: [id])
-  uploadedAt   DateTime @default(now())
-  
-  // Привязки к сущностям (полиморфная связь)
-  entityType  FileEntityType?  // PATIENT, SERVICE_ORDER, EMPLOYEE, VISIT
-  entityId    String?
-  
-  // Связи (без foreign keys - используем полиморфную связь через entityType+entityId)
-  
-  // Мягкое удаление
-  deletedAt   DateTime?
-  deletedById String?
-  deletedBy   Employee? @relation("FileDeletedBy", fields: [deletedById], references: [id])
-  
-  @@index([entityType, entityId])
-  @@index([category])
-  @@index([uploadedById])
-  @@index([uploadedAt])
-  @@map("files")
 }

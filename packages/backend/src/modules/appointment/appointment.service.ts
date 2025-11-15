@@ -18,7 +18,7 @@ export class AppointmentService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createAppointmentDto: CreateAppointmentDto,
+    createAppointmentDto: CreateAppointmentDto
   ): Promise<AppointmentResponseDto> {
     const { organizationId, ...appointmentData } = createAppointmentDto;
 
@@ -29,7 +29,7 @@ export class AppointmentService {
 
     if (!patient) {
       throw new NotFoundException(
-        `Patient with ID ${appointmentData.patientId} not found`,
+        `Patient with ID ${appointmentData.patientId} not found`
       );
     }
 
@@ -40,7 +40,7 @@ export class AppointmentService {
 
     if (!employee) {
       throw new NotFoundException(
-        `Employee (Doctor) with ID ${appointmentData.employeeId} not found`,
+        `Employee (Doctor) with ID ${appointmentData.employeeId} not found`
       );
     }
 
@@ -52,7 +52,7 @@ export class AppointmentService {
 
       if (!service) {
         throw new NotFoundException(
-          `Service with ID ${appointmentData.serviceId} not found`,
+          `Service with ID ${appointmentData.serviceId} not found`
         );
       }
     }
@@ -64,7 +64,7 @@ export class AppointmentService {
 
     if (!user) {
       throw new NotFoundException(
-        `User with ID ${appointmentData.createdById} not found`,
+        `User with ID ${appointmentData.createdById} not found`
       );
     }
 
@@ -81,7 +81,7 @@ export class AppointmentService {
             scheduledAt: {
               lt: new Date(
                 appointmentData.scheduledAt.getTime() +
-                  appointmentData.duration * 60000,
+                  appointmentData.duration * 60000
               ),
             },
           },
@@ -96,7 +96,7 @@ export class AppointmentService {
 
     if (conflictingAppointment) {
       throw new BadRequestException(
-        "This time slot conflicts with an existing appointment",
+        "This time slot conflicts with an existing appointment"
       );
     }
 
@@ -120,7 +120,7 @@ export class AppointmentService {
   }
 
   async findAll(
-    findAllDto: FindAllAppointmentDto,
+    findAllDto: FindAllAppointmentDto
   ): Promise<PaginatedResponseDto<AppointmentResponseDto>> {
     const {
       page = 1,
@@ -132,7 +132,6 @@ export class AppointmentService {
       employeeId,
       serviceId,
       status,
-      type,
       scheduledFrom,
       scheduledTo,
     } = findAllDto;
@@ -145,7 +144,6 @@ export class AppointmentService {
       ...(employeeId && { employeeId }),
       ...(serviceId && { serviceId }),
       ...(status && { status }),
-      ...(type && { type }),
       ...(scheduledFrom || scheduledTo
         ? {
             scheduledAt: {
@@ -192,7 +190,7 @@ export class AppointmentService {
 
   async findOne(
     id: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<AppointmentResponseDto> {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id, organizationId },
@@ -220,7 +218,7 @@ export class AppointmentService {
   async update(
     id: string,
     organizationId: string,
-    updateAppointmentDto: UpdateAppointmentDto,
+    updateAppointmentDto: UpdateAppointmentDto
   ): Promise<AppointmentResponseDto> {
     const existingAppointment = await this.prisma.appointment.findUnique({
       where: { id, organizationId },
@@ -268,7 +266,7 @@ export class AppointmentService {
 
       if (conflictingAppointment) {
         throw new BadRequestException(
-          "This time slot conflicts with an existing appointment",
+          "This time slot conflicts with an existing appointment"
         );
       }
     }
@@ -295,7 +293,7 @@ export class AppointmentService {
   async updateStatus(
     id: string,
     organizationId: string,
-    updateStatusDto: UpdateAppointmentStatusDto,
+    updateStatusDto: UpdateAppointmentStatusDto
   ): Promise<AppointmentResponseDto> {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id, organizationId },
@@ -313,7 +311,7 @@ export class AppointmentService {
       status !== AppointmentStatus.COMPLETED
     ) {
       throw new BadRequestException(
-        "Cannot change status of a completed appointment",
+        "Cannot change status of a completed appointment"
       );
     }
 
@@ -323,7 +321,7 @@ export class AppointmentService {
       !appointment.cancelReason
     ) {
       throw new BadRequestException(
-        "Cancel reason is required when canceling an appointment",
+        "Cancel reason is required when canceling an appointment"
       );
     }
 
@@ -391,7 +389,7 @@ export class AppointmentService {
 
     if (appointment.visits.length > 0) {
       throw new BadRequestException(
-        "Cannot delete appointment with associated visits",
+        "Cannot delete appointment with associated visits"
       );
     }
 
@@ -402,7 +400,7 @@ export class AppointmentService {
 
   async checkIn(
     id: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<AppointmentResponseDto> {
     return this.updateStatus(id, organizationId, {
       status: AppointmentStatus.IN_QUEUE,
@@ -412,7 +410,7 @@ export class AppointmentService {
   async confirm(
     id: string,
     organizationId: string,
-    userId: string,
+    userId: string
   ): Promise<AppointmentResponseDto> {
     return this.updateStatus(id, organizationId, {
       status: AppointmentStatus.CONFIRMED,
@@ -424,7 +422,7 @@ export class AppointmentService {
     id: string,
     organizationId: string,
     userId: string,
-    cancelReason: string,
+    cancelReason: string
   ): Promise<AppointmentResponseDto> {
     return this.updateStatus(id, organizationId, {
       status: AppointmentStatus.CANCELLED,
@@ -435,7 +433,7 @@ export class AppointmentService {
 
   async markNoShow(
     id: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<AppointmentResponseDto> {
     return this.updateStatus(id, organizationId, {
       status: AppointmentStatus.NO_SHOW,

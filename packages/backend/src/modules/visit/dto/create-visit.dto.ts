@@ -3,7 +3,7 @@ import { IsString, IsOptional, IsDate, IsUUID, IsEnum } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 import { TransformEmpty, TransformDate } from "@/common/decorators";
-import { AppointmentType } from "@prisma/client";
+import { VisitType } from "@prisma/client";
 
 @Exclude()
 export class CreateVisitDto {
@@ -52,25 +52,6 @@ export class CreateVisitDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Protocol template ID",
-    example: "123e4567-e89b-12d3-a456-426614174000",
-  })
-  @IsOptional()
-  @IsUUID()
-  @TransformEmpty()
-  protocolId?: string;
-
-  @Expose()
-  @ApiPropertyOptional({
-    description: "Protocol filled data (JSON string)",
-    example: '{"field1": "value1", "field2": "value2"}',
-  })
-  @IsOptional()
-  @IsString()
-  protocolData?: string;
-
-  @Expose()
-  @ApiPropertyOptional({
     description: "Visit notes",
     example: "Patient came for regular checkup",
   })
@@ -99,11 +80,11 @@ export class CreateVisitDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Appointment type",
-    enum: AppointmentType,
-    example: AppointmentType.STANDARD,
+    description: "Visit type",
+    enum: VisitType,
+    example: VisitType.STANDARD,
   })
   @IsOptional()
-  @IsEnum(AppointmentType)
-  type?: AppointmentType;
+  @IsEnum(VisitType)
+  type?: VisitType;
 }

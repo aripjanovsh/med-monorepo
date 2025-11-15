@@ -7,7 +7,7 @@ import {
   Prisma,
   VisitStatus,
   AppointmentStatus,
-  AppointmentType,
+  VisitType,
 } from "@prisma/client";
 import { PrismaService } from "@/common/prisma/prisma.service";
 import { CreateVisitDto } from "./dto/create-visit.dto";
@@ -50,7 +50,6 @@ const VISIT_INCLUDE_RELATIONS = {
       id: true,
       scheduledAt: true,
       status: true,
-      type: true,
     },
   },
   protocol: {
@@ -192,19 +191,6 @@ export class VisitService {
         }
       }
 
-      // Validate protocol template if provided
-      if (visitData.protocolId) {
-        const protocol = await tx.protocolTemplate.findUnique({
-          where: { id: visitData.protocolId, organizationId },
-        });
-
-        if (!protocol) {
-          throw new NotFoundException(
-            `Protocol template with ID ${visitData.protocolId} not found`
-          );
-        }
-      }
-
       tx.patientDoctor.upsert({
         where: {
           patientId_employeeId: {
@@ -230,6 +216,7 @@ export class VisitService {
           organizationId,
           visitDate: visitData.visitDate || new Date(),
           status: VisitStatus.WAITING,
+          type: type || VisitType.STANDARD,
           queuedAt: new Date(),
         },
       });
