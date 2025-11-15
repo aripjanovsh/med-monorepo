@@ -74,7 +74,7 @@ export {
 } from "./invoice.model";
 
 // Components
-export { PaymentModal } from "./components/payment-modal";
+export { MultiPaymentForm } from "./components/multi-payment-form";
 export { CreateInvoiceSheet } from "./components/create-invoice-sheet";
 export { CreateInvoiceWithPaymentSheet } from "./components/create-invoice-with-payment-sheet";
 export { InvoiceOverview } from "./components/invoice-overview";

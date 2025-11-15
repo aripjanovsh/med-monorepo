@@ -17,9 +17,7 @@ export const invoicePaymentsColumns: ColumnDef<PaymentResponseDto>[] = [
     cell: ({ row }) => {
       const methodInfo = PAYMENT_METHOD_MAP[row.original.paymentMethod];
       return (
-        <span className="flex items-center gap-2">
-          {methodInfo.icon} {methodInfo.label}
-        </span>
+        <span className="flex items-center gap-2">{methodInfo.label}</span>
       );
     },
   },
@@ -36,5 +34,9 @@ export const invoicePaymentsColumns: ColumnDef<PaymentResponseDto>[] = [
         {formatCurrency(row.original.amount)}
       </div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
 ];

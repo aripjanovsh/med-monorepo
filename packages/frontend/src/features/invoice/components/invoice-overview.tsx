@@ -4,14 +4,12 @@ import { useCallback } from "react";
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ProfileField } from "@/components/ui/profile-field";
 import { DataTable } from "@/components/data-table";
 import { Printer, Download, Trash2, CreditCard } from "lucide-react";
 import type { InvoiceResponseDto } from "../invoice.dto";
-import { PAYMENT_STATUS_MAP } from "../invoice.constants";
 import {
   getInvoiceRemainingAmount,
   canAddPayment,
@@ -24,19 +22,13 @@ import { formatDate } from "@/lib/date.utils";
 import { toast } from "sonner";
 import { ROUTES } from "@/constants/route.constants";
 import { useDeleteInvoiceMutation } from "../invoice.api";
-import { PaymentModal } from "./payment-modal";
+import { MultiPaymentForm } from "./multi-payment-form";
 import { invoiceItemsColumns } from "./invoice-items-columns";
 import { invoicePaymentsColumns } from "./invoice-payments-columns";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDialog } from "@/lib/dialog-manager";
 import PageHeader from "@/components/layouts/page-header";
-
-const STATUS_COLOR_MAP = {
-  red: "destructive",
-  orange: "default",
-  green: "secondary",
-  gray: "outline",
-} as const;
+import { InvoiceStatusBadge } from "./invoice-status-badge";
 
 type InvoiceOverviewProps = {
   invoice: InvoiceResponseDto;
@@ -47,10 +39,9 @@ export function InvoiceOverview({
 }: InvoiceOverviewProps): ReactElement {
   const router = useRouter();
   const confirm = useConfirmDialog();
-  const paymentDialog = useDialog(PaymentModal);
+  const paymentDialog = useDialog(MultiPaymentForm);
   const [deleteInvoice] = useDeleteInvoiceMutation();
 
-  const statusInfo = PAYMENT_STATUS_MAP[invoice.status];
   const remainingAmount = getInvoiceRemainingAmount(invoice);
   const canAddPaymentToInvoice = canAddPayment(invoice);
 
@@ -76,19 +67,16 @@ export function InvoiceOverview({
 
   const handleAddPayment = useCallback(() => {
     paymentDialog.open({
-      invoice,
-      onSuccess: () => {
-        paymentDialog.close();
-        toast.success("Платеж добавлен успешно");
-      },
+      invoiceId: invoice.id,
     });
-  }, [paymentDialog, invoice]);
+  }, [paymentDialog, invoice.id]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
         title={getInvoiceDisplayTitle(invoice)}
+        titleSuffix={<InvoiceStatusBadge status={invoice.status} />}
         description={`Создан ${formatDate(invoice.createdAt, "dd.MM.yyyy HH:mm")}`}
         actions={
           <div className="flex items-center gap-2">
@@ -130,18 +118,6 @@ export function InvoiceOverview({
                   label="Пациент"
                   value={getPatientFullName(invoice.patient)}
                 />
-                <div>
-                  <p className="text-xs text-muted-foreground">Статус</p>
-                  <Badge
-                    variant={
-                      STATUS_COLOR_MAP[
-                        statusInfo.color as keyof typeof STATUS_COLOR_MAP
-                      ] || "secondary"
-                    }
-                  >
-                    {statusInfo.label}
-                  </Badge>
-                </div>
                 <ProfileField
                   label="Создал"
                   value={getEmployeeShortName(invoice.createdBy)}
@@ -178,6 +154,7 @@ export function InvoiceOverview({
                 columns={invoiceItemsColumns}
                 data={invoice.items}
                 isLoading={false}
+                hidePagination
               />
             </CardContent>
           </Card>
@@ -193,6 +170,7 @@ export function InvoiceOverview({
                   columns={invoicePaymentsColumns}
                   data={invoice.payments}
                   isLoading={false}
+                  hidePagination
                 />
               </CardContent>
             </Card>
@@ -242,7 +220,6 @@ export function InvoiceOverview({
           </Card>
         </div>
       </div>
-
     </div>
   );
 }

@@ -23,6 +23,10 @@ export const invoiceItemsColumns: ColumnDef<InvoiceItemResponseDto>[] = [
     cell: ({ row }) => (
       <div className="text-right">{row.original.quantity}</div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
   {
     accessorKey: "unitPrice",
@@ -30,15 +34,25 @@ export const invoiceItemsColumns: ColumnDef<InvoiceItemResponseDto>[] = [
     cell: ({ row }) => (
       <div className="text-right">{formatCurrency(row.original.unitPrice)}</div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
   {
     accessorKey: "discount",
     header: "Скидка",
     cell: ({ row }) => (
       <div className="text-right">
-        {row.original.discount > 0 ? formatCurrency(row.original.discount) : "-"}
+        {row.original.discount > 0
+          ? formatCurrency(row.original.discount)
+          : "-"}
       </div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
   {
     accessorKey: "totalPrice",
@@ -48,5 +62,9 @@ export const invoiceItemsColumns: ColumnDef<InvoiceItemResponseDto>[] = [
         {formatCurrency(row.original.totalPrice)}
       </div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
 ];

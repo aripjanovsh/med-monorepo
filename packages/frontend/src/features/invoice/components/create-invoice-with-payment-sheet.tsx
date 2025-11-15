@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { ReactElement } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,6 +11,7 @@ import {
   SheetBody,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -19,12 +20,12 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Trash2, CreditCard } from "lucide-react";
+import { CurrencyInput } from "@/components/ui/currency-input";
+import { StepperInput } from "@/components/ui/stepper-input";
+import { Loader2, Plus, Trash2, CreditCard, User } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -40,7 +41,15 @@ import {
 import type { InvoiceFormData } from "@/features/invoice";
 import { ServiceAutocompleteField } from "@/features/master-data/components";
 import type { Service } from "@/features/master-data/master-data.types";
+import { useGetVisitsQuery } from "@/features/visit";
 import { MultiPaymentForm } from "./multi-payment-form";
+import { PatientAutocompleteField } from "@/features/patients/components/patient-autocomplete-field";
+import { useDialog } from "@/lib/dialog-manager";
+import { formatDate } from "@/lib/date.utils";
+import { getEmployeeFullName } from "@/features/employees/employee.model";
+import { Select, SelectItem, SelectValue } from "@/components/ui/select";
+import { SelectField } from "@/components/fields/select-field";
+import { formatCurrency } from "@/lib/currency.utils";
 
 type ServiceOrder = {
   id: string;
@@ -80,15 +89,14 @@ export const CreateInvoiceWithPaymentSheet = ({
 }: CreateInvoiceWithPaymentSheetProps): ReactElement => {
   const [createInvoice, { isLoading: isCreatingInvoice }] =
     useCreateInvoiceMutation();
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [createdInvoiceId, setCreatedInvoiceId] = useState<string | null>(null);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const paymentDialog = useDialog(MultiPaymentForm);
   const [selectedServices, setSelectedServices] = useState<
     Map<string, Service>
   >(new Map());
+  const [isWithVisit, setIsWithVisit] = useState(Boolean(visitData));
 
   const form = useForm<InvoiceFormData>({
-    resolver: yupResolver(invoiceFormSchema),
+    resolver: yupResolver(invoiceFormSchema) as any,
     defaultValues: {
       patientId: "",
       visitId: "",
@@ -105,24 +113,33 @@ export const CreateInvoiceWithPaymentSheet = ({
   });
 
   const items = form.watch("items");
+  const patientId = form.watch("patientId");
+  const { data: patientVisits } = useGetVisitsQuery(
+    patientId ? ({ patientId, limit: 100 } as any) : undefined,
+    { skip: !patientId }
+  );
 
-  // Calculate total
-  const total = useMemo(() => {
-    if (!items || items.length === 0) return 0;
-    return items.reduce((sum, item) => {
-      const service = selectedServices.get(item.serviceId);
-      if (!service) return sum;
-      const price = Number(item.unitPrice ?? service.price ?? 0);
-      const quantity = Number(item.quantity ?? 1);
-      const discount = Number(item.discount ?? 0);
-      const itemTotal = price * quantity - discount;
-      return sum + itemTotal;
-    }, 0);
-  }, [items, selectedServices]);
+  // Calculate total immediately without useMemo
+  const total = items.reduce((sum, item) => {
+    const service = selectedServices.get(item.serviceId);
+    if (!service) return sum;
+    const price = Number(item.unitPrice ?? service.price ?? 0);
+    const quantity = Number(item.quantity ?? 1);
+    const discount = Number(item.discount ?? 0);
+    const itemTotal = price * quantity - discount;
+    return sum + itemTotal;
+  }, 0);
+
+  // Update toggle when visitData changes
+  useEffect(() => {
+    if (visitData) {
+      setIsWithVisit(true);
+    }
+  }, [visitData]);
 
   // Prefill form when visitData changes
   useEffect(() => {
-    if (visitData && open) {
+    if (visitData && open && isWithVisit) {
       // Set patient and visit
       form.setValue("patientId", visitData.patient.id);
       form.setValue("visitId", visitData.id);
@@ -157,30 +174,45 @@ export const CreateInvoiceWithPaymentSheet = ({
   useEffect(() => {
     if (!open) {
       form.reset();
-      setShowPaymentForm(false);
-      setCreatedInvoiceId(null);
       setSelectedServices(new Map());
+      setIsWithVisit(Boolean(visitData));
     }
-  }, [open, form]);
+  }, [open, form, visitData]);
+
+  // Clear visitId when switching to "without visit" mode
+  useEffect(() => {
+    if (!isWithVisit) {
+      form.setValue("visitId", undefined);
+    } else if (visitData) {
+      form.setValue("visitId", visitData.id);
+    }
+  }, [isWithVisit, visitData, form]);
 
   const handleCreateInvoice = async (data: InvoiceFormData) => {
     try {
       // Clean up empty optional fields
       const cleanData = {
         ...data,
+        visitId: isWithVisit ? data.visitId : undefined,
         notes: data.notes || undefined,
         dueDate: data.dueDate || undefined,
       };
 
       const result = await createInvoice(cleanData).unwrap();
 
-      setCreatedInvoiceId(result.id);
-      setTotalAmount(total);
-      setShowPaymentForm(true);
-
       toast.success("Счет создан!", {
         description: `Номер: ${result.invoiceNumber}. Переход к оплате...`,
       });
+
+      // Open payment dialog
+      paymentDialog.open({
+        invoiceId: result.id,
+      });
+
+      // Reset form and close invoice creation sheet
+      form.reset();
+      onOpenChange(false);
+      onSuccess?.();
     } catch (error: any) {
       console.error("Create invoice error:", error);
       toast.error("Ошибка при создании счета", {
@@ -189,41 +221,61 @@ export const CreateInvoiceWithPaymentSheet = ({
     }
   };
 
-  const handlePaymentSuccess = () => {
-    toast.success("Оплата успешно проведена!");
-    form.reset();
-    setShowPaymentForm(false);
-    setCreatedInvoiceId(null);
-    setTotalAmount(0);
-    onOpenChange(false);
-    onSuccess?.();
-  };
-
-  const formatPatientName = (patient: VisitData["patient"]) => {
-    return [patient.lastName, patient.firstName, patient.middleName]
-      .filter(Boolean)
-      .join(" ");
-  };
-
   return (
-    <>
-      <Sheet open={open && !showPaymentForm} onOpenChange={onOpenChange}>
-        <SheetContent className="overflow-y-auto w-full md:max-w-6xl">
-          <SheetHeader>
-            <SheetTitle>Создать счет и оплатить</SheetTitle>
-            <SheetDescription>
-              {visitData
-                ? `Пациент: ${formatPatientName(visitData.patient)}`
-                : "Добавьте услуги для выставления счета"}
-            </SheetDescription>
-          </SheetHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto w-full md:max-w-6xl">
+        <SheetHeader>
+          <SheetTitle>Создание счета</SheetTitle>
+        </SheetHeader>
 
-          <SheetBody>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleCreateInvoice)}
-                className="mt-4 space-y-4"
-              >
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleCreateInvoice)}
+            className="h-full flex flex-col"
+          >
+            <SheetBody>
+              <div className="space-y-4">
+                {/* Patient Selector - Always Required */}
+                <FormField
+                  control={form.control}
+                  name="patientId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <PatientAutocompleteField
+                        label="Пациент"
+                        placeholder="Выберите пациента"
+                        {...field}
+                        onChange={(value: string | undefined) => {
+                          field.onChange(value);
+                          // Clear visit when patient changes
+                          form.setValue("visitId", "");
+                        }}
+                      />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Visit Selector - Only when patient is selected */}
+                {patientId && !visitData && (
+                  <FormField
+                    control={form.control}
+                    name="visitId"
+                    render={({ field }) => (
+                      <SelectField
+                        label="Визит (опционально)"
+                        placeholder="Выберите визит"
+                        options={[
+                          ...(patientVisits?.data?.map((visit) => ({
+                            value: visit.id,
+                            label: `${formatDate(visit.visitDate, "dd.MM.yyyy")} - ${getEmployeeFullName(visit.employee)}`,
+                          })) || []),
+                        ]}
+                        {...field}
+                      />
+                    )}
+                  />
+                )}
+
                 {/* Services Table */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -257,19 +309,17 @@ export const CreateInvoiceWithPaymentSheet = ({
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="min-w-[200px]">
-                              Услуга
-                            </TableHead>
-                            <TableHead className="w-20 text-center">
+                            <TableHead>Услуга</TableHead>
+                            <TableHead className="w-[120px] text-center">
                               Кол-во
                             </TableHead>
-                            <TableHead className="w-28 text-right">
+                            <TableHead className="w-[200px] text-right">
                               Цена
                             </TableHead>
-                            <TableHead className="w-28 text-right">
+                            <TableHead className="w-[200px] text-right">
                               Скидка
                             </TableHead>
-                            <TableHead className="w-32 text-right">
+                            <TableHead className="w-[150px] text-right">
                               Сумма
                             </TableHead>
                             <TableHead className="w-12"></TableHead>
@@ -295,7 +345,7 @@ export const CreateInvoiceWithPaymentSheet = ({
 
                             return (
                               <TableRow key={field.id}>
-                                <TableCell className="py-2">
+                                <TableCell>
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.serviceId`}
@@ -328,23 +378,18 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="py-2">
+                                <TableCell>
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.quantity`}
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            className="h-9 text-center"
-                                            {...field}
-                                            onChange={(e) =>
-                                              field.onChange(
-                                                Number(e.target.value)
-                                              )
-                                            }
+                                          <StepperInput
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            min={1}
+                                            className="h-9"
                                           />
                                         </FormControl>
                                         <FormMessage />
@@ -352,30 +397,21 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="py-2">
+                                <TableCell className="w-[120px]">
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.unitPrice`}
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="0"
-                                            className="h-9 text-right"
+                                          <CurrencyInput
+                                            value={field.value ?? null}
+                                            onChange={field.onChange}
                                             placeholder={
                                               selectedService?.price?.toString() ??
                                               "0"
                                             }
-                                            {...field}
-                                            value={field.value ?? ""}
-                                            onChange={(e) =>
-                                              field.onChange(
-                                                e.target.value
-                                                  ? Number(e.target.value)
-                                                  : undefined
-                                              )
-                                            }
+                                            className="h-9"
                                           />
                                         </FormControl>
                                         <FormMessage />
@@ -383,23 +419,20 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="py-2">
+                                <TableCell>
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.discount`}
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="0"
-                                            className="h-9 text-right"
-                                            {...field}
-                                            onChange={(e) =>
-                                              field.onChange(
-                                                Number(e.target.value)
-                                              )
+                                          <CurrencyInput
+                                            value={field.value}
+                                            onChange={(value) =>
+                                              field.onChange(value ?? 0)
                                             }
+                                            placeholder="0"
+                                            className="h-9"
                                           />
                                         </FormControl>
                                         <FormMessage />
@@ -407,10 +440,10 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="py-2 text-right font-medium">
-                                  {itemTotal.toLocaleString()} сум
+                                <TableCell className="text-right font-medium">
+                                  {formatCurrency(itemTotal)}
                                 </TableCell>
-                                <TableCell className="py-2">
+                                <TableCell>
                                   <Button
                                     type="button"
                                     variant="ghost"
@@ -429,66 +462,52 @@ export const CreateInvoiceWithPaymentSheet = ({
                     </div>
                   )}
                 </div>
+              </div>
+            </SheetBody>
 
-                {/* Total and Actions */}
-                <div className="sticky bottom-0 -mx-6 -mb-6 border-t bg-background px-6 py-4">
-                  <div className="mb-4 flex items-center justify-between">
-                    <span className="text-base font-medium text-muted-foreground">
-                      Итого к оплате:
-                    </span>
-                    <span className="text-2xl font-bold text-primary">
-                      {total.toLocaleString()} сум
-                    </span>
-                  </div>
+            <SheetFooter className="flex flex-row justify-between">
+              {/* Total and Actions */}
 
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => onOpenChange(false)}
-                      disabled={isCreatingInvoice}
-                    >
-                      Отмена
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isCreatingInvoice || fields.length === 0}
-                      size="default"
-                    >
-                      {isCreatingInvoice ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Создание...
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="mr-2 h-4 w-4" />
-                          Перейти к оплате
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            </Form>
-          </SheetBody>
-        </SheetContent>
-      </Sheet>
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <span className="text-base font-medium text-muted-foreground">
+                  Итого к оплате:
+                </span>
+                <span className="text-2xl font-bold text-primary">
+                  {total.toLocaleString()} сум
+                </span>
+              </div>
 
-      {/* Payment Form Modal */}
-      {createdInvoiceId && (
-        <MultiPaymentForm
-          open={showPaymentForm}
-          onOpenChange={setShowPaymentForm}
-          invoiceId={createdInvoiceId}
-          totalAmount={totalAmount}
-          onSuccess={handlePaymentSuccess}
-          onCancel={() => {
-            setShowPaymentForm(false);
-            onOpenChange(false);
-          }}
-        />
-      )}
-    </>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isCreatingInvoice}
+                >
+                  Отмена
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isCreatingInvoice || fields.length === 0}
+                  size="default"
+                >
+                  {isCreatingInvoice ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Создание...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Перейти к оплате
+                    </>
+                  )}
+                </Button>
+              </div>
+            </SheetFooter>
+          </form>
+        </Form>
+      </SheetContent>
+    </Sheet>
   );
 };

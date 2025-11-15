@@ -175,7 +175,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
               variant="outline"
               role="combobox"
               className={cn(
-                "flex flex-wrap gap-[2px] w-full text-left items-center justify-start min-h-9 relative font-sans font-normal bg-background dark:bg-background",
+                "flex flex-wrap gap-[2px] w-full text-left items-center justify-start min-h-9 relative font-sans font-normal bg-background dark:bg-input/30",
                 !selectIsEmpty && "py-1 pl-1 pr-7 h-auto hover:bg-background",
                 selectIsEmpty && "text-muted-foreground"
               )}

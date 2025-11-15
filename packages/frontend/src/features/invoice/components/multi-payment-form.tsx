@@ -1,32 +1,42 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import type { ReactElement } from "react";
+import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Banknote, CreditCard, Smartphone, Building2, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Banknote,
+  CreditCard,
+  Smartphone,
+  Building2,
+  Zap,
+  Plus,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
-import { useAddPaymentMutation } from "@/features/invoice";
+import { useAddPaymentMutation, useGetInvoiceQuery } from "@/features/invoice";
+import { formatCurrency } from "@/lib/currency.utils";
 
 type PaymentMethod = "CASH" | "CARD" | "ONLINE" | "TRANSFER";
 
-type PaymentEntry = {
-  method: PaymentMethod;
-  amount: number;
+type MultiPaymentFormOwnProps = {
+  invoiceId: string;
 };
 
-type MultiPaymentFormProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  invoiceId: string;
-  totalAmount: number;
-  onSuccess: () => void;
-  onCancel: () => void;
-};
+type MultiPaymentFormProps = MultiPaymentFormOwnProps & DialogProps;
 
 const PAYMENT_METHODS = [
   {
@@ -56,73 +66,85 @@ const PAYMENT_METHODS = [
 ] as const;
 
 export const MultiPaymentForm = ({
+  invoiceId,
   open,
   onOpenChange,
-  invoiceId,
-  totalAmount,
-  onSuccess,
-  onCancel,
-}: MultiPaymentFormProps) => {
-  const [payments, setPayments] = useState<PaymentEntry[]>([]);
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
-  const [amount, setAmount] = useState("");
+}: MultiPaymentFormProps): ReactElement => {
+  const { data: invoice, isLoading: isLoadingInvoice } =
+    useGetInvoiceQuery(invoiceId);
+  const [payments, setPayments] = useState<Map<PaymentMethod, number>>(
+    new Map()
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addPayment] = useAddPaymentMutation();
 
-  const totalPaid = useMemo(() => {
-    return payments.reduce((sum, p) => sum + p.amount, 0);
-  }, [payments]);
-
-  const remaining = useMemo(() => {
-    return totalAmount - totalPaid;
-  }, [totalAmount, totalPaid]);
+  const totalAmount = invoice?.totalAmount ?? 0;
+  const paidAmount = invoice?.paidAmount ?? 0;
+  const totalPaid = Array.from(payments.values()).reduce(
+    (sum, amount) => sum + amount,
+    0
+  );
+  const remaining = totalAmount - paidAmount - totalPaid;
 
   // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
-      setPayments([]);
-      setSelectedMethod(null);
-      setAmount("");
+      setPayments(new Map());
     }
   }, [open]);
 
-  const handleAddPayment = () => {
-    if (!selectedMethod || !amount || Number(amount) <= 0) {
-      toast.error("Выберите метод оплаты и введите сумму");
-      return;
-    }
-
-    const paymentAmount = Number(amount);
-
-    if (paymentAmount > remaining) {
-      toast.error("Сумма превышает остаток к оплате");
-      return;
-    }
-
-    setPayments([...payments, { method: selectedMethod, amount: paymentAmount }]);
-    setAmount("");
-    setSelectedMethod(null);
+  const handleAddPaymentMethod = (method: PaymentMethod) => {
+    const newPayments = new Map(payments);
+    newPayments.set(method, 0);
+    setPayments(newPayments);
   };
 
-  const handleRemovePayment = (index: number) => {
-    setPayments(payments.filter((_, i) => i !== index));
+  const handleRemovePaymentMethod = (method: PaymentMethod) => {
+    const newPayments = new Map(payments);
+    newPayments.delete(method);
+    setPayments(newPayments);
   };
 
-  const handleQuickFill = () => {
-    if (selectedMethod && remaining > 0) {
-      setAmount(remaining.toString());
+  const handlePaymentChange = (
+    method: PaymentMethod,
+    amount: number | null
+  ) => {
+    const newPayments = new Map(payments);
+
+    if (amount === null || amount === 0) {
+      newPayments.set(method, 0);
+    } else {
+      newPayments.set(method, amount);
     }
+    setPayments(newPayments);
+  };
+
+  const handleQuickFill = (method: PaymentMethod, percentage: number) => {
+    // Calculate remaining for this specific method
+    // Add back current amount to get true remaining
+    const currentMethodAmount = payments.get(method) ?? 0;
+    const remainingForMethod = remaining + currentMethodAmount;
+
+    const amount = Math.round((remainingForMethod * percentage) / 100);
+    if (amount > 0) {
+      handlePaymentChange(method, amount);
+    }
+  };
+
+  const getAvailableMethods = () => {
+    return PAYMENT_METHODS.filter((method) => !payments.has(method.value));
+  };
+
+  const getActiveMethods = () => {
+    return PAYMENT_METHODS.filter((method) => payments.has(method.value));
   };
 
   const handleSubmit = async () => {
-    if (remaining > 0) {
-      toast.error("Не вся сумма оплачена", {
-        description: `Осталось оплатить: ${remaining.toLocaleString()} сум`,
-      });
-      return;
-    }
+    const activePayments = Array.from(payments.entries()).filter(
+      ([_, amount]) => amount > 0
+    );
 
-    if (payments.length === 0) {
+    if (activePayments.length === 0) {
       toast.error("Добавьте хотя бы один платеж");
       return;
     }
@@ -130,20 +152,25 @@ export const MultiPaymentForm = ({
     setIsSubmitting(true);
 
     try {
-      // Create payment records for each payment
-      for (const payment of payments) {
+      // Create payment records for each payment with amount > 0
+      for (const [method, amount] of activePayments) {
         await addPayment({
           invoiceId,
           data: {
-            amount: payment.amount,
-            paymentMethod: payment.method,
+            amount,
+            paymentMethod: method,
           },
         }).unwrap();
       }
 
-      toast.success("Все платежи успешно проведены!");
-      setPayments([]);
-      onSuccess();
+      const message =
+        remaining > 0
+          ? `Оплачено ${formatCurrency(totalPaid)}. Остаток: ${formatCurrency(remaining)}`
+          : "Счет полностью оплачен!";
+
+      toast.success(message);
+      setPayments(new Map());
+      onOpenChange(false);
     } catch (error: any) {
       console.error("Payment error:", error);
       toast.error("Ошибка при проведении оплаты", {
@@ -154,160 +181,206 @@ export const MultiPaymentForm = ({
     }
   };
 
-  const getMethodIcon = (method: PaymentMethod) => {
-    const config = PAYMENT_METHODS.find((m) => m.value === method);
-    if (!config) return null;
-    const Icon = config.icon;
-    return <Icon className={`h-4 w-4 ${config.color}`} />;
-  };
-
-  const getMethodLabel = (method: PaymentMethod) => {
-    return PAYMENT_METHODS.find((m) => m.value === method)?.label ?? method;
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Оплата счета</DialogTitle>
           <DialogDescription>
-            Выберите способ(ы) оплаты и введите суммы
+            {invoice ? `Счет ${invoice.invoiceNumber}` : "Загрузка..."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Summary */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Сумма счета:</span>
-                  <span className="font-medium">
-                    {totalAmount.toLocaleString()} сум
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Оплачено:</span>
-                  <span className="font-medium text-green-600">
-                    {totalPaid.toLocaleString()} сум
-                  </span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Осталось:</span>
-                  <span className={remaining > 0 ? "text-red-600" : "text-green-600"}>
-                    {remaining.toLocaleString()} сум
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Payment Methods Selection */}
-          <div className="space-y-3">
-            <Label>Добавить платеж</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {PAYMENT_METHODS.map((method) => {
-                const Icon = method.icon;
-                const isSelected = selectedMethod === method.value;
-                return (
-                  <Button
-                    key={method.value}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    className="justify-start"
-                    onClick={() => setSelectedMethod(method.value)}
-                  >
-                    <Icon className={`mr-2 h-4 w-4 ${isSelected ? "" : method.color}`} />
-                    {method.label}
-                  </Button>
-                );
-              })}
+          {isLoadingInvoice ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          </div>
-
-          {/* Amount Input */}
-          {selectedMethod && (
-            <div className="space-y-3">
-              <Label htmlFor="amount">Сумма</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleAddPayment();
-                    }
-                  }}
-                />
-                <Button type="button" variant="outline" onClick={handleQuickFill}>
-                  Весь остаток
-                </Button>
-                <Button type="button" onClick={handleAddPayment}>
-                  Добавить
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Payments List */}
-          {payments.length > 0 && (
-            <div className="space-y-2">
-              <Label>Платежи:</Label>
-              <div className="space-y-2">
-                {payments.map((payment, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      {getMethodIcon(payment.method)}
+          ) : (
+            <>
+              {/* Summary */}
+              <Card>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Сумма счета:
+                      </span>
                       <span className="font-medium">
-                        {getMethodLabel(payment.method)}
+                        {formatCurrency(totalAmount)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold">
-                        {payment.amount.toLocaleString()} сум
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Уже оплачено:
                       </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemovePayment(index)}
+                      <span className="font-medium text-green-600">
+                        {formatCurrency(paidAmount)}
+                      </span>
+                    </div>
+                    {payments.size > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Добавлено платежей:
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          {formatCurrency(totalPaid)}
+                        </span>
+                      </div>
+                    )}
+                    <Separator />
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Осталось оплатить:</span>
+                      <span
+                        className={
+                          remaining > 0 ? "text-red-600" : "text-green-600"
+                        }
                       >
-                        Удалить
-                      </Button>
+                        {formatCurrency(remaining)}
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </CardContent>
+              </Card>
 
-          {/* Status Badge */}
-          {remaining === 0 && payments.length > 0 && (
-            <div className="flex items-center justify-center gap-2 rounded-lg border border-green-500 bg-green-50 p-3 text-green-700">
-              <CheckCircle2 className="h-5 w-5" />
-              <span className="font-medium">Сумма полностью оплачена!</span>
-            </div>
+              {/* Payment Method Selection Buttons */}
+              <div className="space-y-3">
+                <Label>Выберите тип оплаты</Label>
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableMethods().map((method) => {
+                    const Icon = method.icon;
+                    return (
+                      <Button
+                        key={method.value}
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="gap-2 rounded-full"
+                        onClick={() => handleAddPaymentMethod(method.value)}
+                        disabled={remaining === 0}
+                      >
+                        <Plus className="h-4 w-4" />
+                        {method.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Active Payment Methods */}
+              {getActiveMethods().length > 0 && (
+                <div className="space-y-3">
+                  <Label>Платежи</Label>
+                  <div className="space-y-3">
+                    {getActiveMethods().map((method) => {
+                      const currentAmount = payments.get(method.value) ?? 0;
+                      const maxAllowed = remaining + currentAmount;
+
+                      return (
+                        <div
+                          key={method.value}
+                          className="space-y-2 rounded-lg border border-border p-4"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold font-gilroy">
+                                {method.label}
+                              </span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-6"
+                              onClick={() =>
+                                handleRemovePaymentMethod(method.value)
+                              }
+                            >
+                              <X />
+                            </Button>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <CurrencyInput
+                                value={currentAmount || null}
+                                onChange={(amount) =>
+                                  handlePaymentChange(method.value, amount)
+                                }
+                                placeholder="Введите сумму"
+                                max={maxAllowed}
+                                autoFocus
+                              />
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="px-2"
+                                onClick={() =>
+                                  handleQuickFill(method.value, 25)
+                                }
+                                disabled={remaining === 0}
+                                title="25% остатка"
+                              >
+                                25%
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="px-2"
+                                onClick={() =>
+                                  handleQuickFill(method.value, 50)
+                                }
+                                disabled={remaining === 0}
+                                title="50% остатка"
+                              >
+                                50%
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="px-2"
+                                onClick={() =>
+                                  handleQuickFill(method.value, 100)
+                                }
+                                disabled={remaining === 0}
+                                title="Весь остаток"
+                              >
+                                <Zap />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting || isLoadingInvoice}
+          >
             Отмена
           </Button>
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting || remaining > 0 || payments.length === 0}
+            disabled={
+              isSubmitting ||
+              isLoadingInvoice ||
+              !Array.from(payments.values()).some((amount) => amount > 0)
+            }
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? "Обработка..." : "Оплачено"}
+            {isSubmitting ? "Обработка..." : "Оплатить"}
           </Button>
         </DialogFooter>
       </DialogContent>

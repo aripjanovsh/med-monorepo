@@ -80,6 +80,10 @@ export interface InvoiceListItemDto {
     firstName: string;
     lastName: string;
   };
+  visit?: {
+    id: string;
+    visitDate: string;
+  };
   totalAmount: number;
   paidAmount: number;
   status: PaymentStatus;

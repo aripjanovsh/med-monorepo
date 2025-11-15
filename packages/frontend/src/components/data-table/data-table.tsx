@@ -28,12 +28,18 @@ import {
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
+type ColumnMeta = {
+  className?: string;
+  headerClassName?: string;
+};
+
 export function DataTable<TData, TValue>({
   columns = [],
   data = [],
   isLoading = false,
   sort,
   pagination,
+  hidePagination = false,
   enableSorting = false,
   enableFiltering = false,
   defaultSorting = [],
@@ -102,10 +108,16 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const columnMeta =
+                    (header.column.columnDef.meta as ColumnMeta | undefined) ||
+                    {};
                   return (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
+                      className={
+                        columnMeta.headerClassName ?? columnMeta.className
+                      }
                       style={{
                         width:
                           header.getSize() !== 150
@@ -113,7 +125,13 @@ export function DataTable<TData, TValue>({
                             : undefined,
                       }}
                     >
-                      <DataTableColumnHeader header={header} sort={sort} />
+                      <DataTableColumnHeader
+                        header={header}
+                        sort={sort}
+                        className={
+                          columnMeta.headerClassName ?? columnMeta.className
+                        }
+                      />
                     </TableHead>
                   );
                 })}
@@ -131,14 +149,19 @@ export function DataTable<TData, TValue>({
                   onClick={() => onRowClick?.(row)}
                   className={onRowClick ? "cursor-pointer" : undefined}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const columnMeta =
+                      (cell.column.columnDef.meta as ColumnMeta | undefined) ||
+                      {};
+                    return (
+                      <TableCell key={cell.id} className={columnMeta.className}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
@@ -154,7 +177,9 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination pagination={pagination} table={table} />
+      {!hidePagination && (
+        <DataTablePagination pagination={pagination} table={table} />
+      )}
     </div>
   );
 }

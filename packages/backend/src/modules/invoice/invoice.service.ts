@@ -125,6 +125,7 @@ export class InvoiceService {
     }
 
     // Get doctor ID from visit or use creator as fallback
+    // For invoices without visit, the creator (usually receptionist/cashier) is used
     let doctorId = createdById;
     if (dto.visitId) {
       const visit = await this.prisma.visit.findUnique({
@@ -135,6 +136,12 @@ export class InvoiceService {
         doctorId = visit.employeeId;
       }
     }
+
+    // Log creation context for analytics
+    const hasVisit = Boolean(dto.visitId);
+    console.log(
+      `Creating invoice: ${hasVisit ? "with visit" : "without visit (direct sale)"} for patient ${dto.patientId}`
+    );
 
     // Calculate total amount and prepare items data
     let totalAmount = new Decimal(0);
@@ -195,6 +202,13 @@ export class InvoiceService {
     // Create invoice with items and ServiceOrders in a transaction
     const invoice = await this.prisma.$transaction(async (tx) => {
       const invoiceNumber = generateMemorableId("INV");
+
+      // Validate: For invoices without visit, ensure we have a valid creator
+      if (!dto.visitId && !createdById) {
+        throw new BadRequestException(
+          "Invoices without visit require a valid employee creator"
+        );
+      }
 
       // Create ServiceOrders for items without them
       const createdServiceOrders = await Promise.all(

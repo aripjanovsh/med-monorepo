@@ -12,22 +12,23 @@ export interface DataTableModel<TData, TValue> {
   columns?: ColumnDef<TData, TValue>[];
   data?: TData[];
   isLoading?: boolean;
-  
+  hidePagination?: boolean;
+
   // Server-side features
   sort?: DataTableSortModel;
   pagination?: DataTablePaginationModel;
-  
+
   // Client-side features (optional - if provided, enables client-side mode)
   enableSorting?: boolean;
   enableFiltering?: boolean;
   defaultSorting?: SortingState;
   defaultFilters?: ColumnFiltersState;
-  
+
   // Common features
   selection?: DataTableSelectionModel;
   toolbar?: (table: Table<TData>) => ReactNode;
   emptyState?: ReactNode;
-  
+
   // Row actions
   onRowClick?: (row: Row<TData>) => void;
 }

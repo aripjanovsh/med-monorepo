@@ -1,20 +1,13 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import { FileText, Stethoscope } from "lucide-react";
 import type { InvoiceListItemDto } from "../invoice.dto";
-import { PAYMENT_STATUS_MAP } from "../invoice.constants";
 import { formatDate } from "@/lib/date.utils";
 import { getInvoiceRemainingAmount } from "../invoice.model";
 import { getPatientFullName } from "@/features/patients";
 import { formatCurrency } from "@/lib/currency.utils";
-
-const STATUS_COLOR_MAP = {
-  red: "destructive",
-  orange: "default",
-  green: "secondary",
-  gray: "outline",
-} as const;
+import { InvoiceStatusBadge } from "./invoice-status-badge";
 
 export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
   {
@@ -28,8 +21,20 @@ export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
     accessorKey: "patient",
     header: "Пациент",
     cell: ({ row }) => (
-      <div className="font-medium">
-        {getPatientFullName(row.original.patient)}
+      <div>
+        <div className="font-medium">
+          {getPatientFullName(row.original.patient)}
+        </div>
+        {row.original.visit ? (
+          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+            <Stethoscope className="h-3 w-3" />С визитом
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+            <FileText className="h-3 w-3" />
+            Прямая продажа
+          </div>
+        )}
       </div>
     ),
   },
@@ -50,6 +55,10 @@ export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
         {formatCurrency(row.original.totalAmount)}
       </div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
   {
     accessorKey: "paidAmount",
@@ -59,26 +68,21 @@ export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
         {formatCurrency(row.original.paidAmount)}
       </div>
     ),
+    meta: {
+      className: "text-right",
+      headerClassName: "text-right",
+    },
   },
   {
     accessorKey: "status",
     header: "Статус",
     cell: ({ row }) => {
       const invoice = row.original;
-      const statusInfo = PAYMENT_STATUS_MAP[invoice.status];
       const remainingAmount = getInvoiceRemainingAmount(invoice);
 
       return (
         <div>
-          <Badge
-            variant={
-              STATUS_COLOR_MAP[
-                statusInfo.color as keyof typeof STATUS_COLOR_MAP
-              ] || "secondary"
-            }
-          >
-            {statusInfo.label}
-          </Badge>
+          <InvoiceStatusBadge status={invoice.status} />
           {remainingAmount > 0 && invoice.status !== "PAID" && (
             <div className="mt-1 text-xs text-muted-foreground">
               Осталось: {formatCurrency(remainingAmount)}
