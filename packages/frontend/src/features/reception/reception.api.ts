@@ -1,11 +1,9 @@
 import { rootApi } from "@/store/api/root.api";
 import type {
-  DashboardStatsResponseDto,
   QueueItemResponseDto,
   DoctorScheduleResponseDto,
   QuickCreateVisitRequestDto,
   QuickCreateVisitResponseDto,
-  DashboardStatsQueryDto,
   DoctorScheduleQueryDto,
 } from "./reception.dto";
 import type { QueueDashboard } from "./types/queue-dashboard";
@@ -13,18 +11,6 @@ import { RECEPTION_API_TAG } from "./reception.constants";
 
 export const receptionApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Get dashboard stats
-    getDashboardStats: builder.query<
-      DashboardStatsResponseDto,
-      DashboardStatsQueryDto | void
-    >({
-      query: (params) => ({
-        url: "/api/v1/reception/dashboard/stats",
-        params: params || undefined,
-      }),
-      providesTags: [RECEPTION_API_TAG],
-    }),
-
     // Get waiting queue
     getQueue: builder.query<QueueItemResponseDto[], void>({
       query: () => ({
@@ -86,7 +72,6 @@ export const receptionApi = rootApi.injectEndpoints({
 });
 
 export const {
-  useGetDashboardStatsQuery,
   useGetQueueQuery,
   useGetDoctorScheduleQuery,
   useCreateVisitMutation,

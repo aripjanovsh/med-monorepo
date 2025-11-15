@@ -17,7 +17,8 @@ export const API_TAG_OPERATIONS_EMPLOYEES = "Employee" as const;
 export const API_TAG_OPERATIONS_EMPLOYEE_STATS = "EmployeeStats" as const;
 
 // Analysis Templates API Tags
-export const API_TAG_OPERATIONS_ANALYSIS_TEMPLATES = "AnalysisTemplate" as const;
+export const API_TAG_OPERATIONS_ANALYSIS_TEMPLATES =
+  "AnalysisTemplate" as const;
 
 // Patient API Tags
 export const API_TAG_OPERATIONS_PATIENTS = "Patient" as const;
@@ -31,7 +32,8 @@ export const API_TAG_OPERATIONS_PERMISSIONS = "Permission" as const;
 export const API_TAG_OPERATIONS_LOCATION = "Location" as const;
 
 // Protocol Template API Tags
-export const API_TAG_OPERATIONS_PROTOCOL_TEMPLATES = "ProtocolTemplate" as const;
+export const API_TAG_OPERATIONS_PROTOCOL_TEMPLATES =
+  "ProtocolTemplate" as const;
 
 // Medical Card API Tags
 export const API_TAG_OPERATIONS_APPOINTMENTS = "Appointment" as const;
@@ -40,9 +42,11 @@ export const API_TAG_OPERATIONS_PRESCRIPTIONS = "Prescription" as const;
 export const API_TAG_OPERATIONS_SERVICE_ORDERS = "ServiceOrder" as const;
 
 // Patient Parameters and Allergies API Tags
-export const API_TAG_OPERATIONS_PATIENT_PARAMETERS = "PatientParameter" as const;
+export const API_TAG_OPERATIONS_PATIENT_PARAMETERS =
+  "PatientParameter" as const;
 export const API_TAG_OPERATIONS_PATIENT_ALLERGIES = "PatientAllergy" as const;
-export const API_TAG_OPERATIONS_PARAMETER_DEFINITIONS = "ParameterDefinition" as const;
+export const API_TAG_OPERATIONS_PARAMETER_DEFINITIONS =
+  "ParameterDefinition" as const;
 
 // Invoice API Tags
 export const API_TAG_OPERATIONS_INVOICES = "Invoice" as const;
@@ -53,7 +57,10 @@ export const API_TAG_OPERATIONS_RECEPTION = "Reception" as const;
 // File Management API Tags
 export const API_TAG_OPERATIONS_FILES = "Files" as const;
 
-export type ApiTagTypes = 
+// Statistics API Tags
+export const API_TAG_OPERATIONS_STATS = "Stats" as const;
+
+export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_TITLES
   | typeof API_TAG_OPERATIONS_SERVICE_TYPES
   | typeof API_TAG_OPERATIONS_SERVICES
@@ -78,7 +85,8 @@ export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_PARAMETER_DEFINITIONS
   | typeof API_TAG_OPERATIONS_INVOICES
   | typeof API_TAG_OPERATIONS_RECEPTION
-  | typeof API_TAG_OPERATIONS_FILES;
+  | typeof API_TAG_OPERATIONS_FILES
+  | typeof API_TAG_OPERATIONS_STATS;
 
 // Unified API Tags object for easier access
 export const API_TAGS = {
@@ -107,4 +115,5 @@ export const API_TAGS = {
   INVOICE: API_TAG_OPERATIONS_INVOICES,
   RECEPTION: API_TAG_OPERATIONS_RECEPTION,
   FILES: API_TAG_OPERATIONS_FILES,
+  STATS: API_TAG_OPERATIONS_STATS,
 } as const;

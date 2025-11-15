@@ -29,11 +29,6 @@ export const quickCreateVisitRequestSchema = yup.object({
   notes: yup.string().optional(),
 });
 
-// Dashboard Stats Query Schema
-export const dashboardStatsQuerySchema = yup.object({
-  date: yup.string().optional(), // ISO 8601
-});
-
 // Doctor Schedule Query Schema
 export const doctorScheduleQuerySchema = yup.object({
   date: yup.string().optional(),
@@ -48,9 +43,6 @@ export type QuickCreateVisitFormData = {
   type: "STANDARD" | "WITHOUT_QUEUE" | "EMERGENCY";
   notes?: string | undefined;
 };
-export type DashboardStatsQueryData = yup.InferType<
-  typeof dashboardStatsQuerySchema
->;
 export type DoctorScheduleQueryData = yup.InferType<
   typeof doctorScheduleQuerySchema
 >;

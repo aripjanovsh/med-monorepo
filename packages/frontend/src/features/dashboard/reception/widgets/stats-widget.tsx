@@ -13,18 +13,18 @@ import {
   DollarSign,
   FileText,
 } from "lucide-react";
-import { useGetDashboardStatsQuery } from "@/features/reception";
+import { useGetStatsQuery, StatsType } from "@/features/stats";
 
 type StatsWidgetProps = {
   date?: string;
 };
 
 export const StatsWidget = ({ date }: StatsWidgetProps) => {
-  const {
-    data: stats,
-    isLoading,
-    error,
-  } = useGetDashboardStatsQuery(date ? { date } : undefined);
+  const { data, isLoading, error } = useGetStatsQuery(
+    date ? { startDate: date, endDate: date } : undefined
+  );
+
+  const stats = data?.stats;
 
   if (isLoading) {
     return (
@@ -56,57 +56,57 @@ export const StatsWidget = ({ date }: StatsWidgetProps) => {
   const statCards = [
     {
       title: "Всего пациентов",
-      value: stats.totalPatientsToday,
-      description: "За сегодня",
+      value: stats?.[StatsType.PATIENTS_COUNT] ?? 0,
+      description: "За период",
       icon: Users,
       color: "text-blue-600",
     },
     {
       title: "Записей",
-      value: stats.totalAppointmentsToday,
+      value: stats?.[StatsType.APPOINTMENTS_COUNT] ?? 0,
       description: "Всего записей",
       icon: Calendar,
       color: "text-purple-600",
     },
     {
       title: "В очереди",
-      value: stats.patientsInQueue,
+      value: stats?.[StatsType.PATIENTS_IN_QUEUE] ?? 0,
       description: "Ожидают приема",
       icon: Clock,
       color: "text-orange-600",
     },
     {
       title: "Завершено",
-      value: stats.completedVisits,
+      value: stats?.[StatsType.COMPLETED_VISITS] ?? 0,
       description: "Визитов завершено",
       icon: CheckCircle2,
       color: "text-green-600",
     },
     {
       title: "Отменено",
-      value: stats.canceledAppointments,
+      value: stats?.[StatsType.CANCELED_APPOINTMENTS] ?? 0,
       description: "Записей отменено",
       icon: XCircle,
       color: "text-red-600",
     },
     {
       title: "Не пришли",
-      value: stats.noShowAppointments,
+      value: stats?.[StatsType.NO_SHOW_APPOINTMENTS] ?? 0,
       description: "No-show",
       icon: AlertCircle,
       color: "text-yellow-600",
     },
     {
       title: "Выручка",
-      value: `${stats.totalRevenueToday.toLocaleString()} сум`,
-      description: "За сегодня",
+      value: `${(stats?.[StatsType.REVENUE_TOTAL] ?? 0).toLocaleString()} сум`,
+      description: "За период",
       icon: DollarSign,
       color: "text-green-600",
       isLarge: true,
     },
     {
       title: "Неоплачено",
-      value: stats.unpaidInvoicesCount,
+      value: stats?.[StatsType.UNPAID_INVOICES_COUNT] ?? 0,
       description: "Счетов без оплаты",
       icon: FileText,
       color: "text-red-600",

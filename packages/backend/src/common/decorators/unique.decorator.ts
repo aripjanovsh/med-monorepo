@@ -49,8 +49,6 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
       excludeId = object[options.excludeField];
     }
 
-    console.log("excludeId", excludeId);
-
     // 2) Preferred: from current request context according to configuration
     if (!excludeId && options.excludeFromRequest) {
       const req = RequestContextMiddleware.getRequestContext();
@@ -90,7 +88,7 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
 
 export function IsUnique(
   options: UniqueValidationOptions,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ) {
   return function (object: object, propertyName: string) {
     registerDecorator({
@@ -115,7 +113,7 @@ export function IsUniqueEmail(validationOptions?: ValidationOptions) {
     {
       message: "Email already exists",
       ...validationOptions,
-    },
+    }
   );
 }
 
@@ -130,7 +128,7 @@ export function IsUniquePhone(validationOptions?: ValidationOptions) {
     {
       message: "Phone already exists",
       ...validationOptions,
-    },
+    }
   );
 }
 
@@ -145,7 +143,7 @@ export function IsUniqueEmployeeId(validationOptions?: ValidationOptions) {
     {
       message: "Employee ID already exists in this organization",
       ...validationOptions,
-    },
+    }
   );
 }
 
@@ -159,7 +157,7 @@ export function IsUniqueUserId(validationOptions?: ValidationOptions) {
     {
       message: "User is already assigned to another employee",
       ...validationOptions,
-    },
+    }
   );
 }
 
@@ -174,6 +172,6 @@ export function IsUniquePatientId(validationOptions?: ValidationOptions) {
     {
       message: "Patient ID already exists in this organization",
       ...validationOptions,
-    },
+    }
   );
 }

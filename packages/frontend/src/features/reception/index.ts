@@ -1,25 +1,21 @@
 // Types
 export type {
-  DashboardStatsResponseDto,
   QueueItemResponseDto,
   DoctorScheduleResponseDto,
   QuickCreateVisitRequestDto,
   QuickCreateVisitResponseDto,
-  DashboardStatsQueryDto,
   DoctorScheduleQueryDto,
 } from "./reception.dto";
 
 // Schemas & Types
 export type {
   QuickCreateVisitFormData,
-  DashboardStatsQueryData,
   DoctorScheduleQueryData,
 } from "./reception.schema";
 
 export {
   quickCreateVisitFormSchema,
   quickCreateVisitRequestSchema,
-  dashboardStatsQuerySchema,
   doctorScheduleQuerySchema,
 } from "./reception.schema";
 
@@ -50,7 +46,6 @@ export type {
 
 // API Hooks
 export {
-  useGetDashboardStatsQuery,
   useGetQueueQuery,
   useGetDoctorScheduleQuery,
   useCreateVisitMutation,

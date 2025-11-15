@@ -1,18 +1,5 @@
 import type { PaginatedResponseDto } from "@/types/api.types";
 
-// Dashboard Stats Response
-export interface DashboardStatsResponseDto {
-  date: string; // ISO 8601
-  totalPatientsToday: number;
-  totalAppointmentsToday: number;
-  patientsInQueue: number;
-  completedVisits: number;
-  canceledAppointments: number;
-  noShowAppointments: number;
-  totalRevenueToday: number;
-  unpaidInvoicesCount: number;
-}
-
 // Queue Item Response
 export interface QueueItemResponseDto {
   position: number;
@@ -120,11 +107,6 @@ export interface QuickCreateVisitResponseDto {
     totalAmount: number;
     status: string;
   };
-}
-
-// Dashboard Stats Query
-export interface DashboardStatsQueryDto {
-  date?: string; // ISO 8601, defaults to today
 }
 
 // Doctor Schedule Query

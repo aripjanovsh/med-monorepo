@@ -115,10 +115,6 @@ export class EmployeeService {
     } = query;
     const skip = (page - 1) * limit;
 
-    console.log("skip", skip);
-    console.log("limit", limit);
-    console.log("page", page);
-
     const where: Prisma.EmployeeWhereInput = {};
 
     // Filter by organizationId if provided

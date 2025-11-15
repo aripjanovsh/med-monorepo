@@ -300,11 +300,6 @@ export class VisitService {
       ? { [sortBy]: sortOrder }
       : { visitDate: "desc" };
 
-    console.log("sortBy", sortBy);
-    console.log("sortOrder", sortOrder);
-    console.log("orderBy", orderBy);
-    console.log("====");
-
     const includeObject = buildIncludeObject(include);
 
     const [data, total] = await Promise.all([
