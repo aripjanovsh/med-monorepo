@@ -79,7 +79,7 @@ export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
                 "size-7 rounded-full flex items-center justify-center text-xs font-medium",
                 workingDays?.[day]
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-500"
+                  : "bg-gray-200 text-gray-500",
               )}
             >
               {WEEK_DAYS_SHORT?.[day]}

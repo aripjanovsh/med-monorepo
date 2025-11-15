@@ -143,7 +143,7 @@ export const ListField: FC<ListFieldProps> = ({
                           index === options.length - 1
                             ? "border-b-0"
                             : "border-b",
-                          optionClassName
+                          optionClassName,
                         )}
                       >
                         <FormControl>
@@ -175,7 +175,7 @@ export const ListField: FC<ListFieldProps> = ({
                           key={option.value}
                           className={cn(
                             "flex items-center space-x-3 space-y-0 py-2",
-                            optionClassName
+                            optionClassName,
                           )}
                         >
                           <FormControl>

@@ -40,7 +40,7 @@ export const createAppointmentColumns = (
   onDelete?: (appointment: AppointmentResponseDto) => void,
   onConfirm?: (appointment: AppointmentResponseDto) => void,
   onCheckIn?: (appointment: AppointmentResponseDto) => void,
-  onCancel?: (appointment: AppointmentResponseDto) => void
+  onCancel?: (appointment: AppointmentResponseDto) => void,
 ): ColumnDef<AppointmentResponseDto>[] => [
   {
     id: "select",
@@ -121,9 +121,7 @@ export const createAppointmentColumns = (
   {
     accessorKey: "status",
     header: "СТАТУС",
-    cell: ({ row }) => (
-      <AppointmentStatusBadge status={row.original.status} />
-    ),
+    cell: ({ row }) => <AppointmentStatusBadge status={row.original.status} />,
   },
   {
     id: "actions",

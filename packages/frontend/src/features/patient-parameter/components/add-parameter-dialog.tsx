@@ -115,7 +115,7 @@ export const AddParameterDialog = ({
             unit: definition.defaultUnit,
             source: "MANUAL",
           }).unwrap();
-        })
+        }),
       );
 
       toast.success(`Добавлено параметров: ${parametersToAdd.length}`);
@@ -159,7 +159,7 @@ export const AddParameterDialog = ({
                       (p) =>
                         p.category === "VITALS_CORE" &&
                         p.code !== "BP_SYS" &&
-                        p.code !== "BP_DIA"
+                        p.code !== "BP_DIA",
                     )
                     .map((param) => (
                       <div

@@ -44,7 +44,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       max,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [displayValue, setDisplayValue] = useState<string>("");
 
@@ -94,7 +94,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         )}
       </InputGroup>
     );
-  }
+  },
 );
 
 CurrencyInput.displayName = "CurrencyInput";

@@ -34,7 +34,7 @@ export const ResultInputProtocol = ({
   readonly = false,
 }: ResultInputProtocolProps) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    value?.templateId || ""
+    value?.templateId || "",
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<ProtocolTemplateResponseDto | null>(null);
@@ -56,7 +56,7 @@ export const ResultInputProtocol = ({
   const handleNewTemplateSelect = useCallback(
     (
       templateId: string | undefined,
-      template?: ProtocolTemplateResponseDto
+      template?: ProtocolTemplateResponseDto,
     ) => {
       if (!templateId || disabled) return;
 
@@ -79,7 +79,7 @@ export const ResultInputProtocol = ({
       }
       setActiveTab("new");
     },
-    [onChange, disabled, patientId]
+    [onChange, disabled, patientId],
   );
 
   const handleDataChange = useCallback(
@@ -100,7 +100,7 @@ export const ResultInputProtocol = ({
         });
       }
     },
-    [onChange, selectedTemplate, patientId]
+    [onChange, selectedTemplate, patientId],
   );
 
   // Инициализация при загрузке существующих данных
@@ -128,7 +128,9 @@ export const ResultInputProtocol = ({
   return (
     <div className="space-y-4">
       <div>
-        <Label className="text-base font-semibold">📋 Протокол по шаблону</Label>
+        <Label className="text-base font-semibold">
+          📋 Протокол по шаблону
+        </Label>
         <p className="text-sm text-muted-foreground mt-1">
           Выберите шаблон протокола и заполните форму
         </p>
@@ -151,7 +153,9 @@ export const ResultInputProtocol = ({
                   <Label>Выберите шаблон протокола</Label>
                   <ProtocolTemplateAutocompleteField
                     value={selectedTemplateId}
-                    onChange={(templateId) => handleNewTemplateSelect(templateId)}
+                    onChange={(templateId) =>
+                      handleNewTemplateSelect(templateId)
+                    }
                     onTemplateSelected={(template) =>
                       handleNewTemplateSelect(template.id, template)
                     }

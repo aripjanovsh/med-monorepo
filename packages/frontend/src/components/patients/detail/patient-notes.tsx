@@ -1,38 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  FileText, 
-  Plus, 
-  Search, 
+import {
+  FileText,
+  Plus,
+  Search,
   Filter,
   Calendar,
   User,
   Lock,
   Edit,
   Trash2,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Patient, PatientNote } from "@/types/patient";
@@ -54,8 +66,9 @@ export function PatientNotes({ patient }: PatientNotesProps) {
 
   const filteredNotes = patient.notes
     ?.filter((note) => {
-      const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           note.author.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        note.author.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter = filterType === "all" || note.type === filterType;
       const matchesPrivacy = showPrivate || !note.isPrivate;
       return matchesSearch && matchesFilter && matchesPrivacy;
@@ -95,10 +108,14 @@ export function PatientNotes({ patient }: PatientNotesProps) {
     setNewNote({ content: "", type: "CLINICAL", isPrivate: false });
   };
 
-  const notesByType = patient.notes?.reduce((acc, note) => {
-    acc[note.type] = (acc[note.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>) || {};
+  const notesByType =
+    patient.notes?.reduce(
+      (acc, note) => {
+        acc[note.type] = (acc[note.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ) || {};
 
   return (
     <div className="space-y-6">
@@ -124,49 +141,66 @@ export function PatientNotes({ patient }: PatientNotesProps) {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="note-type">Note Type</Label>
-                <Select 
-                  value={newNote.type} 
-                  onValueChange={(value) => setNewNote(prev => ({ ...prev, type: value as PatientNote["type"] }))}
+                <Select
+                  value={newNote.type}
+                  onValueChange={(value) =>
+                    setNewNote((prev) => ({
+                      ...prev,
+                      type: value as PatientNote["type"],
+                    }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="CLINICAL">Clinical</SelectItem>
-                    <SelectItem value="ADMINISTRATIVE">Administrative</SelectItem>
+                    <SelectItem value="ADMINISTRATIVE">
+                      Administrative
+                    </SelectItem>
                     <SelectItem value="PERSONAL">Personal</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="note-content">Content</Label>
                 <Textarea
                   id="note-content"
                   placeholder="Enter note content..."
                   value={newNote.content}
-                  onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
+                  onChange={(e) =>
+                    setNewNote((prev) => ({ ...prev, content: e.target.value }))
+                  }
                   className="min-h-[120px]"
                 />
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="private-note"
                   checked={newNote.isPrivate}
-                  onCheckedChange={(checked) => setNewNote(prev => ({ ...prev, isPrivate: checked }))}
+                  onCheckedChange={(checked) =>
+                    setNewNote((prev) => ({ ...prev, isPrivate: checked }))
+                  }
                 />
                 <Label htmlFor="private-note" className="flex items-center">
                   <Lock className="h-4 w-4 mr-1" />
                   Private note (only visible to authorized staff)
                 </Label>
               </div>
-              
+
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsAddingNote(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddingNote(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleAddNote} disabled={!newNote.content.trim()}>
+                <Button
+                  onClick={handleAddNote}
+                  disabled={!newNote.content.trim()}
+                >
                   Add Note
                 </Button>
               </div>
@@ -183,43 +217,51 @@ export function PatientNotes({ patient }: PatientNotesProps) {
               <FileText className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-sm font-medium">Total Notes</p>
-                <p className="text-2xl font-bold">{patient.notes?.length || 0}</p>
+                <p className="text-2xl font-bold">
+                  {patient.notes?.length || 0}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <FileText className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-sm font-medium">Clinical</p>
-                <p className="text-2xl font-bold">{notesByType.CLINICAL || 0}</p>
+                <p className="text-2xl font-bold">
+                  {notesByType.CLINICAL || 0}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <User className="h-4 w-4 text-green-600" />
               <div>
                 <p className="text-sm font-medium">Administrative</p>
-                <p className="text-2xl font-bold">{notesByType.ADMINISTRATIVE || 0}</p>
+                <p className="text-2xl font-bold">
+                  {notesByType.ADMINISTRATIVE || 0}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <MessageSquare className="h-4 w-4 text-purple-600" />
               <div>
                 <p className="text-sm font-medium">Personal</p>
-                <p className="text-2xl font-bold">{notesByType.PERSONAL || 0}</p>
+                <p className="text-2xl font-bold">
+                  {notesByType.PERSONAL || 0}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -258,7 +300,9 @@ export function PatientNotes({ patient }: PatientNotesProps) {
                 checked={showPrivate}
                 onCheckedChange={setShowPrivate}
               />
-              <Label htmlFor="show-private" className="text-sm">Show private notes</Label>
+              <Label htmlFor="show-private" className="text-sm">
+                Show private notes
+              </Label>
             </div>
           </div>
         </CardContent>
@@ -279,13 +323,16 @@ export function PatientNotes({ patient }: PatientNotesProps) {
                       </span>
                     </Badge>
                     {note.isPrivate && (
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-yellow-50 text-yellow-800 border-yellow-200"
+                      >
                         <Lock className="h-3 w-3 mr-1" />
                         Private
                       </Badge>
                     )}
                   </div>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm">
@@ -304,10 +351,10 @@ export function PatientNotes({ patient }: PatientNotesProps) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                
+
                 <div className="space-y-2">
                   <p className="text-sm leading-relaxed">{note.content}</p>
-                  
+
                   <div className="flex items-center space-x-4 text-xs text-muted-foreground pt-2 border-t">
                     <div className="flex items-center">
                       <User className="h-3 w-3 mr-1" />
@@ -315,7 +362,8 @@ export function PatientNotes({ patient }: PatientNotesProps) {
                     </div>
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
-                      {new Date(note.date).toLocaleDateString()} at {new Date(note.date).toLocaleTimeString()}
+                      {new Date(note.date).toLocaleDateString()} at{" "}
+                      {new Date(note.date).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
@@ -327,12 +375,13 @@ export function PatientNotes({ patient }: PatientNotesProps) {
         <Card>
           <CardContent className="p-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No notes found</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              No notes found
+            </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || filterType !== "all" 
+              {searchTerm || filterType !== "all"
                 ? "Try adjusting your search or filters"
-                : "Start by adding the first note for this patient."
-              }
+                : "Start by adding the first note for this patient."}
             </p>
             {!searchTerm && filterType === "all" && (
               <div className="mt-6">
@@ -350,12 +399,14 @@ export function PatientNotes({ patient }: PatientNotesProps) {
       <Card>
         <CardHeader>
           <CardTitle>Quick Note Templates</CardTitle>
-          <CardDescription>Common note templates for faster documentation</CardDescription>
+          <CardDescription>
+            Common note templates for faster documentation
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-auto p-4 text-left"
               onClick={() => {
                 setNewNote({
@@ -368,12 +419,14 @@ export function PatientNotes({ patient }: PatientNotesProps) {
             >
               <div>
                 <p className="font-medium">Routine Follow-up</p>
-                <p className="text-sm text-muted-foreground">Standard follow-up visit template</p>
+                <p className="text-sm text-muted-foreground">
+                  Standard follow-up visit template
+                </p>
               </div>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="h-auto p-4 text-left"
               onClick={() => {
                 setNewNote({
@@ -386,12 +439,14 @@ export function PatientNotes({ patient }: PatientNotesProps) {
             >
               <div>
                 <p className="font-medium">Phone Consultation</p>
-                <p className="text-sm text-muted-foreground">Telephone consultation template</p>
+                <p className="text-sm text-muted-foreground">
+                  Telephone consultation template
+                </p>
               </div>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="h-auto p-4 text-left"
               onClick={() => {
                 setNewNote({
@@ -404,7 +459,9 @@ export function PatientNotes({ patient }: PatientNotesProps) {
             >
               <div>
                 <p className="font-medium">Administrative</p>
-                <p className="text-sm text-muted-foreground">Administrative note template</p>
+                <p className="text-sm text-muted-foreground">
+                  Administrative note template
+                </p>
               </div>
             </Button>
           </div>

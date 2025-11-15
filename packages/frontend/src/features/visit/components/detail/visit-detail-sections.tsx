@@ -52,7 +52,7 @@ export const VisitDetailSections = ({
 
   // Data queries
   const { data: latestParameters } = useGetLatestPatientParametersQuery(
-    patient.id
+    patient.id,
   );
   const { data: allergiesData } = useGetPatientAllergiesQuery({
     patientId: patient.id,
@@ -66,14 +66,14 @@ export const VisitDetailSections = ({
   // Memoized values
   const parameterDefinitions = useMemo(
     () => definitionsData?.data ?? [],
-    [definitionsData?.data]
+    [definitionsData?.data],
   );
 
   const getParameterName = useMemo(
     () => (code: string) => {
       return parameterDefinitions.find((p) => p.code === code)?.name ?? code;
     },
-    [parameterDefinitions]
+    [parameterDefinitions],
   );
 
   // Handlers
@@ -141,18 +141,17 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Назначения</CardTitle>
               {isEditable && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleAddServices}
-                >
+                <Button variant="ghost" size="icon" onClick={handleAddServices}>
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
             </div>
           </CardHeader>
           <CardContent>
-            <ServiceOrderListCompact visitId={visit.id} isEditable={isEditable} />
+            <ServiceOrderListCompact
+              visitId={visit.id}
+              isEditable={isEditable}
+            />
           </CardContent>
         </Card>
 
@@ -183,11 +182,7 @@ export const VisitDetailSections = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Аллергии</CardTitle>
               {isEditable && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleAddAllergy}
-                >
+                <Button variant="ghost" size="icon" onClick={handleAddAllergy}>
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
@@ -246,7 +241,7 @@ export const VisitDetailSections = ({
                           "dd.MM.yyyy HH:mm",
                           {
                             locale: ru,
-                          }
+                          },
                         )}
                       </p>
                     </div>

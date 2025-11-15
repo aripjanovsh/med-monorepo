@@ -1,8 +1,8 @@
 /**
  * Analysis Form Interactive
- * 
+ *
  * Компонент для заполнения результатов анализа по шаблону.
- * 
+ *
  * @example
  * ```tsx
  * <AnalysisFormInteractive
@@ -58,11 +58,10 @@ export const AnalysisFormInteractive = ({
   onChange,
   disabled = false,
 }: AnalysisFormInteractiveProps) => {
-  
   // Initialize data if not present
   if (!value || value.templateId !== template.id) {
     const initialRows: AnalysisResultRow[] = [];
-    
+
     // Flatten all parameters from all sections
     template.sections.forEach((section) => {
       section.parameters.forEach((param) => {
@@ -89,7 +88,9 @@ export const AnalysisFormInteractive = ({
     (parameterId: string, newValue: string | number | boolean) => {
       if (!value) return;
 
-      const rowIndex = value.rows.findIndex((row) => row.parameterId === parameterId);
+      const rowIndex = value.rows.findIndex(
+        (row) => row.parameterId === parameterId,
+      );
       if (rowIndex === -1) return;
 
       const updatedRows = [...value.rows];
@@ -100,7 +101,7 @@ export const AnalysisFormInteractive = ({
         rows: updatedRows,
       });
     },
-    [value, onChange]
+    [value, onChange],
   );
 
   if (!value) {
@@ -110,9 +111,7 @@ export const AnalysisFormInteractive = ({
   return (
     <div className="space-y-6">
       <div>
-        <Label className="text-base font-semibold">
-          📊 {template.name}
-        </Label>
+        <Label className="text-base font-semibold">📊 {template.name}</Label>
         <p className="text-sm text-muted-foreground mt-1">
           Заполните параметры анализа
         </p>
@@ -142,7 +141,9 @@ export const AnalysisFormInteractive = ({
               </TableHeader>
               <TableBody>
                 {section.parameters.map((param, index) => {
-                  const row = value.rows.find((r) => r.parameterId === param.id);
+                  const row = value.rows.find(
+                    (r) => r.parameterId === param.id,
+                  );
                   if (!row) return null;
 
                   return (

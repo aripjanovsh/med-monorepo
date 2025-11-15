@@ -16,7 +16,7 @@ export default function DepartmentQueuePage() {
   const { data: departmentsData } = useGetDepartmentsQuery({ limit: 100 });
 
   const selectedDepartment = departmentsData?.data?.find(
-    (dept) => dept.id === selectedDepartmentId
+    (dept) => dept.id === selectedDepartmentId,
   );
 
   if (isLoadingUser) {

@@ -14,7 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useGetEmployeeQuery, getEmployeeFullName, getEmployeeInitials, getEmployeeTitle } from "@/features/employees";
+import {
+  useGetEmployeeQuery,
+  getEmployeeFullName,
+  getEmployeeInitials,
+  getEmployeeTitle,
+} from "@/features/employees";
 import { LoadingState, ErrorState } from "@/components/states";
 import { LayoutHeader } from "@/components/layouts/cabinet";
 import { DetailNavigation } from "@/components/detail-navigation";
@@ -34,7 +39,11 @@ export default function EmployeeDetailLayout({
   });
 
   const navItems = [
-    { label: "Обзор", href: url(ROUTES.EMPLOYEE_DETAIL, { id }), value: "overview" },
+    {
+      label: "Обзор",
+      href: url(ROUTES.EMPLOYEE_DETAIL, { id }),
+      value: "overview",
+    },
     {
       label: "Профиль",
       href: `${url(ROUTES.EMPLOYEE_DETAIL, { id })}/profile`,
@@ -126,7 +135,10 @@ export default function EmployeeDetailLayout({
       </div>
 
       {/* Navigation */}
-      <DetailNavigation items={navItems} baseHref={url(ROUTES.EMPLOYEE_DETAIL, { id })} />
+      <DetailNavigation
+        items={navItems}
+        baseHref={url(ROUTES.EMPLOYEE_DETAIL, { id })}
+      />
 
       {/* Content */}
       <div>{children}</div>

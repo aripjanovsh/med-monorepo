@@ -56,7 +56,7 @@ export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
         },
       },
     ],
-    [patientId]
+    [patientId],
   );
 
   return (
@@ -89,7 +89,9 @@ export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
           />
         }
         onRowClick={(row) => {
-          router.push(`/cabinet/patients/${patientId}/visits/${row.original.id}`);
+          router.push(
+            `/cabinet/patients/${patientId}/visits/${row.original.id}`,
+          );
         }}
       />
     </>

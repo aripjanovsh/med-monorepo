@@ -79,7 +79,7 @@ export default function ServiceTypesPage() {
   const serviceTypeColumns = createServiceTypeColumns(
     handleEdit,
     handleDelete,
-    isDeleting
+    isDeleting,
   );
 
   return (

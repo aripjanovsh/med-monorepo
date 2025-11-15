@@ -92,14 +92,14 @@ export const SectionEditor = ({
   const [isEditingTitle, setIsEditingTitle] = useState(isNewSection);
   const [editedTitle, setEditedTitle] = useState(section.title);
   const [editedDescription, setEditedDescription] = useState(
-    section.description ?? ""
+    section.description ?? "",
   );
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [selectedFieldIndex, setSelectedFieldIndex] = useState<number | null>(
-    null
+    null,
   );
   const [isFieldEditorOpen, setIsFieldEditorOpen] = useState(false);
   const [isNewField, setIsNewField] = useState(false);
@@ -117,7 +117,7 @@ export const SectionEditor = ({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const style = {
@@ -195,7 +195,7 @@ export const SectionEditor = ({
     // If it's a new field and user cancelled, remove it
     if (isNewField && selectedFieldIndex !== null) {
       const newFields = section.fields.filter(
-        (_, i) => i !== selectedFieldIndex
+        (_, i) => i !== selectedFieldIndex,
       );
       onUpdate({ fields: newFields });
     }
@@ -230,7 +230,7 @@ export const SectionEditor = ({
         style={style}
         className={cn(
           "transition-all hover:shadow-md",
-          isDragging && "opacity-50"
+          isDragging && "opacity-50",
         )}
       >
         <CardHeader>

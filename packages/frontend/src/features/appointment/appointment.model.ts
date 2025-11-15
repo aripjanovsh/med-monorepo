@@ -10,7 +10,7 @@ import {
 } from "./appointment.constants";
 
 export const getAppointmentStatusLabel = (
-  status: AppointmentStatus
+  status: AppointmentStatus,
 ): string => {
   return APPOINTMENT_STATUS_LABELS[status] || status;
 };
@@ -30,7 +30,7 @@ export const getEmployeeFullName = (employee: {
 };
 
 export const isAppointmentEditable = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   const nonEditableStatuses: AppointmentStatus[] = [
     APPOINTMENT_STATUS.COMPLETED,
@@ -41,13 +41,13 @@ export const isAppointmentEditable = (
 };
 
 export const canConfirmAppointment = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   return appointment.status === APPOINTMENT_STATUS.SCHEDULED;
 };
 
 export const canCheckInAppointment = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   const checkInStatuses: AppointmentStatus[] = [
     APPOINTMENT_STATUS.SCHEDULED,
@@ -57,7 +57,7 @@ export const canCheckInAppointment = (
 };
 
 export const canStartAppointment = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   const startStatuses: AppointmentStatus[] = [
     APPOINTMENT_STATUS.CONFIRMED,
@@ -67,13 +67,13 @@ export const canStartAppointment = (
 };
 
 export const canCompleteAppointment = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   return appointment.status === APPOINTMENT_STATUS.IN_PROGRESS;
 };
 
 export const canCancelAppointment = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): boolean => {
   const nonCancelableStatuses: AppointmentStatus[] = [
     APPOINTMENT_STATUS.COMPLETED,
@@ -131,7 +131,7 @@ export const formatAppointmentTimeWithPeriod = (dateTime: string): string => {
 };
 
 export const getAppointmentDuration = (
-  appointment: AppointmentResponseDto
+  appointment: AppointmentResponseDto,
 ): number => {
   return appointment.duration || 30;
 };

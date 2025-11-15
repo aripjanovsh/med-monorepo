@@ -10,7 +10,7 @@
 
 ## Три режима работы
 
-### 1. Editor (Редактор) 
+### 1. Editor (Редактор)
 
 Создание и редактирование структуры формы.
 
@@ -26,14 +26,15 @@ import { FormBuilderEditor } from "@/features/form-builder";
     // jsonString - это FormBuilderContent в JSON формате
     console.log(jsonString);
   }}
-/>
+/>;
 ```
 
 ### 2. Interactive (Заполнение)
 
 Заполнение формы данными.
 
-**Input**: 
+**Input**:
+
 - `templateJson` - JSON string (FormBuilderContent)
 - `initialData` - FilledFormData (опционально)
 
@@ -50,14 +51,15 @@ import { FormBuilderInteractive } from "@/features/form-builder";
     console.log(data);
   }}
   readonly={false} // опционально
-/>
+/>;
 ```
 
 ### 3. View (Просмотр)
 
 Отображение заполненной формы (read-only).
 
-**Input**: 
+**Input**:
+
 - `templateJson` - JSON string (FormBuilderContent)
 - `data` - FilledFormData
 
@@ -70,7 +72,7 @@ import { FormBuilderView } from "@/features/form-builder";
   templateJson={templateJsonFromEditor}
   data={filledDataFromInteractive}
   compact={false} // опционально, компактный вид без карточек
-/>
+/>;
 ```
 
 ## Типы данных
@@ -129,6 +131,7 @@ type FormFieldValue = string | boolean | string[] | number | null;
 ```
 
 Пример:
+
 ```json
 {
   "patient-name": "Иванов Иван Иванович",
@@ -142,18 +145,18 @@ type FormFieldValue = string | boolean | string[] | number | null;
 ## Пример полного flow
 
 ```tsx
-import { 
-  FormBuilderEditor, 
-  FormBuilderInteractive, 
+import {
+  FormBuilderEditor,
+  FormBuilderInteractive,
   FormBuilderView,
   type FormBuilderContent,
-  type FilledFormData
+  type FilledFormData,
 } from "@/features/form-builder";
 
 // 1. Создание шаблона (Editor)
 function ProtocolTemplateEditor() {
   const [templateJson, setTemplateJson] = useState("");
-  
+
   return (
     <FormBuilderEditor
       onChange={(json) => {
@@ -167,7 +170,7 @@ function ProtocolTemplateEditor() {
 // 2. Заполнение данных (Interactive)
 function VisitProtocolForm({ templateJson }) {
   const [filledData, setFilledData] = useState<FilledFormData>({});
-  
+
   return (
     <FormBuilderInteractive
       templateJson={templateJson}
@@ -181,12 +184,7 @@ function VisitProtocolForm({ templateJson }) {
 
 // 3. Просмотр результата (View)
 function VisitProtocolDisplay({ templateJson, data }) {
-  return (
-    <FormBuilderView
-      templateJson={templateJson}
-      data={data}
-    />
-  );
+  return <FormBuilderView templateJson={templateJson} data={data} />;
 }
 ```
 
@@ -244,10 +242,10 @@ features/form-builder/
 ## Использование в protocol-template
 
 ```tsx
-import { 
+import {
   FormBuilderEditor,
-  FormBuilderInteractive, 
-  FormBuilderView 
+  FormBuilderInteractive,
+  FormBuilderView,
 } from "@/features/form-builder";
 
 // В protocol-template используем три режима:

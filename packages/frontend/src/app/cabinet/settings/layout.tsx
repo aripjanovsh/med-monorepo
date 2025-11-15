@@ -97,7 +97,7 @@ export default function SettingsLayout({
 
   // Get current section based on pathname
   const currentSection = settingsSections.find((section) =>
-    pathname.startsWith(section.href)
+    pathname.startsWith(section.href),
   );
 
   const isMasterDataPage = pathname.startsWith("/cabinet/settings/master-data");

@@ -216,7 +216,7 @@ const CalendarViewBase = ({
             {weekDays.map((day) => {
               const dayAppointments = getAppointmentsForDayAndTime(
                 day,
-                timeSlot
+                timeSlot,
               );
 
               return (
@@ -224,7 +224,7 @@ const CalendarViewBase = ({
                   key={`${day.toString()}-${timeSlot}`}
                   className={cn(
                     "bg-white p-2 min-h-[70px]",
-                    isToday(day) && "bg-blue-50"
+                    isToday(day) && "bg-blue-50",
                   )}
                 >
                   <div className="space-y-2">
@@ -236,7 +236,7 @@ const CalendarViewBase = ({
                           onClick={() => onAppointmentClick?.(appointment)}
                           className={cn(
                             "w-full text-left p-2 rounded border-l-4 bg-white shadow-sm hover:shadow-md transition-shadow",
-                            getStatusBorderColor(appointment.status)
+                            getStatusBorderColor(appointment.status),
                           )}
                         >
                           <div className="flex items-start justify-between gap-1">

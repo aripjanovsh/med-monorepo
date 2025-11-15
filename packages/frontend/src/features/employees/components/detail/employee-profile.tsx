@@ -139,10 +139,7 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
               label="Дополнительный телефон"
               value={employee.secondaryPhone}
             />
-            <ProfileField
-              label="Рабочий телефон"
-              value={employee.workPhone}
-            />
+            <ProfileField label="Рабочий телефон" value={employee.workPhone} />
             <div className="hidden lg:block" />
 
             <ProfileField label="Страна" value={employee.country?.name} />
@@ -190,7 +187,7 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
               <ProfileField
                 label="SMS-уведомления"
                 value={getNotificationStatusDisplay(
-                  employee.textNotificationsEnabled
+                  employee.textNotificationsEnabled,
                 )}
               />
             </div>

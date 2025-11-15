@@ -57,17 +57,12 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <ProfileField
-              label="ФИО"
-              value={getEmployeeFullName(employee)}
-            />
+            <ProfileField label="ФИО" value={getEmployeeFullName(employee)} />
             <ProfileField
               label="Дата рождения"
               value={formatEmployeeDate(employee.dateOfBirth)}
             />
-            {age && (
-              <ProfileField label="Возраст" value={`${age} лет`} />
-            )}
+            {age && <ProfileField label="Возраст" value={`${age} лет`} />}
             <ProfileField
               label="Пол"
               value={getGenderDisplay(employee.gender)}
@@ -126,8 +121,8 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
                   employee.status === "ACTIVE"
                     ? "bg-green-100 text-green-800 mt-1"
                     : employee.status === "ON_LEAVE"
-                    ? "bg-yellow-100 text-yellow-800 mt-1"
-                    : "bg-red-100 text-red-800 mt-1"
+                      ? "bg-yellow-100 text-yellow-800 mt-1"
+                      : "bg-red-100 text-red-800 mt-1"
                 }
               >
                 {getEmployeeStatusDisplay(employee.status)}
@@ -201,9 +196,7 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Рабочее расписание</CardTitle>
-          <CardDescription>
-            Текущие рабочие дни и доступность
-          </CardDescription>
+          <CardDescription>Текущие рабочие дни и доступность</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex space-x-4">

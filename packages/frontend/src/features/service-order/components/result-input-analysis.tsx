@@ -37,7 +37,7 @@ export const ResultInputAnalysis = ({
   serviceOrderId = "",
 }: ResultInputAnalysisProps) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    value?.templateId || ""
+    value?.templateId || "",
   );
 
   // Sync selectedTemplateId with value prop
@@ -73,7 +73,7 @@ export const ResultInputAnalysis = ({
           value: param.type === "BOOLEAN" ? false : "",
           unit: param.unit,
           referenceRanges: param.referenceRanges,
-        }))
+        })),
       );
 
       onChange({
@@ -151,7 +151,7 @@ export const ResultInputAnalysis = ({
             id: selectedTemplate.id,
             name: selectedTemplate.name,
             sections: normalizeAnalysisTemplate(
-              JSON.parse(selectedTemplate.content)
+              JSON.parse(selectedTemplate.content),
             ).sections,
           }}
           value={value?.filledData || null}

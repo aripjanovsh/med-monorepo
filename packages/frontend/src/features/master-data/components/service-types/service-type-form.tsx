@@ -246,8 +246,8 @@ export function ServiceTypeForm({
                     ? "Сохранение..."
                     : "Создание..."
                   : isEditing
-                  ? "Сохранить"
-                  : "Создать"}
+                    ? "Сохранить"
+                    : "Создать"}
               </Button>
             </div>
           </form>

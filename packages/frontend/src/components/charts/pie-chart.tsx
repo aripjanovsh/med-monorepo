@@ -3,8 +3,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
+} from "@/components/ui/chart";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 // Типы данных для метки
 export interface PieLabelProps {
@@ -36,7 +36,7 @@ export interface PieChartProps {
   /** Отображать ли легенду */
   showLegend?: boolean;
   /** Расположение легенды */
-  legendPosition?: 'top' | 'bottom' | 'left' | 'right';
+  legendPosition?: "top" | "bottom" | "left" | "right";
   /** Внутренний радиус (для кольцевой диаграммы, 0 - для обычной) */
   innerRadius?: number | string;
   /** Внешний радиус */
@@ -44,7 +44,7 @@ export interface PieChartProps {
   /** Показывать ли метки на диаграмме */
   showLabels?: boolean;
   /** Тип метки на диаграмме */
-  labelType?: 'percent' | 'value' | 'name' | 'nameAndPercent';
+  labelType?: "percent" | "value" | "name" | "nameAndPercent";
   /** Показывать линии к меткам */
   labelLine?: boolean;
   /** Дополнительные классы */
@@ -102,18 +102,18 @@ export interface PieChartProps {
  */
 export function PieChartComponent({
   data,
-  dataKey = 'value',
-  nameKey = 'name',
+  dataKey = "value",
+  nameKey = "name",
   labels,
   height = 300,
   showLegend = false,
-  legendPosition = 'bottom',
+  legendPosition = "bottom",
   innerRadius = 0,
-  outerRadius = '80%',
+  outerRadius = "80%",
   showLabels = true,
-  labelType = 'percent',
+  labelType = "percent",
   labelLine = false,
-  className = '',
+  className = "",
   colors,
   startAngle = 0,
   endAngle = 360,
@@ -126,12 +126,12 @@ export function PieChartComponent({
   // Строим конфигурацию для графика
   const config: ChartConfig = names.reduce((cfg, name, index) => {
     const defaultColors = [
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
-      'hsl(var(--chart-5))',
-      'hsl(var(--chart-6))',
+      "hsl(var(--chart-1))",
+      "hsl(var(--chart-2))",
+      "hsl(var(--chart-3))",
+      "hsl(var(--chart-4))",
+      "hsl(var(--chart-5))",
+      "hsl(var(--chart-6))",
     ];
     return {
       ...cfg,
@@ -175,7 +175,7 @@ export function PieChartComponent({
           x={x}
           y={y}
           fill={config[name]?.color}
-          textAnchor={x > cx ? 'start' : 'end'}
+          textAnchor={x > cx ? "start" : "end"}
           dominantBaseline="central"
         >
           {labelContent}
@@ -189,18 +189,18 @@ export function PieChartComponent({
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-    let labelContent = '';
+    let labelContent = "";
     switch (labelType) {
-      case 'percent':
+      case "percent":
         labelContent = `${(percent * 100).toFixed(0)}%`;
         break;
-      case 'value':
+      case "value":
         labelContent = `${value}`;
         break;
-      case 'name':
+      case "name":
         labelContent = labels?.[name] || name;
         break;
-      case 'nameAndPercent':
+      case "nameAndPercent":
         labelContent = `${labels?.[name] || name}: ${(percent * 100).toFixed(0)}%`;
         break;
     }
@@ -210,7 +210,7 @@ export function PieChartComponent({
         x={x}
         y={y}
         fill={config[name]?.color}
-        textAnchor={x > cx ? 'start' : 'end'}
+        textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
       >
         {labelContent}
@@ -222,8 +222,8 @@ export function PieChartComponent({
     <div
       className={`${className} relative`}
       style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        width: '100%',
+        height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
       }}
     >
       <ChartContainer
@@ -239,12 +239,12 @@ export function PieChartComponent({
             {showLegend && (
               <Legend
                 layout={
-                  legendPosition === 'left' || legendPosition === 'right'
-                    ? 'vertical'
-                    : 'horizontal'
+                  legendPosition === "left" || legendPosition === "right"
+                    ? "vertical"
+                    : "horizontal"
                 }
-                verticalAlign={legendPosition === 'top' ? 'top' : 'bottom'}
-                align={legendPosition === 'right' ? 'right' : 'center'}
+                verticalAlign={legendPosition === "top" ? "top" : "bottom"}
+                align={legendPosition === "right" ? "right" : "center"}
               />
             )}
 
@@ -273,7 +273,7 @@ export function PieChartComponent({
       {centerContent && Number(innerRadius) > 0 && (
         <div
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
-          style={{ pointerEvents: 'none' }}
+          style={{ pointerEvents: "none" }}
         >
           {centerContent}
         </div>

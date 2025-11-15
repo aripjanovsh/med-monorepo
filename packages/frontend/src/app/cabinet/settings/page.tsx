@@ -17,7 +17,7 @@ export default function SettingsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {settingsSections.map((section) => {
           const Icon = section.icon;
-          
+
           return (
             <Card
               key={section.id}
@@ -31,11 +31,11 @@ export default function SettingsPage() {
                   </div>
                   <ArrowRight className="size-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                
+
                 <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
                   {section.label}
                 </h3>
-                
+
                 <p className="text-sm text-muted-foreground">
                   {section.description}
                 </p>

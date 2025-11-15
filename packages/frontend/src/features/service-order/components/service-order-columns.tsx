@@ -97,7 +97,8 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     header: "ВЫПОЛНЕНО",
     cell: ({ row }) => {
       const resultAt = row.original.resultAt;
-      if (!resultAt) return <div className="text-sm text-muted-foreground">—</div>;
+      if (!resultAt)
+        return <div className="text-sm text-muted-foreground">—</div>;
       const date = new Date(resultAt);
       return (
         <div className="text-sm whitespace-nowrap">

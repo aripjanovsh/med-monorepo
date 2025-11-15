@@ -16,7 +16,10 @@ import {
 // =============================================
 
 export const getPatientFullName = (
-  patient?: PatientResponseDto | SimplePatientDto | { firstName: string; lastName: string; middleName?: string }
+  patient?:
+    | PatientResponseDto
+    | SimplePatientDto
+    | { firstName: string; lastName: string; middleName?: string },
 ): string => {
   if (!patient) {
     return "—";
@@ -27,7 +30,10 @@ export const getPatientFullName = (
 };
 
 export const getPatientInitials = (
-  patient: PatientResponseDto | SimplePatientDto | { firstName: string; lastName: string }
+  patient:
+    | PatientResponseDto
+    | SimplePatientDto
+    | { firstName: string; lastName: string },
 ): string => {
   return [patient.lastName?.[0], patient.firstName?.[0]]
     .filter(Boolean)
@@ -64,7 +70,7 @@ export const calculatePatientAge = (dateOfBirth?: string | Date): number => {
 };
 
 export const getPatientPrimaryContact = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): PatientContactDto | null => {
   return (
     patient.contacts?.find((contact) => contact.type === "PRIMARY") || null
@@ -72,7 +78,7 @@ export const getPatientPrimaryContact = (
 };
 
 export const getPatientEmergencyContact = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): PatientContactDto | null => {
   return (
     patient.contacts?.find((contact) => contact.type === "EMERGENCY") || null
@@ -80,7 +86,7 @@ export const getPatientEmergencyContact = (
 };
 
 export const getPatientSelfContact = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): PatientContactDto | null => {
   return (
     patient.contacts?.find((contact) => contact.relation === "SELF") || null
@@ -88,7 +94,7 @@ export const getPatientSelfContact = (
 };
 
 export const getPatientPrimaryPhone = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string | null => {
   const primaryContact =
     getPatientSelfContact(patient) || getPatientPrimaryContact(patient);
@@ -96,7 +102,7 @@ export const getPatientPrimaryPhone = (
 };
 
 export const getPatientPrimaryDoctor = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): PatientDoctorDto | null => {
   return (
     patient.doctors?.find((doctor) => doctor.isActive) ||
@@ -106,7 +112,7 @@ export const getPatientPrimaryDoctor = (
 };
 
 export const getPatientDoctorNames = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string[] => {
   return (
     patient.doctors
@@ -116,7 +122,7 @@ export const getPatientDoctorNames = (
 };
 
 export const formatPatientDisplayName = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string => {
   const fullName = getPatientFullName(patient);
   const patientId = patient.patientId ? ` (${patient.patientId})` : "";
@@ -235,16 +241,16 @@ export const formatPatientDate = (date?: string | Date): string => {
  * Get human-readable patient status
  */
 export const getPatientStatusDisplay = (
-  status?: PatientResponseDto["status"]
+  status?: PatientResponseDto["status"],
 ): string => {
   if (!status) return "-";
-  
+
   const statusMap: Record<string, string> = {
     ACTIVE: "Активный",
     INACTIVE: "Неактивный",
     DECEASED: "Умерший",
   };
-  
+
   return statusMap[status] || status;
 };
 
@@ -264,13 +270,13 @@ export const getNotificationStatusDisplay = (enabled?: boolean): string => {
  * Get assigned doctors as comma-separated string
  */
 export const getAssignedDoctorsDisplay = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string => {
   const doctors = patient.doctors
     ?.filter((d) => d.isActive)
     .map((d) => `${d.firstName} ${d.lastName}`)
     .join(", ");
-  
+
   return doctors || "-";
 };
 
@@ -282,7 +288,7 @@ export const getAssignedDoctorsDisplay = (
  * Get passport series and number combined
  */
 export const getPassportSeriesNumber = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string => {
   if (patient.passportSeries && patient.passportNumber) {
     return `${patient.passportSeries} ${patient.passportNumber}`;
@@ -317,13 +323,13 @@ export const getPatientDisplayId = (patient: PatientResponseDto): string => {
 // =============================================
 
 export const getPatientPrimaryLanguage = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string => {
   return patient.primaryLanguage?.name || "Не указан";
 };
 
 export const getPatientSecondaryLanguage = (
-  patient: PatientResponseDto
+  patient: PatientResponseDto,
 ): string => {
   return patient.secondaryLanguage?.name || "Не указан";
 };
@@ -455,7 +461,7 @@ export const mapFormDataToCreateRequest = (formData: any) => {
 
 export const mapFormDataToUpdateRequest = (
   formData: any,
-  patientId: string
+  patientId: string,
 ) => {
   const createRequest = mapFormDataToCreateRequest(formData);
   return {

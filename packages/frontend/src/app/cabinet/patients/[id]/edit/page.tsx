@@ -36,9 +36,7 @@ export default function EditPatientPage() {
         <PageHeader title="Редактирование пациента" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-red-500">
-              Ошибка при загрузке данных пациента
-            </p>
+            <p className="text-red-500">Ошибка при загрузке данных пациента</p>
           </div>
         </div>
       </div>
@@ -48,8 +46,8 @@ export default function EditPatientPage() {
   return (
     <div className="space-y-6">
       <LayoutHeader backHref="/cabinet/patients" backTitle="Пациенты" />
-      <PageHeader 
-        title={`Редактирование: ${patient.firstName} ${patient.lastName}`} 
+      <PageHeader
+        title={`Редактирование: ${patient.firstName} ${patient.lastName}`}
       />
       <PagePatientForm patient={patient} mode="edit" />
     </div>

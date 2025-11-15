@@ -277,13 +277,13 @@ export function PatientMedicalHistory({
 
   // Группируем записи по типу для быстрого доступа
   const allergies = mockMedicalHistory.filter(
-    (record) => record.type === "ALLERGY"
+    (record) => record.type === "ALLERGY",
   );
   const medications = mockMedicalHistory.filter(
-    (record) => record.type === "MEDICATION" && record.status === "ACTIVE"
+    (record) => record.type === "MEDICATION" && record.status === "ACTIVE",
   );
   const diagnoses = mockMedicalHistory.filter(
-    (record) => record.type === "DIAGNOSIS" && record.status === "ACTIVE"
+    (record) => record.type === "DIAGNOSIS" && record.status === "ACTIVE",
   );
   const recentTests = mockMedicalHistory
     .filter((record) => record.type === "TEST")
@@ -291,7 +291,7 @@ export function PatientMedicalHistory({
 
   // Сортируем по дате (новые сверху)
   const sortedHistory = [...mockMedicalHistory].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   // Статистика
@@ -303,7 +303,7 @@ export function PatientMedicalHistory({
     lastUpdate: sortedHistory[0]?.date || null,
     attachments: mockMedicalHistory.reduce(
       (sum, r) => sum + (r.attachments || 0),
-      0
+      0,
     ),
   };
 
@@ -311,7 +311,7 @@ export function PatientMedicalHistory({
     if (!stats.lastUpdate) return null;
     const days = Math.floor(
       (Date.now() - new Date(stats.lastUpdate).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
     return days;
   };

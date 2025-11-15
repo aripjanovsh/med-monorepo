@@ -5,7 +5,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useGetMeQuery } from "@/features/auth";
 import { EmployeeSelect } from "@/features/employees";
-import { useGetDoctorQueueQuery, useStartVisitMutation, useCompleteVisitMutation } from "@/features/doctor/api/doctor.api";
+import {
+  useGetDoctorQueueQuery,
+  useStartVisitMutation,
+  useCompleteVisitMutation,
+} from "@/features/visit/visit.api";
 import { CompletedVisitsList } from "@/features/doctor/components/completed-visits-list";
 import { StatsWidget } from "./widgets/stats-widget";
 import { QueueWidget } from "./widgets/queue-widget";
@@ -22,47 +26,60 @@ export const DoctorDashboardPage = () => {
     },
     {
       skip: !selectedEmployeeId,
-    }
+    },
   );
 
   const [startVisit, { isLoading: isStarting }] = useStartVisitMutation();
-  const [completeVisit, { isLoading: isCompleting }] = useCompleteVisitMutation();
+  const [completeVisit, { isLoading: isCompleting }] =
+    useCompleteVisitMutation();
 
   const handleEmployeeChange = useCallback((value: string) => {
     setSelectedEmployeeId(value);
   }, []);
 
-  const handleStartVisit = useCallback(async (visitId: string) => {
-    try {
-      await startVisit({ visitId, employeeId: selectedEmployeeId }).unwrap();
-      toast({
-        title: "Успех",
-        description: "Прием начат",
-      });
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось начать прием",
-        variant: "destructive",
-      });
-    }
-  }, [startVisit, selectedEmployeeId, toast]);
+  const handleStartVisit = useCallback(
+    async (visitId: string) => {
+      try {
+        await startVisit({
+          id: visitId,
+          employeeId: selectedEmployeeId,
+        }).unwrap();
+        toast({
+          title: "Успех",
+          description: "Прием начат",
+        });
+      } catch (error) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось начать прием",
+          variant: "destructive",
+        });
+      }
+    },
+    [startVisit, selectedEmployeeId, toast],
+  );
 
-  const handleCompleteVisit = useCallback(async (visitId: string) => {
-    try {
-      await completeVisit({ visitId, employeeId: selectedEmployeeId }).unwrap();
-      toast({
-        title: "Успех",
-        description: "Прием завершен",
-      });
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось завершить прием",
-        variant: "destructive",
-      });
-    }
-  }, [completeVisit, selectedEmployeeId, toast]);
+  const handleCompleteVisit = useCallback(
+    async (visitId: string) => {
+      try {
+        await completeVisit({
+          id: visitId,
+          employeeId: selectedEmployeeId,
+        }).unwrap();
+        toast({
+          title: "Успех",
+          description: "Прием завершен",
+        });
+      } catch (error) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось завершить прием",
+          variant: "destructive",
+        });
+      }
+    },
+    [completeVisit, selectedEmployeeId, toast],
+  );
 
   return (
     <div className="space-y-6">
@@ -113,9 +130,7 @@ export const DoctorDashboardPage = () => {
           </div>
 
           {/* Completed Visits */}
-          <CompletedVisitsList
-            employeeId={selectedEmployeeId}
-          />
+          <CompletedVisitsList employeeId={selectedEmployeeId} />
         </>
       )}
     </div>

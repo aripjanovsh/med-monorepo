@@ -29,7 +29,7 @@ export default function PageHeader({
     <div
       className={cn(
         "flex flex-row items-center justify-between w-full",
-        className
+        className,
       )}
     >
       <div className="flex flex-row gap-6 items-center min-h-9 w-full">

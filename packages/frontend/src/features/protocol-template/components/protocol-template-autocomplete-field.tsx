@@ -57,7 +57,7 @@ export const ProtocolTemplateAutocompleteField = ({
         }
       }
     },
-    [onChange, onTemplateSelected, templates]
+    [onChange, onTemplateSelected, templates],
   );
 
   return (

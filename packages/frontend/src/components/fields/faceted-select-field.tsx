@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -9,13 +9,17 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import { PlusCircle } from 'lucide-react';
-import { ComponentType } from 'react';
-import { useTranslation } from 'react-i18next';
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { PlusCircle } from "lucide-react";
+import { ComponentType } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface FacetedSelectOption {
   label: string;
@@ -28,8 +32,8 @@ export interface FacetedSelectFieldProps {
   placeholder?: string;
   searchPlaceholder?: string;
   options: FacetedSelectOption[];
-  value?: FacetedSelectOption['value'][];
-  onChange?: (value: FacetedSelectOption['value'][]) => void;
+  value?: FacetedSelectOption["value"][];
+  onChange?: (value: FacetedSelectOption["value"][]) => void;
 }
 
 export function FacetedSelectField({
@@ -43,7 +47,7 @@ export function FacetedSelectField({
 
   const valueLength = value.length;
 
-  const handleChange = (newValue: FacetedSelectOption['value'][]) => {
+  const handleChange = (newValue: FacetedSelectOption["value"][]) => {
     if (onChange) onChange(newValue);
   };
 
@@ -63,18 +67,28 @@ export function FacetedSelectField({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed justify-start">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 border-dashed justify-start"
+        >
           <PlusCircle />
-          {placeholder || t('Выберите')}
+          {placeholder || t("Выберите")}
           {valueLength > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+              <Badge
+                variant="secondary"
+                className="rounded-sm px-1 font-normal lg:hidden"
+              >
                 {valueLength}
               </Badge>
               <div className="hidden space-x-1 lg:flex">
                 {valueLength > 2 ? (
-                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm px-1 font-normal"
+                  >
                     {valueLength} selected
                   </Badge>
                 ) : (
@@ -97,23 +111,30 @@ export function FacetedSelectField({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput placeholder={searchPlaceholder || t('Поиск')} />
+          <CommandInput placeholder={searchPlaceholder || t("Поиск")} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = value?.includes(option.value);
                 return (
-                  <CommandItem key={option.value} onSelect={() => handleSelect(option.value)}>
+                  <CommandItem
+                    key={option.value}
+                    onSelect={() => handleSelect(option.value)}
+                  >
                     <div
                       className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected ? 'bg-primary text-primary-foreground' : 'opacity-50',
+                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        isSelected
+                          ? "bg-primary text-primary-foreground"
+                          : "opacity-50",
                       )}
                     >
                       <Checkbox checked={isSelected} />
                     </div>
-                    {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                    {option.icon && (
+                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    )}
                     <span className="whitespace-nowrap overflow-hidden text-ellipsis">
                       {option.label}
                     </span>
@@ -130,7 +151,10 @@ export function FacetedSelectField({
               <>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem onSelect={handleClear} className="justify-center text-center">
+                  <CommandItem
+                    onSelect={handleClear}
+                    className="justify-center text-center"
+                  >
                     Clear filters
                   </CommandItem>
                 </CommandGroup>

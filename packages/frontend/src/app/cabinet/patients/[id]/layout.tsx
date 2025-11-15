@@ -2,7 +2,15 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, MoreHorizontal, Clock, MapPin, User, ArrowRight, Activity } from "lucide-react";
+import {
+  Edit,
+  MoreHorizontal,
+  Clock,
+  MapPin,
+  User,
+  ArrowRight,
+  Activity,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,7 +46,7 @@ export default function PatientDetailLayout({
   const { id } = use(params);
   const { data: patient, isLoading } = useGetPatientQuery(
     { id: id as string },
-    { skip: !id }
+    { skip: !id },
   );
 
   const navItems = [
@@ -53,7 +61,11 @@ export default function PatientDetailLayout({
       href: `/cabinet/patients/${id}/doctors`,
       value: "doctors",
     },
-    { label: "Визиты", href: `/cabinet/patients/${id}/visits`, value: "visits" },
+    {
+      label: "Визиты",
+      href: `/cabinet/patients/${id}/visits`,
+      value: "visits",
+    },
     {
       label: "Назначения",
       href: `/cabinet/patients/${id}/service-orders`,
@@ -116,18 +128,20 @@ export default function PatientDetailLayout({
     doctor: {
       firstName: "Иван",
       lastName: "Петров",
-      specialty: "Кардиолог"
+      specialty: "Кардиолог",
     },
     department: "Кардиология",
-    room: "205"
+    room: "205",
   };
 
   // Функция для форматирования времени визита
   const getVisitDuration = (startTime: string) => {
     const start = new Date(startTime);
     const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - start.getTime()) / (1000 * 60));
-    
+    const diffMinutes = Math.floor(
+      (now.getTime() - start.getTime()) / (1000 * 60),
+    );
+
     if (diffMinutes < 60) {
       return `${diffMinutes} мин`;
     }
@@ -201,7 +215,10 @@ export default function PatientDetailLayout({
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                     <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
                   </div>
-                  <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                  <Badge
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
                     <Activity className="h-3 w-3 mr-1" />
                     Активный визит
                   </Badge>
@@ -212,10 +229,13 @@ export default function PatientDetailLayout({
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {new Date(activeVisit.startTime).toLocaleTimeString('ru-RU', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
+                      {new Date(activeVisit.startTime).toLocaleTimeString(
+                        "ru-RU",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )}
                     </span>
                     <span className="text-muted-foreground">
                       ({getVisitDuration(activeVisit.startTime)})
@@ -227,7 +247,8 @@ export default function PatientDetailLayout({
                   <div className="flex items-center gap-2 text-sm">
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {activeVisit.doctor.firstName} {activeVisit.doctor.lastName}
+                      {activeVisit.doctor.firstName}{" "}
+                      {activeVisit.doctor.lastName}
                     </span>
                     <span className="text-muted-foreground">
                       • {activeVisit.doctor.specialty}
@@ -238,7 +259,9 @@ export default function PatientDetailLayout({
 
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{activeVisit.department}</span>
+                    <span className="font-medium">
+                      {activeVisit.department}
+                    </span>
                     <span className="text-muted-foreground">
                       • Кабинет {activeVisit.room}
                     </span>
@@ -247,9 +270,13 @@ export default function PatientDetailLayout({
               </div>
 
               {/* Кнопка перехода */}
-              <Button 
-                size="sm" 
-                onClick={() => router.push(`/cabinet/patients/${id}/visits/${activeVisit.id}`)}
+              <Button
+                size="sm"
+                onClick={() =>
+                  router.push(
+                    `/cabinet/patients/${id}/visits/${activeVisit.id}`,
+                  )
+                }
                 className="bg-green-600 hover:bg-green-700"
               >
                 Открыть визит

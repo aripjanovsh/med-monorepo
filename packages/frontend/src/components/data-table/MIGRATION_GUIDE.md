@@ -3,6 +3,7 @@
 ## 🎯 Краткая сводка
 
 DataTable теперь поддерживает:
+
 - ✅ Client-side сортировку и фильтрацию
 - ✅ Unified Toolbar с поиском и фильтрами
 - ✅ Faceted Filters (фильтры по категориям)
@@ -33,8 +34,8 @@ import { DataTable, DataTableToolbar } from "@/components/data-table";
 <DataTable
   columns={columns}
   data={data}
-  enableSorting        // 👈 Включает client-side сортировку
-  enableFiltering      // 👈 Включает client-side фильтрацию
+  enableSorting // 👈 Включает client-side сортировку
+  enableFiltering // 👈 Включает client-side фильтрацию
   toolbar={(table) => (
     <DataTableToolbar
       table={table}
@@ -42,7 +43,7 @@ import { DataTable, DataTableToolbar } from "@/components/data-table";
       searchPlaceholder="Поиск по имени..."
     />
   )}
-/>
+/>;
 ```
 
 ### 2. Добавление фильтров по статусу
@@ -59,8 +60,8 @@ import { DataTable, DataTableToolbar } from "@/components/data-table";
       searchKey="patientName"
       filters={[
         {
-          column: "status",           // Имя колонки
-          title: "Статус",            // Заголовок фильтра
+          column: "status", // Имя колонки
+          title: "Статус", // Заголовок фильтра
           options: [
             { label: "Оплачен", value: "PAID" },
             { label: "Не оплачен", value: "UNPAID" },
@@ -85,7 +86,7 @@ const router = useRouter();
   onRowClick={(row) => {
     router.push(`/patients/${row.original.id}`);
   }}
-/>
+/>;
 ```
 
 ## 📋 Примеры миграции реальных случаев
@@ -93,6 +94,7 @@ const router = useRouter();
 ### Пример 1: Таблица пациентов
 
 **До (server-side с внешним поиском):**
+
 ```tsx
 export function PatientsPage() {
   const [search, setSearch] = useState("");
@@ -112,6 +114,7 @@ export function PatientsPage() {
 ```
 
 **После (с DataTableToolbar):**
+
 ```tsx
 export function PatientsPage() {
   const [search, setSearch] = useState("");
@@ -137,6 +140,7 @@ export function PatientsPage() {
 ### Пример 2: Добавление фильтров к Invoice
 
 **До:**
+
 ```tsx
 <DataTable
   columns={columns}
@@ -146,6 +150,7 @@ export function PatientsPage() {
 ```
 
 **После:**
+
 ```tsx
 <DataTable
   columns={columns}
@@ -186,6 +191,7 @@ export function PatientsPage() {
 ### Добавление сортировки к колонкам
 
 **До:**
+
 ```tsx
 const columns: ColumnDef<Patient>[] = [
   {
@@ -196,6 +202,7 @@ const columns: ColumnDef<Patient>[] = [
 ```
 
 **После (с client-side сортировкой):**
+
 ```tsx
 const columns: ColumnDef<Patient>[] = [
   {
@@ -208,8 +215,8 @@ const columns: ColumnDef<Patient>[] = [
 <DataTable
   columns={columns}
   data={data}
-  enableSorting  // 👈 Включите это
-/>
+  enableSorting // 👈 Включите это
+/>;
 ```
 
 ## 📚 Полная документация
@@ -223,6 +230,7 @@ const columns: ColumnDef<Patient>[] = [
 ### Когда использовать Client-Side режим
 
 ✅ **Используйте client-side когда:**
+
 - Данных меньше 100 записей
 - Нужна быстрая фильтрация без запросов
 - Данные статические или редко меняются
@@ -234,6 +242,7 @@ const columns: ColumnDef<Patient>[] = [
 ### Когда использовать Server-Side режим
 
 ✅ **Используйте server-side когда:**
+
 - Данных больше 100 записей
 - Нужна пагинация с сервера
 - Данные часто обновляются
@@ -265,12 +274,15 @@ import { DataTable } from "@/components/data-table/data-table";
 ## ❓ FAQ
 
 ### Q: Нужно ли мигрировать существующие таблицы?
+
 **A:** Нет, все работает как раньше. Мигрируйте только если хотите использовать новые функции.
 
 ### Q: Как работает фильтрация?
+
 **A:** Для client-side - автоматически. Для server-side - нужно обрабатывать в API.
 
 ### Q: Можно ли смешивать режимы?
+
 **A:** Да! Например, client-side сортировка + server-side pagination.
 
 ```tsx
@@ -281,6 +293,7 @@ import { DataTable } from "@/components/data-table/data-table";
 ```
 
 ### Q: Работают ли фильтры с server-side?
+
 **A:** DataTableToolbar работает для client-side фильтрации. Для server-side используйте существующий подход.
 
 ## 🐛 Известные проблемы
@@ -291,6 +304,7 @@ import { DataTable } from "@/components/data-table/data-table";
 ## 📞 Поддержка
 
 Если возникли вопросы:
+
 1. Проверьте EXAMPLES.md для практических примеров
 2. Изучите README.md для полной документации
 3. Посмотрите существующие таблицы в проекте (employees, patients, invoices)

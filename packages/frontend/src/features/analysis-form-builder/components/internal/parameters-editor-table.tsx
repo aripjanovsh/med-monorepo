@@ -42,10 +42,12 @@ export const ParametersEditorTable = ({
 }: ParametersEditorTableProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParameterId, setSelectedParameterId] = useState<string | null>(
-    null
+    null,
   );
 
-  const selectedParameter = parameters.find((p) => p.id === selectedParameterId);
+  const selectedParameter = parameters.find(
+    (p) => p.id === selectedParameterId,
+  );
 
   const addParameter = () => {
     const newParameter = createNewParameter();
@@ -68,9 +70,13 @@ export const ParametersEditorTable = ({
     }
   };
 
-  const updateParameter = (id: string, field: keyof AnalysisParameter, value: unknown) => {
+  const updateParameter = (
+    id: string,
+    field: keyof AnalysisParameter,
+    value: unknown,
+  ) => {
     onParametersChange(
-      parameters.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+      parameters.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     );
   };
 
@@ -79,7 +85,9 @@ export const ParametersEditorTable = ({
     setModalOpen(true);
   };
 
-  const handleRangesSave = (ranges: Record<string, { min?: number; max?: number }>) => {
+  const handleRangesSave = (
+    ranges: Record<string, { min?: number; max?: number }>,
+  ) => {
     if (selectedParameterId) {
       updateParameter(selectedParameterId, "referenceRanges", ranges);
     }
@@ -88,14 +96,18 @@ export const ParametersEditorTable = ({
   const updateSimpleRangeValue = (
     id: string,
     field: "min" | "max",
-    value: string
+    value: string,
   ) => {
     const param = parameters.find((p) => p.id === id);
     if (!param) return;
 
     const numValue = value === "" ? undefined : parseFloat(value);
-    const updatedRanges = updateSimpleRange(param.referenceRanges, field, numValue);
-    
+    const updatedRanges = updateSimpleRange(
+      param.referenceRanges,
+      field,
+      numValue,
+    );
+
     updateParameter(id, "referenceRanges", updatedRanges);
   };
 
@@ -145,7 +157,11 @@ export const ParametersEditorTable = ({
                         <Input
                           value={parameter.name}
                           onChange={(e) =>
-                            updateParameter(parameter.id, "name", e.target.value)
+                            updateParameter(
+                              parameter.id,
+                              "name",
+                              e.target.value,
+                            )
                           }
                           placeholder="Гемоглобин"
                           className="h-9"
@@ -155,7 +171,11 @@ export const ParametersEditorTable = ({
                         <Input
                           value={parameter.unit ?? ""}
                           onChange={(e) =>
-                            updateParameter(parameter.id, "unit", e.target.value)
+                            updateParameter(
+                              parameter.id,
+                              "unit",
+                              e.target.value,
+                            )
                           }
                           placeholder="г/л"
                           className="h-9"
@@ -196,7 +216,7 @@ export const ParametersEditorTable = ({
                                     updateSimpleRangeValue(
                                       parameter.id,
                                       "min",
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                   placeholder="От"
@@ -214,7 +234,7 @@ export const ParametersEditorTable = ({
                                     updateSimpleRangeValue(
                                       parameter.id,
                                       "max",
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                   placeholder="До"
@@ -241,7 +261,9 @@ export const ParametersEditorTable = ({
                                   onClick={() => openRangesModal(parameter.id)}
                                 >
                                   <span className="truncate text-sm">
-                                    {formatRangePreview(parameter.referenceRanges)}
+                                    {formatRangePreview(
+                                      parameter.referenceRanges,
+                                    )}
                                   </span>
                                   <Badge
                                     variant="secondary"
@@ -254,7 +276,9 @@ export const ParametersEditorTable = ({
                             )}
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -265,7 +289,7 @@ export const ParametersEditorTable = ({
                               updateParameter(
                                 parameter.id,
                                 "isRequired",
-                                checked
+                                checked,
                               )
                             }
                           />

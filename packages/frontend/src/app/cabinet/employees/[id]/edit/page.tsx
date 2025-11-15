@@ -13,11 +13,7 @@ export default function EditEmployeePage() {
   const params = useParams();
   const employeeId = params.id as string;
 
-  const {
-    data: employee,
-    isLoading,
-    error,
-  } = useGetEmployeeQuery(employeeId);
+  const { data: employee, isLoading, error } = useGetEmployeeQuery(employeeId);
 
   if (isLoading) {
     return (
@@ -47,8 +43,8 @@ export default function EditEmployeePage() {
   return (
     <div className="space-y-6">
       <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
-      <PageHeader 
-        title={`Редактирование: ${employee.firstName} ${employee.lastName}`} 
+      <PageHeader
+        title={`Редактирование: ${employee.firstName} ${employee.lastName}`}
       />
       <PageEmployeeForm employee={employee} mode="edit" />
     </div>

@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { PrescriptionSheet } from "./prescription-sheet";
-import { 
-  UserPlus, 
-  Calendar, 
-  FileText, 
-  Stethoscope, 
-  MessageSquare, 
-  Clock 
+import {
+  UserPlus,
+  Calendar,
+  FileText,
+  Stethoscope,
+  MessageSquare,
+  Clock,
 } from "lucide-react";
 
 export function QuickActions() {
@@ -58,7 +58,9 @@ export function QuickActions() {
             <action.icon className="h-5 w-5" />
             <div className="text-center">
               <div className="text-xs font-medium">{action.label}</div>
-              <div className="text-xs text-muted-foreground">{action.description}</div>
+              <div className="text-xs text-muted-foreground">
+                {action.description}
+              </div>
             </div>
           </Button>
         );
@@ -66,9 +68,7 @@ export function QuickActions() {
         // Wrap prescription action in PrescriptionSheet
         if (action.component === "prescription") {
           return (
-            <PrescriptionSheet key={index}>
-              {ActionButton}
-            </PrescriptionSheet>
+            <PrescriptionSheet key={index}>{ActionButton}</PrescriptionSheet>
           );
         }
 

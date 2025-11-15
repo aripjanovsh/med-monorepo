@@ -32,7 +32,7 @@ export const PassportField = forwardRef<HTMLInputElement, PassportFieldProps>(
       value,
       ...props
     },
-    ref
+    ref,
   ) => {
     const {
       ref: maskRef,
@@ -60,16 +60,15 @@ export const PassportField = forwardRef<HTMLInputElement, PassportFieldProps>(
             onChange(cleanValue);
           }
         },
-      }
+      },
     );
 
     // Синхронизируем внешнее значение с маской
     useEffect(() => {
       if (value !== undefined) {
         // Добавляем пробел обратно для отображения в маске
-        const formattedValue = value.length > 2 
-          ? `${value.slice(0, 2)} ${value.slice(2)}` 
-          : value;
+        const formattedValue =
+          value.length > 2 ? `${value.slice(0, 2)} ${value.slice(2)}` : value;
         setValue(formattedValue);
       }
     }, [value, setValue]);
@@ -109,7 +108,7 @@ export const PassportField = forwardRef<HTMLInputElement, PassportFieldProps>(
         </FormControl>
       </Field>
     );
-  }
+  },
 );
 
 PassportField.displayName = "PassportField";

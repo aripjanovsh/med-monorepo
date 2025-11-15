@@ -21,7 +21,7 @@ type StatsWidgetProps = {
 
 export const StatsWidget = ({ date }: StatsWidgetProps) => {
   const { data, isLoading, error } = useGetStatsQuery(
-    date ? { startDate: date, endDate: date } : undefined
+    date ? { startDate: date, endDate: date } : undefined,
   );
 
   const stats = data?.stats;

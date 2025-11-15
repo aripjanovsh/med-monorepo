@@ -1,41 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  AlertTriangle, 
-  FileText, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  AlertTriangle,
+  FileText,
   Calendar,
   Download,
   Eye,
   Plus,
-  Filter
+  Filter,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Patient, TestResult, TestResultValue } from "@/types/patient";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { TestOrderForm } from "../forms/test-order-form";
 
 interface TestResultsProps {
@@ -52,8 +63,11 @@ export function TestResults({ patient }: TestResultsProps) {
 
   const filteredTests = patient.testResults
     ?.filter((test) => {
-      const matchesSearch = test.testName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = filterCategory === "all" || test.category === filterCategory;
+      const matchesSearch = test.testName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesFilter =
+        filterCategory === "all" || test.category === filterCategory;
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -115,14 +129,14 @@ export function TestResults({ patient }: TestResultsProps) {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (editingTest) {
         console.log("Updating test order:", { id: editingTest.id, ...data });
       } else {
         console.log("Ordering test:", { patientId: patient.id, ...data });
       }
-      
+
       setIsFormOpen(false);
       setEditingTest(undefined);
       // In real app, you would refetch the patient data here
@@ -188,8 +202,8 @@ export function TestResults({ patient }: TestResultsProps) {
           {/* Test List */}
           <div className="space-y-4">
             {filteredTests.map((test) => (
-              <Card 
-                key={test.id} 
+              <Card
+                key={test.id}
                 className={`cursor-pointer transition-colors hover:bg-muted/50 ${
                   selectedTest?.id === test.id ? "ring-2 ring-blue-500" : ""
                 }`}
@@ -204,13 +218,17 @@ export function TestResults({ patient }: TestResultsProps) {
                           {test.category}
                         </Badge>
                         <Badge
-                          variant={test.status === "COMPLETED" ? "default" : "secondary"}
+                          variant={
+                            test.status === "COMPLETED"
+                              ? "default"
+                              : "secondary"
+                          }
                           className={
-                            test.status === "COMPLETED" 
-                              ? "bg-green-100 text-green-800" 
+                            test.status === "COMPLETED"
+                              ? "bg-green-100 text-green-800"
                               : test.status === "PENDING"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
                           }
                         >
                           {test.status}
@@ -225,14 +243,19 @@ export function TestResults({ patient }: TestResultsProps) {
                       <p className="mt-1">Dr. {test.orderedBy}</p>
                     </div>
                   </div>
-                  
+
                   {/* Quick results preview */}
                   {test.status === "COMPLETED" && test.results && (
                     <div className="mt-3">
                       <div className="flex items-center space-x-4">
                         {test.results.slice(0, 3).map((result, idx) => (
-                          <div key={idx} className="flex items-center space-x-1">
-                            <span className={`text-sm ${getStatusColor(result.status)}`}>
+                          <div
+                            key={idx}
+                            className="flex items-center space-x-1"
+                          >
+                            <span
+                              className={`text-sm ${getStatusColor(result.status)}`}
+                            >
                               {getStatusIcon(result.status)}
                             </span>
                             <span className="text-sm">{result.parameter}</span>
@@ -260,7 +283,8 @@ export function TestResults({ patient }: TestResultsProps) {
                     <div>
                       <CardTitle>{selectedTest.testName}</CardTitle>
                       <CardDescription>
-                        {new Date(selectedTest.date).toLocaleDateString()} • Ordered by Dr. {selectedTest.orderedBy}
+                        {new Date(selectedTest.date).toLocaleDateString()} •
+                        Ordered by Dr. {selectedTest.orderedBy}
                       </CardDescription>
                     </div>
                     <div className="flex space-x-2">
@@ -276,7 +300,8 @@ export function TestResults({ patient }: TestResultsProps) {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {selectedTest.status === "COMPLETED" && selectedTest.results ? (
+                  {selectedTest.status === "COMPLETED" &&
+                  selectedTest.results ? (
                     <div className="space-y-4">
                       <Table>
                         <TableHeader>
@@ -290,7 +315,9 @@ export function TestResults({ patient }: TestResultsProps) {
                         <TableBody>
                           {selectedTest.results.map((result, idx) => (
                             <TableRow key={idx}>
-                              <TableCell className="font-medium">{result.parameter}</TableCell>
+                              <TableCell className="font-medium">
+                                {result.parameter}
+                              </TableCell>
                               <TableCell>
                                 {result.value} {result.unit}
                               </TableCell>
@@ -298,53 +325,68 @@ export function TestResults({ patient }: TestResultsProps) {
                                 {result.referenceRange}
                               </TableCell>
                               <TableCell>
-                                <div className={`flex items-center space-x-1 ${getStatusColor(result.status)}`}>
+                                <div
+                                  className={`flex items-center space-x-1 ${getStatusColor(result.status)}`}
+                                >
                                   {getStatusIcon(result.status)}
-                                  <span className="text-sm font-medium">{result.status}</span>
+                                  <span className="text-sm font-medium">
+                                    {result.status}
+                                  </span>
                                 </div>
                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
-                      
+
                       {selectedTest.notes && (
                         <div>
                           <Separator />
                           <div className="mt-4">
-                            <p className="text-sm font-medium text-muted-foreground mb-2">Notes</p>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                              Notes
+                            </p>
                             <p className="text-sm">{selectedTest.notes}</p>
                           </div>
                         </div>
                       )}
-                      
-                      {selectedTest.attachments && selectedTest.attachments.length > 0 && (
-                        <div>
-                          <Separator />
-                          <div className="mt-4">
-                            <p className="text-sm font-medium text-muted-foreground mb-2">Attachments</p>
-                            <div className="space-y-2">
-                              {selectedTest.attachments.map((attachment, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-2 border rounded">
-                                  <span className="text-sm">{attachment}</span>
-                                  <Button variant="ghost" size="sm">
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
+
+                      {selectedTest.attachments &&
+                        selectedTest.attachments.length > 0 && (
+                          <div>
+                            <Separator />
+                            <div className="mt-4">
+                              <p className="text-sm font-medium text-muted-foreground mb-2">
+                                Attachments
+                              </p>
+                              <div className="space-y-2">
+                                {selectedTest.attachments.map(
+                                  (attachment, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex items-center justify-between p-2 border rounded"
+                                    >
+                                      <span className="text-sm">
+                                        {attachment}
+                                      </span>
+                                      <Button variant="ghost" size="sm">
+                                        <Download className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   ) : (
                     <div className="text-center py-8">
                       <FileText className="mx-auto h-8 w-8 text-gray-400" />
                       <p className="mt-2 text-sm text-muted-foreground">
-                        {selectedTest.status === "PENDING" 
+                        {selectedTest.status === "PENDING"
                           ? "Test results are pending"
-                          : "Test was cancelled"
-                        }
+                          : "Test was cancelled"}
                       </p>
                     </div>
                   )}
@@ -354,7 +396,9 @@ export function TestResults({ patient }: TestResultsProps) {
               <Card>
                 <CardContent className="p-12 text-center">
                   <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Select a test</h3>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">
+                    Select a test
+                  </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Click on a test result to view detailed information.
                   </p>
@@ -367,12 +411,13 @@ export function TestResults({ patient }: TestResultsProps) {
         <Card>
           <CardContent className="p-12 text-center">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No test results found</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              No test results found
+            </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || filterCategory !== "all" 
+              {searchTerm || filterCategory !== "all"
                 ? "Try adjusting your search or filters"
-                : "Start by ordering the first test for this patient."
-              }
+                : "Start by ordering the first test for this patient."}
             </p>
             {!searchTerm && filterCategory === "all" && (
               <div className="mt-6">

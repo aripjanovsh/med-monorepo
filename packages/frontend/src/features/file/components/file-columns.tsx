@@ -24,9 +24,7 @@ export const fileColumns: ColumnDef<FileResponseDto>[] = [
   {
     accessorKey: "category",
     header: "Категория",
-    cell: ({ row }) => (
-      <div>{FILE_CATEGORY_LABELS[row.original.category]}</div>
-    ),
+    cell: ({ row }) => <div>{FILE_CATEGORY_LABELS[row.original.category]}</div>,
   },
   {
     accessorKey: "size",

@@ -114,4 +114,5 @@ export interface ServiceOrderQueryParamsDto extends QueryParamsDto {
   dateTo?: string;
 }
 
-export type ServiceOrdersListResponseDto = PaginatedResponseDto<ServiceOrderResponseDto>;
+export type ServiceOrdersListResponseDto =
+  PaginatedResponseDto<ServiceOrderResponseDto>;

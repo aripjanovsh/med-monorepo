@@ -23,9 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <DialogManagerProvider>
-          {children}
-        </DialogManagerProvider>
+        <DialogManagerProvider>{children}</DialogManagerProvider>
       </body>
     </html>
   );
@@ -35,6 +33,7 @@ export default function RootLayout({ children }) {
 ### 2. Адаптируйте существующий компонент диалога
 
 **До:**
+
 ```tsx
 type MySheetProps = {
   open: boolean;
@@ -43,12 +42,18 @@ type MySheetProps = {
   onSuccess: () => void;
 };
 
-export const MySheet = ({ open, onOpenChange, userId, onSuccess }: MySheetProps) => {
+export const MySheet = ({
+  open,
+  onOpenChange,
+  userId,
+  onSuccess,
+}: MySheetProps) => {
   // ...
 };
 ```
 
 **После:**
+
 ```tsx
 import type { DialogProps } from "@/lib/dialog-manager";
 
@@ -61,7 +66,12 @@ type MySheetOwnProps = {
 // Полные пропсы с DialogProps
 type MySheetProps = MySheetOwnProps & DialogProps;
 
-export const MySheet = ({ open, onOpenChange, userId, onSuccess }: MySheetProps) => {
+export const MySheet = ({
+  open,
+  onOpenChange,
+  userId,
+  onSuccess,
+}: MySheetProps) => {
   // Компонент остается без изменений!
 };
 ```
@@ -97,9 +107,11 @@ const MyComponent = () => {
 Хук для управления диалогом.
 
 **Параметры:**
+
 - `component` - Компонент диалога, который должен иметь пропсы `extends DialogProps`
 
 **Возвращает:**
+
 ```typescript
 {
   open: (props: TProps) => void;    // Открыть диалог с пропсами
@@ -132,7 +144,7 @@ type MyDialogOwnProps = {
 export const MyDialog = createDialog<MyDialogOwnProps>(
   ({ open, onOpenChange, userId }) => {
     // ...
-  }
+  },
 );
 ```
 
@@ -247,14 +259,16 @@ const [mode, setMode] = useState<"create" | "edit">("create");
 
 return (
   <>
-    <Button onClick={() => {
-      setMode("create");
-      setSelectedId(null);
-      setIsOpen(true);
-    }}>
+    <Button
+      onClick={() => {
+        setMode("create");
+        setSelectedId(null);
+        setIsOpen(true);
+      }}
+    >
       Создать
     </Button>
-    
+
     <AppointmentFormSheet
       mode={mode}
       appointmentId={selectedId}
@@ -275,16 +289,18 @@ return (
 const appointmentDialog = useDialog(AppointmentFormSheet);
 
 return (
-  <Button onClick={() => {
-    appointmentDialog.open({
-      mode: "create",
-      appointmentId: null,
-      onSuccess: () => {
-        refetch();
-        appointmentDialog.close();
-      },
-    });
-  }}>
+  <Button
+    onClick={() => {
+      appointmentDialog.open({
+        mode: "create",
+        appointmentId: null,
+        onSuccess: () => {
+          refetch();
+          appointmentDialog.close();
+        },
+      });
+    }}
+  >
     Создать
   </Button>
 );
@@ -306,7 +322,7 @@ DialogManagerProvider (Context Provider)
   ├── Хранит Map всех открытых диалогов
   ├── Предоставляет методы открытия/закрытия
   └── Рендерит все открытые диалоги
-  
+
 useDialog(Component)
   ├── Генерирует уникальный ID для диалога
   ├── Возвращает функции open/close/updateProps
@@ -323,8 +339,12 @@ A: Да! Каждый вызов `useDialog` создает уникальный
 const dialog1 = useDialog(MySheet);
 const dialog2 = useDialog(MySheet);
 
-dialog1.open({ /* ... */ });
-dialog2.open({ /* ... */ }); // Оба будут открыты
+dialog1.open({
+  /* ... */
+});
+dialog2.open({
+  /* ... */
+}); // Оба будут открыты
 ```
 
 ### Q: Как закрыть диалог при клике на backdrop?
@@ -344,7 +364,12 @@ type MyAlertProps = DialogProps & {
   message: string;
 };
 
-export const MyAlert = ({ open, onOpenChange, title, message }: MyAlertProps) => {
+export const MyAlert = ({
+  open,
+  onOpenChange,
+  title,
+  message,
+}: MyAlertProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>

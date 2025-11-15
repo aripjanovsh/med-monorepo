@@ -1,17 +1,20 @@
 /**
  * Универсальные диалоги для приложения
- * 
+ *
  * Этот модуль предоставляет готовые диалоги для типичных сценариев:
  * - ConfirmDialog - подтверждение действий
  * - AlertDialogComponent - уведомления
  * - PromptDialog - ввод текста
- * 
+ *
  * Все диалоги интегрированы с Dialog Manager и поддерживают типобезопасность.
  */
 
 // Компоненты
 export { ConfirmDialog } from "./confirm-dialog";
-export type { ConfirmDialogProps, ConfirmDialogOwnProps } from "./confirm-dialog";
+export type {
+  ConfirmDialogProps,
+  ConfirmDialogOwnProps,
+} from "./confirm-dialog";
 
 export { AlertDialogComponent } from "./alert-dialog-component";
 export type {

@@ -21,11 +21,7 @@ export const languageColumns: ColumnDef<Language>[] = [
       const code = row.getValue("code") as string;
       return (
         <div className="font-mono text-sm">
-          {code ? (
-            <Badge variant="outline">{code.toUpperCase()}</Badge>
-          ) : (
-            "-"
-          )}
+          {code ? <Badge variant="outline">{code.toUpperCase()}</Badge> : "-"}
         </div>
       );
     },

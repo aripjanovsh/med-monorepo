@@ -180,7 +180,7 @@ export const FormBuilderInteractive = ({
                   value={(formField.value as number) ?? ""}
                   onChange={(e) =>
                     formField.onChange(
-                      Number.parseFloat(e.target.value) || null
+                      Number.parseFloat(e.target.value) || null,
                     )
                   }
                   disabled={isDisabled}
@@ -345,7 +345,7 @@ export const FormBuilderInteractive = ({
                           className={cn(
                             "cursor-pointer transition-colors",
                             !isDisabled &&
-                              "hover:bg-primary hover:text-primary-foreground"
+                              "hover:bg-primary hover:text-primary-foreground",
                           )}
                           onClick={() => {
                             if (isDisabled) return;

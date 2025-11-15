@@ -43,7 +43,7 @@ export default function ServiceOrderOverviewPage({
     order.startedAt && order.finishedAt
       ? differenceInMinutes(
           new Date(order.finishedAt),
-          new Date(order.startedAt)
+          new Date(order.startedAt),
         )
       : null;
 
@@ -103,7 +103,7 @@ export default function ServiceOrderOverviewPage({
                     className="h-auto p-0 text-blue-600 font-medium"
                     onClick={() =>
                       router.push(
-                        url(ROUTES.VISIT_DETAIL, { id: order.visitId! })
+                        url(ROUTES.VISIT_DETAIL, { id: order.visitId! }),
                       )
                     }
                   >

@@ -15,14 +15,14 @@ export const workScheduleDaySchema: yup.ObjectSchema<WorkScheduleDay> =
       .string()
       .matches(
         /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Invalid time format (HH:MM)"
+        "Invalid time format (HH:MM)",
       )
       .required(),
     to: yup
       .string()
       .matches(
         /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Invalid time format (HH:MM)"
+        "Invalid time format (HH:MM)",
       )
       .required(),
   });
@@ -37,7 +37,7 @@ export const workScheduleSchema: yup.ObjectSchema<WorkScheduleDto> = yup.object(
     friday: workScheduleDaySchema.nullable().optional(),
     saturday: workScheduleDaySchema.nullable().optional(),
     sunday: workScheduleDaySchema.nullable().optional(),
-  }
+  },
 );
 
 // Working day schema (legacy - keeping for backwards compatibility if needed)
@@ -64,13 +64,13 @@ export const employeeFormSchema = yup.object({
   employeeId: yup.string(),
   dateOfBirth: yup.string(),
   gender: yup.string().oneOf(Object.values(GENDER)),
-  
+
   // Passport information (combined field for form UI)
   passport: yup
     .string()
     .matches(
       /^[A-Za-zА-Яа-я]{2}\d{7}$/,
-      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)"
+      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)",
     ),
   // Individual fields (populated from passport field)
   passportSeries: yup.string(),
@@ -146,7 +146,7 @@ export const createEmployeeRequestSchema = yup.object({
   userId: yup.string(),
   dateOfBirth: yup.string(),
   gender: yup.string().oneOf(Object.values(GENDER)),
-  
+
   // Passport information
   passportSeries: yup.string(),
   passportNumber: yup.string(),

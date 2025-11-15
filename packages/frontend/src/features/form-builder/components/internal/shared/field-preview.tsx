@@ -153,7 +153,7 @@ export const FieldPreview = ({
       className={cn(
         "group relative rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-sm",
         isDragging && "opacity-50",
-        field.width && `flex-[0_0_${field.width}%]`
+        field.width && `flex-[0_0_${field.width}%]`,
       )}
     >
       {/* Drag Handle */}

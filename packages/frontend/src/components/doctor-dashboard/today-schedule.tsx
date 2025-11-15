@@ -110,9 +110,12 @@ export function TodaySchedule() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
-            <Badge variant={getStatusColor(appointment.status)} className="text-xs">
+            <Badge
+              variant={getStatusColor(appointment.status)}
+              className="text-xs"
+            >
               {getStatusText(appointment.status)}
             </Badge>
             {appointment.status === "upcoming" && (
@@ -123,7 +126,7 @@ export function TodaySchedule() {
           </div>
         </div>
       ))}
-      
+
       {appointments.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           Нет записей на сегодня

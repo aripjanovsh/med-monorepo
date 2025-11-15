@@ -31,7 +31,12 @@ export default function AnalysisTemplateDetailPage({
   const { id } = use(params);
   const router = useRouter();
 
-  const { data: template, isLoading, error, refetch } = useGetAnalysisTemplateQuery(id);
+  const {
+    data: template,
+    isLoading,
+    error,
+    refetch,
+  } = useGetAnalysisTemplateQuery(id);
 
   const handleEdit = useCallback(() => {
     router.push(url(ROUTES.ANALYSIS_TEMPLATE_EDIT, { id }));
@@ -63,7 +68,7 @@ export default function AnalysisTemplateDetailPage({
       }
       // New format with sections
       return (data as AnalysisTemplateContentDto).sections.flatMap(
-        (section) => section.parameters
+        (section) => section.parameters,
       );
     } catch {
       return [];
@@ -135,9 +140,7 @@ export default function AnalysisTemplateDetailPage({
         <CardContent>
           <Tabs defaultValue="all">
             <TabsList>
-              <TabsTrigger value="all">
-                Все ({totalCount})
-              </TabsTrigger>
+              <TabsTrigger value="all">Все ({totalCount})</TabsTrigger>
               <TabsTrigger value="required">
                 Обязательные ({requiredCount})
               </TabsTrigger>
@@ -220,7 +223,7 @@ const ParameterCard = ({ parameter }: { parameter: AnalysisParameterDto }) => {
                           {formatReferenceRange(
                             range.min,
                             range.max,
-                            parameter.unit
+                            parameter.unit,
                           )}
                         </p>
                       </div>

@@ -37,14 +37,14 @@ export const DetailNavigation = ({
                 "inline-flex items-center justify-center whitespace-nowrap text-sm font-gilroy font-semibold transition-all px-2 py-1 gap-2 rounded-md relative",
                 isActive
                   ? "text-primary"
-                  : "text-muted-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:bg-muted",
               )}
             >
               <div
                 aria-hidden="true"
                 className={cn(
                   "rounded-t-2xl absolute -bottom-[4px] h-[2px] bg-primary left-2 right-2",
-                  isActive ? "block" : "hidden"
+                  isActive ? "block" : "hidden",
                 )}
               />
               {item.label}

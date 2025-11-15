@@ -173,13 +173,13 @@ export const PatientProfile = ({ patient }: PatientProfileProps) => {
                   <ProfileField
                     label="SMS-уведомления"
                     value={getNotificationStatusDisplay(
-                      contact.textNotificationsEnabled
+                      contact.textNotificationsEnabled,
                     )}
                   />
                   <ProfileField
                     label="Email-уведомления"
                     value={getNotificationStatusDisplay(
-                      contact.emailNotificationsEnabled
+                      contact.emailNotificationsEnabled,
                     )}
                   />
                 </div>

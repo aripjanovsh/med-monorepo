@@ -12,17 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  DataTable,
-  DataTableToolbar,
-} from "@/components/data-table";
+import { DataTable, DataTableToolbar } from "@/components/data-table";
 import PageHeader from "@/components/layouts/page-header";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useConfirmDialog } from "@/components/dialogs";
 import { ROUTES, url } from "@/constants/route.constants";
-import {
-  DepartmentFacetedSelectField,
-} from "@/features/master-data/components";
+import { DepartmentFacetedSelectField } from "@/features/master-data/components";
 
 import {
   useGetServiceOrdersQuery,
@@ -50,22 +45,29 @@ export default function ServiceOrdersPage() {
 
   // Get filter values from columnFilters
   const statusFilter = values.columnFilters.find((f) => f.id === "status");
-  const departmentFilter = values.columnFilters.find((f) => f.id === "departmentId");
-  const paymentStatusFilter = values.columnFilters.find((f) => f.id === "paymentStatus");
-  const serviceTypeFilter = values.columnFilters.find((f) => f.id === "serviceType");
+  const departmentFilter = values.columnFilters.find(
+    (f) => f.id === "departmentId",
+  );
+  const paymentStatusFilter = values.columnFilters.find(
+    (f) => f.id === "paymentStatus",
+  );
+  const serviceTypeFilter = values.columnFilters.find(
+    (f) => f.id === "serviceType",
+  );
 
   const selectedStatuses = (statusFilter?.value as OrderStatus[]) || [];
   const selectedDepartments = (departmentFilter?.value as string[]) || [];
-  const selectedPaymentStatuses = (paymentStatusFilter?.value as string[]) || [];
+  const selectedPaymentStatuses =
+    (paymentStatusFilter?.value as string[]) || [];
   const selectedServiceTypes = (serviceTypeFilter?.value as string[]) || [];
 
   // Add filters to query params
   const finalQueryParams = useMemo(() => {
     const params: any = { ...queryParams };
-    
+
     // Remove the filters object that useDataTableState adds
     delete params.filters;
-    
+
     if (selectedStatuses.length > 0) {
       params.status = selectedStatuses.join(",");
     }
@@ -80,9 +82,16 @@ export default function ServiceOrdersPage() {
     }
 
     return params;
-  }, [queryParams, selectedStatuses, selectedDepartments, selectedPaymentStatuses, selectedServiceTypes]);
+  }, [
+    queryParams,
+    selectedStatuses,
+    selectedDepartments,
+    selectedPaymentStatuses,
+    selectedServiceTypes,
+  ]);
 
-  const { data, isLoading, refetch } = useGetServiceOrdersQuery(finalQueryParams);
+  const { data, isLoading, refetch } =
+    useGetServiceOrdersQuery(finalQueryParams);
 
   const [updateServiceOrder] = useUpdateServiceOrderMutation();
 
@@ -90,7 +99,7 @@ export default function ServiceOrdersPage() {
     (order: ServiceOrderResponseDto) => {
       router.push(`/cabinet/orders/${order.id}/execute`);
     },
-    [router]
+    [router],
   );
 
   const handleCancel = useCallback(
@@ -114,7 +123,7 @@ export default function ServiceOrdersPage() {
         },
       });
     },
-    [confirm, updateServiceOrder, refetch]
+    [confirm, updateServiceOrder, refetch],
   );
 
   // Handlers for filters
@@ -126,40 +135,46 @@ export default function ServiceOrdersPage() {
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   const handleDepartmentChange = useCallback(
     (value: string[] | undefined) => {
-      const newFilters = values.columnFilters.filter((f) => f.id !== "departmentId");
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "departmentId",
+      );
       if (value && value.length > 0) {
         newFilters.push({ id: "departmentId", value });
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   const handlePaymentStatusChange = useCallback(
     (value: string[] | undefined) => {
-      const newFilters = values.columnFilters.filter((f) => f.id !== "paymentStatus");
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "paymentStatus",
+      );
       if (value && value.length > 0) {
         newFilters.push({ id: "paymentStatus", value });
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   const handleServiceTypeChange = useCallback(
     (value: string[] | undefined) => {
-      const newFilters = values.columnFilters.filter((f) => f.id !== "serviceType");
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "serviceType",
+      );
       if (value && value.length > 0) {
         newFilters.push({ id: "serviceType", value });
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   return (
@@ -178,7 +193,8 @@ export default function ServiceOrdersPage() {
             cell: ({ row }) => {
               const order = row.original;
               const canCancel = canCancelOrder(order);
-              const canExecute = order.status === "ORDERED" || order.status === "IN_PROGRESS";
+              const canExecute =
+                order.status === "ORDERED" || order.status === "IN_PROGRESS";
 
               return (
                 <DropdownMenu>

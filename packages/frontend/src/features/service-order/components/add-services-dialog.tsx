@@ -53,7 +53,7 @@ export const AddServicesDialog = ({
   const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedServices, setSelectedServices] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const { data, isLoading } = useGetServicesQuery({

@@ -1,4 +1,4 @@
-export type AllergySeverity = 'MILD' | 'MODERATE' | 'SEVERE';
+export type AllergySeverity = "MILD" | "MODERATE" | "SEVERE";
 
 export type PatientAllergy = {
   id: string;
@@ -26,7 +26,9 @@ export type CreatePatientAllergyRequest = {
 
 export type UpdatePatientAllergyRequest = Partial<CreatePatientAllergyRequest>;
 
-export const getAllergySeverityLabel = (severity?: AllergySeverity | string): string => {
+export const getAllergySeverityLabel = (
+  severity?: AllergySeverity | string,
+): string => {
   switch (severity) {
     case "MILD":
       return "Легкая";

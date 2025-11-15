@@ -73,7 +73,9 @@ export default function EditVisitPage({ params }: PageProps) {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Редактировать визит</h1>
-          <p className="text-muted-foreground">Обновление информации о визите</p>
+          <p className="text-muted-foreground">
+            Обновление информации о визите
+          </p>
         </div>
       </div>
 

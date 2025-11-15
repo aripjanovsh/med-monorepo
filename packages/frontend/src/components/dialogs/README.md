@@ -34,6 +34,7 @@ const MyComponent = () => {
 ```
 
 **Пропсы:**
+
 - `title?: string` - заголовок (по умолчанию "Подтвердите действие")
 - `description?: string | ReactNode` - описание
 - `confirmText?: string` - текст кнопки подтверждения (по умолчанию "Подтвердить")
@@ -67,6 +68,7 @@ const MyComponent = () => {
 ```
 
 **Пропсы:**
+
 - `title?: string` - заголовок (по умолчанию "Уведомление")
 - `description?: string | ReactNode` - описание
 - `buttonText?: string` - текст кнопки (по умолчанию "OK")
@@ -104,6 +106,7 @@ const MyComponent = () => {
 ```
 
 **Пропсы:**
+
 - `title?: string` - заголовок (по умолчанию "Введите значение")
 - `description?: string` - описание
 - `label?: string` - метка поля ввода
@@ -209,5 +212,6 @@ alert({
 ## Примеры из проекта
 
 Смотрите использование в `/app/cabinet/appointments/page.tsx`:
+
 - `handleDelete` - использует `useConfirmDialog`
 - `handleCancel` - использует `usePromptDialog`

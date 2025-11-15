@@ -21,7 +21,7 @@ type ReceptionStatsProps = {
 
 export const ReceptionStats = ({ date }: ReceptionStatsProps) => {
   const { data, isLoading, error } = useGetStatsQuery(
-    date ? { startDate: date, endDate: date } : undefined
+    date ? { startDate: date, endDate: date } : undefined,
   );
 
   const stats = data?.stats;

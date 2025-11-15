@@ -38,10 +38,8 @@ export const PageAnalysisTemplateForm = ({
   // Prepare initialData before any conditional returns (Rules of Hooks)
   const initialData = useMemo(
     () =>
-      mode === "edit" && template
-        ? convertDtoToFormData(template)
-        : undefined,
-    [mode, template]
+      mode === "edit" && template ? convertDtoToFormData(template) : undefined,
+    [mode, template],
   );
 
   if (mode === "edit" && isLoading) {

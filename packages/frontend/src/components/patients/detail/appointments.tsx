@@ -1,32 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Calendar, 
-  Clock, 
-  Plus, 
-  MapPin, 
-  User, 
+import {
+  Calendar,
+  Clock,
+  Plus,
+  MapPin,
+  User,
   CheckCircle,
   XCircle,
   AlertCircle,
   Filter,
-  Search
+  Search,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Patient, Appointment } from "@/types/patient";
 import { AppointmentForm } from "../forms/appointment-form";
 
@@ -39,16 +50,21 @@ export function Appointments({ patient }: AppointmentsProps) {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | undefined>();
+  const [editingAppointment, setEditingAppointment] = useState<
+    Appointment | undefined
+  >();
   const [isLoading, setIsLoading] = useState(false);
 
   const filteredAppointments = patient.appointments
     ?.filter((appointment) => {
-      const matchesSearch = appointment.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           appointment.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           appointment.department.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = filterStatus === "all" || appointment.status === filterStatus;
-      const matchesType = filterType === "all" || appointment.type === filterType;
+      const matchesSearch =
+        appointment.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.department.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        filterStatus === "all" || appointment.status === filterStatus;
+      const matchesType =
+        filterType === "all" || appointment.type === filterType;
       return matchesSearch && matchesStatus && matchesType;
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -98,13 +114,15 @@ export function Appointments({ patient }: AppointmentsProps) {
     }
   };
 
-  const upcomingAppointments = patient.appointments?.filter(
-    a => a.status === "SCHEDULED" && new Date(a.date) >= new Date()
-  ) || [];
+  const upcomingAppointments =
+    patient.appointments?.filter(
+      (a) => a.status === "SCHEDULED" && new Date(a.date) >= new Date(),
+    ) || [];
 
-  const pastAppointments = patient.appointments?.filter(
-    a => a.status === "COMPLETED" || new Date(a.date) < new Date()
-  ) || [];
+  const pastAppointments =
+    patient.appointments?.filter(
+      (a) => a.status === "COMPLETED" || new Date(a.date) < new Date(),
+    ) || [];
 
   const handleScheduleAppointment = () => {
     setEditingAppointment(undefined);
@@ -120,14 +138,20 @@ export function Appointments({ patient }: AppointmentsProps) {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (editingAppointment) {
-        console.log("Updating appointment:", { id: editingAppointment.id, ...data });
+        console.log("Updating appointment:", {
+          id: editingAppointment.id,
+          ...data,
+        });
       } else {
-        console.log("Creating appointment:", { patientId: patient.id, ...data });
+        console.log("Creating appointment:", {
+          patientId: patient.id,
+          ...data,
+        });
       }
-      
+
       setIsFormOpen(false);
       setEditingAppointment(undefined);
       // In real app, you would refetch the patient data here
@@ -167,12 +191,14 @@ export function Appointments({ patient }: AppointmentsProps) {
               <Clock className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-sm font-medium">Upcoming</p>
-                <p className="text-2xl font-bold">{upcomingAppointments.length}</p>
+                <p className="text-2xl font-bold">
+                  {upcomingAppointments.length}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -180,13 +206,14 @@ export function Appointments({ patient }: AppointmentsProps) {
               <div>
                 <p className="text-sm font-medium">Completed</p>
                 <p className="text-2xl font-bold">
-                  {patient.appointments?.filter(a => a.status === "COMPLETED").length || 0}
+                  {patient.appointments?.filter((a) => a.status === "COMPLETED")
+                    .length || 0}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -194,13 +221,14 @@ export function Appointments({ patient }: AppointmentsProps) {
               <div>
                 <p className="text-sm font-medium">Cancelled</p>
                 <p className="text-2xl font-bold">
-                  {patient.appointments?.filter(a => a.status === "CANCELLED").length || 0}
+                  {patient.appointments?.filter((a) => a.status === "CANCELLED")
+                    .length || 0}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -208,7 +236,8 @@ export function Appointments({ patient }: AppointmentsProps) {
               <div>
                 <p className="text-sm font-medium">No Shows</p>
                 <p className="text-2xl font-bold">
-                  {patient.appointments?.filter(a => a.status === "NO_SHOW").length || 0}
+                  {patient.appointments?.filter((a) => a.status === "NO_SHOW")
+                    .length || 0}
                 </p>
               </div>
             </div>
@@ -271,7 +300,10 @@ export function Appointments({ patient }: AppointmentsProps) {
           <CardContent>
             <div className="space-y-3">
               {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-4 bg-white border border-blue-200 rounded-lg">
+                <div
+                  key={appointment.id}
+                  className="p-4 bg-white border border-blue-200 rounded-lg"
+                >
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
@@ -285,9 +317,9 @@ export function Appointments({ patient }: AppointmentsProps) {
                           </span>
                         </Badge>
                       </div>
-                      
+
                       <h4 className="font-semibold">{appointment.reason}</h4>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
@@ -307,7 +339,7 @@ export function Appointments({ patient }: AppointmentsProps) {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex space-x-2">
                       <Button variant="outline" size="sm">
                         Reschedule
@@ -328,7 +360,9 @@ export function Appointments({ patient }: AppointmentsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Appointment History</CardTitle>
-          <CardDescription>Complete history of all appointments and visits</CardDescription>
+          <CardDescription>
+            Complete history of all appointments and visits
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {filteredAppointments && filteredAppointments.length > 0 ? (
@@ -339,17 +373,23 @@ export function Appointments({ patient }: AppointmentsProps) {
                   {index < filteredAppointments.length - 1 && (
                     <div className="absolute left-6 top-12 w-0.5 h-full bg-border z-0"></div>
                   )}
-                  
+
                   <div className="flex items-start space-x-4">
                     {/* Timeline dot */}
                     <div className="relative z-10 flex-shrink-0 mt-2">
-                      <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ${
-                        appointment.status === "COMPLETED" ? "bg-green-500" :
-                        appointment.status === "SCHEDULED" ? "bg-blue-500" :
-                        appointment.status === "CANCELLED" ? "bg-red-500" : "bg-orange-500"
-                      }`}></div>
+                      <div
+                        className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ${
+                          appointment.status === "COMPLETED"
+                            ? "bg-green-500"
+                            : appointment.status === "SCHEDULED"
+                              ? "bg-blue-500"
+                              : appointment.status === "CANCELLED"
+                                ? "bg-red-500"
+                                : "bg-orange-500"
+                        }`}
+                      ></div>
                     </div>
-                    
+
                     <div className="flex-1 min-w-0 pb-4">
                       <div className="flex items-start justify-between mb-2">
                         <div>
@@ -357,16 +397,20 @@ export function Appointments({ patient }: AppointmentsProps) {
                             <Badge className={getTypeColor(appointment.type)}>
                               {appointment.type}
                             </Badge>
-                            <Badge className={getStatusColor(appointment.status)}>
+                            <Badge
+                              className={getStatusColor(appointment.status)}
+                            >
                               <span className="flex items-center space-x-1">
                                 {getStatusIcon(appointment.status)}
                                 <span>{appointment.status}</span>
                               </span>
                             </Badge>
                           </div>
-                          <h3 className="font-semibold">{appointment.reason}</h3>
+                          <h3 className="font-semibold">
+                            {appointment.reason}
+                          </h3>
                         </div>
-                        
+
                         <div className="text-right text-sm text-muted-foreground">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1" />
@@ -378,7 +422,7 @@ export function Appointments({ patient }: AppointmentsProps) {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
                         <div className="flex items-center">
                           <User className="h-4 w-4 mr-1" />
@@ -393,10 +437,12 @@ export function Appointments({ patient }: AppointmentsProps) {
                           {appointment.duration} minutes
                         </div>
                       </div>
-                      
+
                       {appointment.notes && (
                         <div className="mt-2 p-3 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground mb-1">Notes</p>
+                          <p className="text-sm font-medium text-muted-foreground mb-1">
+                            Notes
+                          </p>
                           <p className="text-sm">{appointment.notes}</p>
                         </div>
                       )}
@@ -408,21 +454,24 @@ export function Appointments({ patient }: AppointmentsProps) {
           ) : (
             <div className="text-center py-12">
               <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No appointments found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No appointments found
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
                 {searchTerm || filterStatus !== "all" || filterType !== "all"
                   ? "Try adjusting your search or filters"
-                  : "Start by scheduling the first appointment for this patient."
-                }
+                  : "Start by scheduling the first appointment for this patient."}
               </p>
-              {!searchTerm && filterStatus === "all" && filterType === "all" && (
-                              <div className="mt-6">
-                <Button size="sm" onClick={handleScheduleAppointment}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Schedule Appointment
-                </Button>
-              </div>
-              )}
+              {!searchTerm &&
+                filterStatus === "all" &&
+                filterType === "all" && (
+                  <div className="mt-6">
+                    <Button size="sm" onClick={handleScheduleAppointment}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Schedule Appointment
+                    </Button>
+                  </div>
+                )}
             </div>
           )}
         </CardContent>
@@ -435,27 +484,37 @@ export function Appointments({ patient }: AppointmentsProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4" onClick={handleScheduleAppointment}>
+            <Button
+              variant="outline"
+              className="h-auto p-4"
+              onClick={handleScheduleAppointment}
+            >
               <div className="text-center">
                 <Calendar className="h-6 w-6 mx-auto mb-2" />
                 <p className="font-medium">Schedule Follow-up</p>
-                <p className="text-sm text-muted-foreground">Book next appointment</p>
+                <p className="text-sm text-muted-foreground">
+                  Book next appointment
+                </p>
               </div>
             </Button>
-            
+
             <Button variant="outline" className="h-auto p-4">
               <div className="text-center">
                 <Clock className="h-6 w-6 mx-auto mb-2" />
                 <p className="font-medium">Emergency Slot</p>
-                <p className="text-sm text-muted-foreground">Book urgent appointment</p>
+                <p className="text-sm text-muted-foreground">
+                  Book urgent appointment
+                </p>
               </div>
             </Button>
-            
+
             <Button variant="outline" className="h-auto p-4">
               <div className="text-center">
                 <MapPin className="h-6 w-6 mx-auto mb-2" />
                 <p className="font-medium">Specialist Referral</p>
-                <p className="text-sm text-muted-foreground">Refer to specialist</p>
+                <p className="text-sm text-muted-foreground">
+                  Refer to specialist
+                </p>
               </div>
             </Button>
           </div>

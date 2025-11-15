@@ -33,19 +33,19 @@ import {
   useCreateLocationMutation,
   useUpdateLocationMutation,
 } from "@/features/master-data";
-import type { 
-  LocationTreeNode, 
-  LocationType, 
+import type {
+  LocationTreeNode,
+  LocationType,
   CreateLocationRequest,
-  UpdateLocationRequest 
+  UpdateLocationRequest,
 } from "@/features/master-data";
 
 // Типы локаций с метками
 const LOCATION_TYPES = [
-  { value: 'COUNTRY' as LocationType, label: 'Страна' },
-  { value: 'REGION' as LocationType, label: 'Регион' },
-  { value: 'CITY' as LocationType, label: 'Город' },
-  { value: 'DISTRICT' as LocationType, label: 'Район' },
+  { value: "COUNTRY" as LocationType, label: "Страна" },
+  { value: "REGION" as LocationType, label: "Регион" },
+  { value: "CITY" as LocationType, label: "Город" },
+  { value: "DISTRICT" as LocationType, label: "Район" },
 ];
 
 // Схема валидации
@@ -62,17 +62,14 @@ const schema = yup.object({
     .max(10, "Максимум 10 символов"),
   type: yup
     .mixed<LocationType>()
-    .oneOf(['COUNTRY', 'REGION', 'CITY', 'DISTRICT'])
+    .oneOf(["COUNTRY", "REGION", "CITY", "DISTRICT"])
     .required("Тип обязателен"),
   weight: yup
     .number()
     .min(0, "Вес не может быть отрицательным")
     .integer("Вес должен быть целым числом")
     .default(0),
-  description: yup
-    .string()
-    .optional()
-    .max(500, "Максимум 500 символов"),
+  description: yup.string().optional().max(500, "Максимум 500 символов"),
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -80,7 +77,7 @@ type FormData = yup.InferType<typeof schema>;
 interface LocationFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   location?: LocationTreeNode;
   parentId?: string;
   onSuccess?: () => void;
@@ -94,8 +91,10 @@ export function LocationForm({
   parentId,
   onSuccess,
 }: LocationFormProps) {
-  const [createLocation, { isLoading: isCreating }] = useCreateLocationMutation();
-  const [updateLocation, { isLoading: isUpdating }] = useUpdateLocationMutation();
+  const [createLocation, { isLoading: isCreating }] =
+    useCreateLocationMutation();
+  const [updateLocation, { isLoading: isUpdating }] =
+    useUpdateLocationMutation();
 
   const form = useForm<FormData>({
     resolver: yupResolver(schema),
@@ -111,7 +110,7 @@ export function LocationForm({
   // Сброс формы при открытии/закрытии
   useEffect(() => {
     if (open) {
-      if (mode === 'edit' && location) {
+      if (mode === "edit" && location) {
         form.reset({
           name: location.name,
           code: location.code || "",
@@ -133,7 +132,7 @@ export function LocationForm({
 
   const handleSubmit = async (data: FormData) => {
     try {
-      if (mode === 'create') {
+      if (mode === "create") {
         const payload: CreateLocationRequest = {
           name: data.name,
           type: data.type,
@@ -142,7 +141,7 @@ export function LocationForm({
           ...(parentId && { parentId }),
           ...(data.description && { description: data.description }),
         };
-        
+
         await createLocation(payload).unwrap();
         toast.success("Локация создана");
       } else if (location) {
@@ -153,11 +152,11 @@ export function LocationForm({
           ...(data.code && { code: data.code }),
           ...(data.description && { description: data.description }),
         };
-        
+
         await updateLocation({ id: location.id, data: payload }).unwrap();
         toast.success("Локация обновлена");
       }
-      
+
       onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
@@ -172,12 +171,15 @@ export function LocationForm({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-gilroy">
-            {mode === 'create' ? 'Создать локацию' : 'Редактировать локацию'}
+            {mode === "create" ? "Создать локацию" : "Редактировать локацию"}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             {/* Название */}
             <FormField
               control={form.control}
@@ -242,11 +244,13 @@ export function LocationForm({
                 <FormItem>
                   <FormLabel>Вес (для сортировки)</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="0" 
+                    <Input
+                      type="number"
+                      placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(Number(e.target.value) || 0)
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -262,7 +266,7 @@ export function LocationForm({
                 <FormItem>
                   <FormLabel>Описание (опционально)</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Введите описание"
                       rows={3}
                       {...field}
@@ -284,7 +288,11 @@ export function LocationForm({
                 Отмена
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Сохранение...' : mode === 'create' ? 'Создать' : 'Сохранить'}
+                {isLoading
+                  ? "Сохранение..."
+                  : mode === "create"
+                    ? "Создать"
+                    : "Сохранить"}
               </Button>
             </div>
           </form>

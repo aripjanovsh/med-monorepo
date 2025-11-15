@@ -1,9 +1,14 @@
 "use client";
 
 import { createContext, useState, useCallback, type ReactNode } from "react";
-import type { DialogConfig, DialogManagerContextValue, DialogProps } from "./dialog-manager.types";
+import type {
+  DialogConfig,
+  DialogManagerContextValue,
+  DialogProps,
+} from "./dialog-manager.types";
 
-export const DialogManagerContext = createContext<DialogManagerContextValue | null>(null);
+export const DialogManagerContext =
+  createContext<DialogManagerContextValue | null>(null);
 
 type DialogManagerProviderProps = {
   children: ReactNode;
@@ -11,7 +16,7 @@ type DialogManagerProviderProps = {
 
 /**
  * Глобальный провайдер для управления всеми диалогами в приложении
- * 
+ *
  * @example
  * ```tsx
  * <DialogManagerProvider>
@@ -19,20 +24,21 @@ type DialogManagerProviderProps = {
  * </DialogManagerProvider>
  * ```
  */
-export const DialogManagerProvider = ({ children }: DialogManagerProviderProps) => {
+export const DialogManagerProvider = ({
+  children,
+}: DialogManagerProviderProps) => {
   const [dialogs, setDialogs] = useState<Map<string, DialogConfig>>(new Map());
 
-  const openDialog = useCallback(<P,>(
-    id: string,
-    component: DialogConfig<P>["component"],
-    props: P
-  ) => {
-    setDialogs((prev) => {
-      const next = new Map(prev);
-      next.set(id, { id, component, props });
-      return next;
-    });
-  }, []);
+  const openDialog = useCallback(
+    <P,>(id: string, component: DialogConfig<P>["component"], props: P) => {
+      setDialogs((prev) => {
+        const next = new Map(prev);
+        next.set(id, { id, component, props });
+        return next;
+      });
+    },
+    [],
+  );
 
   const closeDialog = useCallback((id: string) => {
     setDialogs((prev) => {
@@ -42,10 +48,7 @@ export const DialogManagerProvider = ({ children }: DialogManagerProviderProps) 
     });
   }, []);
 
-  const updateDialogProps = useCallback(<P,>(
-    id: string,
-    props: Partial<P>
-  ) => {
+  const updateDialogProps = useCallback(<P,>(id: string, props: Partial<P>) => {
     setDialogs((prev) => {
       const next = new Map(prev);
       const existing = next.get(id);
@@ -63,12 +66,18 @@ export const DialogManagerProvider = ({ children }: DialogManagerProviderProps) 
     (id: string) => {
       return dialogs.has(id);
     },
-    [dialogs]
+    [dialogs],
   );
 
   return (
     <DialogManagerContext.Provider
-      value={{ dialogs, openDialog, closeDialog, updateDialogProps, isDialogOpen }}
+      value={{
+        dialogs,
+        openDialog,
+        closeDialog,
+        updateDialogProps,
+        isDialogOpen,
+      }}
     >
       {children}
       {/* Рендерим все открытые диалоги */}

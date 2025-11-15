@@ -39,14 +39,14 @@ export interface EmployeeResponseDto {
   middleName?: string;
   dateOfBirth?: string; // ISO string
   gender?: GenderDto;
-  
+
   // Passport information
   passportSeries?: string;
   passportNumber?: string;
   passportIssuedBy?: string;
   passportIssueDate?: string; // ISO string
   passportExpiryDate?: string; // ISO string
-  
+
   email?: string;
   phone?: string;
   secondaryPhone?: string;
@@ -92,14 +92,14 @@ export interface CreateEmployeeRequestDto {
   middleName?: string;
   dateOfBirth?: string; // ISO string
   gender?: GenderDto;
-  
+
   // Passport information
   passportSeries?: string;
   passportNumber?: string;
   passportIssuedBy?: string;
   passportIssueDate?: string; // ISO string
   passportExpiryDate?: string; // ISO string
-  
+
   email?: string;
   phone?: string;
   secondaryPhone?: string;
@@ -148,7 +148,8 @@ export interface EmployeesQueryParamsDto extends QueryParamsDto {
 }
 
 // API Response DTOs using PaginatedResponseDto
-export type EmployeesListResponseDto = PaginatedResponseDto<EmployeeResponseDto>;
+export type EmployeesListResponseDto =
+  PaginatedResponseDto<EmployeeResponseDto>;
 
 // Employee Stats DTO (if needed)
 export interface EmployeeStatsDto {

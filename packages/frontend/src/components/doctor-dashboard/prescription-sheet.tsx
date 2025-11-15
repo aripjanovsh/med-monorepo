@@ -97,12 +97,12 @@ export function PrescriptionSheet({ children }: PrescriptionSheetProps) {
   const updateMedication = (
     id: string,
     field: keyof Medication,
-    value: string
+    value: string,
   ) => {
     setMedications(
       medications.map((med) =>
-        med.id === id ? { ...med, [field]: value } : med
-      )
+        med.id === id ? { ...med, [field]: value } : med,
+      ),
     );
   };
 
@@ -251,7 +251,7 @@ export function PrescriptionSheet({ children }: PrescriptionSheetProps) {
                             updateMedication(
                               medication.id,
                               "dosage",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder="например, 500мг"
@@ -297,7 +297,7 @@ export function PrescriptionSheet({ children }: PrescriptionSheetProps) {
                             updateMedication(
                               medication.id,
                               "duration",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder="например, 7 дней"
@@ -313,7 +313,7 @@ export function PrescriptionSheet({ children }: PrescriptionSheetProps) {
                           updateMedication(
                             medication.id,
                             "instructions",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder="Дополнительные инструкции..."

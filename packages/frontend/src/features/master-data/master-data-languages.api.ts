@@ -30,7 +30,9 @@ export const languagesApi = rootApi.injectEndpoints({
         url: `/api/v1/master-data/languages/${id}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: API_TAG_OPERATIONS_LANGUAGES, id }],
+      providesTags: (result, error, id) => [
+        { type: API_TAG_OPERATIONS_LANGUAGES, id },
+      ],
     }),
 
     // Create new language

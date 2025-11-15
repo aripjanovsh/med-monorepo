@@ -54,21 +54,23 @@ export const Combobox = ({
 
   const selectedOption = React.useMemo(
     () => options.find((option) => option.value === value),
-    [options, value]
+    [options, value],
   );
 
   const handleSelect = React.useCallback(
     (selectedValue: string) => {
       const matchedOption = options.find(
-        (opt) => opt.value.toLowerCase() === selectedValue.toLowerCase()
+        (opt) => opt.value.toLowerCase() === selectedValue.toLowerCase(),
       );
-      
+
       if (matchedOption) {
-        onValueChangeRef.current?.(matchedOption.value === value ? "" : matchedOption.value);
+        onValueChangeRef.current?.(
+          matchedOption.value === value ? "" : matchedOption.value,
+        );
       }
       setOpen(false);
     },
-    [options, value]
+    [options, value],
   );
 
   return (
@@ -85,7 +87,10 @@ export const Combobox = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
@@ -100,7 +105,7 @@ export const Combobox = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}

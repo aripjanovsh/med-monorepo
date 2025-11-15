@@ -1,34 +1,48 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AreaChartComponent, BarChartComponent, LineChartComponent } from './index';
-import { PieChartComponent } from './pie-chart';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  AreaChartComponent,
+  BarChartComponent,
+  LineChartComponent,
+} from "./index";
+import { PieChartComponent } from "./pie-chart";
 
 // Пример данных для графиков
 const monthlyData = [
-  { month: 'Янв', sales: 186, target: 150, visits: 250 },
-  { month: 'Фев', sales: 305, target: 200, visits: 320 },
-  { month: 'Мар', sales: 237, target: 220, visits: 280 },
-  { month: 'Апр', sales: 300, target: 250, visits: 330 },
-  { month: 'Май', sales: 209, target: 230, visits: 270 },
-  { month: 'Июн', sales: 214, target: 240, visits: 260 },
+  { month: "Янв", sales: 186, target: 150, visits: 250 },
+  { month: "Фев", sales: 305, target: 200, visits: 320 },
+  { month: "Мар", sales: 237, target: 220, visits: 280 },
+  { month: "Апр", sales: 300, target: 250, visits: 330 },
+  { month: "Май", sales: 209, target: 230, visits: 270 },
+  { month: "Июн", sales: 214, target: 240, visits: 260 },
 ];
 
 // Добавляем данные для круговой диаграммы
 const browserData = [
-  { browser: 'Chrome', visitors: 60 },
-  { browser: 'Firefox', visitors: 20 },
-  { browser: 'Safari', visitors: 15 },
-  { browser: 'Edge', visitors: 5 },
+  { browser: "Chrome", visitors: 60 },
+  { browser: "Firefox", visitors: 20 },
+  { browser: "Safari", visitors: 15 },
+  { browser: "Edge", visitors: 5 },
 ];
 
 export function ChartExamples() {
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold">Простые примеры (минимальный набор параметров)</h2>
+      <h2 className="text-2xl font-bold">
+        Простые примеры (минимальный набор параметров)
+      </h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Линейный график - Простой пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Линейный график</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Линейный график
+            </CardTitle>
             <CardDescription>Минимальная конфигурация</CardDescription>
           </CardHeader>
           <CardContent>
@@ -40,7 +54,9 @@ export function ChartExamples() {
         {/* Столбчатая диаграмма - Простой пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Столбчатая диаграмма</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Столбчатая диаграмма
+            </CardTitle>
             <CardDescription>Минимальная конфигурация</CardDescription>
           </CardHeader>
           <CardContent>
@@ -52,7 +68,9 @@ export function ChartExamples() {
         {/* График с областями - Простой пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">График с областями</CardTitle>
+            <CardTitle className="text-base font-medium">
+              График с областями
+            </CardTitle>
             <CardDescription>Минимальная конфигурация</CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,7 +82,9 @@ export function ChartExamples() {
         {/* Круговая диаграмма - Простой пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Круговая диаграмма</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Круговая диаграмма
+            </CardTitle>
             <CardDescription>Минимальная конфигурация</CardDescription>
           </CardHeader>
           <CardContent>
@@ -79,25 +99,29 @@ export function ChartExamples() {
         </Card>
       </div>
 
-      <h2 className="text-2xl font-bold mt-10">Расширенные примеры (с настройками)</h2>
+      <h2 className="text-2xl font-bold mt-10">
+        Расширенные примеры (с настройками)
+      </h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {/* Линейный график - Расширенный пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Линейный график</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Линейный график
+            </CardTitle>
             <CardDescription>Настроенные параметры</CardDescription>
           </CardHeader>
           <CardContent>
             <LineChartComponent
               data={monthlyData}
               xKey="month"
-              dataKeys={['sales', 'target']}
-              labels={{ sales: 'Продажи', target: 'План' }}
+              dataKeys={["sales", "target"]}
+              labels={{ sales: "Продажи", target: "План" }}
               height={250}
               dotSize={5}
               strokeWidth={3}
               yAxisFormatter={(value) => `${value} шт.`}
-              colors={['hsl(var(--success))', 'hsl(var(--warning))']}
+              colors={["hsl(var(--success))", "hsl(var(--warning))"]}
             />
           </CardContent>
         </Card>
@@ -105,15 +129,17 @@ export function ChartExamples() {
         {/* Столбчатая диаграмма - Расширенный пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Столбчатая диаграмма</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Столбчатая диаграмма
+            </CardTitle>
             <CardDescription>Настроенные параметры</CardDescription>
           </CardHeader>
           <CardContent>
             <BarChartComponent
               data={monthlyData}
               xKey="month"
-              dataKeys={['sales', 'visits']}
-              labels={{ sales: 'Продажи', visits: 'Посещения' }}
+              dataKeys={["sales", "visits"]}
+              labels={{ sales: "Продажи", visits: "Посещения" }}
               stacked={true}
               height={250}
               barSize={25}
@@ -126,15 +152,17 @@ export function ChartExamples() {
         {/* График с областями - Расширенный пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">График с областями</CardTitle>
+            <CardTitle className="text-base font-medium">
+              График с областями
+            </CardTitle>
             <CardDescription>Настроенные параметры</CardDescription>
           </CardHeader>
           <CardContent>
             <AreaChartComponent
               data={monthlyData}
               xKey="month"
-              dataKeys={['revenue', 'target']}
-              labels={{ revenue: 'Выручка', target: 'План' }}
+              dataKeys={["revenue", "target"]}
+              labels={{ revenue: "Выручка", target: "План" }}
               stacked={true}
               height={250}
               showLegend={true}
@@ -147,19 +175,21 @@ export function ChartExamples() {
         {/* Специфический пример - Линейный график без точек */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Линейный график</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Линейный график
+            </CardTitle>
             <CardDescription>Без точек на линии</CardDescription>
           </CardHeader>
           <CardContent>
             <LineChartComponent
               data={monthlyData}
               xKey="month"
-              dataKeys={['revenue']}
+              dataKeys={["revenue"]}
               height={250}
               hideDots={true}
               strokeWidth={4}
               yAxisFormatter={(value) => `${(value / 1000).toFixed(0)}K₽`}
-              colors={['hsl(var(--primary))']}
+              colors={["hsl(var(--primary))"]}
             />
           </CardContent>
         </Card>
@@ -167,17 +197,19 @@ export function ChartExamples() {
         {/* Специфический пример - Столбчатая диаграмма с выбранными данными */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Выборочные данные</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Выборочные данные
+            </CardTitle>
             <CardDescription>Только целевые показатели</CardDescription>
           </CardHeader>
           <CardContent>
             <BarChartComponent
               data={monthlyData}
               xKey="month"
-              dataKeys={['target']}
+              dataKeys={["target"]}
               height={250}
               barSize={40}
-              colors={['hsl(var(--primary))']}
+              colors={["hsl(var(--primary))"]}
             />
           </CardContent>
         </Card>
@@ -185,17 +217,19 @@ export function ChartExamples() {
         {/* Специфический пример - График с областью и заданной непрозрачностью */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Настройка прозрачности</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Настройка прозрачности
+            </CardTitle>
             <CardDescription>Высокая непрозрачность заливки</CardDescription>
           </CardHeader>
           <CardContent>
             <AreaChartComponent
               data={monthlyData.slice(0, 3)}
               xKey="month"
-              dataKeys={['visits']}
+              dataKeys={["visits"]}
               height={250}
               fillOpacity={0.9}
-              colors={['hsl(var(--destructive))']}
+              colors={["hsl(var(--destructive))"]}
             />
           </CardContent>
         </Card>
@@ -203,7 +237,9 @@ export function ChartExamples() {
         {/* Кольцевая диаграмма - Расширенный пример */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Кольцевая диаграмма</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Кольцевая диаграмма
+            </CardTitle>
             <CardDescription>Настроенные параметры</CardDescription>
           </CardHeader>
           <CardContent>
@@ -212,10 +248,10 @@ export function ChartExamples() {
               dataKey="visitors"
               nameKey="browser"
               labels={{
-                Chrome: 'Google Chrome',
-                Firefox: 'Mozilla Firefox',
-                Safari: 'Apple Safari',
-                Edge: 'Microsoft Edge',
+                Chrome: "Google Chrome",
+                Firefox: "Mozilla Firefox",
+                Safari: "Apple Safari",
+                Edge: "Microsoft Edge",
               }}
               height={250}
               innerRadius={60}
@@ -235,7 +271,9 @@ export function ChartExamples() {
         {/* Пример с PieChart, использующий пользовательскую функцию для меток */}
         <Card className="p-6 bg-white shadow-sm rounded-lg">
           <CardHeader>
-            <CardTitle>Круговая диаграмма с пользовательскими метками</CardTitle>
+            <CardTitle>
+              Круговая диаграмма с пользовательскими метками
+            </CardTitle>
             <CardDescription>
               Пример использования PieChartComponent с label функцией
             </CardDescription>
@@ -243,34 +281,39 @@ export function ChartExamples() {
           <CardContent>
             <PieChartComponent
               data={[
-                { name: 'Chrome', value: 60 },
-                { name: 'Firefox', value: 20 },
-                { name: 'Safari', value: 15 },
-                { name: 'Edge', value: 5 },
+                { name: "Chrome", value: 60 },
+                { name: "Firefox", value: 20 },
+                { name: "Safari", value: 15 },
+                { name: "Edge", value: 5 },
               ]}
               height={300}
               showLegend={true}
               legendPosition="bottom"
               showLabels={true}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) =>
+                `${name}: ${(percent * 100).toFixed(0)}%`
+              }
             />
           </CardContent>
         </Card>
 
         <Card className="p-6 bg-white shadow-sm rounded-lg">
           <CardHeader>
-            <CardTitle>Кольцевая диаграмма с пользовательскими метками</CardTitle>
+            <CardTitle>
+              Кольцевая диаграмма с пользовательскими метками
+            </CardTitle>
             <CardDescription>
-              Пример использования PieChartComponent как кольцевой диаграммы с label функцией
+              Пример использования PieChartComponent как кольцевой диаграммы с
+              label функцией
             </CardDescription>
           </CardHeader>
           <CardContent>
             <PieChartComponent
               data={[
-                { name: 'Chrome', value: 60 },
-                { name: 'Firefox', value: 20 },
-                { name: 'Safari', value: 15 },
-                { name: 'Edge', value: 5 },
+                { name: "Chrome", value: 60 },
+                { name: "Firefox", value: 20 },
+                { name: "Safari", value: 15 },
+                { name: "Edge", value: 5 },
               ]}
               height={300}
               showLegend={true}
@@ -278,8 +321,12 @@ export function ChartExamples() {
               showLabels={true}
               innerRadius={60}
               outerRadius={100}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-              centerContent={<div className="text-lg font-medium">Браузеры</div>}
+              label={({ name, percent }) =>
+                `${name}: ${(percent * 100).toFixed(0)}%`
+              }
+              centerContent={
+                <div className="text-lg font-medium">Браузеры</div>
+              }
             />
           </CardContent>
         </Card>

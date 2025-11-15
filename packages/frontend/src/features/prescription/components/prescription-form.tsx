@@ -21,8 +21,14 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
-import { prescriptionFormSchema, type PrescriptionFormData } from "../prescription.schema";
-import { useCreatePrescriptionMutation, useUpdatePrescriptionMutation } from "../prescription.api";
+import {
+  prescriptionFormSchema,
+  type PrescriptionFormData,
+} from "../prescription.schema";
+import {
+  useCreatePrescriptionMutation,
+  useUpdatePrescriptionMutation,
+} from "../prescription.api";
 import {
   PRESCRIPTION_FREQUENCY_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,

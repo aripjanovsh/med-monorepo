@@ -49,5 +49,5 @@ export const VISIT_TYPE_OPTIONS = Object.entries(VISIT_TYPE_LABELS).map(
   ([value, label]) => ({
     value,
     label,
-  })
+  }),
 );

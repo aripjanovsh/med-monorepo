@@ -74,7 +74,7 @@ export type FilledProtocol = {
  * Type guard для определения типа контента
  */
 export const isFormBuilderContent = (
-  content: unknown
+  content: unknown,
 ): content is FormBuilderContent => {
   if (!content || typeof content !== "object") return false;
   const obj = content as Record<string, unknown>;
@@ -88,7 +88,7 @@ export const isFormBuilderContent = (
         "id" in section &&
         "title" in section &&
         "fields" in section &&
-        Array.isArray((section as FormSection).fields)
+        Array.isArray((section as FormSection).fields),
     )
   );
 };

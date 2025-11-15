@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Activity, 
-  Heart, 
-  Thermometer, 
-  Weight, 
+import {
+  Activity,
+  Heart,
+  Thermometer,
+  Weight,
   Ruler,
   Droplet,
   Wind,
@@ -13,30 +13,41 @@ import {
   TrendingUp,
   TrendingDown,
   Calendar,
-  User
+  User,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Patient, VitalSign } from "@/types/patient";
 import { VitalSignsChart } from "./charts/vital-signs-chart";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { VitalSignsForm } from "../forms/vital-signs-form";
 
 interface VitalSignsProps {
@@ -47,16 +58,23 @@ export function VitalSigns({ patient }: VitalSignsProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<string>("3months");
   const [selectedVital, setSelectedVital] = useState<string>("bloodPressure");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingVitalSign, setEditingVitalSign] = useState<VitalSign | undefined>();
+  const [editingVitalSign, setEditingVitalSign] = useState<
+    VitalSign | undefined
+  >();
   const [isLoading, setIsLoading] = useState(false);
 
-  const sortedVitals = patient.vitalSigns
-    ?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
+  const sortedVitals =
+    patient.vitalSigns?.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    ) || [];
 
   const latestVitals = sortedVitals[0];
 
   // Simple trend calculation
-  const getTrend = (current: number | undefined, previous: number | undefined) => {
+  const getTrend = (
+    current: number | undefined,
+    previous: number | undefined,
+  ) => {
     if (!current || !previous) return "stable";
     const change = ((current - previous) / previous) * 100;
     if (change > 5) return "up";
@@ -77,7 +95,7 @@ export function VitalSigns({ patient }: VitalSignsProps) {
 
   const getVitalStatus = (value: number | undefined, type: string) => {
     if (!value) return "normal";
-    
+
     switch (type) {
       case "bloodPressureSystolic":
         if (value > 140) return "high";
@@ -125,14 +143,20 @@ export function VitalSigns({ patient }: VitalSignsProps) {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (editingVitalSign) {
-        console.log("Updating vital signs:", { id: editingVitalSign.id, ...data });
+        console.log("Updating vital signs:", {
+          id: editingVitalSign.id,
+          ...data,
+        });
       } else {
-        console.log("Recording vital signs:", { patientId: patient.id, ...data });
+        console.log("Recording vital signs:", {
+          patientId: patient.id,
+          ...data,
+        });
       }
-      
+
       setIsFormOpen(false);
       setEditingVitalSign(undefined);
       // In real app, you would refetch the patient data here
@@ -168,34 +192,41 @@ export function VitalSigns({ patient }: VitalSignsProps) {
       {latestVitals && (
         <div>
           <h3 className="text-lg font-semibold mb-4">
-            Latest Readings 
+            Latest Readings
             <span className="text-sm font-normal text-muted-foreground ml-2">
               ({new Date(latestVitals.date).toLocaleDateString()})
             </span>
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Blood Pressure */}
-            {latestVitals.bloodPressureSystolic && latestVitals.bloodPressureDiastolic && (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Heart className="h-5 w-5 text-red-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(
-                        latestVitals.bloodPressureSystolic, 
-                        sortedVitals[1].bloodPressureSystolic
-                      ))
-                    )}
-                  </div>
-                  <p className="text-sm font-medium text-muted-foreground">Blood Pressure</p>
-                  <p className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.bloodPressureSystolic, "bloodPressureSystolic"))}`}>
-                    {latestVitals.bloodPressureSystolic}/{latestVitals.bloodPressureDiastolic}
-                  </p>
-                  <p className="text-xs text-muted-foreground">mmHg</p>
-                </CardContent>
-              </Card>
-            )}
+            {latestVitals.bloodPressureSystolic &&
+              latestVitals.bloodPressureDiastolic && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Heart className="h-5 w-5 text-red-500" />
+                      {sortedVitals[1] &&
+                        getTrendIcon(
+                          getTrend(
+                            latestVitals.bloodPressureSystolic,
+                            sortedVitals[1].bloodPressureSystolic,
+                          ),
+                        )}
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Blood Pressure
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.bloodPressureSystolic, "bloodPressureSystolic"))}`}
+                    >
+                      {latestVitals.bloodPressureSystolic}/
+                      {latestVitals.bloodPressureDiastolic}
+                    </p>
+                    <p className="text-xs text-muted-foreground">mmHg</p>
+                  </CardContent>
+                </Card>
+              )}
 
             {/* Heart Rate */}
             {latestVitals.heartRate && (
@@ -203,12 +234,20 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Activity className="h-5 w-5 text-blue-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(latestVitals.heartRate, sortedVitals[1].heartRate))
-                    )}
+                    {sortedVitals[1] &&
+                      getTrendIcon(
+                        getTrend(
+                          latestVitals.heartRate,
+                          sortedVitals[1].heartRate,
+                        ),
+                      )}
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Heart Rate</p>
-                  <p className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.heartRate, "heartRate"))}`}>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Heart Rate
+                  </p>
+                  <p
+                    className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.heartRate, "heartRate"))}`}
+                  >
                     {latestVitals.heartRate}
                   </p>
                   <p className="text-xs text-muted-foreground">bpm</p>
@@ -222,12 +261,20 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Thermometer className="h-5 w-5 text-orange-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(latestVitals.temperature, sortedVitals[1].temperature))
-                    )}
+                    {sortedVitals[1] &&
+                      getTrendIcon(
+                        getTrend(
+                          latestVitals.temperature,
+                          sortedVitals[1].temperature,
+                        ),
+                      )}
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Temperature</p>
-                  <p className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.temperature, "temperature"))}`}>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Temperature
+                  </p>
+                  <p
+                    className={`text-2xl font-bold ${getStatusColor(getVitalStatus(latestVitals.temperature, "temperature"))}`}
+                  >
                     {latestVitals.temperature}
                   </p>
                   <p className="text-xs text-muted-foreground">°F</p>
@@ -241,11 +288,14 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Weight className="h-5 w-5 text-green-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(latestVitals.weight, sortedVitals[1].weight))
-                    )}
+                    {sortedVitals[1] &&
+                      getTrendIcon(
+                        getTrend(latestVitals.weight, sortedVitals[1].weight),
+                      )}
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Weight</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Weight
+                  </p>
                   <p className="text-2xl font-bold">{latestVitals.weight}</p>
                   <p className="text-xs text-muted-foreground">kg</p>
                 </CardContent>
@@ -258,12 +308,20 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Droplet className="h-5 w-5 text-cyan-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(latestVitals.oxygenSaturation, sortedVitals[1].oxygenSaturation))
-                    )}
+                    {sortedVitals[1] &&
+                      getTrendIcon(
+                        getTrend(
+                          latestVitals.oxygenSaturation,
+                          sortedVitals[1].oxygenSaturation,
+                        ),
+                      )}
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Oxygen Saturation</p>
-                  <p className="text-2xl font-bold">{latestVitals.oxygenSaturation}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Oxygen Saturation
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {latestVitals.oxygenSaturation}
+                  </p>
                   <p className="text-xs text-muted-foreground">%</p>
                 </CardContent>
               </Card>
@@ -275,12 +333,20 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Wind className="h-5 w-5 text-purple-500" />
-                    {sortedVitals[1] && (
-                      getTrendIcon(getTrend(latestVitals.respiratoryRate, sortedVitals[1].respiratoryRate))
-                    )}
+                    {sortedVitals[1] &&
+                      getTrendIcon(
+                        getTrend(
+                          latestVitals.respiratoryRate,
+                          sortedVitals[1].respiratoryRate,
+                        ),
+                      )}
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Respiratory Rate</p>
-                  <p className="text-2xl font-bold">{latestVitals.respiratoryRate}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Respiratory Rate
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {latestVitals.respiratoryRate}
+                  </p>
                   <p className="text-xs text-muted-foreground">breaths/min</p>
                 </CardContent>
               </Card>
@@ -293,7 +359,9 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                   <div className="flex items-center justify-between mb-2">
                     <Ruler className="h-5 w-5 text-indigo-500" />
                   </div>
-                  <p className="text-sm font-medium text-muted-foreground">Height</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Height
+                  </p>
                   <p className="text-2xl font-bold">{latestVitals.height}</p>
                   <p className="text-xs text-muted-foreground">cm</p>
                 </CardContent>
@@ -320,10 +388,12 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <SelectItem value="heartRate">Heart Rate</SelectItem>
                 <SelectItem value="temperature">Temperature</SelectItem>
                 <SelectItem value="weight">Weight</SelectItem>
-                <SelectItem value="oxygenSaturation">Oxygen Saturation</SelectItem>
+                <SelectItem value="oxygenSaturation">
+                  Oxygen Saturation
+                </SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Select period" />
@@ -339,7 +409,7 @@ export function VitalSigns({ patient }: VitalSignsProps) {
           </div>
 
           {/* Vital Signs Chart */}
-          <VitalSignsChart 
+          <VitalSignsChart
             vitalSigns={sortedVitals}
             selectedVital={selectedVital}
             period={selectedPeriod}
@@ -351,7 +421,9 @@ export function VitalSigns({ patient }: VitalSignsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Vital Signs History</CardTitle>
-          <CardDescription>Complete record of all vital sign measurements</CardDescription>
+          <CardDescription>
+            Complete record of all vital sign measurements
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {sortedVitals.length > 0 ? (
@@ -374,9 +446,18 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                       {new Date(vital.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {vital.bloodPressureSystolic && vital.bloodPressureDiastolic ? (
-                        <span className={getStatusColor(getVitalStatus(vital.bloodPressureSystolic, "bloodPressureSystolic"))}>
-                          {vital.bloodPressureSystolic}/{vital.bloodPressureDiastolic}
+                      {vital.bloodPressureSystolic &&
+                      vital.bloodPressureDiastolic ? (
+                        <span
+                          className={getStatusColor(
+                            getVitalStatus(
+                              vital.bloodPressureSystolic,
+                              "bloodPressureSystolic",
+                            ),
+                          )}
+                        >
+                          {vital.bloodPressureSystolic}/
+                          {vital.bloodPressureDiastolic}
                         </span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
@@ -384,7 +465,11 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                     </TableCell>
                     <TableCell>
                       {vital.heartRate ? (
-                        <span className={getStatusColor(getVitalStatus(vital.heartRate, "heartRate"))}>
+                        <span
+                          className={getStatusColor(
+                            getVitalStatus(vital.heartRate, "heartRate"),
+                          )}
+                        >
                           {vital.heartRate} bpm
                         </span>
                       ) : (
@@ -393,7 +478,11 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                     </TableCell>
                     <TableCell>
                       {vital.temperature ? (
-                        <span className={getStatusColor(getVitalStatus(vital.temperature, "temperature"))}>
+                        <span
+                          className={getStatusColor(
+                            getVitalStatus(vital.temperature, "temperature"),
+                          )}
+                        >
                           {vital.temperature}°F
                         </span>
                       ) : (
@@ -424,7 +513,9 @@ export function VitalSigns({ patient }: VitalSignsProps) {
           ) : (
             <div className="text-center py-12">
               <Activity className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No vital signs recorded</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No vital signs recorded
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
                 Start by recording the first vital signs for this patient.
               </p>
@@ -443,7 +534,9 @@ export function VitalSigns({ patient }: VitalSignsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Normal Ranges Reference</CardTitle>
-          <CardDescription>Standard vital sign reference ranges for adults</CardDescription>
+          <CardDescription>
+            Standard vital sign reference ranges for adults
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -452,25 +545,31 @@ export function VitalSigns({ patient }: VitalSignsProps) {
                 <Heart className="h-4 w-4 text-red-500" />
                 <span className="font-medium">Blood Pressure</span>
               </div>
-              <p className="text-sm text-muted-foreground">Normal: 90-140 / 60-90 mmHg</p>
+              <p className="text-sm text-muted-foreground">
+                Normal: 90-140 / 60-90 mmHg
+              </p>
             </div>
-            
+
             <div className="p-3 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Activity className="h-4 w-4 text-blue-500" />
                 <span className="font-medium">Heart Rate</span>
               </div>
-              <p className="text-sm text-muted-foreground">Normal: 60-100 bpm</p>
+              <p className="text-sm text-muted-foreground">
+                Normal: 60-100 bpm
+              </p>
             </div>
-            
+
             <div className="p-3 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Thermometer className="h-4 w-4 text-orange-500" />
                 <span className="font-medium">Temperature</span>
               </div>
-              <p className="text-sm text-muted-foreground">Normal: 97.0-100.4°F</p>
+              <p className="text-sm text-muted-foreground">
+                Normal: 97.0-100.4°F
+              </p>
             </div>
-            
+
             <div className="p-3 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Droplet className="h-4 w-4 text-cyan-500" />
@@ -478,13 +577,15 @@ export function VitalSigns({ patient }: VitalSignsProps) {
               </div>
               <p className="text-sm text-muted-foreground">Normal: 95-100%</p>
             </div>
-            
+
             <div className="p-3 border rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <Wind className="h-4 w-4 text-purple-500" />
                 <span className="font-medium">Respiratory Rate</span>
               </div>
-              <p className="text-sm text-muted-foreground">Normal: 12-20 breaths/min</p>
+              <p className="text-sm text-muted-foreground">
+                Normal: 12-20 breaths/min
+              </p>
             </div>
           </div>
         </CardContent>

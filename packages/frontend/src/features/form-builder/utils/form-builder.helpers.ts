@@ -139,7 +139,7 @@ export const createEmptyFormBuilderContent = (): FormBuilderContent => ({
  * Валидация Form Builder контента
  */
 export const validateFormBuilderContent = (
-  content: FormBuilderContent
+  content: FormBuilderContent,
 ): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
@@ -192,7 +192,7 @@ export const validateFormBuilderContent = (
  * Сериализовать Form Builder контент в JSON
  */
 export const serializeFormBuilderContent = (
-  content: FormBuilderContent
+  content: FormBuilderContent,
 ): string => {
   return JSON.stringify(content, null, 2);
 };
@@ -201,7 +201,7 @@ export const serializeFormBuilderContent = (
  * Десериализовать Form Builder контент из JSON
  */
 export const deserializeFormBuilderContent = (
-  json: string
+  json: string,
 ): FormBuilderContent => {
   try {
     return JSON.parse(json) as FormBuilderContent;
@@ -216,7 +216,7 @@ export const deserializeFormBuilderContent = (
 export const moveItem = <T>(
   array: T[],
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
 ): T[] => {
   const newArray = [...array];
   const [removed] = newArray.splice(fromIndex, 1);
@@ -230,12 +230,12 @@ export const moveItem = <T>(
 export const updateSection = (
   content: FormBuilderContent,
   sectionId: string,
-  updates: Partial<FormSection>
+  updates: Partial<FormSection>,
 ): FormBuilderContent => {
   return {
     ...content,
     sections: content.sections.map((section) =>
-      section.id === sectionId ? { ...section, ...updates } : section
+      section.id === sectionId ? { ...section, ...updates } : section,
     ),
   };
 };
@@ -245,7 +245,7 @@ export const updateSection = (
  */
 export const deleteSection = (
   content: FormBuilderContent,
-  sectionId: string
+  sectionId: string,
 ): FormBuilderContent => {
   return {
     ...content,
@@ -259,14 +259,14 @@ export const deleteSection = (
 export const addFieldToSection = (
   content: FormBuilderContent,
   sectionId: string,
-  field: FormField
+  field: FormField,
 ): FormBuilderContent => {
   return {
     ...content,
     sections: content.sections.map((section) =>
       section.id === sectionId
         ? { ...section, fields: [...section.fields, field] }
-        : section
+        : section,
     ),
   };
 };
@@ -278,7 +278,7 @@ export const updateField = (
   content: FormBuilderContent,
   sectionId: string,
   fieldId: string,
-  updates: Partial<FormField>
+  updates: Partial<FormField>,
 ): FormBuilderContent => {
   return {
     ...content,
@@ -287,10 +287,10 @@ export const updateField = (
         ? {
             ...section,
             fields: section.fields.map((field) =>
-              field.id === fieldId ? { ...field, ...updates } : field
+              field.id === fieldId ? { ...field, ...updates } : field,
             ),
           }
-        : section
+        : section,
     ),
   };
 };
@@ -301,7 +301,7 @@ export const updateField = (
 export const deleteField = (
   content: FormBuilderContent,
   sectionId: string,
-  fieldId: string
+  fieldId: string,
 ): FormBuilderContent => {
   return {
     ...content,
@@ -311,7 +311,7 @@ export const deleteField = (
             ...section,
             fields: section.fields.filter((field) => field.id !== fieldId),
           }
-        : section
+        : section,
     ),
   };
 };
@@ -322,7 +322,7 @@ export const deleteField = (
 export const moveSection = (
   content: FormBuilderContent,
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
 ): FormBuilderContent => {
   return {
     ...content,
@@ -337,14 +337,14 @@ export const moveFieldInSection = (
   content: FormBuilderContent,
   sectionId: string,
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
 ): FormBuilderContent => {
   return {
     ...content,
     sections: content.sections.map((section) =>
       section.id === sectionId
         ? { ...section, fields: moveItem(section.fields, fromIndex, toIndex) }
-        : section
+        : section,
     ),
   };
 };
@@ -353,7 +353,7 @@ export const moveFieldInSection = (
  * Получить начальные значения для формы на основе template
  */
 export const getInitialFormData = (
-  content: FormBuilderContent
+  content: FormBuilderContent,
 ): FilledFormData => {
   const data: FilledFormData = {};
 

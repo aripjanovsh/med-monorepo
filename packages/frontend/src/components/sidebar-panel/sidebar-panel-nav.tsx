@@ -135,7 +135,7 @@ export function SidebarPanelNav({ menu }: { menu: SidebarPanelNavModel[] }) {
             ? state === "collapsed" && !isMobile
               ? renderDropdownItem(item)
               : renderCollapsibleItem(item)
-            : renderMenuItem(item)
+            : renderMenuItem(item),
         )}
       </SidebarMenu>
     </SidebarGroup>

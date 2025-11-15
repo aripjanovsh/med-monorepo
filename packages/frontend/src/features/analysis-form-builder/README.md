@@ -26,14 +26,15 @@ import { AnalysisFormEditor } from "@/features/analysis-form-builder";
     // Сохранить обновленный шаблон
     console.log(template);
   }}
-/>
+/>;
 ```
 
 ### 2. Interactive (Заполнение результатов)
 
 Заполнение результатов анализа по шаблону.
 
-**Input**: 
+**Input**:
+
 - `template` - шаблон анализа с параметрами
 - `value` - текущие данные (FilledAnalysisData)
 
@@ -46,7 +47,7 @@ import { AnalysisFormInteractive } from "@/features/analysis-form-builder";
   template={{
     id: "template-id",
     name: "Общий анализ крови",
-    parameters: analysisParameters
+    parameters: analysisParameters,
   }}
   value={currentData}
   onChange={(data) => {
@@ -54,14 +55,15 @@ import { AnalysisFormInteractive } from "@/features/analysis-form-builder";
     console.log(data);
   }}
   disabled={false}
-/>
+/>;
 ```
 
 ### 3. View (Просмотр результатов)
 
 Отображение результатов анализа с вычислением статуса (read-only).
 
-**Input**: 
+**Input**:
+
 - `data` - FilledAnalysisData
 - `patientGender` - пол пациента (опционально)
 - `patientAge` - возраст пациента (опционально)
@@ -75,7 +77,7 @@ import { AnalysisFormView } from "@/features/analysis-form-builder";
   data={filledAnalysisData}
   patientGender="MALE"
   patientAge={45}
-/>
+/>;
 ```
 
 ## Типы данных
@@ -136,6 +138,7 @@ type AnalysisResultRow = {
 ```
 
 Пример:
+
 ```json
 {
   "templateId": "oak-001",
@@ -160,6 +163,7 @@ type AnalysisResultRow = {
 ### Группы референсных значений
 
 Поддерживаются стандартные группы:
+
 - `men` - Мужчины
 - `women` - Женщины
 - `children` - Дети
@@ -170,11 +174,13 @@ type AnalysisResultRow = {
 ### Вычисление статуса
 
 Компонент `AnalysisFormView` автоматически:
+
 1. Выбирает подходящий референсный диапазон на основе пола и возраста
 2. Сравнивает значение с диапазоном
 3. Показывает статус: `NORMAL`, `HIGH`, `LOW`, `UNKNOWN`
 
 Логика выбора диапазона:
+
 - Если возраст < 18 → используется `children`
 - Если пол = MALE → используется `men`
 - Если пол = FEMALE → используется `women`
@@ -183,18 +189,18 @@ type AnalysisResultRow = {
 ## Пример полного flow
 
 ```tsx
-import { 
-  AnalysisFormEditor, 
-  AnalysisFormInteractive, 
+import {
+  AnalysisFormEditor,
+  AnalysisFormInteractive,
   AnalysisFormView,
   type AnalysisParameter,
-  type FilledAnalysisData
+  type FilledAnalysisData,
 } from "@/features/analysis-form-builder";
 
 // 1. Создание шаблона (Editor)
 function AnalysisTemplateForm() {
   const [parameters, setParameters] = useState<AnalysisParameter[]>([]);
-  
+
   return (
     <AnalysisFormEditor
       parameters={parameters}
@@ -209,7 +215,7 @@ function AnalysisTemplateForm() {
 // 2. Заполнение результатов (Interactive)
 function ServiceOrderResultForm({ template }) {
   const [resultData, setResultData] = useState<FilledAnalysisData | null>(null);
-  
+
   return (
     <AnalysisFormInteractive
       template={template}
@@ -236,7 +242,7 @@ function ServiceOrderResultDisplay({ data, patient }) {
 
 ## Утилиты
 
-```typescript
+````typescript
 import {
   createNewParameter,
   createNewSection,
@@ -287,7 +293,7 @@ import { normalizeAnalysisTemplate } from "@/features/analysis-form-builder";
 // Нормализация данных из API
 const template = normalizeAnalysisTemplate(apiData);
 // Возвращает AnalysisTemplate с version и sections
-```
+````
 
 ## Структура feature
 
@@ -323,9 +329,9 @@ import { AnalysisFormEditor } from "@/features/analysis-form-builder";
 ### В service-order
 
 ```tsx
-import { 
+import {
   AnalysisFormInteractive,
-  AnalysisFormView 
+  AnalysisFormView,
 } from "@/features/analysis-form-builder";
 
 // Interactive - для заполнения результатов анализа
@@ -334,14 +340,14 @@ import {
 
 ## Отличия от form-builder
 
-| Характеристика | form-builder | analysis-form-builder |
-|----------------|--------------|----------------------|
-| Назначение | Произвольные медицинские формы | Результаты анализов |
-| Структура | Секции + Поля | Параметры |
-| Референсные значения | Нет | Да (по полу/возрасту) |
-| Статусы значений | Нет | Да (NORMAL/HIGH/LOW) |
-| Единицы измерения | Нет | Да |
-| Использование | Протоколы визитов | Лабораторные анализы |
+| Характеристика       | form-builder                   | analysis-form-builder |
+| -------------------- | ------------------------------ | --------------------- |
+| Назначение           | Произвольные медицинские формы | Результаты анализов   |
+| Структура            | Секции + Поля                  | Параметры             |
+| Референсные значения | Нет                            | Да (по полу/возрасту) |
+| Статусы значений     | Нет                            | Да (NORMAL/HIGH/LOW)  |
+| Единицы измерения    | Нет                            | Да                    |
+| Использование        | Протоколы визитов              | Лабораторные анализы  |
 
 ---
 

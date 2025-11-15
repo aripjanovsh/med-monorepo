@@ -41,7 +41,10 @@ const appointmentSchema = z.object({
   type: z.enum(["CONSULTATION", "FOLLOW_UP", "PROCEDURE", "SURGERY"]),
   doctor: z.string().min(2, "Doctor name must be at least 2 characters"),
   department: z.string().min(2, "Department must be at least 2 characters"),
-  duration: z.number().min(15, "Duration must be at least 15 minutes").max(480, "Duration cannot exceed 8 hours"),
+  duration: z
+    .number()
+    .min(15, "Duration must be at least 15 minutes")
+    .max(480, "Duration cannot exceed 8 hours"),
   reason: z.string().min(5, "Reason must be at least 5 characters"),
   notes: z.string().optional(),
 });
@@ -79,10 +82,30 @@ export function AppointmentForm({
 
   // Common time slots
   const timeSlots = [
-    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-    "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
-    "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
-    "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+    "08:00",
+    "08:30",
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "12:00",
+    "12:30",
+    "13:00",
+    "13:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
+    "17:30",
+    "18:00",
+    "18:30",
+    "19:00",
+    "19:30",
   ];
 
   // Common durations
@@ -100,7 +123,7 @@ export function AppointmentForm({
   // Common departments
   const departments = [
     "Cardiology",
-    "Dermatology", 
+    "Dermatology",
     "Emergency Medicine",
     "Family Medicine",
     "Internal Medicine",
@@ -131,7 +154,7 @@ export function AppointmentForm({
                         variant="outline"
                         className={cn(
                           "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value ? (
@@ -164,7 +187,10 @@ export function AppointmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Time</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select time" />
@@ -192,7 +218,10 @@ export function AppointmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Appointment Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
@@ -216,8 +245,8 @@ export function AppointmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Duration</FormLabel>
-                <Select 
-                  onValueChange={(value) => field.onChange(parseInt(value))} 
+                <Select
+                  onValueChange={(value) => field.onChange(parseInt(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
@@ -227,7 +256,10 @@ export function AppointmentForm({
                   </FormControl>
                   <SelectContent>
                     {durations.map((duration) => (
-                      <SelectItem key={duration.value} value={duration.value.toString()}>
+                      <SelectItem
+                        key={duration.value}
+                        value={duration.value.toString()}
+                      >
                         {duration.label}
                       </SelectItem>
                     ))}
@@ -261,7 +293,10 @@ export function AppointmentForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
@@ -289,7 +324,10 @@ export function AppointmentForm({
             <FormItem>
               <FormLabel>Reason for Visit</FormLabel>
               <FormControl>
-                <Input placeholder="Enter reason for the appointment" {...field} />
+                <Input
+                  placeholder="Enter reason for the appointment"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -321,8 +359,8 @@ export function AppointmentForm({
             {isLoading
               ? "Saving..."
               : appointment
-              ? "Update Appointment"
-              : "Schedule Appointment"}
+                ? "Update Appointment"
+                : "Schedule Appointment"}
           </Button>
           <Button
             type="button"

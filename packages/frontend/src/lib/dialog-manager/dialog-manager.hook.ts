@@ -1,17 +1,21 @@
 import { useContext, useCallback, useMemo } from "react";
 import { nanoid } from "nanoid";
 import { DialogManagerContext } from "./dialog-manager.context";
-import type { DialogProps, UseDialogReturn, ExtractDialogProps } from "./dialog-manager.types";
+import type {
+  DialogProps,
+  UseDialogReturn,
+  ExtractDialogProps,
+} from "./dialog-manager.types";
 import type { ComponentType } from "react";
 
 /**
  * Хук для управления диалогом
  * Автоматически извлекает типы пропсов из компонента
- * 
+ *
  * @template TComponent - Тип компонента диалога
  * @param component - Компонент диалога, который должен иметь пропсы extends DialogProps
  * @returns Объект для управления диалогом с типобезопасным методом open
- * 
+ *
  * @example
  * ```tsx
  * // Компонент диалога
@@ -19,14 +23,14 @@ import type { ComponentType } from "react";
  *   userId: string;
  *   onSuccess: () => void;
  * };
- * 
+ *
  * const MyDialog = ({ open, onOpenChange, userId, onSuccess }: MyDialogProps) => {
  *   // ...
  * };
- * 
+ *
  * // Использование
  * const myDialog = useDialog(MyDialog);
- * 
+ *
  * // TypeScript требует все обязательные пропсы
  * myDialog.open({
  *   userId: "123",
@@ -35,7 +39,7 @@ import type { ComponentType } from "react";
  * ```
  */
 export const useDialog = <TComponent extends ComponentType<any>>(
-  component: TComponent
+  component: TComponent,
 ): UseDialogReturn<ExtractDialogProps<TComponent>> => {
   const context = useContext(DialogManagerContext);
 
@@ -58,10 +62,10 @@ export const useDialog = <TComponent extends ComponentType<any>>(
           }
         },
       };
-      
+
       context.openDialog(dialogId, component, fullProps);
     },
-    [context, dialogId, component]
+    [context, dialogId, component],
   );
 
   const close = useCallback(() => {
@@ -72,7 +76,7 @@ export const useDialog = <TComponent extends ComponentType<any>>(
     (props: Partial<ExtractDialogProps<TComponent>>) => {
       context.updateDialogProps(dialogId, props);
     },
-    [context, dialogId]
+    [context, dialogId],
   );
 
   const isOpen = context.isDialogOpen(dialogId);

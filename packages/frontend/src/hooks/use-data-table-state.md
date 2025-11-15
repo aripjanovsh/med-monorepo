@@ -88,12 +88,12 @@ function UsersPage() {
 
 ```typescript
 interface DataTableStateConfigExtended {
-  defaultPage?: number;          // Default: 1
-  defaultLimit?: number;          // Default: 10
-  defaultSorting?: SortingState;  // Default: []
+  defaultPage?: number; // Default: 1
+  defaultLimit?: number; // Default: 10
+  defaultSorting?: SortingState; // Default: []
   defaultFilters?: ColumnFiltersState; // Default: []
   sortFormat?: "array" | "split"; // Default: "split"
-  searchDebounceMs?: number;      // Default: 500ms
+  searchDebounceMs?: number; // Default: 500ms
 }
 ```
 
@@ -116,13 +116,16 @@ const hook = useDataTableState({
 #### sortFormat
 
 - **`"split"`** (default): Генерирует `sortBy` и `sortOrder`
+
   ```typescript
   { sortBy: "firstName", sortOrder: "asc" }
   ```
 
 - **`"array"`**: Генерирует массив `sort`
   ```typescript
-  { sort: ["-firstName", "lastName"] }
+  {
+    sort: ["-firstName", "lastName"];
+  }
   ```
 
 ### Return Value
@@ -210,7 +213,7 @@ const { data, isLoading } = useGetItemsQuery(queryParams);
     ...handlers.pagination,
     total: data?.total,
   }}
-/>
+/>;
 ```
 
 ### 2. С сортировкой (split format)
@@ -233,7 +236,7 @@ const { data } = useGetItemsQuery(queryParams);
     ...handlers.pagination,
     total: data?.total,
   }}
-/>
+/>;
 ```
 
 ### 3. С сортировкой (array format)
@@ -287,9 +290,7 @@ const { data } = useGetItemsQuery(queryParams);
 ```tsx
 const { queryParams, handlers } = useDataTableState();
 
-<Button onClick={handlers.reset}>
-  Сбросить все фильтры
-</Button>
+<Button onClick={handlers.reset}>Сбросить все фильтры</Button>;
 ```
 
 ### 6. Прямое управление state
@@ -312,6 +313,7 @@ setters.setSorting([{ id: "name", desc: false }]);
 ### Автоматический сброс страницы
 
 Хук автоматически сбрасывает на первую страницу при изменении:
+
 - Поиска
 - Сортировки
 - Фильтров
@@ -362,21 +364,24 @@ const { queryParams } = useDataTableState({ sortFormat: "array" });
 ## Best Practices
 
 1. **Используйте правильный sortFormat**
+
    ```typescript
    // Для API с sortBy/sortOrder
-   sortFormat: "split"
-   
+   sortFormat: "split";
+
    // Для API с sort: []
-   sortFormat: "array"
+   sortFormat: "array";
    ```
 
 2. **Мемоизируйте handlers**
+
    ```typescript
    const { handlers } = useDataTableState();
    // handlers уже стабильны, мемоизация не нужна
    ```
 
 3. **Spread pagination handlers**
+
    ```typescript
    pagination={{
      ...handlers.pagination, // включает page, limit, onChange

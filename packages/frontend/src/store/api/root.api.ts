@@ -31,7 +31,7 @@ import {
 
 const prepareHeaders = (
   headers: Headers,
-  { getState }: { getState: () => any }
+  { getState }: { getState: () => any },
 ) => {
   const state = getState();
   const token = state.auth?.token;

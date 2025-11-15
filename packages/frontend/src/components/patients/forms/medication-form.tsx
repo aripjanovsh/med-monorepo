@@ -42,7 +42,9 @@ const medicationSchema = z.object({
     message: "Start date is required",
   }),
   endDate: z.date().optional(),
-  prescribedBy: z.string().min(2, "Prescribing doctor must be at least 2 characters"),
+  prescribedBy: z
+    .string()
+    .min(2, "Prescribing doctor must be at least 2 characters"),
   status: z.enum(["ACTIVE", "DISCONTINUED", "COMPLETED"]),
   notes: z.string().optional(),
   hasEndDate: z.boolean().default(false),
@@ -92,22 +94,56 @@ export function MedicationForm({
 
   // Common medications for autocomplete suggestions
   const commonMedications = [
-    "Aspirin", "Ibuprofen", "Acetaminophen", "Metformin", "Lisinopril",
-    "Amlodipine", "Metoprolol", "Hydrochlorothiazide", "Simvastatin", "Omeprazole",
-    "Levothyroxine", "Albuterol", "Prednisone", "Amoxicillin", "Azithromycin"
+    "Aspirin",
+    "Ibuprofen",
+    "Acetaminophen",
+    "Metformin",
+    "Lisinopril",
+    "Amlodipine",
+    "Metoprolol",
+    "Hydrochlorothiazide",
+    "Simvastatin",
+    "Omeprazole",
+    "Levothyroxine",
+    "Albuterol",
+    "Prednisone",
+    "Amoxicillin",
+    "Azithromycin",
   ];
 
   // Common dosages
   const commonDosages = [
-    "5mg", "10mg", "20mg", "25mg", "50mg", "100mg", "200mg", "500mg",
-    "1g", "2.5mg", "7.5mg", "15mg", "30mg", "40mg", "80mg"
+    "5mg",
+    "10mg",
+    "20mg",
+    "25mg",
+    "50mg",
+    "100mg",
+    "200mg",
+    "500mg",
+    "1g",
+    "2.5mg",
+    "7.5mg",
+    "15mg",
+    "30mg",
+    "40mg",
+    "80mg",
   ];
 
   // Common frequencies
   const frequencies = [
-    "Once daily", "Twice daily", "Three times daily", "Four times daily",
-    "Every 4 hours", "Every 6 hours", "Every 8 hours", "Every 12 hours",
-    "As needed", "Before meals", "After meals", "At bedtime"
+    "Once daily",
+    "Twice daily",
+    "Three times daily",
+    "Four times daily",
+    "Every 4 hours",
+    "Every 6 hours",
+    "Every 8 hours",
+    "Every 12 hours",
+    "As needed",
+    "Before meals",
+    "After meals",
+    "At bedtime",
   ];
 
   return (
@@ -139,7 +175,10 @@ export function MedicationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Dosage</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select or enter dosage" />
@@ -164,7 +203,10 @@ export function MedicationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Frequency</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select frequency" />
@@ -206,7 +248,10 @@ export function MedicationForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -238,7 +283,7 @@ export function MedicationForm({
                       variant="outline"
                       className={cn(
                         "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (
@@ -304,7 +349,7 @@ export function MedicationForm({
                         variant="outline"
                         className={cn(
                           "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value ? (
@@ -360,8 +405,8 @@ export function MedicationForm({
             {isLoading
               ? "Saving..."
               : medication
-              ? "Update Medication"
-              : "Prescribe Medication"}
+                ? "Update Medication"
+                : "Prescribe Medication"}
           </Button>
           <Button
             type="button"

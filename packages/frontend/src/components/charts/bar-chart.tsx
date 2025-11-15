@@ -3,8 +3,16 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+} from "@/components/ui/chart";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 export interface BarChartProps {
   /** Данные для графика */
@@ -64,7 +72,7 @@ export interface BarChartProps {
  */
 export function BarChartComponent({
   data,
-  xKey = 'month',
+  xKey = "month",
   dataKeys,
   labels,
   height = 300,
@@ -74,20 +82,23 @@ export function BarChartComponent({
   yAxisFormatter,
   stacked = false,
   radius = 8,
-  className = '',
+  className = "",
   colors,
 }: BarChartProps) {
   // Если dataKeys не указаны, берем все ключи кроме xKey из первого объекта данных
   const keys =
-    dataKeys || (data && data.length > 0 ? Object.keys(data[0]).filter((key) => key !== xKey) : []);
+    dataKeys ||
+    (data && data.length > 0
+      ? Object.keys(data[0]).filter((key) => key !== xKey)
+      : []);
 
   // Строим конфигурацию для графика
   const config: ChartConfig = keys.reduce((cfg, key, index) => {
     const defaultColors = [
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
+      "hsl(var(--chart-1))",
+      "hsl(var(--chart-2))",
+      "hsl(var(--chart-3))",
+      "hsl(var(--chart-4))",
     ];
     return {
       ...cfg,
@@ -102,8 +113,8 @@ export function BarChartComponent({
     <div
       className={`${className}`}
       style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        width: '100%',
+        height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
       }}
     >
       <ChartContainer config={config} className="h-full w-full">
@@ -119,18 +130,28 @@ export function BarChartComponent({
           >
             {showGrid && <CartesianGrid vertical={false} />}
 
-            <XAxis dataKey={xKey} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey={xKey}
+              tick={{ fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
 
             {showYAxis && (
               <YAxis
                 tick={{ fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={yAxisFormatter || ((value) => value.toLocaleString())}
+                tickFormatter={
+                  yAxisFormatter || ((value) => value.toLocaleString())
+                }
               />
             )}
 
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
 
             {showLegend && <Legend />}
 
@@ -139,7 +160,7 @@ export function BarChartComponent({
                 key={key}
                 dataKey={key}
                 fill={config[key]?.color}
-                stackId={stacked ? 'stack' : undefined}
+                stackId={stacked ? "stack" : undefined}
                 radius={radius}
               />
             ))}

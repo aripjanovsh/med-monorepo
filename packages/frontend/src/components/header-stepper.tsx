@@ -29,8 +29,8 @@ export const HeaderStepper = ({ steps, step }: HeaderStepperProps) => {
                     (state === "complete"
                       ? "bg-green-500 text-white"
                       : state === "active"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-background border-2 border-muted-foreground/30 text-muted-foreground")
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background border-2 border-muted-foreground/30 text-muted-foreground")
                   }
                 >
                   {state === "complete" ? (
@@ -55,8 +55,8 @@ export const HeaderStepper = ({ steps, step }: HeaderStepperProps) => {
                   (i < step
                     ? "bg-green-500"
                     : i === step
-                    ? "bg-primary/70"
-                    : "bg-muted")
+                      ? "bg-primary/70"
+                      : "bg-muted")
                 }
               />
             )}

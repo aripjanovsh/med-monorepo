@@ -8,7 +8,7 @@ export const STATUS = {
   INACTIVE: false,
 } as const;
 
-export type ProtocolTemplateStatus = typeof STATUS[keyof typeof STATUS];
+export type ProtocolTemplateStatus = (typeof STATUS)[keyof typeof STATUS];
 
 export const DEFAULT_PAGE_SIZE = 100;
 export const DEFAULT_PAGE = 1;

@@ -92,7 +92,7 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
 
   const handleResourceToggle = (
     resourcePermissions: string[],
-    checked: boolean
+    checked: boolean,
   ) => {
     let newSelected: string[];
     if (checked) {
@@ -101,7 +101,7 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
       ];
     } else {
       newSelected = selectedPermissions.filter(
-        (id) => !resourcePermissions.includes(id)
+        (id) => !resourcePermissions.includes(id),
       );
     }
     setSelectedPermissions(newSelected);
@@ -114,7 +114,7 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
 
   const isResourceIndeterminate = (resourcePermissions: string[]) => {
     const selectedInResource = resourcePermissions.filter((id) =>
-      selectedPermissions.includes(id)
+      selectedPermissions.includes(id),
     );
     return (
       selectedInResource.length > 0 &&
@@ -198,13 +198,13 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
                         Object.entries(groupedPermissions).map(
                           ([resource, permissions]) => {
                             const resourcePermissionIds = permissions.map(
-                              (p) => p.id
+                              (p) => p.id,
                             );
                             const isChecked = isResourceChecked(
-                              resourcePermissionIds
+                              resourcePermissionIds,
                             );
                             const isIndeterminate = isResourceIndeterminate(
-                              resourcePermissionIds
+                              resourcePermissionIds,
                             );
 
                             return (
@@ -224,7 +224,7 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
                                     onCheckedChange={(checked) =>
                                       handleResourceToggle(
                                         resourcePermissionIds,
-                                        checked as boolean
+                                        checked as boolean,
                                       )
                                     }
                                   />
@@ -244,12 +244,12 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
                                       <Checkbox
                                         id={permission.id}
                                         checked={selectedPermissions.includes(
-                                          permission.id
+                                          permission.id,
                                         )}
                                         onCheckedChange={(checked) =>
                                           handlePermissionToggle(
                                             permission.id,
-                                            checked as boolean
+                                            checked as boolean,
                                           )
                                         }
                                       />
@@ -267,7 +267,7 @@ export function RoleForm({ role, onSubmit, isLoading }: RoleFormProps) {
                                 <Separator />
                               </div>
                             );
-                          }
+                          },
                         )}
                     </div>
                   </ScrollArea>

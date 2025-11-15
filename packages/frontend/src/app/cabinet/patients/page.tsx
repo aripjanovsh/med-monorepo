@@ -110,7 +110,7 @@ export default function PatientsPage() {
         },
       });
     },
-    [confirm, deletePatient, refetchPatients]
+    [confirm, deletePatient, refetchPatients],
   );
 
   const patients = patientsData?.data || [];

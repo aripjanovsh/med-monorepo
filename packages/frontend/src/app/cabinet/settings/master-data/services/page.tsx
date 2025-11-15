@@ -65,7 +65,7 @@ export default function ServicesPage() {
         },
       });
     },
-    [serviceFormDialog, refetch]
+    [serviceFormDialog, refetch],
   );
 
   const handleDelete = useCallback(
@@ -91,7 +91,7 @@ export default function ServicesPage() {
         },
       });
     },
-    [confirm, deleteService, refetch]
+    [confirm, deleteService, refetch],
   );
 
   return (

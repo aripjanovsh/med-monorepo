@@ -78,7 +78,7 @@ export function DataTableColumnHeader<TData, TValue>({
   const isMultiple = !!sort?.multiple;
 
   const isColumnSorted = sortColumns.some(
-    (col) => col === ascColumn || col === descColumn
+    (col) => col === ascColumn || col === descColumn,
   );
   const isAscending = sortColumns.includes(ascColumn);
 
@@ -90,11 +90,11 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const handleSort = (columnId: string) => {
     const newColumns = sortColumns.filter(
-      (col) => ![ascColumn, descColumn].includes(col)
+      (col) => ![ascColumn, descColumn].includes(col),
     );
     if (isMultiple) {
       handleChange(
-        sortColumns.includes(columnId) ? newColumns : [...newColumns, columnId]
+        sortColumns.includes(columnId) ? newColumns : [...newColumns, columnId],
       );
     } else {
       handleChange(sortColumns.includes(columnId) ? [] : [columnId]);

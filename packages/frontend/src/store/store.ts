@@ -24,7 +24,7 @@ export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
           //400, 404
           401, 402, 403, 405, 406, 500, 501, 502, 503, 504,
         ],
-        status
+        status,
       )
     ) {
       // dispatch(securitySlice.actions.setStatus(status));

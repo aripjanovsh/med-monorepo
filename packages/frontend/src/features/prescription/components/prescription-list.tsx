@@ -76,7 +76,7 @@ export const PrescriptionList = ({
                       "dd.MM.yyyy HH:mm",
                       {
                         locale: ru,
-                      }
+                      },
                     )}
                   </p>
                 </div>

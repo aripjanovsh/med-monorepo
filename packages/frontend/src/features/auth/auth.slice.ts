@@ -41,7 +41,7 @@ export const authSlice = createSlice({
         state.token = action.payload.access_token;
         state.isAuthenticated = true;
         setStoredToken(action.payload.access_token);
-      }
+      },
     );
 
     // Handle logout or auth errors
@@ -53,7 +53,7 @@ export const authSlice = createSlice({
           state.isAuthenticated = false;
           removeStoredToken();
         }
-      }
+      },
     );
   },
 });

@@ -64,7 +64,8 @@ export const MIME_TYPE_ICONS: Record<string, string> = {
   "image/webp": "📷",
   "application/pdf": "📄",
   "application/msword": "📝",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "📝",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "📝",
   "application/vnd.ms-excel": "📊",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "📊",
 };

@@ -157,18 +157,22 @@ export const fileHelpers = {
   /**
    * Скачать файл с авторизацией
    */
-  downloadFile: async (id: string, filename: string, token: string): Promise<void> => {
+  downloadFile: async (
+    id: string,
+    filename: string,
+    token: string,
+  ): Promise<void> => {
     try {
       const blob = await fileHelpers.fetchFileBlob(id, token);
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      
+
       // Очистка Blob URL
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (error) {

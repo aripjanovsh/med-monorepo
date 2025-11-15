@@ -38,7 +38,7 @@ export const ViewSwitcher = ({
           variant="outline"
           className={cn(
             view === "calendar" &&
-              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
           )}
           size="sm"
           onClick={() => onViewChange("calendar")}
@@ -49,7 +49,7 @@ export const ViewSwitcher = ({
           variant="outline"
           className={cn(
             view === "list" &&
-              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+              "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
           )}
           size="sm"
           onClick={() => onViewChange("list")}
@@ -67,7 +67,7 @@ export const ViewSwitcher = ({
             variant="outline"
             className={cn(
               selectedStatus === filter.value &&
-                "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
             )}
             size="sm"
             onClick={() => onStatusChange(filter.value)}

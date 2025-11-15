@@ -1,29 +1,39 @@
-import { ModalContentProps, useDialog } from '@/components/providers/dialog.provider';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import {
+  ModalContentProps,
+  useDialog,
+} from "@/components/providers/dialog.provider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { cn } from '@/lib/utils';
-import { filter, find, get, isEmpty, map } from 'lodash-es';
-import { ChevronsUpDownIcon, X } from 'lucide-react';
-import { ComponentProps, FormEvent, MouseEvent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { filter, find, get, isEmpty, map } from "lodash-es";
+import { ChevronsUpDownIcon, X } from "lucide-react";
+import {
+  ComponentProps,
+  FormEvent,
+  MouseEvent,
+  useEffect,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
 
 export interface PickFieldOption {
   label: string;
   value: string;
 }
 
-export interface PickFieldProps extends Omit<ComponentProps<'div'>, 'onChange'> {
+export interface PickFieldProps
+  extends Omit<ComponentProps<"div">, "onChange"> {
   value?: PickFieldOption[];
   options?: PickFieldOption[];
   single?: boolean;
@@ -73,7 +83,10 @@ export function PickField({
     });
   };
 
-  const handleRemove = (optionValue: string, e: MouseEvent<HTMLSpanElement>) => {
+  const handleRemove = (
+    optionValue: string,
+    e: MouseEvent<HTMLSpanElement>,
+  ) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -82,8 +95,8 @@ export function PickField({
   };
 
   const renderValues = () => {
-    if (!isEmpty(value) && get(value, [0, 'value'])) {
-      if (single) return get(value, [0, 'label']);
+    if (!isEmpty(value) && get(value, [0, "value"])) {
+      if (single) return get(value, [0, "label"]);
 
       return map(value, (option) => (
         <Badge key={option.value} variant="outline" className="gap-1 pr-1">
@@ -98,18 +111,18 @@ export function PickField({
       ));
     }
 
-    return placeholder || 'Select';
+    return placeholder || "Select";
   };
 
   return (
-    <div className={cn('grid gap-2', className)}>
+    <div className={cn("grid gap-2", className)}>
       <Button
         onClick={handleOpen}
         variant="outline"
         type="button"
         className={cn([
-          'flex flex-wrap gap-[2px] w-full font-normal text-left items-center justify-start min-h-9 relative',
-          !isEmpty(value) && !single && 'py-1 pl-1 h-auto hover:bg-background',
+          "flex flex-wrap gap-[2px] w-full font-normal text-left items-center justify-start min-h-9 relative",
+          !isEmpty(value) && !single && "py-1 pl-1 h-auto hover:bg-background",
         ])}
       >
         {renderValues()}
@@ -142,7 +155,7 @@ export function PickFieldDialog({
   const { t } = useTranslation();
   const [options, setOption] = useState<PickFieldOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<PickFieldOption[]>([]);
-  const [newOption, setNewOption] = useState<string>('');
+  const [newOption, setNewOption] = useState<string>("");
 
   useEffect(() => {
     setSelectedOptions(value);
@@ -162,7 +175,10 @@ export function PickFieldDialog({
     handleSubmit();
   };
 
-  const handleSelectMultiple = (option: PickFieldOption, checked: boolean | 'indeterminate') => {
+  const handleSelectMultiple = (
+    option: PickFieldOption,
+    checked: boolean | "indeterminate",
+  ) => {
     setSelectedOptions((prev) => {
       const options = filter(prev, (o) => o.value !== option.value);
       if (checked) return [...options, option];
@@ -170,7 +186,7 @@ export function PickFieldDialog({
     });
   };
 
-  const handleSelectSingle = (value: PickFieldOption['value']) => {
+  const handleSelectSingle = (value: PickFieldOption["value"]) => {
     const option = find(options, (o) => o.value === value);
     if (option) setSelectedOptions([option]);
   };
@@ -184,7 +200,7 @@ export function PickFieldDialog({
     );
 
     if (isExist) {
-      setNewOption('');
+      setNewOption("");
       return;
     }
 
@@ -200,7 +216,7 @@ export function PickFieldDialog({
       return [...prev, newOptions];
     });
 
-    setNewOption('');
+    setNewOption("");
   };
 
   const renderMultiple = () => {
@@ -220,13 +236,19 @@ export function PickFieldDialog({
     return (
       <RadioGroup
         onValueChange={handleSelectSingle}
-        defaultValue={selectedOptions && selectedOptions[0] ? selectedOptions[0]['value'] : ''}
+        defaultValue={
+          selectedOptions && selectedOptions[0]
+            ? selectedOptions[0]["value"]
+            : ""
+        }
       >
         {map(options, ({ label, value }) => (
           <div className="flex items-center gap-x-2" key={value}>
             <RadioGroupItem
               value={value}
-              checked={!!find(selectedOptions, (option) => option.value === value)}
+              checked={
+                !!find(selectedOptions, (option) => option.value === value)
+              }
               id={`option-${value}`}
             />
             <Label htmlFor={`option-${value}`}>{label}</Label>
@@ -252,25 +274,25 @@ export function PickFieldDialog({
                 <Input
                   onChange={(e) => setNewOption(e.target.value)}
                   value={newOption}
-                  placeholder={t('Добавить новый')}
+                  placeholder={t("Добавить новый")}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleAdd();
                     }
                   }}
                 />
                 <Button onClick={handleAdd} variant="outline" type="button">
-                  {t('Добавить')}
+                  {t("Добавить")}
                 </Button>
               </div>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeModal}>
-              {t('Отмена')}
+              {t("Отмена")}
             </Button>
-            <Button type="submit">{t('Применить')}</Button>
+            <Button type="submit">{t("Применить")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

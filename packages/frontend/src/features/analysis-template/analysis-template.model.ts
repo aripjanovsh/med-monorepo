@@ -18,7 +18,7 @@ const getAllParameters = (content: string): AnalysisParameterDto[] => {
     }
     // Новый формат с секциями
     return (data as AnalysisTemplateContentDto).sections.flatMap(
-      (section) => section.parameters
+      (section) => section.parameters,
     );
   } catch {
     return [];
@@ -37,7 +37,7 @@ export const getParameterTypeLabel = (type: ParameterTypeDto): string => {
  * Get display name for analysis template
  */
 export const getAnalysisTemplateDisplayName = (
-  template: AnalysisTemplateResponseDto
+  template: AnalysisTemplateResponseDto,
 ): string => {
   return `${template.name} (${template.code})`;
 };
@@ -45,7 +45,9 @@ export const getAnalysisTemplateDisplayName = (
 /**
  * Check if parameter has reference ranges defined
  */
-export const hasReferenceRanges = (parameter: AnalysisParameterDto): boolean => {
+export const hasReferenceRanges = (
+  parameter: AnalysisParameterDto,
+): boolean => {
   if (!parameter.referenceRanges) {
     return false;
   }
@@ -53,9 +55,12 @@ export const hasReferenceRanges = (parameter: AnalysisParameterDto): boolean => 
   const { men, women, children } = parameter.referenceRanges;
 
   return Boolean(
-    (men?.min !== undefined || men?.max !== undefined) ||
-    (women?.min !== undefined || women?.max !== undefined) ||
-    (children?.min !== undefined || children?.max !== undefined)
+    men?.min !== undefined ||
+      men?.max !== undefined ||
+      women?.min !== undefined ||
+      women?.max !== undefined ||
+      children?.min !== undefined ||
+      children?.max !== undefined,
   );
 };
 
@@ -65,7 +70,7 @@ export const hasReferenceRanges = (parameter: AnalysisParameterDto): boolean => 
 export const formatReferenceRange = (
   min?: number,
   max?: number,
-  unit?: string
+  unit?: string,
 ): string => {
   const minStr = min !== undefined ? min.toString() : "—";
   const maxStr = max !== undefined ? max.toString() : "—";
@@ -78,7 +83,7 @@ export const formatReferenceRange = (
  * Get required parameters count
  */
 export const getRequiredParametersCount = (
-  template: AnalysisTemplateResponseDto
+  template: AnalysisTemplateResponseDto,
 ): number => {
   const allParameters = getAllParameters(template.content);
   return allParameters.filter((param) => param.isRequired).length;
@@ -88,7 +93,7 @@ export const getRequiredParametersCount = (
  * Get optional parameters count
  */
 export const getOptionalParametersCount = (
-  template: AnalysisTemplateResponseDto
+  template: AnalysisTemplateResponseDto,
 ): number => {
   const allParameters = getAllParameters(template.content);
   return allParameters.filter((param) => !param.isRequired).length;
@@ -98,7 +103,7 @@ export const getOptionalParametersCount = (
  * Get total parameters count
  */
 export const getTotalParametersCount = (
-  template: AnalysisTemplateResponseDto
+  template: AnalysisTemplateResponseDto,
 ): number => {
   return getAllParameters(template.content).length;
 };

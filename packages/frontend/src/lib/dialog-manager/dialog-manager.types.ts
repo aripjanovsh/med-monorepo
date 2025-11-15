@@ -12,9 +12,8 @@ export type DialogProps = {
 /**
  * Извлекает пропсы компонента без базовых DialogProps
  */
-export type ExtractDialogProps<T> = T extends ComponentType<infer P>
-  ? Omit<P, keyof DialogProps>
-  : never;
+export type ExtractDialogProps<T> =
+  T extends ComponentType<infer P> ? Omit<P, keyof DialogProps> : never;
 
 /**
  * Конфигурация открытого диалога
@@ -45,17 +44,17 @@ export type UseDialogReturn<TProps> = {
    * Типы пропсов автоматически выводятся из компонента
    */
   open: (props: TProps) => void;
-  
+
   /**
    * Закрыть диалог
    */
   close: () => void;
-  
+
   /**
    * Проверить, открыт ли диалог
    */
   isOpen: boolean;
-  
+
   /**
    * Обновить пропсы открытого диалога
    */

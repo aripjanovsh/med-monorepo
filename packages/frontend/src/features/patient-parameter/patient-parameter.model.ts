@@ -1,4 +1,4 @@
-export type ParameterSource = 'MANUAL' | 'LAB' | 'DEVICE' | 'IMPORT';
+export type ParameterSource = "MANUAL" | "LAB" | "DEVICE" | "IMPORT";
 
 export type PatientParameter = {
   id: string;
@@ -34,7 +34,9 @@ export type CreatePatientParameterRequest = {
   source?: ParameterSource;
 };
 
-export type UpdatePatientParameterRequest = Partial<Omit<CreatePatientParameterRequest, 'patientId' | 'recordedById'>>;
+export type UpdatePatientParameterRequest = Partial<
+  Omit<CreatePatientParameterRequest, "patientId" | "recordedById">
+>;
 
 export const formatParameterValue = (param: {
   valueNumeric?: number | null;

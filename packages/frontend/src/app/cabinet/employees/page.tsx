@@ -65,7 +65,7 @@ export default function EmployeesPage() {
 
   // Get filter values from columnFilters
   const departmentFilter = values.columnFilters.find(
-    (f) => f.id === "departmentId"
+    (f) => f.id === "departmentId",
   );
   const titleFilter = values.columnFilters.find((f) => f.id === "titleId");
 
@@ -106,14 +106,14 @@ export default function EmployeesPage() {
     (employee: Employee) => {
       router.push(url(ROUTES.EMPLOYEE_EDIT, { id: employee.id }));
     },
-    [router]
+    [router],
   );
 
   const handleViewEmployee = useCallback(
     (employee: Employee) => {
       router.push(url(ROUTES.EMPLOYEE_DETAIL, { id: employee.id }));
     },
-    [router]
+    [router],
   );
 
   const handleDeleteEmployee = useCallback(
@@ -141,7 +141,7 @@ export default function EmployeesPage() {
         },
       });
     },
-    [confirm, deleteEmployee, refetchEmployees]
+    [confirm, deleteEmployee, refetchEmployees],
   );
 
   const employees = employeesData?.data || [];
@@ -151,14 +151,14 @@ export default function EmployeesPage() {
   const handleDepartmentChange = useCallback(
     (value: string[]) => {
       const newFilters = values.columnFilters.filter(
-        (f) => f.id !== "departmentId"
+        (f) => f.id !== "departmentId",
       );
       if (value.length > 0) {
         newFilters.push({ id: "departmentId", value });
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   const handleTitleChange = useCallback(
@@ -169,7 +169,7 @@ export default function EmployeesPage() {
       }
       handlers.filters.onChange(newFilters);
     },
-    [values.columnFilters, handlers.filters]
+    [values.columnFilters, handlers.filters],
   );
 
   return (

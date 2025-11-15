@@ -20,7 +20,7 @@ import { ServiceType } from "@/features/master-data/master-data.types";
 export function createServiceTypeColumns(
   onEdit: (serviceType: ServiceType) => void,
   onDelete: (id: string) => void,
-  isDeleting?: boolean
+  isDeleting?: boolean,
 ): ColumnDef<ServiceType>[] {
   return [
     {

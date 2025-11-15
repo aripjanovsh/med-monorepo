@@ -66,6 +66,6 @@ export const FORM_STEPS = [
 export type PatientStatus =
   (typeof PATIENT_STATUS)[keyof typeof PATIENT_STATUS];
 export type Gender = (typeof GENDER)[keyof typeof GENDER];
-export type ContactRelation = 
+export type ContactRelation =
   (typeof CONTACT_RELATION)[keyof typeof CONTACT_RELATION];
 export type ContactType = (typeof CONTACT_TYPE)[keyof typeof CONTACT_TYPE];

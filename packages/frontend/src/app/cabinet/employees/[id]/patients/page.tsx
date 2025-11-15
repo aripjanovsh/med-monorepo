@@ -14,7 +14,12 @@ export default function EmployeePatientsPage({
 }) {
   const router = useRouter();
   const { id } = use(params);
-  const { data: employee, isLoading, error, refetch } = useGetEmployeeQuery(id as string, {
+  const {
+    data: employee,
+    isLoading,
+    error,
+    refetch,
+  } = useGetEmployeeQuery(id as string, {
     skip: !id,
   });
 

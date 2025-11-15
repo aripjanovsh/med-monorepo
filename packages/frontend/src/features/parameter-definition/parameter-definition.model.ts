@@ -1,4 +1,4 @@
-export type ParameterValueType = 'NUMBER' | 'TEXT' | 'BOOLEAN';
+export type ParameterValueType = "NUMBER" | "TEXT" | "BOOLEAN";
 
 export type ParameterDefinition = {
   id: string;
@@ -26,4 +26,5 @@ export type CreateParameterDefinitionRequest = {
   isActive?: boolean;
 };
 
-export type UpdateParameterDefinitionRequest = Partial<CreateParameterDefinitionRequest>;
+export type UpdateParameterDefinitionRequest =
+  Partial<CreateParameterDefinitionRequest>;

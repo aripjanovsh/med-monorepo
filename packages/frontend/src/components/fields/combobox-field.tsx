@@ -67,10 +67,10 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
   const [open, setOpen] = useState<boolean>(false);
 
   const selectedValues = multiple
-    ? (value as string[]) ?? []
+    ? ((value as string[]) ?? [])
     : [value as string].filter(Boolean);
   const selectedOptions = options.filter((x) =>
-    selectedValues.includes(x.value)
+    selectedValues.includes(x.value),
   );
 
   const handleSelect = (optionValue: string) => {
@@ -79,11 +79,11 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
         ? selectedValues.filter((v) => v !== optionValue)
         : [...selectedValues, optionValue];
       (onChange as (value: string[] | undefined) => void)(
-        newValue.length ? newValue : undefined
+        newValue.length ? newValue : undefined,
       );
     } else {
       (onChange as (value: string | undefined) => void)(
-        optionValue === selectedValues[0] ? undefined : optionValue
+        optionValue === selectedValues[0] ? undefined : optionValue,
       );
       setOpen(false);
     }
@@ -94,7 +94,7 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
     if (multiple) {
       const newValue = selectedValues.filter((v) => v !== optionValue);
       (onChange as (value: string[] | undefined) => void)(
-        newValue.length ? newValue : undefined
+        newValue.length ? newValue : undefined,
       );
     }
   };
@@ -140,7 +140,7 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
                   multiple &&
                   "py-1 pl-1 pr-7 h-auto hover:bg-background",
                 selectIsEmpty && "text-muted-foreground",
-                !multiple && "justify-between font-normal"
+                !multiple && "justify-between font-normal",
               )}
             >
               {multiple ? (
@@ -177,7 +177,7 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
                         "mr-2",
                         selectedValues.includes(option.value)
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                     {option.label}

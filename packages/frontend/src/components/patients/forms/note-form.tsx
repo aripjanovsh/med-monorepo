@@ -117,8 +117,8 @@ export function NoteForm({
 
   const insertTemplate = (template: string) => {
     const currentContent = form.getValues("content");
-    const newContent = currentContent 
-      ? `${currentContent}\n\n${template}` 
+    const newContent = currentContent
+      ? `${currentContent}\n\n${template}`
       : template;
     form.setValue("content", newContent);
   };
@@ -237,9 +237,18 @@ export function NoteForm({
         <div className="p-4 bg-muted/50 rounded-lg">
           <h4 className="font-medium mb-2">Note Guidelines</h4>
           <div className="text-sm text-muted-foreground space-y-1">
-            <div>• <strong>Clinical:</strong> Medical observations, symptoms, treatment responses</div>
-            <div>• <strong>Administrative:</strong> Scheduling, insurance, billing, referrals</div>
-            <div>• <strong>Personal:</strong> Patient preferences, family dynamics, social factors</div>
+            <div>
+              • <strong>Clinical:</strong> Medical observations, symptoms,
+              treatment responses
+            </div>
+            <div>
+              • <strong>Administrative:</strong> Scheduling, insurance, billing,
+              referrals
+            </div>
+            <div>
+              • <strong>Personal:</strong> Patient preferences, family dynamics,
+              social factors
+            </div>
             <div>• Use private notes for sensitive information</div>
             <div>• Be objective and professional in all notes</div>
           </div>
@@ -248,11 +257,7 @@ export function NoteForm({
         {/* Form Actions */}
         <div className="flex gap-3 pt-4">
           <Button type="submit" disabled={isLoading} className="flex-1">
-            {isLoading
-              ? "Saving..."
-              : note
-              ? "Update Note"
-              : "Add Note"}
+            {isLoading ? "Saving..." : note ? "Update Note" : "Add Note"}
           </Button>
           <Button
             type="button"

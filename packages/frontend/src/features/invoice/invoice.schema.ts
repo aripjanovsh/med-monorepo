@@ -36,7 +36,7 @@ export const createInvoiceRequestSchema = yup.object({
         unitPrice: yup.number().min(0).optional(),
         discount: yup.number().min(0).default(0),
         description: yup.string().optional(),
-      })
+      }),
     )
     .min(1)
     .required(),
@@ -67,10 +67,7 @@ export const paymentFormSchema = yup.object({
 // Create Payment Request Schema (для API)
 export const createPaymentRequestSchema = yup.object({
   amount: yup.number().min(0.01).required(),
-  paymentMethod: yup
-    .string()
-    .oneOf(Object.values(PAYMENT_METHOD))
-    .required(),
+  paymentMethod: yup.string().oneOf(Object.values(PAYMENT_METHOD)).required(),
   transactionId: yup.string().optional(),
   notes: yup.string().optional(),
 });

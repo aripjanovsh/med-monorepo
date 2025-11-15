@@ -21,6 +21,4 @@ export const createPrescriptionRequestSchema = yup.object({
   createdById: yup.string().required(),
 });
 
-export type PrescriptionFormData = yup.InferType<
-  typeof prescriptionFormSchema
->;
+export type PrescriptionFormData = yup.InferType<typeof prescriptionFormSchema>;

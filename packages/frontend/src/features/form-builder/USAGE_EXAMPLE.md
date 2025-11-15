@@ -5,11 +5,14 @@
 ```tsx
 // В protocol-template/components/protocol-template-form.tsx
 
-import { FormBuilderEditor, createEmptyFormBuilderContent } from "@/features/form-builder";
+import {
+  FormBuilderEditor,
+  createEmptyFormBuilderContent,
+} from "@/features/form-builder";
 
 export const ProtocolTemplateForm = () => {
   const [jsonContent, setJsonContent] = useState(
-    JSON.stringify(createEmptyFormBuilderContent())
+    JSON.stringify(createEmptyFormBuilderContent()),
   );
 
   return (
@@ -34,14 +37,12 @@ import type { FilledFormData } from "@/features/form-builder";
 
 export const VisitProtocol = ({ visit }) => {
   const [protocolData, setProtocolData] = useState<FilledFormData>({});
-  
+
   // Получаем шаблон из visit.protocol.content
   const templateJson = visit.protocol?.content ?? "";
-  
+
   // Загружаем уже заполненные данные
-  const initialData = visit.protocolData 
-    ? JSON.parse(visit.protocolData)
-    : {};
+  const initialData = visit.protocolData ? JSON.parse(visit.protocolData) : {};
 
   const handleSave = async () => {
     await updateVisitProtocol(visit.id, {
@@ -59,10 +60,8 @@ export const VisitProtocol = ({ visit }) => {
           // Автосохранение каждые 3 секунды
         }}
       />
-      
-      <Button onClick={handleSave}>
-        Сохранить протокол
-      </Button>
+
+      <Button onClick={handleSave}>Сохранить протокол</Button>
     </div>
   );
 };
@@ -77,23 +76,16 @@ import { FormBuilderView } from "@/features/form-builder";
 
 export const VisitProtocolDisplay = ({ visit }) => {
   const templateJson = visit.protocol?.content ?? "";
-  const filledData = visit.protocolData 
-    ? JSON.parse(visit.protocolData)
-    : {};
+  const filledData = visit.protocolData ? JSON.parse(visit.protocolData) : {};
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Протокол осмотра</CardTitle>
-        <CardDescription>
-          {visit.protocol?.name}
-        </CardDescription>
+        <CardDescription>{visit.protocol?.name}</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormBuilderView
-          templateJson={templateJson}
-          data={filledData}
-        />
+        <FormBuilderView templateJson={templateJson} data={filledData} />
       </CardContent>
     </Card>
   );
@@ -106,9 +98,9 @@ export const VisitProtocolDisplay = ({ visit }) => {
 // В app/cabinet/settings/protocols/interactive/page.tsx
 
 import { useState } from "react";
-import { 
-  FormBuilderInteractive, 
-  deserializeFormBuilderContent 
+import {
+  FormBuilderInteractive,
+  deserializeFormBuilderContent,
 } from "@/features/form-builder";
 import type { FilledFormData } from "@/features/form-builder";
 
@@ -134,7 +126,7 @@ export default function InteractiveProtocolPage() {
           templateJson={jsonInput}
           onChange={setFormData}
         />
-        
+
         {/* Результат */}
         <pre className="mt-4 p-4 bg-muted rounded">
           {JSON.stringify(formData, null, 2)}
@@ -154,7 +146,7 @@ import { FormBuilderInteractive } from "@/features/form-builder";
 
 export const ResultInputProtocol = ({ serviceOrder }) => {
   const [resultData, setResultData] = useState({});
-  
+
   // Шаблон берем из service.protocolTemplateId
   const template = serviceOrder.service.protocolTemplate;
 
@@ -162,9 +154,7 @@ export const ResultInputProtocol = ({ serviceOrder }) => {
     <FormBuilderInteractive
       templateJson={template.content}
       initialData={
-        serviceOrder.resultData 
-          ? JSON.parse(serviceOrder.resultData)
-          : {}
+        serviceOrder.resultData ? JSON.parse(serviceOrder.resultData) : {}
       }
       onChange={(data) => {
         setResultData(data);
@@ -205,25 +195,28 @@ export const VisitListItem = ({ visit }) => {
 ## Пример 7: Валидация перед сохранением
 
 ```tsx
-import { validateFormBuilderContent, deserializeFormBuilderContent } from "@/features/form-builder";
+import {
+  validateFormBuilderContent,
+  deserializeFormBuilderContent,
+} from "@/features/form-builder";
 
 const handleSaveTemplate = async (jsonString: string) => {
   try {
     const content = deserializeFormBuilderContent(jsonString);
     const validation = validateFormBuilderContent(content);
-    
+
     if (!validation.valid) {
       toast.error("Ошибка валидации");
       console.error(validation.errors);
       return;
     }
-    
+
     // Сохраняем
     await saveProtocolTemplate({
       content: jsonString,
       // ...
     });
-    
+
     toast.success("Шаблон сохранен");
   } catch (error) {
     toast.error("Ошибка при сохранении");
@@ -234,6 +227,7 @@ const handleSaveTemplate = async (jsonString: string) => {
 ## Структура данных в БД
 
 ### ProtocolTemplate (шаблоны)
+
 ```sql
 -- Хранится FormBuilderContent в JSON
 content TEXT -- JSON string
@@ -241,6 +235,7 @@ templateType TEXT DEFAULT 'formbuilder'
 ```
 
 ### Visit (визиты)
+
 ```sql
 -- Хранится FilledFormData в JSON
 protocolData TEXT -- JSON string с заполненными данными
@@ -248,6 +243,7 @@ protocolId TEXT -- ссылка на ProtocolTemplate
 ```
 
 ### ServiceOrder (назначения)
+
 ```sql
 -- Хранится FilledFormData в JSON
 resultData TEXT -- JSON string с результатами
@@ -256,6 +252,7 @@ resultData TEXT -- JSON string с результатами
 ## JSON примеры
 
 ### Template (FormBuilderContent):
+
 ```json
 {
   "version": 1,
@@ -295,6 +292,7 @@ resultData TEXT -- JSON string с результатами
 ```
 
 ### Filled Data (FilledFormData):
+
 ```json
 {
   "complaint": "Головная боль, тошнота",

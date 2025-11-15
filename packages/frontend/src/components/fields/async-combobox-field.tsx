@@ -88,7 +88,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
     ? ((value as string[]) ?? [])
     : [value as string].filter(Boolean);
   const selectedOptions = options.filter((option) =>
-    selectedValues.includes(option.value)
+    selectedValues.includes(option.value),
   );
 
   const handleSelect = (option: AsyncOption) => {
@@ -97,11 +97,11 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
         ? selectedValues.filter((v) => v !== option.value)
         : [...selectedValues, option.value];
       (onChange as (value: string[] | undefined) => void)(
-        newValue.length ? newValue : undefined
+        newValue.length ? newValue : undefined,
       );
     } else {
       (onChange as (value: string | undefined) => void)(
-        option.value === value ? undefined : option.value
+        option.value === value ? undefined : option.value,
       );
       setOpen(false);
     }
@@ -112,7 +112,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
     if (multiselect) {
       const newValue = selectedValues.filter((v) => v !== optionValue);
       (onChange as (value: string[] | undefined) => void)(
-        newValue.length ? newValue : undefined
+        newValue.length ? newValue : undefined,
       );
     }
   };
@@ -177,7 +177,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
               className={cn(
                 "flex flex-wrap gap-[2px] w-full text-left items-center justify-start min-h-9 relative font-sans font-normal bg-background dark:bg-input/30",
                 !selectIsEmpty && "py-1 pl-1 pr-7 h-auto hover:bg-background",
-                selectIsEmpty && "text-muted-foreground"
+                selectIsEmpty && "text-muted-foreground",
               )}
             >
               {!selectIsEmpty ? (
@@ -200,7 +200,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
                       </Badge>
                     ) : (
                       option.label
-                    )
+                    ),
                   )}
                 </div>
               ) : (
@@ -237,7 +237,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
                               "mr-2",
                               selectedValues.includes(option.value)
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           {option.label}

@@ -1,8 +1,8 @@
+import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
 import type {
-  PaginatedResponseDto,
-  QueryParamsDto,
-} from "@/types/api.types";
-import type { AppointmentStatus, AppointmentType } from "./appointment.constants";
+  AppointmentStatus,
+  AppointmentType,
+} from "./appointment.constants";
 
 // Nested DTOs (simplified)
 export interface SimplePatientDto {

@@ -35,21 +35,29 @@ export const EditParameterDialog = ({
   onOpenChange,
 }: EditParameterDialogProps) => {
   const [value, setValue] = useState(() => {
-    if (parameter.valueNumeric !== undefined && parameter.valueNumeric !== null) {
+    if (
+      parameter.valueNumeric !== undefined &&
+      parameter.valueNumeric !== null
+    ) {
       return String(parameter.valueNumeric);
     }
     if (parameter.valueText) return parameter.valueText;
-    if (parameter.valueBoolean !== null && parameter.valueBoolean !== undefined) {
+    if (
+      parameter.valueBoolean !== null &&
+      parameter.valueBoolean !== undefined
+    ) {
       return parameter.valueBoolean ? "true" : "false";
     }
     return "";
   });
   const [updateParameter, { isLoading }] = useUpdatePatientParameterMutation();
-  const { data: definitionsData } = useGetParameterDefinitionsQuery({ isActive: true });
+  const { data: definitionsData } = useGetParameterDefinitionsQuery({
+    isActive: true,
+  });
   const parameterDefinitions = definitionsData?.data || [];
 
   const definition = parameterDefinitions.find(
-    (p) => p.code === parameter.parameterCode
+    (p) => p.code === parameter.parameterCode,
   );
 
   const handleSubmit = async () => {

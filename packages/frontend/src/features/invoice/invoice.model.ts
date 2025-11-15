@@ -25,31 +25,31 @@ export const getPaymentPaidByName = (payment: PaymentResponseDto): string => {
 // =============================================
 
 export const getInvoiceRemainingAmount = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): number => {
   return invoice.totalAmount - invoice.paidAmount;
 };
 
 export const isInvoiceFullyPaid = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): boolean => {
   return invoice.status === "PAID";
 };
 
 export const isInvoiceUnpaid = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): boolean => {
   return invoice.status === "UNPAID";
 };
 
 export const isInvoicePartiallyPaid = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): boolean => {
   return invoice.status === "PARTIALLY_PAID";
 };
 
 export const canAddPayment = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): boolean => {
   return invoice.status !== "PAID" && invoice.status !== "REFUNDED";
 };
@@ -61,7 +61,7 @@ export const canAddPayment = (
 export const calculateItemTotal = (
   unitPrice: number,
   quantity: number,
-  discount: number = 0
+  discount: number = 0,
 ): number => {
   return unitPrice * quantity - discount;
 };
@@ -95,13 +95,13 @@ export const getInvoiceDisplayTitle = (invoice: InvoiceResponseDto): string => {
 };
 
 export const getInvoicePatientDisplay = (
-  invoice: InvoiceResponseDto | InvoiceListItemDto
+  invoice: InvoiceResponseDto | InvoiceListItemDto,
 ): string => {
   return getPatientFullName(invoice.patient);
 };
 
 export const getInvoiceCreatedByDisplay = (
-  invoice: InvoiceResponseDto
+  invoice: InvoiceResponseDto,
 ): string => {
   return getEmployeeShortName(invoice.createdBy);
 };

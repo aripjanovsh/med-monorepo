@@ -55,7 +55,7 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   dateOfBirth: "",
   hireDate: "",
   gender: undefined,
-  
+
   // Passport information
   passport: "",
   passportSeries: "",
@@ -151,9 +151,10 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
         // Ensure all fields have values (empty string instead of undefined)
         // Объединяем серию и номер паспорта в одно поле
-        const passport = employee.passportSeries && employee.passportNumber 
-          ? `${employee.passportSeries}${employee.passportNumber}` 
-          : "";
+        const passport =
+          employee.passportSeries && employee.passportNumber
+            ? `${employee.passportSeries}${employee.passportNumber}`
+            : "";
 
         const formData: Partial<EmployeeFormData> = {
           ...DEFAULT_VALUES,
@@ -165,7 +166,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
           dateOfBirth: employee.dateOfBirth || "",
           hireDate: employee.hireDate || "",
           gender: (employee.gender as "MALE" | "FEMALE") || undefined,
-          
+
           // Passport information
           passport,
           passportSeries: employee.passportSeries || "",
@@ -700,8 +701,8 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
               {isLoading
                 ? "Сохранение..."
                 : employee
-                ? "Обновить сотрудника"
-                : "Создать сотрудника"}
+                  ? "Обновить сотрудника"
+                  : "Создать сотрудника"}
             </Button>
           </div>
         </form>

@@ -53,7 +53,7 @@ const RoleActions = ({ role, onView, onDelete }: RoleActionsProps) => {
 
 export const createRoleColumns = (
   onView: (role: Role) => void,
-  onDelete: (role: Role) => void
+  onDelete: (role: Role) => void,
 ): ColumnDef<Role>[] => [
   {
     accessorKey: "name",

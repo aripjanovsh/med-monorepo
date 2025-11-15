@@ -162,7 +162,9 @@ export default function VisitDetailPage({ params }: PageProps) {
 
               {visit.protocol && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Шаблон протокола</p>
+                  <p className="text-sm text-muted-foreground">
+                    Шаблон протокола
+                  </p>
                   <p className="font-medium">{visit.protocol.name}</p>
                 </div>
               )}
@@ -180,10 +182,7 @@ export default function VisitDetailPage({ params }: PageProps) {
         <TabsContent value="prescriptions">
           <Card>
             <CardContent className="pt-6">
-              <PrescriptionList
-                visitId={visit.id}
-                status={visit.status}
-              />
+              <PrescriptionList visitId={visit.id} status={visit.status} />
             </CardContent>
           </Card>
         </TabsContent>

@@ -20,15 +20,15 @@ export const PRESCRIPTION_FREQUENCY_LABELS: Record<string, string> = {
   "2_TIMES_DAY": "2 раза в день",
   "3_TIMES_DAY": "3 раза в день",
   "4_TIMES_DAY": "4 раза в день",
-  "EVERY_4_HOURS": "Каждые 4 часа",
-  "EVERY_6_HOURS": "Каждые 6 часа",
-  "EVERY_8_HOURS": "Каждые 8 часов",
-  "EVERY_12_HOURS": "Каждые 12 часов",
-  "MORNING": "Утром",
-  "EVENING": "Вечером",
-  "BEFORE_MEAL": "До еды",
-  "AFTER_MEAL": "После еды",
-  "AS_NEEDED": "По необходимости",
+  EVERY_4_HOURS: "Каждые 4 часа",
+  EVERY_6_HOURS: "Каждые 6 часа",
+  EVERY_8_HOURS: "Каждые 8 часов",
+  EVERY_12_HOURS: "Каждые 12 часов",
+  MORNING: "Утром",
+  EVENING: "Вечером",
+  BEFORE_MEAL: "До еды",
+  AFTER_MEAL: "После еды",
+  AS_NEEDED: "По необходимости",
 };
 
 // Длительность приема
@@ -51,7 +51,7 @@ export const PRESCRIPTION_DURATION_LABELS: Record<string, string> = {
   "14_DAYS": "14 дней",
   "21_DAY": "21 день",
   "30_DAYS": "30 дней",
-  "CONTINUOUS": "Постоянно",
+  CONTINUOUS: "Постоянно",
 };
 
 // Маппинг для отображения в списке

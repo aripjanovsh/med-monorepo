@@ -6,10 +6,20 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 export function DoctorCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+
   const months = [
-    "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    "Январь",
+    "Февраль",
+    "Март",
+    "Апрель",
+    "Май",
+    "Июнь",
+    "Июль",
+    "Август",
+    "Сентябрь",
+    "Октябрь",
+    "Ноябрь",
+    "Декабрь",
   ];
 
   const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -20,27 +30,28 @@ export function DoctorCalendar() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    const startingDayOfWeek =
+      firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
 
     const days = [];
-    
+
     // Empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-    
+
     return days;
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(prev => {
+  const navigateMonth = (direction: "prev" | "next") => {
+    setCurrentDate((prev) => {
       const newDate = new Date(prev);
-      if (direction === 'prev') {
+      if (direction === "prev") {
         newDate.setMonth(prev.getMonth() - 1);
       } else {
         newDate.setMonth(prev.getMonth() + 1);
@@ -51,8 +62,9 @@ export function DoctorCalendar() {
 
   const days = getDaysInMonth(currentDate);
   const today = new Date().getDate();
-  const isCurrentMonth = currentDate.getMonth() === new Date().getMonth() && 
-                        currentDate.getFullYear() === new Date().getFullYear();
+  const isCurrentMonth =
+    currentDate.getMonth() === new Date().getMonth() &&
+    currentDate.getFullYear() === new Date().getFullYear();
 
   // Sample appointments for certain days
   const appointments = {
@@ -73,14 +85,14 @@ export function DoctorCalendar() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigateMonth('prev')}
+            onClick={() => navigateMonth("prev")}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigateMonth('next')}
+            onClick={() => navigateMonth("next")}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -90,20 +102,23 @@ export function DoctorCalendar() {
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1">
         {/* Days of week header */}
-        {daysOfWeek.map(day => (
-          <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+        {daysOfWeek.map((day) => (
+          <div
+            key={day}
+            className="p-2 text-center text-sm font-medium text-muted-foreground"
+          >
             {day}
           </div>
         ))}
-        
+
         {/* Calendar days */}
         {days.map((day, index) => (
           <div
             key={index}
             className={`
               p-2 text-center text-sm min-h-[40px] relative cursor-pointer rounded-md transition-colors
-              ${day ? 'hover:bg-muted' : ''}
-              ${day && isCurrentMonth && day === today ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+              ${day ? "hover:bg-muted" : ""}
+              ${day && isCurrentMonth && day === today ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}
             `}
           >
             {day && (

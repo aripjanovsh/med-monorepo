@@ -35,13 +35,7 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 export function ProductsTable({ products }: { products: Product[] }) {
-  return (
-    <DataTable
-      columns={columns}
-      data={products}
-      enableSorting
-    />
-  );
+  return <DataTable columns={columns} data={products} enableSorting />;
 }
 ```
 
@@ -90,7 +84,7 @@ const columns: ColumnDef<Invoice>[] = [
         UNPAID: "secondary",
         REFUNDED: "destructive",
       }[status] as "default" | "secondary" | "destructive";
-      
+
       return <Badge variant={variant}>{status}</Badge>;
     },
   },
@@ -267,7 +261,7 @@ export function TasksTable({ tasks }: { tasks: Task[] }) {
           Delete {selectedIds.length} tasks
         </Button>
       )}
-      
+
       <DataTable
         columns={columns}
         data={tasks}
@@ -314,7 +308,7 @@ type Employee = {
 const createEmployeeColumns = (
   onEdit: (employee: Employee) => void,
   onView: (employee: Employee) => void,
-  onDelete: (employee: Employee) => void
+  onDelete: (employee: Employee) => void,
 ): ColumnDef<Employee>[] => [
   {
     accessorKey: "firstName",
@@ -385,13 +379,7 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
 
   const columns = createEmployeeColumns(handleEdit, handleView, handleDelete);
 
-  return (
-    <DataTable
-      columns={columns}
-      data={employees}
-      enableSorting
-    />
-  );
+  return <DataTable columns={columns} data={employees} enableSorting />;
 }
 ```
 
@@ -445,7 +433,7 @@ const columns: ColumnDef<User>[] = [
         moderator: "default",
         user: "secondary",
       }[role] as "destructive" | "default" | "secondary";
-      
+
       return <Badge variant={variant}>{role}</Badge>;
     },
   },
@@ -465,13 +453,7 @@ const columns: ColumnDef<User>[] = [
 ];
 
 export function UsersTable({ users }: { users: User[] }) {
-  return (
-    <DataTable
-      columns={columns}
-      data={users}
-      enableSorting
-    />
-  );
+  return <DataTable columns={columns} data={users} enableSorting />;
 }
 ```
 
@@ -564,7 +546,7 @@ const columns: ColumnDef<Task>[] = [
         done: CheckCircle2,
         cancelled: XCircle,
       }[status];
-      
+
       return (
         <div className="flex items-center gap-2">
           <Icon className="h-4 w-4" />
@@ -626,6 +608,7 @@ export function TasksTable({ tasks }: { tasks: Task[] }) {
 ## Сравнение Client-Side vs Server-Side
 
 ### Client-Side (enableSorting, enableFiltering)
+
 - ✅ Быстрая сортировка и фильтрация
 - ✅ Не требует API запросов
 - ✅ Проще в реализации
@@ -633,6 +616,7 @@ export function TasksTable({ tasks }: { tasks: Task[] }) {
 - ❌ Не подходит для больших datasets
 
 ### Server-Side (sort, pagination props)
+
 - ✅ Работает с большими datasets
 - ✅ Загружает только нужные данные
 - ✅ Меньше нагрузки на клиент

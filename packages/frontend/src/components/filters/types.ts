@@ -20,7 +20,13 @@ export interface FilterOption {
 export interface FilterField {
   key: keyof InvoiceFilters;
   label: string;
-  type: "select" | "multiselect" | "date" | "daterange" | "number" | "numberrange";
+  type:
+    | "select"
+    | "multiselect"
+    | "date"
+    | "daterange"
+    | "number"
+    | "numberrange";
   options?: FilterOption[];
   placeholder?: string;
 }
@@ -53,7 +59,10 @@ export const INVOICE_FILTER_FIELDS: FilterField[] = [
 ];
 
 // Утилиты для работы с фильтрами
-export const isFilterActive = (filters: InvoiceFilters, key: keyof InvoiceFilters): boolean => {
+export const isFilterActive = (
+  filters: InvoiceFilters,
+  key: keyof InvoiceFilters,
+): boolean => {
   const value = filters[key];
   if (Array.isArray(value)) {
     return value.length > 0;
@@ -62,19 +71,27 @@ export const isFilterActive = (filters: InvoiceFilters, key: keyof InvoiceFilter
 };
 
 export const getActiveFiltersCount = (filters: InvoiceFilters): number => {
-  return Object.keys(filters).filter(key => isFilterActive(filters, key as keyof InvoiceFilters)).length;
+  return Object.keys(filters).filter((key) =>
+    isFilterActive(filters, key as keyof InvoiceFilters),
+  ).length;
 };
 
-export const getFilterDisplayValue = (filters: InvoiceFilters, key: keyof InvoiceFilters): string => {
+export const getFilterDisplayValue = (
+  filters: InvoiceFilters,
+  key: keyof InvoiceFilters,
+): string => {
   const value = filters[key];
-  const field = INVOICE_FILTER_FIELDS.find(f => f.key === key);
+  const field = INVOICE_FILTER_FIELDS.find((f) => f.key === key);
 
   if (!field || !value) return "";
 
   switch (field.type) {
     case "multiselect":
       if (Array.isArray(value)) {
-        return value.map(v => field.options?.find(opt => opt.value === v)?.label).filter(Boolean).join(", ");
+        return value
+          .map((v) => field.options?.find((opt) => opt.value === v)?.label)
+          .filter(Boolean)
+          .join(", ");
       }
       return "";
     case "daterange":

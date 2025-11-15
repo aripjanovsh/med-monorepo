@@ -15,7 +15,7 @@ import type { AnalysisTemplateFormData } from "../analysis-template.schema";
  * Автоматически мигрирует старый формат в новый
  */
 export const convertDtoToFormData = (
-  dto: AnalysisTemplateResponseDto
+  dto: AnalysisTemplateResponseDto,
 ): AnalysisTemplateFormData => {
   // Парсим content (JSON string) и нормализуем формат
   const contentData = JSON.parse(dto.content);
@@ -34,7 +34,7 @@ export const convertDtoToFormData = (
  * Конвертировать данные формы в DTO для API
  */
 export const convertFormDataToDto = (
-  formData: AnalysisTemplateFormData
+  formData: AnalysisTemplateFormData,
 ): {
   name: string;
   code: string;

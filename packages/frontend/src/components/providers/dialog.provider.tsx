@@ -10,7 +10,7 @@ import React, {
   useId,
   useMemo,
   useState,
-} from 'react';
+} from "react";
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined);
 
@@ -32,24 +32,31 @@ type DialogContextType = {
 
 const DIALOG_CLOSE_ANIMATION_TIME = 200;
 
-export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const DialogProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [modals, setModals] = useState<ModalState[]>([]);
 
-  const pushModal = useCallback((id: string, component: ModalComponent, props: any) => {
-    setModals((prev) => {
-      const index = prev.findIndex((modal) => modal.id === id);
-      if (index === -1) {
-        return [...prev, { id, component, props, open: true }];
-      }
+  const pushModal = useCallback(
+    (id: string, component: ModalComponent, props: any) => {
+      setModals((prev) => {
+        const index = prev.findIndex((modal) => modal.id === id);
+        if (index === -1) {
+          return [...prev, { id, component, props, open: true }];
+        }
 
-      prev[index] = { ...prev[index], component, props, open: true };
-      return [...prev];
-    });
-  }, []);
+        prev[index] = { ...prev[index], component, props, open: true };
+        return [...prev];
+      });
+    },
+    [],
+  );
 
   const setModalOpen = useCallback((id: string, isOpen: boolean) => {
     setModals((prev) =>
-      prev.map((modal) => (modal.id === id ? { ...modal, open: isOpen } : modal)),
+      prev.map((modal) =>
+        modal.id === id ? { ...modal, open: isOpen } : modal,
+      ),
     );
   }, []);
 
@@ -106,7 +113,7 @@ export const useDialog = <Props extends ModalContentProps>(
   const context = useContext(DialogContext);
 
   if (!context) {
-    throw new Error('useDialog должен быть использован внутри DialogProvider');
+    throw new Error("useDialog должен быть использован внутри DialogProvider");
   }
 
   const { pushModal, setModalOpen } = context;

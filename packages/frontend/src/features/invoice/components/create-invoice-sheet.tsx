@@ -108,7 +108,7 @@ export const CreateInvoiceSheet = ({
 
   const selectedPatient = useMemo(
     () => patients.find((p) => p.id === selectedPatientId),
-    [patients, selectedPatientId]
+    [patients, selectedPatientId],
   );
 
   // Calculate total
@@ -162,7 +162,10 @@ export const CreateInvoiceSheet = ({
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 mt-6"
+          >
             {/* Patient Select */}
             <FormField
               control={form.control}
@@ -170,7 +173,10 @@ export const CreateInvoiceSheet = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Пациент *</FormLabel>
-                  <Popover open={patientSearchOpen} onOpenChange={setPatientSearchOpen}>
+                  <Popover
+                    open={patientSearchOpen}
+                    onOpenChange={setPatientSearchOpen}
+                  >
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -178,7 +184,7 @@ export const CreateInvoiceSheet = ({
                           role="combobox"
                           className={cn(
                             "w-full justify-between",
-                            !field.value && "text-muted-foreground"
+                            !field.value && "text-muted-foreground",
                           )}
                         >
                           {selectedPatient
@@ -212,7 +218,7 @@ export const CreateInvoiceSheet = ({
                                     "mr-2 h-4 w-4",
                                     patient.id === field.value
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {patient.lastName} {patient.firstName}{" "}
@@ -239,7 +245,14 @@ export const CreateInvoiceSheet = ({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => append({ serviceId: "", quantity: 1, discount: 0, unitPrice: undefined })}
+                  onClick={() =>
+                    append({
+                      serviceId: "",
+                      quantity: 1,
+                      discount: 0,
+                      unitPrice: undefined,
+                    })
+                  }
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Добавить услугу
@@ -260,12 +273,12 @@ export const CreateInvoiceSheet = ({
                               onValueChange={(value) => {
                                 field.onChange(value);
                                 const selectedSvc = services.find(
-                                  (s) => s.id === value
+                                  (s) => s.id === value,
                                 );
                                 if (selectedSvc && !items[index]?.unitPrice) {
                                   form.setValue(
                                     `items.${index}.unitPrice`,
-                                    selectedSvc.price
+                                    selectedSvc.price,
                                   );
                                 }
                               }}
@@ -278,7 +291,10 @@ export const CreateInvoiceSheet = ({
                               </FormControl>
                               <SelectContent className="max-h-64">
                                 {services.map((service) => (
-                                  <SelectItem key={service.id} value={service.id}>
+                                  <SelectItem
+                                    key={service.id}
+                                    value={service.id}
+                                  >
                                     {service.name}
                                     {service.price && (
                                       <span className="ml-2 text-muted-foreground">
@@ -319,7 +335,9 @@ export const CreateInvoiceSheet = ({
                                 type="number"
                                 min="1"
                                 {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -342,7 +360,9 @@ export const CreateInvoiceSheet = ({
                                 value={field.value ?? ""}
                                 onChange={(e) =>
                                   field.onChange(
-                                    e.target.value ? Number(e.target.value) : undefined
+                                    e.target.value
+                                      ? Number(e.target.value)
+                                      : undefined,
                                   )
                                 }
                               />
@@ -363,7 +383,9 @@ export const CreateInvoiceSheet = ({
                                 type="number"
                                 min="0"
                                 {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
                               />
                             </FormControl>
                             <FormMessage />

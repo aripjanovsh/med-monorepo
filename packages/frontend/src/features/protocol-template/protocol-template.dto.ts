@@ -42,5 +42,5 @@ export interface ProtocolTemplateQueryDto extends QueryParamsDto {
   sortOrder?: "asc" | "desc";
 }
 
-export type ProtocolTemplatesListResponseDto = PaginatedResponseDto<ProtocolTemplateResponseDto>;
-
+export type ProtocolTemplatesListResponseDto =
+  PaginatedResponseDto<ProtocolTemplateResponseDto>;

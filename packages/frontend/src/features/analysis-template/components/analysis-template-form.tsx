@@ -20,7 +20,10 @@ import {
 import type { AnalysisTemplateFormData } from "../analysis-template.schema";
 import { analysisTemplateFormSchema } from "../analysis-template.schema";
 import { PRESET_TEMPLATES } from "../analysis-template.constants";
-import { AnalysisFormEditor, AnalysisFormInteractive } from "@/features/analysis-form-builder";
+import {
+  AnalysisFormEditor,
+  AnalysisFormInteractive,
+} from "@/features/analysis-form-builder";
 import type { FilledAnalysisData } from "@/features/analysis-form-builder";
 import { convertFormDataToDto } from "../utils/template.helpers";
 import { formatTemplateContent } from "../analysis-template.model";
@@ -46,7 +49,9 @@ export const AnalysisTemplateForm = ({
   const [selectedPreset, setSelectedPreset] = useState<string>("");
   const [activeTab, setActiveTab] = useState("editor");
   const [jsonContent, setJsonContent] = useState("");
-  const [previewData, setPreviewData] = useState<FilledAnalysisData | null>(null);
+  const [previewData, setPreviewData] = useState<FilledAnalysisData | null>(
+    null,
+  );
 
   const form = useForm<AnalysisTemplateFormData>({
     resolver: yupResolver(analysisTemplateFormSchema) as any,
@@ -91,7 +96,7 @@ export const AnalysisTemplateForm = ({
         ...param,
         id: (Date.now() + index).toString(),
       }));
-      
+
       const newTemplate = {
         version: 1,
         sections: [
@@ -103,7 +108,7 @@ export const AnalysisTemplateForm = ({
           },
         ],
       };
-      
+
       setValue("template", newTemplate);
       setJsonContent(JSON.stringify(newTemplate, null, 2));
     }
@@ -131,7 +136,7 @@ export const AnalysisTemplateForm = ({
     } catch (error: any) {
       toast.error(
         error?.data?.message ??
-          `Ошибка при ${mode === "create" ? "создании" : "обновлении"} шаблона`
+          `Ошибка при ${mode === "create" ? "создании" : "обновлении"} шаблона`,
       );
     }
   };

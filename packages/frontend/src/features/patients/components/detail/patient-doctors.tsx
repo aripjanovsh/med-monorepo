@@ -20,7 +20,7 @@ export function PatientDoctors({ patient }: PatientDoctorsProps) {
   const router = useRouter();
   const { data, isLoading } = useGetEmployeesQuery(
     { patientId: patient.id, limit: 100 },
-    { skip: !patient.id }
+    { skip: !patient.id },
   );
 
   const doctors = data?.data || [];
@@ -45,7 +45,7 @@ export function PatientDoctors({ patient }: PatientDoctorsProps) {
         },
       },
     ],
-    []
+    [],
   );
 
   return (

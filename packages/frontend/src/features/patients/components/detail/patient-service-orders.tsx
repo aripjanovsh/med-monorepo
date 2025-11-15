@@ -40,9 +40,7 @@ const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
     accessorKey: "department",
     header: "Отделение",
-    cell: ({ row }) => (
-      <div>{row.original.department?.name || "—"}</div>
-    ),
+    cell: ({ row }) => <div>{row.original.department?.name || "—"}</div>,
   },
   {
     accessorKey: "doctor",
@@ -85,8 +83,13 @@ const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
 export function PatientServiceOrders({ patient }: PatientServiceOrdersProps) {
   const router = useRouter();
   const { data, isLoading } = useGetServiceOrdersQuery(
-    { patientId: patient.id, sortBy: "createdAt", sortOrder: "desc", limit: 100 },
-    { skip: !patient.id }
+    {
+      patientId: patient.id,
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      limit: 100,
+    },
+    { skip: !patient.id },
   );
 
   const serviceOrders = data?.data || [];
@@ -110,7 +113,7 @@ export function PatientServiceOrders({ patient }: PatientServiceOrdersProps) {
         },
       },
     ],
-    []
+    [],
   );
 
   return (

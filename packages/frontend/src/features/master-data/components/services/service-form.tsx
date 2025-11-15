@@ -35,7 +35,10 @@ import {
   useUpdateServiceMutation,
 } from "@/features/master-data/master-data-services.api";
 import { useGetDepartmentsQuery } from "@/features/master-data/master-data-departments.api";
-import { Service, ServiceTypeEnumFrontend } from "@/features/master-data/master-data.types";
+import {
+  Service,
+  ServiceTypeEnumFrontend,
+} from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
 
 interface ServiceFormProps {
@@ -88,15 +91,15 @@ const validationSchema = yup.object().shape({
     .number()
     .nullable()
     .min(0, "Цена не может быть отрицательной")
-    .transform((value, originalValue) => 
-      originalValue === "" || originalValue === null ? null : value
+    .transform((value, originalValue) =>
+      originalValue === "" || originalValue === null ? null : value,
     ),
   durationMin: yup
     .number()
     .nullable()
     .min(1, "Длительность должна быть минимум 1 минута")
-    .transform((value, originalValue) => 
-      originalValue === "" || originalValue === null ? null : value
+    .transform((value, originalValue) =>
+      originalValue === "" || originalValue === null ? null : value,
     ),
   isActive: yup.boolean().default(true).required(),
 });
@@ -107,10 +110,8 @@ export function ServiceForm({
   service,
   onSuccess,
 }: ServiceFormProps) {
-  const [createService, { isLoading: isCreating }] =
-    useCreateServiceMutation();
-  const [updateService, { isLoading: isUpdating }] =
-    useUpdateServiceMutation();
+  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
+  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
 
   // Fetch departments for select
   const { data: departmentsResponse, isLoading: isLoadingDepartments } =
@@ -411,8 +412,8 @@ export function ServiceForm({
                     ? "Сохранение..."
                     : "Создание..."
                   : isEditing
-                  ? "Сохранить"
-                  : "Создать"}
+                    ? "Сохранить"
+                    : "Создать"}
               </Button>
             </div>
           </form>

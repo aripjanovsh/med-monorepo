@@ -32,7 +32,11 @@ export const formatPatientName = (patient: {
   firstName: string;
   middleName?: string;
 }): string => {
-  const parts = [patient.lastName, patient.firstName, patient.middleName].filter(Boolean);
+  const parts = [
+    patient.lastName,
+    patient.firstName,
+    patient.middleName,
+  ].filter(Boolean);
   return parts.join(" ");
 };
 
@@ -45,7 +49,9 @@ export const formatEmployeeShortName = (employee: {
   middleName?: string;
 }): string => {
   const firstInitial = employee.firstName.charAt(0).toUpperCase();
-  const middleInitial = employee.middleName ? employee.middleName.charAt(0).toUpperCase() : "";
+  const middleInitial = employee.middleName
+    ? employee.middleName.charAt(0).toUpperCase()
+    : "";
 
   return `${employee.lastName} ${firstInitial}.${middleInitial ? ` ${middleInitial}.` : ""}`.trim();
 };
@@ -79,7 +85,7 @@ export const getQueuePriority = (item: QueueItemResponseDto): number => {
  * Sort queue items by priority
  */
 export const sortQueueByPriority = (
-  items: QueueItemResponseDto[]
+  items: QueueItemResponseDto[],
 ): QueueItemResponseDto[] => {
   return [...items].sort((a, b) => getQueuePriority(b) - getQueuePriority(a));
 };

@@ -12,7 +12,7 @@ export default function PatientDetailPage({
   const { id } = use(params);
   const { data: patient, isLoading } = useGetPatientQuery(
     { id: id as string },
-    { skip: !id }
+    { skip: !id },
   );
 
   if (isLoading) {

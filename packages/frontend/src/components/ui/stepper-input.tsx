@@ -30,7 +30,7 @@ export const StepperInput = forwardRef<HTMLInputElement, StepperInputProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [internalValue, setInternalValue] = useState(value);
 
@@ -102,7 +102,7 @@ export const StepperInput = forwardRef<HTMLInputElement, StepperInputProps>(
         </InputGroupAddon>
       </InputGroup>
     );
-  }
+  },
 );
 
 StepperInput.displayName = "StepperInput";

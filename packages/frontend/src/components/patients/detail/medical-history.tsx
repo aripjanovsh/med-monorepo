@@ -209,7 +209,7 @@ export function MedicalHistory({ patient }: MedicalHistoryProps) {
                       <p>
                         Diagnosed:{" "}
                         {new Date(
-                          diagnosis.dateOfDiagnosis
+                          diagnosis.dateOfDiagnosis,
                         ).toLocaleDateString()}
                       </p>
                       <p>By: {diagnosis.diagnosedBy}</p>

@@ -86,7 +86,7 @@ export function PatientQueue() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Badge variant={getPriorityColor(patient.priority)}>
               {getPriorityText(patient.priority)}
@@ -101,7 +101,7 @@ export function PatientQueue() {
           </div>
         </div>
       ))}
-      
+
       {patients.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
           Нет пациентов в очереди

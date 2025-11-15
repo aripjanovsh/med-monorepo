@@ -23,7 +23,7 @@ type EmployeePatientsProps = {
 export const EmployeePatients = ({ employee }: EmployeePatientsProps) => {
   const { data, isLoading } = useGetPatientsQuery(
     { doctorId: employee.id, limit: 100 },
-    { skip: !employee.id }
+    { skip: !employee.id },
   );
 
   const assignedPatients = data?.data || [];
@@ -58,7 +58,7 @@ export const EmployeePatients = ({ employee }: EmployeePatientsProps) => {
                 <p className="text-2xl font-bold">
                   {
                     assignedPatients.filter(
-                      (p: PatientResponseDto) => p.lastVisitedAt
+                      (p: PatientResponseDto) => p.lastVisitedAt,
                     ).length
                   }
                 </p>

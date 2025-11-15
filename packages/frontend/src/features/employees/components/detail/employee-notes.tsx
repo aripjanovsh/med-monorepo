@@ -1,10 +1,25 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus, Edit, Trash2, Eye, EyeOff, Calendar, User } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  Calendar,
+  User,
+} from "lucide-react";
 
 import type { Employee } from "@/types/employee";
 import { useConfirmDialog } from "@/components/dialogs/use-confirm-dialog";
@@ -32,20 +47,25 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
     }
   };
 
-  const handleDeleteNote = useCallback((noteId: string, noteTitle: string) => {
-    confirm({
-      title: "Удалить заметку?",
-      description: `Вы уверены, что хотите удалить заметку "${noteTitle}"? Это действие нельзя отменить.`,
-      variant: "destructive",
-      confirmText: "Удалить",
-      onConfirm: () => {
-        setNotes((prevNotes) => prevNotes.filter(note => note.id !== noteId));
-      },
-    });
-  }, [confirm]);
+  const handleDeleteNote = useCallback(
+    (noteId: string, noteTitle: string) => {
+      confirm({
+        title: "Удалить заметку?",
+        description: `Вы уверены, что хотите удалить заметку "${noteTitle}"? Это действие нельзя отменить.`,
+        variant: "destructive",
+        confirmText: "Удалить",
+        onConfirm: () => {
+          setNotes((prevNotes) =>
+            prevNotes.filter((note) => note.id !== noteId),
+          );
+        },
+      });
+    },
+    [confirm],
+  );
 
-  const publicNotes = notes.filter(note => !note.isPrivate);
-  const privateNotes = notes.filter(note => note.isPrivate);
+  const publicNotes = notes.filter((note) => !note.isPrivate);
+  const privateNotes = notes.filter((note) => note.isPrivate);
 
   return (
     <div className="space-y-6">
@@ -77,7 +97,7 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -89,7 +109,7 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -101,7 +121,7 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -109,12 +129,16 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
               <div>
                 <p className="text-sm font-medium">This Month</p>
                 <p className="text-2xl font-bold">
-                  {notes.filter(note => {
-                    const noteDate = new Date(note.date);
-                    const now = new Date();
-                    return noteDate.getMonth() === now.getMonth() && 
-                           noteDate.getFullYear() === now.getFullYear();
-                  }).length}
+                  {
+                    notes.filter((note) => {
+                      const noteDate = new Date(note.date);
+                      const now = new Date();
+                      return (
+                        noteDate.getMonth() === now.getMonth() &&
+                        noteDate.getFullYear() === now.getFullYear()
+                      );
+                    }).length
+                  }
                 </p>
               </div>
             </div>
@@ -134,18 +158,27 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
           {notes.length > 0 ? (
             <div className="space-y-4">
               {notes
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )
                 .map((note) => (
                   <div key={note.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
                           <h3 className="font-medium">{note.title}</h3>
-                          <Badge variant="outline" className={getTypeColor(note.type)}>
+                          <Badge
+                            variant="outline"
+                            className={getTypeColor(note.type)}
+                          >
                             {note.type}
                           </Badge>
                           {note.isPrivate && (
-                            <Badge variant="outline" className="bg-gray-100 text-gray-800">
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-100 text-gray-800"
+                            >
                               <EyeOff className="mr-1 h-3 w-3" />
                               Private
                             </Badge>
@@ -186,7 +219,9 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
           ) : (
             <div className="text-center py-8">
               <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Notes</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Notes
+              </h3>
               <p className="text-sm text-gray-500">
                 No notes have been added for this employee yet.
               </p>
@@ -196,4 +231,4 @@ export const EmployeeNotes = ({ employee }: EmployeeNotesProps) => {
       </Card>
     </div>
   );
-}
+};

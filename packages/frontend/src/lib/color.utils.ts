@@ -5,7 +5,7 @@
  * @param {string} string - The input string to be converted into a color. Defaults to 'xyz'.
  * @return {string} A hexadecimal color code generated from the input string.
  */
-export function stringToColor(string: string = 'xyz'): string {
+export function stringToColor(string: string = "xyz"): string {
   let hash = 0;
 
   // Вычисление хэша строки
@@ -13,7 +13,7 @@ export function stringToColor(string: string = 'xyz'): string {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  let color = '#';
+  let color = "#";
 
   // Генерация цвета из хэша
   for (let i = 0; i < 3; i++) {

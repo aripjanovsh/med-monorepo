@@ -3,7 +3,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
+} from "@/components/ui/chart";
 import {
   CartesianGrid,
   Legend,
@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 
 export interface LineChartProps {
   /** Данные для графика */
@@ -75,7 +75,7 @@ export interface LineChartProps {
  */
 export function LineChartComponent({
   data,
-  xKey = 'month',
+  xKey = "month",
   dataKeys,
   labels,
   height = 300,
@@ -86,21 +86,24 @@ export function LineChartComponent({
   dotSize = 4,
   activeDotSize,
   strokeWidth = 2,
-  className = '',
+  className = "",
   colors,
   hideDots = true,
 }: LineChartProps) {
   // Если dataKeys не указаны, берем все ключи кроме xKey из первого объекта данных
   const keys =
-    dataKeys || (data && data.length > 0 ? Object.keys(data[0]).filter((key) => key !== xKey) : []);
+    dataKeys ||
+    (data && data.length > 0
+      ? Object.keys(data[0]).filter((key) => key !== xKey)
+      : []);
 
   // Строим конфигурацию для графика
   const config: ChartConfig = keys.reduce((cfg, key, index) => {
     const defaultColors = [
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
+      "hsl(var(--chart-1))",
+      "hsl(var(--chart-2))",
+      "hsl(var(--chart-3))",
+      "hsl(var(--chart-4))",
     ];
     return {
       ...cfg,
@@ -113,14 +116,16 @@ export function LineChartComponent({
 
   // Настройки для точек на линии
   const dotProps = hideDots ? false : { r: dotSize, strokeWidth: 0 };
-  const activeDotProps = hideDots ? false : { r: activeDotSize || dotSize + 2, strokeWidth: 0 };
+  const activeDotProps = hideDots
+    ? false
+    : { r: activeDotSize || dotSize + 2, strokeWidth: 0 };
 
   return (
     <div
       className={`${className}`}
       style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        width: '100%',
+        height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
       }}
     >
       <ChartContainer config={config} className="h-full w-full">
@@ -134,20 +139,32 @@ export function LineChartComponent({
               bottom: 12,
             }}
           >
-            {showGrid && <CartesianGrid vertical={false} strokeDasharray="3 3" />}
+            {showGrid && (
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            )}
 
-            <XAxis dataKey={xKey} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey={xKey}
+              tick={{ fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
 
             {showYAxis && (
               <YAxis
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={yAxisFormatter || ((value) => value.toLocaleString())}
+                tickFormatter={
+                  yAxisFormatter || ((value) => value.toLocaleString())
+                }
               />
             )}
 
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
 
             {showLegend && <Legend />}
 

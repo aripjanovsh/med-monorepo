@@ -95,7 +95,7 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
   className,
 }) => {
   const [state, setState] = React.useState<Record<DayKey, DayState>>(() =>
-    parseInitialState(value)
+    parseInitialState(value),
   );
 
   // Keep internal state in sync when value prop changes externally
@@ -112,7 +112,7 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
   const handleTimeChange = (
     key: DayKey,
     field: "from" | "to",
-    time: string
+    time: string,
   ) => {
     const next = { ...state, [key]: { ...state[key], [field]: time } };
     setState(next);

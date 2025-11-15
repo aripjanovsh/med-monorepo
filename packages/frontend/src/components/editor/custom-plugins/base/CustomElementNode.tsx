@@ -6,17 +6,17 @@ import {
   LexicalNode,
   EditorConfig,
   LexicalEditor,
-} from 'lexical';
-import { ReactNode } from 'react';
-import { generateElementId } from '../utils/generateId';
+} from "lexical";
+import { ReactNode } from "react";
+import { generateElementId } from "../utils/generateId";
 
 export interface CustomElementData {
-  type: 'text' | 'select' | 'radio' | 'checkbox' | 'textarea';
+  type: "text" | "select" | "radio" | "checkbox" | "textarea";
   id: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
-  displayMode?: 'inline' | 'block'; // новое поле для режима отображения
+  displayMode?: "inline" | "block"; // новое поле для режима отображения
   options?: Array<{
     value: string;
     label: string;
@@ -32,7 +32,7 @@ export interface CustomElementData {
 export type SerializedCustomElementNode = Spread<
   {
     data: CustomElementData;
-    type: 'custom-element';
+    type: "custom-element";
     version: 1;
   },
   SerializedLexicalNode
@@ -41,15 +41,18 @@ export type SerializedCustomElementNode = Spread<
 export abstract class CustomElementNode extends DecoratorNode<ReactNode> {
   __data: CustomElementData;
 
-  constructor(data: CustomElementData = {
-    type: 'text',
-    id: generateElementId('element'),
-    label: '',
-    placeholder: '',
-    required: false,
-    displayMode: 'inline',
-    width: '150px'
-  }, key?: NodeKey) {
+  constructor(
+    data: CustomElementData = {
+      type: "text",
+      id: generateElementId("element"),
+      label: "",
+      placeholder: "",
+      required: false,
+      displayMode: "inline",
+      width: "150px",
+    },
+    key?: NodeKey,
+  ) {
     super(key);
     this.__data = data;
   }
@@ -57,7 +60,7 @@ export abstract class CustomElementNode extends DecoratorNode<ReactNode> {
   static getType(): string {
     // Возвращаем базовый тип, но этот класс не должен регистрироваться
     // Каждый наследник должен переопределить этот метод
-    return 'custom-element-base';
+    return "custom-element-base";
   }
 
   static clone(node: CustomElementNode): CustomElementNode {
@@ -76,21 +79,26 @@ export abstract class CustomElementNode extends DecoratorNode<ReactNode> {
   exportJSON(): SerializedCustomElementNode {
     return {
       data: this.__data,
-      type: 'custom-element',
+      type: "custom-element",
       version: 1,
     };
   }
 
-  static importJSON(serializedNode: SerializedCustomElementNode): CustomElementNode {
+  static importJSON(
+    serializedNode: SerializedCustomElementNode,
+  ): CustomElementNode {
     const { data } = serializedNode;
     return new (this as any)(data);
   }
 
   createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement(this.__data.displayMode === 'block' ? 'div' : 'span');
-    span.setAttribute('data-element-type', this.__data.type);
-    span.setAttribute('data-element-id', this.__data.id);
-    span.style.display = this.__data.displayMode === 'block' ? 'block' : 'inline-block';
+    const span = document.createElement(
+      this.__data.displayMode === "block" ? "div" : "span",
+    );
+    span.setAttribute("data-element-type", this.__data.type);
+    span.setAttribute("data-element-id", this.__data.id);
+    span.style.display =
+      this.__data.displayMode === "block" ? "block" : "inline-block";
     return span;
   }
 
@@ -99,7 +107,7 @@ export abstract class CustomElementNode extends DecoratorNode<ReactNode> {
   }
 
   isInline(): boolean {
-    return this.__data.displayMode === 'inline';
+    return this.__data.displayMode === "inline";
   }
 
   isKeyboardSelectable(): boolean {

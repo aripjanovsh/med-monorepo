@@ -39,7 +39,8 @@ export const EmployeeAutocompleteField = ({
 
   const options: AsyncOption[] = useMemo(() => {
     return employees.map((employee) => ({
-      label: `${employee.title?.name || "Врач"} ${employee.lastName} ${employee.firstName} ${employee.middleName || ""}`.trim(),
+      label:
+        `${employee.title?.name || "Врач"} ${employee.lastName} ${employee.firstName} ${employee.middleName || ""}`.trim(),
       value: employee.id,
     }));
   }, [employees]);

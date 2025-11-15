@@ -52,7 +52,7 @@ export const InProgressWidget = () => {
     },
     {
       pollingInterval: REFRESH_INTERVAL_MS,
-    }
+    },
   );
 
   const [completeVisit] = useCompleteVisitMutation();
@@ -68,14 +68,14 @@ export const InProgressWidget = () => {
         toast.error("Не удалось завершить приём");
       }
     },
-    [completeVisit]
+    [completeVisit],
   );
 
   const handleViewVisit = useCallback(
     (visitId: string) => {
       router.push(`/cabinet/visits/${visitId}`);
     },
-    [router]
+    [router],
   );
 
   const visits = useMemo(() => {
@@ -156,7 +156,7 @@ export const InProgressWidget = () => {
                         <div
                           className={cn(
                             "flex items-center gap-1 text-xs font-medium",
-                            getServiceTimeColor(item.serviceTime)
+                            getServiceTimeColor(item.serviceTime),
                           )}
                         >
                           <Clock className="h-3 w-3" />
@@ -192,7 +192,7 @@ export const InProgressWidget = () => {
                               e.stopPropagation();
                               handleCompleteVisit(
                                 item.visit.id,
-                                getPatientFullName(item.visit.patient)
+                                getPatientFullName(item.visit.patient),
                               );
                             }}
                           >

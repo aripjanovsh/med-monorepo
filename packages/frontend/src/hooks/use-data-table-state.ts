@@ -27,15 +27,15 @@ export interface DataTableStateConfigExtended extends DataTableStateConfig {
 
 /**
  * Universal hook for managing DataTable state (pagination, sorting, filtering)
- * 
+ *
  * @example
  * const { queryParams, tableState, handlers } = useDataTableState({
  *   defaultLimit: 10,
  *   defaultSorting: [{ id: "lastName", desc: false }],
  * });
- * 
+ *
  * const { data, isLoading } = useGetEmployeesQuery(queryParams);
- * 
+ *
  * <DataTable
  *   {...tableState}
  *   data={data?.items}
@@ -59,7 +59,8 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
   const [page, setPage] = useState(defaultPage);
   const [limit, setLimit] = useState(defaultLimit);
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(defaultFilters);
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFiltersState>(defaultFilters);
   const [search, setSearch] = useState("");
   const [searchImmediate, setSearchImmediate] = useState("");
 
@@ -82,11 +83,11 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
   // Convert column filters to API format
   const filtersObject = useMemo(() => {
     const result: Record<string, unknown> = {};
-    
+
     columnFilters.forEach((filter) => {
       result[filter.id] = filter.value;
     });
-    
+
     return result;
   }, [columnFilters]);
 
@@ -169,7 +170,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       setSearchImmediate,
       setDebouncedValue,
     }),
-    [setDebouncedValue]
+    [setDebouncedValue],
   );
 
   // Memoize values object
@@ -182,7 +183,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       search,
       searchImmediate,
     }),
-    [page, limit, sorting, columnFilters, search, searchImmediate]
+    [page, limit, sorting, columnFilters, search, searchImmediate],
   );
 
   // Memoize handlers object
@@ -226,7 +227,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       handleSearchChange,
       handleFiltersChange,
       handleReset,
-    ]
+    ],
   );
 
   // Return structured data

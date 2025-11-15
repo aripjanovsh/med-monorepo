@@ -55,14 +55,14 @@ export default function ProtocolsPage() {
     (protocol: ProtocolTemplateResponseDto) => {
       router.push(url(ROUTES.PROTOCOL_TEMPLATE_EDIT, { id: protocol.id }));
     },
-    [router]
+    [router],
   );
 
   const handleDuplicate = useCallback(
     (protocol: ProtocolTemplateResponseDto) => {
       toast.info("Дублирование протоколов пока не реализовано");
     },
-    []
+    [],
   );
 
   const handleToggleActive = useCallback(
@@ -73,7 +73,7 @@ export default function ProtocolsPage() {
           data: { isActive: !protocol.isActive },
         }).unwrap();
         toast.success(
-          protocol.isActive ? "Протокол деактивирован" : "Протокол активирован"
+          protocol.isActive ? "Протокол деактивирован" : "Протокол активирован",
         );
         refetch();
       } catch (error: any) {
@@ -85,7 +85,7 @@ export default function ProtocolsPage() {
         toast.error(errorMessage);
       }
     },
-    [updateProtocol, refetch]
+    [updateProtocol, refetch],
   );
 
   const handleDelete = useCallback(
@@ -111,7 +111,7 @@ export default function ProtocolsPage() {
         },
       });
     },
-    [confirm, deleteProtocol, refetch]
+    [confirm, deleteProtocol, refetch],
   );
 
   return (

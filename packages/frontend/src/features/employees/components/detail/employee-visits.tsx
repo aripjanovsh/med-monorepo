@@ -23,7 +23,7 @@ type EmployeeVisitsProps = {
 export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
   const { data, isLoading } = useGetVisitsQuery(
     { employeeId: employee.id, limit: 100 },
-    { skip: !employee.id }
+    { skip: !employee.id },
   );
 
   const visits = data?.data || [];
@@ -58,7 +58,7 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
                 <p className="text-2xl font-bold">
                   {
                     visits.filter(
-                      (v: VisitResponseDto) => v.status === "IN_PROGRESS"
+                      (v: VisitResponseDto) => v.status === "IN_PROGRESS",
                     ).length
                   }
                 </p>
@@ -76,7 +76,7 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
                 <p className="text-2xl font-bold">
                   {
                     visits.filter(
-                      (v: VisitResponseDto) => v.status === "COMPLETED"
+                      (v: VisitResponseDto) => v.status === "COMPLETED",
                     ).length
                   }
                 </p>

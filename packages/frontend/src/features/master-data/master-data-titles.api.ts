@@ -30,7 +30,9 @@ export const titlesApi = rootApi.injectEndpoints({
         url: `/api/v1/master-data/titles/${id}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: API_TAG_OPERATIONS_TITLES, id }],
+      providesTags: (result, error, id) => [
+        { type: API_TAG_OPERATIONS_TITLES, id },
+      ],
     }),
 
     // Create new title

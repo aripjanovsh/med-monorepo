@@ -1,6 +1,6 @@
 /**
  * FormBuilderEditor - режим редактирования формы
- * 
+ *
  * Использование:
  * <FormBuilderEditor
  *   initialContent={jsonString}  // JSON string или undefined

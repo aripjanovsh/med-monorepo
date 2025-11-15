@@ -35,7 +35,8 @@ export const PatientAutocompleteField = ({
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
-  const [recentlyCreatedPatient, setRecentlyCreatedPatient] = useState<PatientResponseDto | null>(null);
+  const [recentlyCreatedPatient, setRecentlyCreatedPatient] =
+    useState<PatientResponseDto | null>(null);
 
   const { data, isLoading } = useGetPatientsQuery({
     search,
@@ -46,15 +47,20 @@ export const PatientAutocompleteField = ({
 
   const options: AsyncOption[] = useMemo(() => {
     const patientOptions = patients.map((patient) => ({
-      label: `${patient.lastName} ${patient.firstName} ${patient.middleName || ""}`.trim(),
+      label:
+        `${patient.lastName} ${patient.firstName} ${patient.middleName || ""}`.trim(),
       value: patient.id,
     }));
 
     // Add recently created patient if not in the list
-    if (recentlyCreatedPatient && !patients.some(p => p.id === recentlyCreatedPatient.id)) {
+    if (
+      recentlyCreatedPatient &&
+      !patients.some((p) => p.id === recentlyCreatedPatient.id)
+    ) {
       return [
         {
-          label: `${recentlyCreatedPatient.lastName} ${recentlyCreatedPatient.firstName} ${recentlyCreatedPatient.middleName || ""}`.trim(),
+          label:
+            `${recentlyCreatedPatient.lastName} ${recentlyCreatedPatient.firstName} ${recentlyCreatedPatient.middleName || ""}`.trim(),
           value: recentlyCreatedPatient.id,
         },
         ...patientOptions,
@@ -79,7 +85,7 @@ export const PatientAutocompleteField = ({
       onChange(patient.id);
       onPatientCreated?.(patient);
     },
-    [onChange, onPatientCreated]
+    [onChange, onPatientCreated],
   );
 
   return (

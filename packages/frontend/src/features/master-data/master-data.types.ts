@@ -40,7 +40,8 @@ export interface CreateServiceTypeRequest {
   isActive?: boolean;
 }
 
-export interface UpdateServiceTypeRequest extends Partial<CreateServiceTypeRequest> {
+export interface UpdateServiceTypeRequest
+  extends Partial<CreateServiceTypeRequest> {
   id?: string;
 }
 
@@ -74,7 +75,8 @@ export interface CreateDepartmentRequest {
   isActive?: boolean;
 }
 
-export interface UpdateDepartmentRequest extends Partial<CreateDepartmentRequest> {
+export interface UpdateDepartmentRequest
+  extends Partial<CreateDepartmentRequest> {
   id?: string;
 }
 
@@ -108,7 +110,7 @@ export type MasterDataPaginatedResponse<T> = PaginatedResponseDto<T>;
 // Location types (New unified structure)
 // ==========================
 
-export type LocationType = 'COUNTRY' | 'REGION' | 'CITY' | 'DISTRICT';
+export type LocationType = "COUNTRY" | "REGION" | "CITY" | "DISTRICT";
 
 // Main Location interface - unified for all location types
 export interface Location {
@@ -149,7 +151,7 @@ export interface CreateLocationRequest {
   description?: string;
 }
 
-// Update Location Request  
+// Update Location Request
 export interface UpdateLocationRequest {
   name?: string;
   code?: string;

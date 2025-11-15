@@ -1,29 +1,37 @@
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $insertNodes, $getNodeByKey, COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
-import { CustomElementNode, CustomElementData } from './base/CustomElementNode';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { ReactNode, useState } from 'react';
-import { LexicalEditor, EditorConfig, NodeKey } from 'lexical';
-import { generateElementId } from './utils/generateId';
-import { ElementEditDialog } from './components/ElementEditDialog';
-import { Settings2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import {
+  $insertNodes,
+  $getNodeByKey,
+  COMMAND_PRIORITY_EDITOR,
+  createCommand,
+} from "lexical";
+import { CustomElementNode, CustomElementData } from "./base/CustomElementNode";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { ReactNode, useState } from "react";
+import { LexicalEditor, EditorConfig, NodeKey } from "lexical";
+import { generateElementId } from "./utils/generateId";
+import { ElementEditDialog } from "./components/ElementEditDialog";
+import { Settings2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export class RadioNode extends CustomElementNode {
   static getType(): string {
-    return 'radio-input';
+    return "radio-input";
   }
 
-  constructor(data: CustomElementData = {
-    type: 'radio',
-    id: generateElementId('radio'),
-    label: '',
-    placeholder: '',
-    required: false,
-    displayMode: 'block',
-    options: []
-  }, key?: NodeKey) {
+  constructor(
+    data: CustomElementData = {
+      type: "radio",
+      id: generateElementId("radio"),
+      label: "",
+      placeholder: "",
+      required: false,
+      displayMode: "block",
+      options: [],
+    },
+    key?: NodeKey,
+  ) {
     super(data, key);
   }
 
@@ -39,13 +47,15 @@ export class RadioNode extends CustomElementNode {
   exportJSON(): any {
     return {
       data: this.__data,
-      type: 'radio-input',
+      type: "radio-input",
       version: 1,
     };
   }
 
   decorate(editor: LexicalEditor, config: EditorConfig): ReactNode {
-    return <RadioComponent data={this.__data} nodeKey={this.__key} editor={editor} />;
+    return (
+      <RadioComponent data={this.__data} nodeKey={this.__key} editor={editor} />
+    );
   }
 }
 
@@ -76,7 +86,7 @@ function RadioComponent({ data, nodeKey, editor }: RadioComponentProps) {
   return (
     <>
       <div
-        className={`${data.displayMode === 'block' ? 'my-2' : 'inline-block mx-1'} group relative p-2 rounded hover:bg-muted/50 cursor-pointer`}
+        className={`${data.displayMode === "block" ? "my-2" : "inline-block mx-1"} group relative p-2 rounded hover:bg-muted/50 cursor-pointer`}
         contentEditable={false}
         onClick={handleClick}
       >
@@ -88,13 +98,16 @@ function RadioComponent({ data, nodeKey, editor }: RadioComponentProps) {
         )}
         <RadioGroup disabled defaultValue={data.defaultValue as string}>
           {data.options?.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2 mb-1">
-              <RadioGroupItem 
-                value={option.value} 
+            <div
+              key={option.value}
+              className="flex items-center space-x-2 mb-1"
+            >
+              <RadioGroupItem
+                value={option.value}
                 id={`${data.id}-${option.value}`}
                 className="cursor-not-allowed h-3 w-3"
               />
-              <Label 
+              <Label
                 htmlFor={`${data.id}-${option.value}`}
                 className="cursor-not-allowed text-sm"
               >
@@ -122,27 +135,29 @@ function RadioComponent({ data, nodeKey, editor }: RadioComponentProps) {
   );
 }
 
-export const INSERT_RADIO_COMMAND = createCommand<CustomElementData>('INSERT_RADIO_COMMAND');
+export const INSERT_RADIO_COMMAND = createCommand<CustomElementData>(
+  "INSERT_RADIO_COMMAND",
+);
 
 export default function RadioPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
   if (!editor.hasNodes([RadioNode])) {
-    throw new Error('RadioPlugin: RadioNode not registered on editor');
+    throw new Error("RadioPlugin: RadioNode not registered on editor");
   }
 
   editor.registerCommand(
     INSERT_RADIO_COMMAND,
     (data: CustomElementData) => {
       const node = new RadioNode({
-        displayMode: 'block',
+        displayMode: "block",
         ...data,
-        type: 'radio',
+        type: "radio",
       });
       $insertNodes([node]);
       return true;
     },
-    COMMAND_PRIORITY_EDITOR
+    COMMAND_PRIORITY_EDITOR,
   );
 
   return null;

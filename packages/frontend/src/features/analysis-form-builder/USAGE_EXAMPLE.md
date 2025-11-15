@@ -105,7 +105,7 @@ import type { SavedAnalysisData } from "@/features/analysis-form-builder";
 export const AnalysisResultView = ({ serviceOrder }) => {
   // Парсим сохраненные результаты
   const savedData: SavedAnalysisData = JSON.parse(
-    serviceOrder.resultData || "{}"
+    serviceOrder.resultData || "{}",
   );
 
   return (
@@ -138,11 +138,14 @@ import {
   AnalysisFormInteractive,
   createEmptyAnalysisTemplate,
 } from "@/features/analysis-form-builder";
-import type { AnalysisTemplate, FilledAnalysisData } from "@/features/analysis-form-builder";
+import type {
+  AnalysisTemplate,
+  FilledAnalysisData,
+} from "@/features/analysis-form-builder";
 
 export default function InteractiveAnalysisPage() {
   const [template, setTemplate] = useState<AnalysisTemplate>(
-    createEmptyAnalysisTemplate()
+    createEmptyAnalysisTemplate(),
   );
   const [resultData, setResultData] = useState<FilledAnalysisData | null>(null);
 
@@ -179,9 +182,7 @@ export default function InteractiveAnalysisPage() {
         {/* Результат */}
         <div className="mt-4 p-4 bg-muted rounded">
           <h3 className="font-semibold mb-2">Результат:</h3>
-          <pre className="text-xs">
-            {JSON.stringify(resultData, null, 2)}
-          </pre>
+          <pre className="text-xs">{JSON.stringify(resultData, null, 2)}</pre>
         </div>
       </div>
     </div>
@@ -472,7 +473,7 @@ const range = getApplicableRange(
     women: { min: 120, max: 150 },
   },
   "MALE",
-  45
+  45,
 );
 // → { min: 130, max: 170 }
 ```
@@ -500,9 +501,7 @@ const statusLow = getReferenceStatus(110, { min: 130, max: 170 });
 import { normalizeAnalysisTemplate } from "@/features/analysis-form-builder";
 
 // Старый формат (массив параметров)
-const legacyData = [
-  { id: "hemoglobin", name: "Гемоглобин", type: "NUMBER" },
-];
+const legacyData = [{ id: "hemoglobin", name: "Гемоглобин", type: "NUMBER" }];
 
 // Автоматическая конвертация в новый формат
 const normalized = normalizeAnalysisTemplate(legacyData);
@@ -513,13 +512,13 @@ const normalized = normalizeAnalysisTemplate(legacyData);
 
 ## Отличия от form-builder
 
-| Особенность                | form-builder              | analysis-form-builder       |
-| -------------------------- | ------------------------- | --------------------------- |
-| Назначение                 | Произвольные формы        | Результаты анализов         |
-| Типы полей                 | 9 типов (text, select...) | 3 типа (NUMBER, TEXT, BOOL) |
-| Референсные значения       | ❌                        | ✅                          |
-| Статусы (NORMAL/HIGH/LOW)  | ❌                        | ✅                          |
-| Единицы измерения          | ❌                        | ✅                          |
-| Условная видимость (visibleIf) | ✅                   | ❌                          |
-| Ширина полей               | ✅                        | ❌                          |
-| Использование              | Протоколы визитов         | Лабораторные анализы        |
+| Особенность                    | form-builder              | analysis-form-builder       |
+| ------------------------------ | ------------------------- | --------------------------- |
+| Назначение                     | Произвольные формы        | Результаты анализов         |
+| Типы полей                     | 9 типов (text, select...) | 3 типа (NUMBER, TEXT, BOOL) |
+| Референсные значения           | ❌                        | ✅                          |
+| Статусы (NORMAL/HIGH/LOW)      | ❌                        | ✅                          |
+| Единицы измерения              | ❌                        | ✅                          |
+| Условная видимость (visibleIf) | ✅                        | ❌                          |
+| Ширина полей                   | ✅                        | ❌                          |
+| Использование                  | Протоколы визитов         | Лабораторные анализы        |

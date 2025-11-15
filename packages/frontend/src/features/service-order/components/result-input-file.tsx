@@ -75,7 +75,7 @@ export const ResultInputFile = ({
         setDragActive(false);
       }
     },
-    [disabled]
+    [disabled],
   );
 
   const handleDrop = useCallback(
@@ -90,7 +90,7 @@ export const ResultInputFile = ({
         handleFileUpload(e.dataTransfer.files[0]);
       }
     },
-    [disabled]
+    [disabled],
   );
 
   const handleChange = useCallback(
@@ -103,7 +103,7 @@ export const ResultInputFile = ({
         handleFileUpload(e.target.files[0]);
       }
     },
-    [disabled]
+    [disabled],
   );
 
   const handleFileUpload = async (file: File) => {
@@ -115,7 +115,9 @@ export const ResultInputFile = ({
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(`Файл ${file.name} слишком большой. Максимальный размер 10МБ`);
+      toast.error(
+        `Файл ${file.name} слишком большой. Максимальный размер 10МБ`,
+      );
       return;
     }
 
@@ -186,11 +188,11 @@ export const ResultInputFile = ({
       id: value.fileId,
       filename: value.filename,
       storedName: value.fileId,
-      path: '',
+      path: "",
       mimeType: value.mimeType,
       size: value.size,
       category: FileCategory.ANALYSIS_RESULT,
-      uploadedById: '',
+      uploadedById: "",
       uploadedAt: value.uploadedAt,
       description: value.description,
     };
@@ -327,7 +329,9 @@ export const ResultInputFile = ({
       <div className="p-4 bg-muted/50 rounded-lg">
         <h4 className="font-medium mb-2 text-sm">Требования к файлу</h4>
         <div className="text-xs text-muted-foreground space-y-1">
-          <div>• Поддерживаемые форматы: PDF, DOC, DOCX, JPG, PNG, GIF, TXT</div>
+          <div>
+            • Поддерживаемые форматы: PDF, DOC, DOCX, JPG, PNG, GIF, TXT
+          </div>
           <div>• Максимальный размер файла: 10МБ</div>
           <div>• Файл будет надежно сохранен и зашифрован</div>
         </div>

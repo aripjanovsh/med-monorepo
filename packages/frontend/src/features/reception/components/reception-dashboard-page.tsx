@@ -17,7 +17,7 @@ import { QuickActionsWidget } from "../../dashboard/reception/widgets/quick-acti
 
 export const ReceptionDashboardPage = () => {
   const [selectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const router = useRouter();
 
@@ -43,14 +43,14 @@ export const ReceptionDashboardPage = () => {
         },
       });
     },
-    [invoiceDialog]
+    [invoiceDialog],
   );
 
   const handlePatientSelect = useCallback(
     (patientId: string) => {
       router.push(`/cabinet/patients/${patientId}`);
     },
-    [router]
+    [router],
   );
 
   const handleCreatePatient = useCallback(() => {
@@ -111,9 +111,7 @@ export const ReceptionDashboardPage = () => {
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-base md:text-lg font-semibold">
-                На приёме
-              </h2>
+              <h2 className="text-base md:text-lg font-semibold">На приёме</h2>
             </div>
             <InProgressWidget />
           </div>

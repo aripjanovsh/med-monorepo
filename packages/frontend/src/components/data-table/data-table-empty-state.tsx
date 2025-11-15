@@ -19,7 +19,9 @@ export function DataTableEmptyState({
         <Icon className="h-6 w-6 text-muted-foreground" />
       </div>
       <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-      <p className="mb-4 text-sm text-muted-foreground max-w-sm">{description}</p>
+      <p className="mb-4 text-sm text-muted-foreground max-w-sm">
+        {description}
+      </p>
       {action && <div>{action}</div>}
     </div>
   );

@@ -1,8 +1,8 @@
-import { 
-  DashboardStats, 
-  QuickAction, 
-  Notification, 
-  UpcomingEvent 
+import {
+  DashboardStats,
+  QuickAction,
+  Notification,
+  UpcomingEvent,
 } from "@/types/dashboard";
 
 export const mockDashboardStats: DashboardStats = {

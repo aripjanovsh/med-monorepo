@@ -83,7 +83,7 @@ export default function AnalysisTemplatesPage() {
     (template: AnalysisTemplateResponseDto) => {
       router.push(url(ROUTES.ANALYSIS_TEMPLATE_EDIT, { id: template.id }));
     },
-    [router]
+    [router],
   );
 
   const handleDelete = useCallback(
@@ -109,7 +109,7 @@ export default function AnalysisTemplatesPage() {
         },
       });
     },
-    [confirm, deleteTemplate, refetch]
+    [confirm, deleteTemplate, refetch],
   );
 
   const templates = templatesData?.data || [];
@@ -217,7 +217,9 @@ export default function AnalysisTemplatesPage() {
           )
         }
         onRowClick={(row) => {
-          router.push(url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id }));
+          router.push(
+            url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id }),
+          );
         }}
       />
     </div>

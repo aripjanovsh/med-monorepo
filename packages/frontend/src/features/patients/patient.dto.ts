@@ -8,14 +8,14 @@ import { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
 // Base enums matching backend
 export type PatientStatusDto = "ACTIVE" | "INACTIVE" | "DECEASED";
 export type GenderDto = "MALE" | "FEMALE";
-export type ContactRelationDto = 
-  | "SELF" 
-  | "PARENT" 
-  | "CHILD" 
-  | "SPOUSE" 
-  | "SIBLING" 
-  | "FRIEND" 
-  | "GUARDIAN" 
+export type ContactRelationDto =
+  | "SELF"
+  | "PARENT"
+  | "CHILD"
+  | "SPOUSE"
+  | "SIBLING"
+  | "FRIEND"
+  | "GUARDIAN"
   | "OTHER";
 export type ContactTypeDto = "PRIMARY" | "EMERGENCY" | "WORK" | "SECONDARY";
 
@@ -57,25 +57,25 @@ export interface PatientResponseDto {
   middleName?: string;
   dateOfBirth: string; // ISO string from backend
   gender: GenderDto;
-  
+
   // Passport information
   passportSeries?: string;
   passportNumber?: string;
   passportIssuedBy?: string;
   passportIssueDate?: string; // ISO string
   passportExpiryDate?: string; // ISO string
-  
+
   // Language IDs (new fields)
   primaryLanguageId?: string;
   secondaryLanguageId?: string;
-  
+
   // Address IDs (new fields)
   countryId?: string;
   regionId?: string;
   cityId?: string;
   districtId?: string;
   address?: string; // Specific street address
-  
+
   status: PatientStatusDto;
   lastVisitedAt?: string; // ISO string
   organizationId: string;
@@ -120,7 +120,7 @@ export interface PatientResponseDto {
     code?: string;
     type: string;
   };
-  
+
   contacts: PatientContactDto[];
   doctors: PatientDoctorDto[];
 }
@@ -149,25 +149,25 @@ export interface CreatePatientRequestDto {
   middleName?: string;
   dateOfBirth: string; // ISO string
   gender: GenderDto;
-  
+
   // Passport information
   passportSeries?: string;
   passportNumber?: string;
   passportIssuedBy?: string;
   passportIssueDate?: string; // ISO string
   passportExpiryDate?: string; // ISO string
-  
+
   // Language IDs (new fields)
   primaryLanguageId?: string;
   secondaryLanguageId?: string;
-  
+
   // Address IDs (new fields)
   countryId?: string;
   regionId?: string;
   cityId?: string;
   districtId?: string;
   address?: string; // Specific street address
-  
+
   status?: PatientStatusDto;
 
   // Related data

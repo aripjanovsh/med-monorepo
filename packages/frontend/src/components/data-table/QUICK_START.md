@@ -50,13 +50,7 @@ const columns: ColumnDef<Patient>[] = [
 
 ```tsx
 export function PatientsTable({ patients }: { patients: Patient[] }) {
-  return (
-    <DataTable
-      columns={columns}
-      data={patients}
-      enableSorting
-    />
-  );
+  return <DataTable columns={columns} data={patients} enableSorting />;
 }
 ```
 
@@ -98,7 +92,7 @@ export function PatientsTable({ patients }: { patients: Patient[] }) {
 export function PatientsTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  
+
   const { data, isLoading } = useGetPatientsQuery({ page, limit });
 
   return (
@@ -120,15 +114,15 @@ export function PatientsTable() {
 
 ## 🎯 Основные Props
 
-| Prop | Тип | Описание |
-|------|-----|----------|
-| `columns` | `ColumnDef[]` | Определения колонок |
-| `data` | `T[]` | Массив данных |
-| `isLoading` | `boolean` | Показать loading skeleton |
-| `enableSorting` | `boolean` | Client-side сортировка |
-| `enableFiltering` | `boolean` | Client-side фильтрация |
-| `pagination` | `object` | Server-side пагинация |
-| `toolbar` | `function` | Кастомный toolbar |
+| Prop              | Тип           | Описание                  |
+| ----------------- | ------------- | ------------------------- |
+| `columns`         | `ColumnDef[]` | Определения колонок       |
+| `data`            | `T[]`         | Массив данных             |
+| `isLoading`       | `boolean`     | Показать loading skeleton |
+| `enableSorting`   | `boolean`     | Client-side сортировка    |
+| `enableFiltering` | `boolean`     | Client-side фильтрация    |
+| `pagination`      | `object`      | Server-side пагинация     |
+| `toolbar`         | `function`    | Кастомный toolbar         |
 
 ## 💡 Полезные паттерны
 
@@ -189,7 +183,7 @@ import {
   id: "actions",
   cell: ({ row }) => {
     const item = row.original;
-    
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

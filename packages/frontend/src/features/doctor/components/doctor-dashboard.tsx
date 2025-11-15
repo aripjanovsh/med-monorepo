@@ -6,7 +6,7 @@ import { DoctorQueuePanel } from "@/features/doctor/components/doctor-queue-pane
 import { DoctorStatsCard } from "@/features/doctor/components/doctor-stats-card";
 import { CurrentPatientCard } from "@/features/doctor/components/current-patient-card";
 import { CompletedVisitsList } from "@/features/doctor/components/completed-visits-list";
-import { useGetDoctorQueueQuery } from "@/features/doctor/api/doctor.api";
+import { useGetDoctorQueueQuery } from "@/features/visit/visit.api";
 import { EmployeeSelect } from "@/features/employees";
 import { useGetMeQuery } from "@/features/auth";
 
@@ -20,7 +20,7 @@ export const DoctorDashboard = () => {
     },
     {
       skip: !selectedEmployeeId,
-    }
+    },
   );
 
   const handleEmployeeChange = useCallback((value: string) => {
@@ -57,18 +57,12 @@ export const DoctorDashboard = () => {
 
           {/* Current Patient & Queue */}
           <div className="grid gap-6 lg:grid-cols-2">
-            <CurrentPatientCard
-              employeeId={selectedEmployeeId}
-            />
-            <DoctorQueuePanel
-              employeeId={selectedEmployeeId}
-            />
+            <CurrentPatientCard employeeId={selectedEmployeeId} />
+            <DoctorQueuePanel employeeId={selectedEmployeeId} />
           </div>
 
           {/* Completed Visits */}
-          <CompletedVisitsList
-            employeeId={selectedEmployeeId}
-          />
+          <CompletedVisitsList employeeId={selectedEmployeeId} />
         </>
       )}
     </div>

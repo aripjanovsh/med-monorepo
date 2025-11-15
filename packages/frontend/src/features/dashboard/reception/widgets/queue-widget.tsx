@@ -76,7 +76,7 @@ export const QueueWidget = () => {
     },
     {
       pollingInterval: REFRESH_INTERVAL_MS,
-    }
+    },
   );
 
   const [cancelVisit] = useCancelVisitMutation();
@@ -94,7 +94,7 @@ export const QueueWidget = () => {
         toast.error("Не удалось начать приём");
       }
     },
-    [startVisit]
+    [startVisit],
   );
 
   const handleCancelVisit = useCallback(
@@ -122,7 +122,7 @@ export const QueueWidget = () => {
         },
       });
     },
-    [cancelVisit, cancelPrompt]
+    [cancelVisit, cancelPrompt],
   );
 
   const getAppointmentTypeBadge = (type?: string) => {
@@ -238,7 +238,7 @@ export const QueueWidget = () => {
                         <div
                           className={cn(
                             "flex items-center gap-1 text-xs font-medium",
-                            getWaitTimeColor(item.waitTime)
+                            getWaitTimeColor(item.waitTime),
                           )}
                         >
                           <Clock className="h-3 w-3" />
@@ -248,7 +248,11 @@ export const QueueWidget = () => {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreVertical />
                           </Button>
                         </DropdownMenuTrigger>
@@ -257,7 +261,7 @@ export const QueueWidget = () => {
                             onClick={() =>
                               handleStartVisit(
                                 item.visit.id,
-                                getPatientFullName(item.visit.patient)
+                                getPatientFullName(item.visit.patient),
                               )
                             }
                           >
@@ -269,7 +273,7 @@ export const QueueWidget = () => {
                             onClick={() =>
                               handleCancelVisit(
                                 item.visit.id,
-                                getPatientFullName(item.visit.patient)
+                                getPatientFullName(item.visit.patient),
                               )
                             }
                           >

@@ -65,7 +65,7 @@ export default function DepartmentsPage() {
         },
       });
     },
-    [departmentFormDialog, refetch]
+    [departmentFormDialog, refetch],
   );
 
   const handleDelete = useCallback(
@@ -91,7 +91,7 @@ export default function DepartmentsPage() {
         },
       });
     },
-    [confirm, deleteDepartment, refetch]
+    [confirm, deleteDepartment, refetch],
   );
 
   return (

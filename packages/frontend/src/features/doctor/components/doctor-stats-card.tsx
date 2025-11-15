@@ -55,9 +55,7 @@ export const DoctorStatsCard = ({ stats }: DoctorStatsCardProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.avgServiceTime} мин</div>
-          <p className="text-xs text-muted-foreground">
-            Среднее время приёма
-          </p>
+          <p className="text-xs text-muted-foreground">Среднее время приёма</p>
         </CardContent>
       </Card>
     </div>

@@ -19,8 +19,13 @@ interface PatientInvoicesProps {
 export function PatientInvoices({ patient }: PatientInvoicesProps) {
   const router = useRouter();
   const { data, isLoading } = useGetInvoicesQuery(
-    { patientId: patient.id, sortBy: "createdAt", sortOrder: "desc", limit: 100 },
-    { skip: !patient.id }
+    {
+      patientId: patient.id,
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      limit: 100,
+    },
+    { skip: !patient.id },
   );
 
   const invoices = data?.data || [];
@@ -44,7 +49,7 @@ export function PatientInvoices({ patient }: PatientInvoicesProps) {
         },
       },
     ],
-    []
+    [],
   );
 
   return (

@@ -122,14 +122,14 @@ export default function InvoicesPage() {
         },
       });
     },
-    [confirm, deleteInvoice, refetchInvoices]
+    [confirm, deleteInvoice, refetchInvoices],
   );
 
   const handleAddPayment = useCallback(
     (invoice: InvoiceListItemDto) => {
       router.push(url(ROUTES.INVOICE_DETAIL, { id: invoice.id }));
     },
-    [router]
+    [router],
   );
 
   const invoices = invoicesData?.data || [];
@@ -177,14 +177,18 @@ export default function InvoicesPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(url(ROUTES.INVOICE_DETAIL, { id: invoice.id }))
+                        router.push(
+                          url(ROUTES.INVOICE_DETAIL, { id: invoice.id }),
+                        )
                       }
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       Просмотр
                     </DropdownMenuItem>
                     {canAddPayment(invoice) && (
-                      <DropdownMenuItem onClick={() => handleAddPayment(invoice)}>
+                      <DropdownMenuItem
+                        onClick={() => handleAddPayment(invoice)}
+                      >
                         <CreditCard className="mr-2 h-4 w-4" />
                         Добавить платеж
                       </DropdownMenuItem>

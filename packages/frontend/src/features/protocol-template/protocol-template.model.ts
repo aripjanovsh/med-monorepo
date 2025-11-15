@@ -3,20 +3,20 @@ import { ru } from "date-fns/locale";
 import type { ProtocolTemplateResponseDto } from "./protocol-template.dto";
 
 export const getProtocolTemplateDisplayName = (
-  protocol: ProtocolTemplateResponseDto
+  protocol: ProtocolTemplateResponseDto,
 ): string => {
   return protocol.name;
 };
 
 export const isProtocolTemplateActive = (
-  protocol: ProtocolTemplateResponseDto
+  protocol: ProtocolTemplateResponseDto,
 ): boolean => {
   return protocol.isActive;
 };
 
 export const formatProtocolTemplateDate = (
   date: string | Date,
-  formatString = "dd MMM yyyy"
+  formatString = "dd MMM yyyy",
 ): string => {
   try {
     return format(new Date(date), formatString, { locale: ru });
@@ -48,7 +48,7 @@ export const getProtocolTemplateStatusLabel = (isActive: boolean): string => {
 };
 
 export const getProtocolTemplateStatusVariant = (
-  isActive: boolean
+  isActive: boolean,
 ): "default" | "secondary" => {
   return isActive ? "default" : "secondary";
 };

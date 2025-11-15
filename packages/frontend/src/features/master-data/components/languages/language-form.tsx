@@ -72,8 +72,10 @@ export function LanguageForm({
   language,
   onSuccess,
 }: LanguageFormProps) {
-  const [createLanguage, { isLoading: isCreating }] = useCreateLanguageMutation();
-  const [updateLanguage, { isLoading: isUpdating }] = useUpdateLanguageMutation();
+  const [createLanguage, { isLoading: isCreating }] =
+    useCreateLanguageMutation();
+  const [updateLanguage, { isLoading: isUpdating }] =
+    useUpdateLanguageMutation();
 
   const isEditing = !!language;
   const isLoading = isCreating || isUpdating;
@@ -269,8 +271,8 @@ export function LanguageForm({
                     ? "Сохранение..."
                     : "Создание..."
                   : isEditing
-                  ? "Сохранить"
-                  : "Создать"}
+                    ? "Сохранить"
+                    : "Создать"}
               </Button>
             </div>
           </form>

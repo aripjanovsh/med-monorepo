@@ -68,7 +68,7 @@ export default function VisitsPage() {
         },
       });
     },
-    [confirm, deleteVisit, refetch]
+    [confirm, deleteVisit, refetch],
   );
 
   const visits = data?.data || [];

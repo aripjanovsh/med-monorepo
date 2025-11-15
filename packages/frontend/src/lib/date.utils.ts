@@ -14,7 +14,7 @@ export const calculateAge = (dateOfBirth: string): number | null => {
 
   try {
     const birthDate = parseISO(dateOfBirth);
-    
+
     if (!isValid(birthDate)) return null;
 
     const today = new Date();
@@ -44,7 +44,7 @@ export const isMinor = (dateOfBirth: string): boolean => {
 export const formatAge = (dateOfBirth: string): string => {
   const age = calculateAge(dateOfBirth);
   if (age === null) return "";
-  
+
   if (age === 0) return "менее года";
   if (age === 1) return "1 год";
   if (age >= 2 && age <= 4) return `${age} года`;
@@ -57,12 +57,15 @@ export const formatAge = (dateOfBirth: string): string => {
  * @param formatString - Format string (e.g., "dd.MM.yyyy", "yyyy-MM-dd")
  * @returns Formatted date string or empty string if invalid
  */
-export const formatDate = (date: string | Date, formatString: string = "dd.MM.yyyy"): string => {
+export const formatDate = (
+  date: string | Date,
+  formatString: string = "dd.MM.yyyy",
+): string => {
   if (!date) return "";
 
   try {
     const dateObj = typeof date === "string" ? parseISO(date) : date;
-    
+
     if (!isValid(dateObj)) return "";
 
     return format(dateObj, formatString);

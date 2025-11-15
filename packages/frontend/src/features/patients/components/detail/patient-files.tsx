@@ -42,7 +42,7 @@ export function PatientFiles({ patient }: PatientFilesProps) {
       entityId: patient.id,
       limit: 100,
     },
-    { skip: !patient.id }
+    { skip: !patient.id },
   );
 
   const [deleteFile] = useDeleteFileMutation();
@@ -80,7 +80,7 @@ export function PatientFiles({ patient }: PatientFilesProps) {
         toast.error("Ошибка при скачивании файла");
       }
     },
-    [token]
+    [token],
   );
 
   const handleDeleteClick = useCallback(
@@ -99,7 +99,7 @@ export function PatientFiles({ patient }: PatientFilesProps) {
         },
       });
     },
-    [confirm, deleteFile]
+    [confirm, deleteFile],
   );
 
   const columns = useMemo(
@@ -150,7 +150,7 @@ export function PatientFiles({ patient }: PatientFilesProps) {
         },
       },
     ],
-    [handlePreview, handleDownload, handleDeleteClick]
+    [handlePreview, handleDownload, handleDeleteClick],
   );
 
   return (

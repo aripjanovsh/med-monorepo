@@ -41,7 +41,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List ref={ref} className={className} {...props}>
     <div
       className={cn(
-        TabsListVariants({ variant, size, className: contentClassName })
+        TabsListVariants({ variant, size, className: contentClassName }),
       )}
     >
       {children}
@@ -77,7 +77,7 @@ const TabsTriggerVariants = cva(
       size: "default",
       width: "default",
     },
-  }
+  },
 );
 
 export interface TabsTriggerProps
@@ -113,7 +113,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
+      className,
     )}
     {...props}
   />

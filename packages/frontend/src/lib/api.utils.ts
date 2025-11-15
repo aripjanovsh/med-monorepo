@@ -3,7 +3,7 @@ import { UseFormSetError, Path, FieldValues } from "react-hook-form";
 
 export const handleFieldErrors = <T extends FieldValues>(
   errorResponse: unknown,
-  setFormError: UseFormSetError<T>
+  setFormError: UseFormSetError<T>,
 ) => {
   const fieldErrors = get(errorResponse, "data.fieldErrors");
 
@@ -19,7 +19,7 @@ export const handleFieldErrors = <T extends FieldValues>(
 export const handleBatchFieldErrors = <T extends FieldValues>(
   setFormError: UseFormSetError<T>,
   errorResponse: unknown,
-  arrayFieldName: string = "members"
+  arrayFieldName: string = "members",
 ) => {
   const fieldErrors = get(errorResponse, "data.fieldErrors");
 
@@ -46,7 +46,7 @@ export const handleBatchFieldErrors = <T extends FieldValues>(
 
 export const url = (
   url: string,
-  params?: Record<string, string | number>
+  params?: Record<string, string | number>,
 ): string => {
   if (!params) return url;
 

@@ -12,7 +12,7 @@ import { SimpleEmployeeDto } from "../visit";
 // =============================================
 
 export const getEmployeeFullName = (
-  employee?: EmployeeResponseDto | SimpleEmployeeDto
+  employee?: EmployeeResponseDto | SimpleEmployeeDto,
 ): string => {
   if (!employee) {
     return "—";
@@ -23,7 +23,10 @@ export const getEmployeeFullName = (
 };
 
 export const getEmployeeShortName = (
-  employee: EmployeeResponseDto | SimpleEmployeeDto | { firstName: string; lastName: string; middleName?: string }
+  employee:
+    | EmployeeResponseDto
+    | SimpleEmployeeDto
+    | { firstName: string; lastName: string; middleName?: string },
 ): string => {
   return `${employee.firstName} ${employee.lastName}`;
 };
@@ -145,7 +148,7 @@ export const getNotificationStatusDisplay = (enabled?: boolean): string => {
  * Get passport series and number combined
  */
 export const getPassportSeriesNumber = (
-  employee: EmployeeResponseDto
+  employee: EmployeeResponseDto,
 ): string => {
   if (employee.passportSeries && employee.passportNumber) {
     return `${employee.passportSeries} ${employee.passportNumber}`;
@@ -182,7 +185,9 @@ export const getEmployeeDisplayId = (employee: EmployeeResponseDto): string => {
 /**
  * Get service types as comma-separated string
  */
-export const getServiceTypesDisplay = (employee: EmployeeResponseDto): string => {
+export const getServiceTypesDisplay = (
+  employee: EmployeeResponseDto,
+): string => {
   if (!Array.isArray(employee.serviceTypes)) return "-";
 
   const types = (employee.serviceTypes as any[])
@@ -214,7 +219,7 @@ export const formatSalary = (salary?: number): string => {
  */
 export const getWorkScheduleForDay = (
   employee: EmployeeResponseDto,
-  day: string
+  day: string,
 ): string => {
   if (!employee.workSchedule) {
     return "Не рабочий день";

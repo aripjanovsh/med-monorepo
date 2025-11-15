@@ -18,7 +18,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { FormBuilderContent, FormSection } from "../../../types/form-builder.types";
+import type {
+  FormBuilderContent,
+  FormSection,
+} from "../../../types/form-builder.types";
 import {
   createNewSection,
   createEmptyFormBuilderContent,
@@ -72,7 +75,10 @@ export const FormBuilderEditor = ({
     toast.success("Секция добавлена");
   };
 
-  const handleUpdateSection = (sectionId: string, updates: Partial<FormSection>) => {
+  const handleUpdateSection = (
+    sectionId: string,
+    updates: Partial<FormSection>,
+  ) => {
     setContent(updateSection(content, sectionId, updates));
   };
 
@@ -89,7 +95,7 @@ export const FormBuilderEditor = ({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -171,7 +177,9 @@ export const FormBuilderEditor = ({
                   <SectionEditor
                     key={section.id}
                     section={section}
-                    onUpdate={(updates) => handleUpdateSection(section.id, updates)}
+                    onUpdate={(updates) =>
+                      handleUpdateSection(section.id, updates)
+                    }
                     onDelete={() => handleDeleteSection(section.id)}
                     onMoveUp={
                       index > 0
@@ -187,11 +195,11 @@ export const FormBuilderEditor = ({
                     canMoveDown={index < content.sections.length - 1}
                   />
                 ))}
-                
+
                 {/* Add Section button at the end */}
                 <div className="flex justify-center pt-2">
-                  <Button 
-                    onClick={handleAddSection} 
+                  <Button
+                    onClick={handleAddSection}
                     type="button"
                     variant="outline"
                     className="w-full max-w-md"

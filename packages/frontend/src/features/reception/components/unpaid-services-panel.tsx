@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, FileText, User, Activity } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useGetServiceOrdersQuery, OrderStatusBadge } from "@/features/service-order";
+import {
+  useGetServiceOrdersQuery,
+  OrderStatusBadge,
+} from "@/features/service-order";
 
 import type { ServiceOrderResponseDto } from "@/features/service-order/service-order.dto";
 
@@ -14,7 +17,7 @@ type UnpaidServicesPanelProps = Record<string, never>;
 
 export const UnpaidServicesPanel = () => {
   const router = useRouter();
-  
+
   const { data: response, isLoading } = useGetServiceOrdersQuery({
     paymentStatus: "UNPAID",
     status: "COMPLETED",
@@ -23,7 +26,7 @@ export const UnpaidServicesPanel = () => {
   const handleCreateInvoice = (patientId: string, visitId: string) => {
     // Navigate to invoice creation page or open modal
     router.push(
-      `/cabinet/reception/invoice/create?patientId=${patientId}&visitId=${visitId}`
+      `/cabinet/reception/invoice/create?patientId=${patientId}&visitId=${visitId}`,
     );
   };
 
@@ -103,9 +106,7 @@ export const UnpaidServicesPanel = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <OrderStatusBadge
-                      status={service.status as any}
-                    />
+                    <OrderStatusBadge status={service.status as any} />
                     <div className="text-right">
                       <div className="text-sm font-medium text-muted-foreground">
                         Цена
@@ -121,7 +122,10 @@ export const UnpaidServicesPanel = () => {
                   <Button
                     size="sm"
                     onClick={() =>
-                      handleCreateInvoice(service.patient.id, service.visitId ?? "")
+                      handleCreateInvoice(
+                        service.patient.id,
+                        service.visitId ?? "",
+                      )
                     }
                     disabled={!service.visitId}
                   >

@@ -59,7 +59,7 @@ function buildChainLabel(node: Partial<Location> | undefined): string {
 }
 
 function computeHierarchyIds(
-  node: Partial<Location> | undefined
+  node: Partial<Location> | undefined,
 ): LocationHierarchyIds {
   const result: LocationHierarchyIds = {};
   let cur: any = node;
@@ -122,7 +122,7 @@ export function LocationSelectField({
             limit,
             type: search ? undefined : "DISTRICT",
           },
-          true
+          true,
         );
         const items = (data ?? []) as Location[];
 
@@ -141,7 +141,7 @@ export function LocationSelectField({
         setLoading(false);
       }
     },
-    [limit, triggerSuggest]
+    [limit, triggerSuggest],
   );
 
   // Ensure selected label is shown even if option not in current list
@@ -162,7 +162,7 @@ export function LocationSelectField({
       try {
         const { data } = await triggerGetById(
           { id: selectedId, includeRelations: true },
-          true
+          true,
         );
         if (!active) return;
         if (data) {
@@ -215,7 +215,7 @@ export function LocationSelectField({
           .catch(() => onChange?.(undefined));
       }
     },
-    [onChange, triggerGetById]
+    [onChange, triggerGetById],
   );
 
   // Value for AsyncComboboxField should be selectedId

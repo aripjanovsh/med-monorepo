@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, Play, CheckCircle, Clock, AlertCircle, Zap } from "lucide-react";
-import { useGetDoctorQueueQuery } from "@/features/doctor/api/doctor.api";
+import { useGetDoctorQueueQuery } from "@/features/visit/visit.api";
 import type { AppointmentType } from "@/features/doctor/types/doctor-queue";
 
 type CurrentPatientWidgetProps = {
@@ -13,7 +13,14 @@ type CurrentPatientWidgetProps = {
   onCompleteVisit?: (visitId: string) => void;
 };
 
-const APPOINTMENT_TYPE_CONFIG: Record<AppointmentType, { label: string; variant: "default" | "destructive" | "outline" | "secondary"; icon: typeof Clock }> = {
+const APPOINTMENT_TYPE_CONFIG: Record<
+  AppointmentType,
+  {
+    label: string;
+    variant: "default" | "destructive" | "outline" | "secondary";
+    icon: typeof Clock;
+  }
+> = {
   STANDARD: { label: "Обычная", variant: "outline", icon: Clock },
   EMERGENCY: { label: "Экстренная", variant: "destructive", icon: AlertCircle },
   WITHOUT_QUEUE: { label: "Без очереди", variant: "secondary", icon: Zap },
@@ -26,11 +33,13 @@ export const CurrentPatientWidget = ({
 }: CurrentPatientWidgetProps) => {
   const { data } = useGetDoctorQueueQuery(
     { employeeId },
-    { skip: !employeeId }
+    { skip: !employeeId },
   );
 
   const currentPatient = data?.inProgress;
-  const typeConfig = currentPatient?.appointmentType ? APPOINTMENT_TYPE_CONFIG[currentPatient.appointmentType] : null;
+  const typeConfig = currentPatient?.appointmentType
+    ? APPOINTMENT_TYPE_CONFIG[currentPatient.appointmentType]
+    : null;
   const TypeIcon = typeConfig?.icon;
 
   return (
@@ -42,7 +51,10 @@ export const CurrentPatientWidget = ({
             Текущий пациент
           </CardTitle>
           {typeConfig && (
-            <Badge variant={typeConfig.variant} className="flex items-center gap-1">
+            <Badge
+              variant={typeConfig.variant}
+              className="flex items-center gap-1"
+            >
               {TypeIcon && <TypeIcon className="h-3.5 w-3.5" />}
               {typeConfig.label}
             </Badge>

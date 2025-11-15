@@ -5,15 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, User, AlertCircle, Zap, Play } from "lucide-react";
-import { useGetDoctorQueueQuery } from "@/features/doctor/api/doctor.api";
-import type { DoctorQueueVisit, AppointmentType } from "@/features/doctor/types/doctor-queue";
+import { useGetDoctorQueueQuery } from "@/features/visit/visit.api";
+import type {
+  DoctorQueueVisit,
+  AppointmentType,
+} from "@/features/doctor/types/doctor-queue";
 
 type QueueWidgetProps = {
   employeeId: string;
   onStartVisit?: (visitId: string) => void;
 };
 
-const APPOINTMENT_TYPE_CONFIG: Record<AppointmentType, { label: string; variant: "default" | "destructive" | "outline" | "secondary"; icon: typeof Clock }> = {
+const APPOINTMENT_TYPE_CONFIG: Record<
+  AppointmentType,
+  {
+    label: string;
+    variant: "default" | "destructive" | "outline" | "secondary";
+    icon: typeof Clock;
+  }
+> = {
   STANDARD: { label: "Обычная", variant: "outline", icon: Clock },
   EMERGENCY: { label: "Экстренная", variant: "destructive", icon: AlertCircle },
   WITHOUT_QUEUE: { label: "Без очереди", variant: "secondary", icon: Zap },
@@ -22,7 +32,7 @@ const APPOINTMENT_TYPE_CONFIG: Record<AppointmentType, { label: string; variant:
 export const QueueWidget = ({ employeeId, onStartVisit }: QueueWidgetProps) => {
   const { data } = useGetDoctorQueueQuery(
     { employeeId },
-    { skip: !employeeId }
+    { skip: !employeeId },
   );
 
   const queue = data?.waiting || [];
@@ -63,9 +73,11 @@ export const QueueWidget = ({ employeeId, onStartVisit }: QueueWidgetProps) => {
           <ScrollArea className="h-[300px] pr-4">
             <div className="space-y-3">
               {queue.map((item: DoctorQueueVisit, index: number) => {
-                const typeConfig = item.appointmentType ? APPOINTMENT_TYPE_CONFIG[item.appointmentType] : null;
+                const typeConfig = item.appointmentType
+                  ? APPOINTMENT_TYPE_CONFIG[item.appointmentType]
+                  : null;
                 const TypeIcon = typeConfig?.icon;
-                
+
                 return (
                   <div
                     key={item.id}
@@ -85,7 +97,10 @@ export const QueueWidget = ({ employeeId, onStartVisit }: QueueWidgetProps) => {
                       </div>
                       <div className="flex items-center gap-2">
                         {typeConfig && (
-                          <Badge variant={typeConfig.variant} className="flex items-center gap-1 text-xs">
+                          <Badge
+                            variant={typeConfig.variant}
+                            className="flex items-center gap-1 text-xs"
+                          >
                             {TypeIcon && <TypeIcon className="h-3 w-3" />}
                             {typeConfig.label}
                           </Badge>

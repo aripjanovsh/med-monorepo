@@ -62,7 +62,7 @@ export default function RoleDetailPage() {
         isActive: role.isActive,
       });
       setSelectedPermissions(
-        role.permissions?.map((p) => (p as any).permissionId) || []
+        role.permissions?.map((p) => (p as any).permissionId) || [],
       );
     }
     setIsEditing(false);
@@ -103,7 +103,7 @@ export default function RoleDetailPage() {
 
   const handleResourceToggle = (
     resourcePermissions: string[],
-    checked: boolean
+    checked: boolean,
   ) => {
     let newSelected: string[];
     if (checked) {
@@ -112,7 +112,7 @@ export default function RoleDetailPage() {
       ];
     } else {
       newSelected = selectedPermissions.filter(
-        (id) => !resourcePermissions.includes(id)
+        (id) => !resourcePermissions.includes(id),
       );
     }
     setSelectedPermissions(newSelected);
@@ -124,7 +124,7 @@ export default function RoleDetailPage() {
 
   const isResourceIndeterminate = (resourcePermissions: string[]) => {
     const selectedInResource = resourcePermissions.filter((id) =>
-      selectedPermissions.includes(id)
+      selectedPermissions.includes(id),
     );
     return (
       selectedInResource.length > 0 &&
@@ -259,7 +259,7 @@ export default function RoleDetailPage() {
                         }
                       />
                       <span className="text-sm">
-                        {editedRole.isActive ?? role.isActive
+                        {(editedRole.isActive ?? role.isActive)
                           ? "Active"
                           : "Inactive"}
                       </span>
@@ -331,13 +331,13 @@ export default function RoleDetailPage() {
                     Object.entries(groupedPermissions).map(
                       ([resource, permissions]) => {
                         const resourcePermissionIds = permissions.map(
-                          (p) => p.id
+                          (p) => p.id,
                         );
                         const isChecked = isResourceChecked(
-                          resourcePermissionIds
+                          resourcePermissionIds,
                         );
                         const isIndeterminate = isResourceIndeterminate(
-                          resourcePermissionIds
+                          resourcePermissionIds,
                         );
 
                         return (
@@ -357,7 +357,7 @@ export default function RoleDetailPage() {
                                 onCheckedChange={(checked) =>
                                   handleResourceToggle(
                                     resourcePermissionIds,
-                                    checked as boolean
+                                    checked as boolean,
                                   )
                                 }
                               />
@@ -377,13 +377,13 @@ export default function RoleDetailPage() {
                                   <Checkbox
                                     id={permission.id}
                                     checked={selectedPermissions.includes(
-                                      permission.id
+                                      permission.id,
                                     )}
                                     disabled={!isEditing}
                                     onCheckedChange={(checked) =>
                                       handlePermissionToggle(
                                         permission.id,
-                                        checked as boolean
+                                        checked as boolean,
                                       )
                                     }
                                   />
@@ -400,7 +400,7 @@ export default function RoleDetailPage() {
                             <Separator />
                           </div>
                         );
-                      }
+                      },
                     )}
                 </div>
               )}

@@ -6,7 +6,7 @@ import {
   useGetDoctorQueueQuery,
   useStartVisitMutation,
   useCompleteVisitMutation,
-} from "../api/doctor.api";
+} from "@/features/visit/visit.api";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DoctorQueueVisit } from "../types/doctor-queue";
 
@@ -92,7 +92,7 @@ export const DoctorQueuePanel = ({
 
   const handleStart = async (visitId: string) => {
     try {
-      await startVisit({ visitId }).unwrap();
+      await startVisit({ id: visitId, employeeId }).unwrap();
     } catch (error) {
       console.error("Failed to start visit:", error);
     }

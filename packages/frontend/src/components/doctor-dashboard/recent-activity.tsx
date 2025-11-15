@@ -2,18 +2,23 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { 
-  User, 
-  Calendar, 
-  FileText, 
-  UserCheck, 
+import {
+  User,
+  Calendar,
+  FileText,
+  UserCheck,
   MessageSquare,
-  Pill
+  Pill,
 } from "lucide-react";
 
 interface Activity {
   id: string;
-  type: "appointment" | "prescription" | "patient_added" | "message" | "completed";
+  type:
+    | "appointment"
+    | "prescription"
+    | "patient_added"
+    | "message"
+    | "completed";
   title: string;
   description: string;
   time: string;
@@ -120,7 +125,7 @@ export function RecentActivity() {
           </div>
         );
       })}
-      
+
       {activities.length === 0 && (
         <div className="text-center py-4 text-muted-foreground text-sm">
           Нет недавней активности

@@ -91,7 +91,7 @@ export function VitalSignsForm({
                         variant="outline"
                         className={cn(
                           "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value ? (
@@ -127,7 +127,10 @@ export function VitalSignsForm({
               <FormItem>
                 <FormLabel>Recorded By</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter name of person recording" {...field} />
+                  <Input
+                    placeholder="Enter name of person recording"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -150,7 +153,11 @@ export function VitalSignsForm({
                       type="number"
                       placeholder="e.g., 120"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -169,7 +176,11 @@ export function VitalSignsForm({
                       type="number"
                       placeholder="e.g., 80"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -192,7 +203,11 @@ export function VitalSignsForm({
                     type="number"
                     placeholder="e.g., 72"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseInt(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -212,7 +227,11 @@ export function VitalSignsForm({
                     step="0.1"
                     placeholder="e.g., 98.6"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseFloat(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -235,7 +254,11 @@ export function VitalSignsForm({
                     step="0.1"
                     placeholder="e.g., 70.5"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseFloat(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -254,7 +277,11 @@ export function VitalSignsForm({
                     type="number"
                     placeholder="e.g., 175"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseInt(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -276,7 +303,11 @@ export function VitalSignsForm({
                     type="number"
                     placeholder="e.g., 98"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseInt(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -295,7 +326,11 @@ export function VitalSignsForm({
                     type="number"
                     placeholder="e.g., 16"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? parseInt(e.target.value) : undefined,
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -321,8 +356,8 @@ export function VitalSignsForm({
             {isLoading
               ? "Saving..."
               : vitalSign
-              ? "Update Vital Signs"
-              : "Record Vital Signs"}
+                ? "Update Vital Signs"
+                : "Record Vital Signs"}
           </Button>
           <Button
             type="button"

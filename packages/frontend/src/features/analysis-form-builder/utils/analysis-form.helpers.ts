@@ -1,6 +1,6 @@
 /**
  * Analysis Form Builder Helpers
- * 
+ *
  * Утилиты для работы с шаблонами анализов и результатами
  */
 
@@ -51,7 +51,7 @@ export const createEmptyAnalysisTemplate = (): AnalysisTemplate => ({
 export const formatReferenceRange = (
   min?: number,
   max?: number,
-  unit?: string
+  unit?: string,
 ): string => {
   const minStr = min !== undefined ? min.toString() : "—";
   const maxStr = max !== undefined ? max.toString() : "—";
@@ -64,9 +64,7 @@ export const formatReferenceRange = (
  * Получить простой диапазон из множественных референсных диапазонов
  * Приоритет: default > первый доступный
  */
-export const getSimpleRange = (
-  ranges?: ReferenceRanges
-): ReferenceRange => {
+export const getSimpleRange = (ranges?: ReferenceRanges): ReferenceRange => {
   if (!ranges || Object.keys(ranges).length === 0) {
     return {};
   }
@@ -78,7 +76,7 @@ export const getSimpleRange = (
 
   // Иначе первый непустой диапазон
   const firstRange = Object.values(ranges).find(
-    (r) => r && (r.min !== undefined || r.max !== undefined)
+    (r) => r && (r.min !== undefined || r.max !== undefined),
   );
 
   return firstRange || {};
@@ -90,7 +88,7 @@ export const getSimpleRange = (
 export const updateSimpleRange = (
   currentRanges: ReferenceRanges | undefined,
   field: "min" | "max",
-  value: number | undefined
+  value: number | undefined,
 ): ReferenceRanges => {
   const ranges = currentRanges || {};
 
@@ -120,15 +118,17 @@ export const formatRangePreview = (ranges?: ReferenceRanges): string => {
     return "Нет диапазонов";
   }
 
-  return Object.entries(ranges)
-    .slice(0, 3)
-    .map(([key, range]) => {
-      const label = REFERENCE_RANGE_GROUP_SHORT_LABELS[key] || key;
-      const min = range.min !== undefined ? range.min : "—";
-      const max = range.max !== undefined ? range.max : "—";
-      return `${label}: ${min}-${max}`;
-    })
-    .join(", ") + (Object.keys(ranges).length > 3 ? "..." : "");
+  return (
+    Object.entries(ranges)
+      .slice(0, 3)
+      .map(([key, range]) => {
+        const label = REFERENCE_RANGE_GROUP_SHORT_LABELS[key] || key;
+        const min = range.min !== undefined ? range.min : "—";
+        const max = range.max !== undefined ? range.max : "—";
+        return `${label}: ${min}-${max}`;
+      })
+      .join(", ") + (Object.keys(ranges).length > 3 ? "..." : "")
+  );
 };
 
 /**
@@ -137,7 +137,7 @@ export const formatRangePreview = (ranges?: ReferenceRanges): string => {
 export const getApplicableRange = (
   ranges: ReferenceRanges | undefined,
   gender?: PatientGender,
-  age?: number
+  age?: number,
 ): ReferenceRange | null => {
   if (!ranges) return null;
 
@@ -183,7 +183,7 @@ export const getApplicableRange = (
  */
 export const getReferenceStatus = (
   value: string | number | boolean,
-  range: ReferenceRange | null
+  range: ReferenceRange | null,
 ): ReferenceStatus => {
   // Если нет диапазона
   if (!range) {
@@ -228,7 +228,7 @@ export const getReferenceStatus = (
  * Форматировать референсный диапазон для отображения в таблице
  */
 export const formatReferenceRangeDisplay = (
-  range: ReferenceRange | null
+  range: ReferenceRange | null,
 ): string => {
   if (!range) return "—";
 
@@ -268,6 +268,6 @@ export const hasReferenceRanges = (parameter: AnalysisParameter): boolean => {
   }
 
   return Object.values(parameter.referenceRanges).some(
-    (range) => range && (range.min !== undefined || range.max !== undefined)
+    (range) => range && (range.min !== undefined || range.max !== undefined),
   );
 };

@@ -8,12 +8,12 @@
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | `"Нет данных"` | Заголовок |
-| `description` | `string` | `"Данные отсутствуют или не найдены"` | Описание |
-| `icon` | `React.ComponentType` | `FileQuestion` | Иконка |
-| `action` | `React.ReactNode` | - | Дополнительное действие (кнопка) |
+| Prop          | Type                  | Default                               | Description                      |
+| ------------- | --------------------- | ------------------------------------- | -------------------------------- |
+| `title`       | `string`              | `"Нет данных"`                        | Заголовок                        |
+| `description` | `string`              | `"Данные отсутствуют или не найдены"` | Описание                         |
+| `icon`        | `React.ComponentType` | `FileQuestion`                        | Иконка                           |
+| `action`      | `React.ReactNode`     | -                                     | Дополнительное действие (кнопка) |
 
 ### Примеры использования
 
@@ -29,7 +29,7 @@ import { DataTableEmptyState } from "@/components/data-table";
       description="Попробуйте изменить параметры поиска"
     />
   }
-/>
+/>;
 ```
 
 #### С кастомной иконкой
@@ -41,7 +41,7 @@ import { Users } from "lucide-react";
   title="Нет пользователей"
   description="Добавьте первого пользователя"
   icon={Users}
-/>
+/>;
 ```
 
 #### С действием (кнопкой)
@@ -52,12 +52,8 @@ import { Button } from "@/components/ui/button";
 <DataTableEmptyState
   title="Нет записей"
   description="Начните с создания новой записи"
-  action={
-    <Button onClick={handleCreate}>
-      Создать запись
-    </Button>
-  }
-/>
+  action={<Button onClick={handleCreate}>Создать запись</Button>}
+/>;
 ```
 
 ## DataTableErrorState
@@ -66,14 +62,14 @@ import { Button } from "@/components/ui/button";
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | `"Ошибка при загрузке данных"` | Заголовок |
-| `description` | `string` | - | Описание (или извлекается из `error`) |
-| `error` | `Error \| unknown` | - | Объект ошибки |
-| `icon` | `React.ComponentType` | `AlertCircle` | Иконка |
-| `onRetry` | `() => void` | - | Callback для повторной попытки |
-| `retryText` | `string` | `"Повторить попытку"` | Текст кнопки retry |
+| Prop          | Type                  | Default                        | Description                           |
+| ------------- | --------------------- | ------------------------------ | ------------------------------------- |
+| `title`       | `string`              | `"Ошибка при загрузке данных"` | Заголовок                             |
+| `description` | `string`              | -                              | Описание (или извлекается из `error`) |
+| `error`       | `Error \| unknown`    | -                              | Объект ошибки                         |
+| `icon`        | `React.ComponentType` | `AlertCircle`                  | Иконка                                |
+| `onRetry`     | `() => void`          | -                              | Callback для повторной попытки        |
+| `retryText`   | `string`              | `"Повторить попытку"`          | Текст кнопки retry                    |
 
 ### Примеры использования
 
@@ -94,7 +90,7 @@ import { DataTableErrorState } from "@/components/data-table";
       <DataTableEmptyState />
     )
   }
-/>
+/>;
 ```
 
 #### С кастомным сообщением
@@ -168,16 +164,14 @@ function NoPatients() {
       icon={UserPlus}
       action={
         <Button asChild>
-          <Link href="/cabinet/patients/new">
-            Добавить пациента
-          </Link>
+          <Link href="/cabinet/patients/new">Добавить пациента</Link>
         </Button>
       }
     />
   );
 }
 
-<DataTable emptyState={<NoPatients />} />
+<DataTable emptyState={<NoPatients />} />;
 ```
 
 ### Условное отображение
@@ -205,6 +199,7 @@ function NoPatients() {
 ## Стилизация
 
 Оба компонента используют Tailwind CSS и адаптируются к теме приложения:
+
 - Empty state: серые тона
 - Error state: красные тона (destructive)
 
@@ -212,25 +207,26 @@ function NoPatients() {
 
 ```tsx
 <div className="min-h-[400px]">
-  <DataTable
-    emptyState={<DataTableEmptyState />}
-  />
+  <DataTable emptyState={<DataTableEmptyState />} />
 </div>
 ```
 
 ## Best Practices
 
 1. **Всегда показывайте error state при ошибках:**
+
    ```tsx
    emptyState={error ? <DataTableErrorState /> : <DataTableEmptyState />}
    ```
 
 2. **Добавляйте onRetry для всех error states:**
+
    ```tsx
    <DataTableErrorState onRetry={refetch} />
    ```
 
 3. **Используйте понятные сообщения:**
+
    ```tsx
    <DataTableEmptyState
      title="Счета не найдены"
@@ -240,14 +236,13 @@ function NoPatients() {
 
 4. **Добавляйте действия в empty state:**
    ```tsx
-   <DataTableEmptyState
-     action={<Button>Создать</Button>}
-   />
+   <DataTableEmptyState action={<Button>Создать</Button>} />
    ```
 
 ## Доступные иконки (lucide-react)
 
 ### Для Empty State:
+
 - `FileQuestion` (default)
 - `Inbox`
 - `Search`
@@ -256,6 +251,7 @@ function NoPatients() {
 - `Package`
 
 ### Для Error State:
+
 - `AlertCircle` (default)
 - `XCircle`
 - `AlertTriangle`

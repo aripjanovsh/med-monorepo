@@ -14,7 +14,12 @@ import {
 import { useGetVisitsQuery } from "@/features/visit/visit.api";
 import type { VisitResponseDto } from "@/features/visit/visit.dto";
 import { getPatientFullName } from "@/features/patients/patient.model";
-import { formatDoctorShortName, formatTimeAgo, getVisitUnpaidTotal, hasVisitUnpaidServices } from "@/features/visit/visit.model";
+import {
+  formatDoctorShortName,
+  formatTimeAgo,
+  getVisitUnpaidTotal,
+  hasVisitUnpaidServices,
+} from "@/features/visit/visit.model";
 import { formatCurrency } from "@/lib/currency.utils";
 import { useCallback, useMemo } from "react";
 import { VisitIncludeRelation } from "@/features/visit/visit.dto";
@@ -50,7 +55,7 @@ export const CompletedVisitsPanel = ({
     (visit: VisitResponseDto) => {
       onCreateInvoice(visit);
     },
-    [onCreateInvoice]
+    [onCreateInvoice],
   );
 
   if (isLoading) {

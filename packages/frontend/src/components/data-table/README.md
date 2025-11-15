@@ -296,39 +296,39 @@ import { DataTableViewOptions } from "@/components/data-table";
 
 ### DataTable Props
 
-| Prop              | Type                                    | Default        | Description                                    |
-| ----------------- | --------------------------------------- | -------------- | ---------------------------------------------- |
-| `columns`         | `ColumnDef<TData, TValue>[]`            | `[]`           | Определения колонок таблицы                    |
-| `data`            | `TData[]`                               | `[]`           | Данные таблицы                                 |
-| `isLoading`       | `boolean`                               | `false`        | Показывать loading skeleton                    |
-| `pagination`      | `DataTablePaginationModel`              | `undefined`    | Настройки пагинации (server-side)              |
-| `sort`            | `DataTableSortModel`                    | `undefined`    | Настройки сортировки (server-side)             |
-| `enableSorting`   | `boolean`                               | `false`        | Включить client-side сортировку                |
-| `enableFiltering` | `boolean`                               | `false`        | Включить client-side фильтрацию                |
-| `defaultSorting`  | `SortingState`                          | `[]`           | Начальное состояние сортировки                 |
-| `defaultFilters`  | `ColumnFiltersState`                    | `[]`           | Начальные фильтры                              |
-| `selection`       | `DataTableSelectionModel`               | `undefined`    | Настройки выбора строк                         |
-| `toolbar`         | `(table: Table<TData>) => ReactNode`    | `undefined`    | Кастомный тулбар                               |
-| `emptyState`      | `ReactNode`                             | `"No results"` | Сообщение при пустой таблице                   |
-| `onRowClick`      | `(row: Row<TData>) => void`             | `undefined`    | Обработчик клика на строку                     |
+| Prop              | Type                                 | Default        | Description                        |
+| ----------------- | ------------------------------------ | -------------- | ---------------------------------- |
+| `columns`         | `ColumnDef<TData, TValue>[]`         | `[]`           | Определения колонок таблицы        |
+| `data`            | `TData[]`                            | `[]`           | Данные таблицы                     |
+| `isLoading`       | `boolean`                            | `false`        | Показывать loading skeleton        |
+| `pagination`      | `DataTablePaginationModel`           | `undefined`    | Настройки пагинации (server-side)  |
+| `sort`            | `DataTableSortModel`                 | `undefined`    | Настройки сортировки (server-side) |
+| `enableSorting`   | `boolean`                            | `false`        | Включить client-side сортировку    |
+| `enableFiltering` | `boolean`                            | `false`        | Включить client-side фильтрацию    |
+| `defaultSorting`  | `SortingState`                       | `[]`           | Начальное состояние сортировки     |
+| `defaultFilters`  | `ColumnFiltersState`                 | `[]`           | Начальные фильтры                  |
+| `selection`       | `DataTableSelectionModel`            | `undefined`    | Настройки выбора строк             |
+| `toolbar`         | `(table: Table<TData>) => ReactNode` | `undefined`    | Кастомный тулбар                   |
+| `emptyState`      | `ReactNode`                          | `"No results"` | Сообщение при пустой таблице       |
+| `onRowClick`      | `(row: Row<TData>) => void`          | `undefined`    | Обработчик клика на строку         |
 
 ### DataTablePaginationModel
 
-| Prop            | Type                       | Description                    |
-| --------------- | -------------------------- | ------------------------------ |
-| `page`          | `number`                   | Текущая страница               |
-| `limit`         | `number`                   | Количество строк на странице   |
-| `total`         | `number`                   | Общее количество записей       |
-| `onChangePage`  | `(page: number) => void`   | Коллбек изменения страницы     |
-| `onChangeLimit` | `(limit: number) => void`  | Коллбек изменения лимита       |
+| Prop            | Type                      | Description                  |
+| --------------- | ------------------------- | ---------------------------- |
+| `page`          | `number`                  | Текущая страница             |
+| `limit`         | `number`                  | Количество строк на странице |
+| `total`         | `number`                  | Общее количество записей     |
+| `onChangePage`  | `(page: number) => void`  | Коллбек изменения страницы   |
+| `onChangeLimit` | `(limit: number) => void` | Коллбек изменения лимита     |
 
 ### DataTableSortModel
 
-| Prop       | Type                         | Description                    |
-| ---------- | ---------------------------- | ------------------------------ |
-| `value`    | `string[]`                   | Массив сортируемых колонок     |
-| `multiple` | `boolean`                    | Разрешить множественную сортировку |
-| `onChange` | `(value: string[]) => void`  | Коллбек изменения сортировки   |
+| Prop       | Type                        | Description                        |
+| ---------- | --------------------------- | ---------------------------------- |
+| `value`    | `string[]`                  | Массив сортируемых колонок         |
+| `multiple` | `boolean`                   | Разрешить множественную сортировку |
+| `onChange` | `(value: string[]) => void` | Коллбек изменения сортировки       |
 
 ## Советы и Best Practices
 
@@ -350,12 +350,7 @@ import { DataTableViewOptions } from "@/components/data-table";
 Для небольших таблиц (<100 записей) используйте client-side режим:
 
 ```tsx
-<DataTable
-  columns={columns}
-  data={data}
-  enableSorting
-  enableFiltering
-/>
+<DataTable columns={columns} data={data} enableSorting enableFiltering />
 ```
 
 ### 3. Мемоизируйте колонки
@@ -371,7 +366,7 @@ const columns = useMemo<ColumnDef<User>[]>(
     },
     // ...
   ],
-  []
+  [],
 );
 ```
 
@@ -396,6 +391,7 @@ import { DataTableToolbar } from "@/components/data-table";
 ## Примеры из проекта
 
 Примеры использования в проекте:
+
 - `/app/cabinet/employees/page.tsx` - таблица сотрудников
 - `/app/cabinet/patients/page.tsx` - таблица пациентов
 - `/app/cabinet/invoices/page.tsx` - таблица счетов
@@ -417,12 +413,14 @@ setData([...data, newItem]);
 ### Сортировка не работает
 
 Проверьте, что вы используете правильный режим:
+
 - Для server-side: передайте `sort` prop
 - Для client-side: установите `enableSorting={true}`
 
 ### Фильтрация не работает
 
 Убедитесь, что:
+
 - Установлен `enableFiltering={true}` для client-side
 - Колонка имеет правильный `accessorKey`
 - Используете `DataTableToolbar` или кастомный toolbar с фильтрами

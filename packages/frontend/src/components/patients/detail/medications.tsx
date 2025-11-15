@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Pill, 
-  Plus, 
-  Calendar, 
-  Clock, 
+import {
+  Pill,
+  Plus,
+  Calendar,
+  Clock,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -13,37 +13,48 @@ import {
   Search,
   Edit,
   Trash2,
-  Shield
+  Shield,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Patient, Medication } from "@/types/patient";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { MedicationForm } from "../forms/medication-form";
 
 interface MedicationsProps {
@@ -54,14 +65,20 @@ export function Medications({ patient }: MedicationsProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingMedication, setEditingMedication] = useState<Medication | undefined>();
+  const [editingMedication, setEditingMedication] = useState<
+    Medication | undefined
+  >();
   const [isLoading, setIsLoading] = useState(false);
 
   const filteredMedications = patient.medications
     ?.filter((medication) => {
-      const matchesSearch = medication.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           medication.prescribedBy.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = filterStatus === "all" || medication.status === filterStatus;
+      const matchesSearch =
+        medication.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        medication.prescribedBy
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+      const matchesFilter =
+        filterStatus === "all" || medication.status === filterStatus;
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
@@ -96,8 +113,10 @@ export function Medications({ patient }: MedicationsProps) {
     }
   };
 
-  const activeMedications = patient.medications?.filter(m => m.status === "ACTIVE") || [];
-  const discontinuedMedications = patient.medications?.filter(m => m.status === "DISCONTINUED") || [];
+  const activeMedications =
+    patient.medications?.filter((m) => m.status === "ACTIVE") || [];
+  const discontinuedMedications =
+    patient.medications?.filter((m) => m.status === "DISCONTINUED") || [];
 
   const handlePrescribeMedication = () => {
     setEditingMedication(undefined);
@@ -113,14 +132,20 @@ export function Medications({ patient }: MedicationsProps) {
     setIsLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (editingMedication) {
-        console.log("Updating medication:", { id: editingMedication.id, ...data });
+        console.log("Updating medication:", {
+          id: editingMedication.id,
+          ...data,
+        });
       } else {
-        console.log("Prescribing medication:", { patientId: patient.id, ...data });
+        console.log("Prescribing medication:", {
+          patientId: patient.id,
+          ...data,
+        });
       }
-      
+
       setIsFormOpen(false);
       setEditingMedication(undefined);
       // In real app, you would refetch the patient data here
@@ -165,26 +190,30 @@ export function Medications({ patient }: MedicationsProps) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <XCircle className="h-4 w-4 text-red-600" />
               <div>
                 <p className="text-sm font-medium">Discontinued</p>
-                <p className="text-2xl font-bold">{discontinuedMedications.length}</p>
+                <p className="text-2xl font-bold">
+                  {discontinuedMedications.length}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-4 w-4 text-orange-600" />
               <div>
                 <p className="text-sm font-medium">Allergies</p>
-                <p className="text-2xl font-bold">{patient.allergies?.length || 0}</p>
+                <p className="text-2xl font-bold">
+                  {patient.allergies?.length || 0}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -234,7 +263,10 @@ export function Medications({ patient }: MedicationsProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeMedications.map((medication) => (
-                <div key={medication.id} className="p-4 bg-white border border-green-200 rounded-lg">
+                <div
+                  key={medication.id}
+                  className="p-4 bg-white border border-green-200 rounded-lg"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-semibold">{medication.name}</h4>
@@ -257,14 +289,16 @@ export function Medications({ patient }: MedicationsProps) {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  
+
                   <div className="text-sm space-y-1">
                     <p>
                       <span className="text-muted-foreground">Started:</span>{" "}
                       {new Date(medication.startDate).toLocaleDateString()}
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Prescribed by:</span>{" "}
+                      <span className="text-muted-foreground">
+                        Prescribed by:
+                      </span>{" "}
                       {medication.prescribedBy}
                     </p>
                     {medication.notes && (
@@ -309,7 +343,9 @@ export function Medications({ patient }: MedicationsProps) {
                         <div>
                           <p className="font-medium">{medication.name}</p>
                           {medication.notes && (
-                            <p className="text-sm text-muted-foreground">{medication.notes}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {medication.notes}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -317,14 +353,22 @@ export function Medications({ patient }: MedicationsProps) {
                     <TableCell>
                       <div>
                         <p className="font-medium">{medication.dosage}</p>
-                        <p className="text-sm text-muted-foreground">{medication.frequency}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {medication.frequency}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <p>Start: {new Date(medication.startDate).toLocaleDateString()}</p>
+                        <p>
+                          Start:{" "}
+                          {new Date(medication.startDate).toLocaleDateString()}
+                        </p>
                         {medication.endDate && (
-                          <p>End: {new Date(medication.endDate).toLocaleDateString()}</p>
+                          <p>
+                            End:{" "}
+                            {new Date(medication.endDate).toLocaleDateString()}
+                          </p>
                         )}
                       </div>
                     </TableCell>
@@ -362,20 +406,21 @@ export function Medications({ patient }: MedicationsProps) {
           ) : (
             <div className="text-center py-12">
               <Pill className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No medications found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No medications found
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {searchTerm || filterStatus !== "all" 
+                {searchTerm || filterStatus !== "all"
                   ? "Try adjusting your search or filters"
-                  : "Start by prescribing the first medication for this patient."
-                }
+                  : "Start by prescribing the first medication for this patient."}
               </p>
               {!searchTerm && filterStatus === "all" && (
-                              <div className="mt-6">
-                <Button size="sm" onClick={handlePrescribeMedication}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Prescribe Medication
-                </Button>
-              </div>
+                <div className="mt-6">
+                  <Button size="sm" onClick={handlePrescribeMedication}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Prescribe Medication
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -394,7 +439,10 @@ export function Medications({ patient }: MedicationsProps) {
           <CardContent>
             <div className="space-y-3">
               {patient.vaccinations.map((vaccination) => (
-                <div key={vaccination.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={vaccination.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex items-center space-x-3">
                     <Shield className="h-4 w-4 text-blue-500" />
                     <div>
@@ -406,11 +454,14 @@ export function Medications({ patient }: MedicationsProps) {
                   </div>
                   <div className="text-right text-sm">
                     <p className="font-medium">
-                      {new Date(vaccination.dateAdministered).toLocaleDateString()}
+                      {new Date(
+                        vaccination.dateAdministered,
+                      ).toLocaleDateString()}
                     </p>
                     {vaccination.nextDue && (
                       <p className="text-muted-foreground">
-                        Next due: {new Date(vaccination.nextDue).toLocaleDateString()}
+                        Next due:{" "}
+                        {new Date(vaccination.nextDue).toLocaleDateString()}
                       </p>
                     )}
                   </div>

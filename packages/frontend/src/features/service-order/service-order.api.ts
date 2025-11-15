@@ -12,7 +12,10 @@ import type {
 export const serviceOrderApi = rootApi.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
-    getServiceOrders: builder.query<ServiceOrdersListResponseDto, ServiceOrderQueryParamsDto>({
+    getServiceOrders: builder.query<
+      ServiceOrdersListResponseDto,
+      ServiceOrderQueryParamsDto
+    >({
       query: (params) => ({
         url: "/api/v1/service-orders",
         method: "GET",
@@ -31,7 +34,10 @@ export const serviceOrderApi = rootApi.injectEndpoints({
       ],
     }),
 
-    createServiceOrders: builder.mutation<ServiceOrderResponseDto[], CreateServiceOrderRequestDto>({
+    createServiceOrders: builder.mutation<
+      ServiceOrderResponseDto[],
+      CreateServiceOrderRequestDto
+    >({
       query: (data) => ({
         url: "/api/v1/service-orders",
         method: "POST",
@@ -40,7 +46,10 @@ export const serviceOrderApi = rootApi.injectEndpoints({
       invalidatesTags: [API_TAG_OPERATIONS_SERVICE_ORDERS],
     }),
 
-    updateServiceOrder: builder.mutation<ServiceOrderResponseDto, UpdateServiceOrderRequestDto>({
+    updateServiceOrder: builder.mutation<
+      ServiceOrderResponseDto,
+      UpdateServiceOrderRequestDto
+    >({
       query: ({ id, ...data }) => ({
         url: `/api/v1/service-orders/${id}`,
         method: "PATCH",
@@ -81,7 +90,7 @@ export const {
  */
 export const downloadServiceOrderPdf = async (
   orderId: string,
-  token: string
+  token: string,
 ): Promise<void> => {
   const response = await fetch(
     `${API_ENDPOINT}/api/v1/service-orders/${orderId}/download-pdf`,
@@ -90,7 +99,7 @@ export const downloadServiceOrderPdf = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {

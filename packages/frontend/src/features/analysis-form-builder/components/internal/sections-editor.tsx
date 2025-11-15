@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, GripVertical, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Plus,
+  GripVertical,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +38,7 @@ export const SectionsEditor = ({
   onSectionsChange,
 }: SectionsEditorProps) => {
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set(sections.map((s) => s.id))
+    new Set(sections.map((s) => s.id)),
   );
 
   const addSection = () => {
@@ -52,10 +58,10 @@ export const SectionsEditor = ({
   const updateSection = (
     id: string,
     field: keyof AnalysisSection,
-    value: unknown
+    value: unknown,
   ) => {
     onSectionsChange(
-      sections.map((s) => (s.id === id ? { ...s, [field]: value } : s))
+      sections.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
     );
   };
 
@@ -134,9 +140,7 @@ export const SectionsEditor = ({
                           ) : (
                             <ChevronDown className="h-4 w-4" />
                           )}
-                          <span>
-                            {section.title || `Секция ${index + 1}`}
-                          </span>
+                          <span>{section.title || `Секция ${index + 1}`}</span>
                           <span className="text-xs text-muted-foreground font-normal">
                             ({section.parameters.length} параметров)
                           </span>
@@ -201,7 +205,7 @@ export const SectionsEditor = ({
                             updateSection(
                               section.id,
                               "description",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder="Краткое описание секции"

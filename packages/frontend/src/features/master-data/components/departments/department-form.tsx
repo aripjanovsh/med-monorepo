@@ -65,8 +65,8 @@ const validationSchema = yup.object().shape({
   order: yup
     .number()
     .nullable()
-    .transform((value, originalValue) => 
-      originalValue === "" || originalValue === null ? null : value
+    .transform((value, originalValue) =>
+      originalValue === "" || originalValue === null ? null : value,
     ),
   isActive: yup.boolean().default(true).required(),
 });
@@ -309,8 +309,8 @@ export function DepartmentForm({
                     ? "Сохранение..."
                     : "Создание..."
                   : isEditing
-                  ? "Сохранить"
-                  : "Создать"}
+                    ? "Сохранить"
+                    : "Создать"}
               </Button>
             </div>
           </form>

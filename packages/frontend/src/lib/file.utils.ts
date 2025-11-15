@@ -44,7 +44,7 @@ export const isDocumentFile = (mimeType: string): boolean => {
  */
 export const getImageUrl = (
   storedName: string,
-  options?: ImageTransformOptions
+  options?: ImageTransformOptions,
 ): string => {
   const params = new URLSearchParams();
 
@@ -75,7 +75,7 @@ export const getImageUrl = (
  */
 export const validateFileType = (
   file: File,
-  acceptedTypes: string[]
+  acceptedTypes: string[],
 ): boolean => {
   return acceptedTypes.includes(file.type);
 };

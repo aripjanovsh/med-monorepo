@@ -72,7 +72,7 @@ export default function TitlesPage() {
         },
       });
     },
-    [titleFormDialog, refetch]
+    [titleFormDialog, refetch],
   );
 
   const handleDelete = useCallback(
@@ -98,7 +98,7 @@ export default function TitlesPage() {
         },
       });
     },
-    [confirm, deleteTitle, refetch]
+    [confirm, deleteTitle, refetch],
   );
 
   return (

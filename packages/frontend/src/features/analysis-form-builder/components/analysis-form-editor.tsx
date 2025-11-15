@@ -1,8 +1,8 @@
 /**
  * Analysis Form Editor
- * 
+ *
  * Компонент для редактирования структуры шаблона анализа.
- * 
+ *
  * @example
  * ```tsx
  * <AnalysisFormEditor
@@ -31,9 +31,7 @@ export const AnalysisFormEditor = ({
   return (
     <SectionsEditor
       sections={template.sections}
-      onSectionsChange={(sections) =>
-        onChange({ ...template, sections })
-      }
+      onSectionsChange={(sections) => onChange({ ...template, sections })}
     />
   );
 };

@@ -22,12 +22,13 @@ import { getPatientDetailRoute } from "@/constants/route.constants";
 // Separate components for table cells that need router
 const PatientNameCell = ({ patient }: { patient: Patient }) => {
   const router = useRouter();
-  const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
-  
+  const age =
+    new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
+
   const handleNameClick = () => {
     router.push(getPatientDetailRoute(patient.id));
   };
-  
+
   return (
     <div className="flex items-center space-x-3">
       <Avatar className="h-10 w-10">
@@ -41,7 +42,7 @@ const PatientNameCell = ({ patient }: { patient: Patient }) => {
         </AvatarFallback>
       </Avatar>
       <div>
-        <div 
+        <div
           className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer hover:underline"
           onClick={handleNameClick}
         >
@@ -55,9 +56,15 @@ const PatientNameCell = ({ patient }: { patient: Patient }) => {
   );
 };
 
-const PatientActionsCell = ({ patient, onEditPatient }: { patient: Patient; onEditPatient?: (patient: Patient) => void }) => {
+const PatientActionsCell = ({
+  patient,
+  onEditPatient,
+}: {
+  patient: Patient;
+  onEditPatient?: (patient: Patient) => void;
+}) => {
   const router = useRouter();
-  
+
   const handleViewDetails = () => {
     router.push(getPatientDetailRoute(patient.id));
   };
@@ -82,8 +89,10 @@ const PatientActionsCell = ({ patient, onEditPatient }: { patient: Patient; onEd
           Copy patient ID
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleViewDetails}>View medical history</DropdownMenuItem>
-          <DropdownMenuItem>Schedule appointment</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleViewDetails}>
+          View medical history
+        </DropdownMenuItem>
+        <DropdownMenuItem>Schedule appointment</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onEditPatient?.(patient)}>
           Edit patient
         </DropdownMenuItem>
@@ -97,7 +106,7 @@ const PatientActionsCell = ({ patient, onEditPatient }: { patient: Patient; onEd
 };
 
 export const createPatientColumns = (
-  onEditPatient?: (patient: Patient) => void
+  onEditPatient?: (patient: Patient) => void,
 ): ColumnDef<Patient>[] => [
   {
     id: "select",
@@ -189,15 +198,15 @@ export const createPatientColumns = (
             status === "ACTIVE"
               ? "default"
               : status === "PENDING"
-              ? "secondary"
-              : "destructive"
+                ? "secondary"
+                : "destructive"
           }
           className={
             status === "ACTIVE"
               ? "bg-green-100 text-green-800 hover:bg-green-100"
               : status === "PENDING"
-              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-              : "bg-red-100 text-red-800 hover:bg-red-100"
+                ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                : "bg-red-100 text-red-800 hover:bg-red-100"
           }
         >
           {status}
@@ -210,7 +219,9 @@ export const createPatientColumns = (
     enableHiding: false,
     cell: ({ row }) => {
       const patient = row.original;
-      return <PatientActionsCell patient={patient} onEditPatient={onEditPatient} />;
+      return (
+        <PatientActionsCell patient={patient} onEditPatient={onEditPatient} />
+      );
     },
   },
 ];

@@ -28,7 +28,10 @@ import {
 } from "./service-order-status-badge";
 
 import { ResultInputText } from "./result-input-text";
-import { ResultInputAnalysis, type AnalysisResultData } from "./result-input-analysis";
+import {
+  ResultInputAnalysis,
+  type AnalysisResultData,
+} from "./result-input-analysis";
 import { ResultInputProtocol } from "./result-input-protocol";
 import { ResultInputFile, type SavedFileData } from "./result-input-file";
 import type { SavedProtocolData } from "@/features/visit/visit-protocol.types";
@@ -59,23 +62,33 @@ export const ServiceOrderExecutionCard = ({
   onCancel,
   isLoading = false,
 }: ServiceOrderExecutionCardProps) => {
-  const parseResultData = (data: Record<string, any> | null | undefined): {
+  const parseResultData = (
+    data: Record<string, any> | null | undefined,
+  ): {
     analysis: SavedAnalysisData | null;
     protocol: SavedProtocolData | null;
     file: SavedFileData | null;
   } => {
     if (!data) return { analysis: null, protocol: null, file: null };
-    
+
     // Проверка на SavedFileData
     if ("fileId" in data && "filename" in data) {
       return { analysis: null, protocol: null, file: data as SavedFileData };
     }
-    
+
     // Новая структура SavedAnalysisData
-    if ("filledData" in data && "templateContent" in data && "rows" in data.filledData) {
-      return { analysis: data as SavedAnalysisData, protocol: null, file: null };
+    if (
+      "filledData" in data &&
+      "templateContent" in data &&
+      "rows" in data.filledData
+    ) {
+      return {
+        analysis: data as SavedAnalysisData,
+        protocol: null,
+        file: null,
+      };
     }
-    
+
     // Старая структура FilledAnalysisData (обратная совместимость)
     if ("rows" in data && "templateId" in data && !("filledData" in data)) {
       const oldData = data as any;
@@ -92,12 +105,20 @@ export const ServiceOrderExecutionCard = ({
       };
       return { analysis: newData, protocol: null, file: null };
     }
-    
+
     // Новая структура SavedProtocolData
-    if ("filledData" in data && "templateContent" in data && !("rows" in data)) {
-      return { analysis: null, protocol: data as SavedProtocolData, file: null };
+    if (
+      "filledData" in data &&
+      "templateContent" in data &&
+      !("rows" in data)
+    ) {
+      return {
+        analysis: null,
+        protocol: data as SavedProtocolData,
+        file: null,
+      };
     }
-    
+
     // Старая структура протокола (обратная совместимость)
     if ("formData" in data && "templateId" in data) {
       const oldData = data as any;
@@ -114,12 +135,12 @@ export const ServiceOrderExecutionCard = ({
       };
       return { analysis: null, protocol: newData, file: null };
     }
-    
+
     return { analysis: null, protocol: null, file: null };
   };
 
   const parsedData = parseResultData(order.resultData);
-  
+
   // Определяем начальный режим ввода на основе существующих данных
   const getInitialInputMode = (): ResultInputMode => {
     if (parsedData.file) return "file";
@@ -129,17 +150,24 @@ export const ServiceOrderExecutionCard = ({
     return "text";
   };
 
-  const [inputMode, setInputMode] = useState<ResultInputMode>(getInitialInputMode());
+  const [inputMode, setInputMode] = useState<ResultInputMode>(
+    getInitialInputMode(),
+  );
   const [textResult, setTextResult] = useState<string>(order.resultText || "");
-  const [analysisResult, setAnalysisResult] = useState<SavedAnalysisData | null>(parsedData.analysis);
-  const [protocolResult, setProtocolResult] = useState<SavedProtocolData | null>(parsedData.protocol);
-  const [fileResult, setFileResult] = useState<SavedFileData | null>(parsedData.file);
+  const [analysisResult, setAnalysisResult] =
+    useState<SavedAnalysisData | null>(parsedData.analysis);
+  const [protocolResult, setProtocolResult] =
+    useState<SavedProtocolData | null>(parsedData.protocol);
+  const [fileResult, setFileResult] = useState<SavedFileData | null>(
+    parsedData.file,
+  );
 
   const patientName = getPatientFullName(order.patient);
   const doctorName = getEmployeeFullName(order.doctor);
 
   const canStartWork = order.status === "ORDERED";
-  const canWork = order.status === "IN_PROGRESS" || order.status === "COMPLETED";
+  const canWork =
+    order.status === "IN_PROGRESS" || order.status === "COMPLETED";
   const isCompleted = order.status === "COMPLETED";
   const isCancelled = order.status === "CANCELLED";
   const isReadonly = isCancelled;
@@ -164,16 +192,18 @@ export const ServiceOrderExecutionCard = ({
   };
 
   const handleComplete = async () => {
-    const confirmMessage = isCompleted 
-      ? "Обновить результаты назначения?" 
+    const confirmMessage = isCompleted
+      ? "Обновить результаты назначения?"
       : "Завершить выполнение назначения?";
-    
+
     if (!confirm(confirmMessage)) return;
 
     try {
       const data = prepareResultData();
       await onComplete(data);
-      toast.success(isCompleted ? "Результаты обновлены" : "Назначение выполнено");
+      toast.success(
+        isCompleted ? "Результаты обновлены" : "Назначение выполнено",
+      );
     } catch (error: any) {
       toast.error(error?.data?.message || "Ошибка при сохранении");
     }
@@ -244,9 +274,13 @@ export const ServiceOrderExecutionCard = ({
               <div className="font-medium">{order.department?.name || "—"}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Дата назначения</div>
+              <div className="text-sm text-muted-foreground">
+                Дата назначения
+              </div>
               <div className="font-medium">
-                {format(new Date(order.createdAt), "dd.MM.yyyy", { locale: ru })}
+                {format(new Date(order.createdAt), "dd.MM.yyyy", {
+                  locale: ru,
+                })}
               </div>
             </div>
           </div>

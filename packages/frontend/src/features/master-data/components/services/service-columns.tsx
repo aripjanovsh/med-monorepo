@@ -55,7 +55,9 @@ export const serviceColumns: ColumnDef<Service>[] = [
     size: 140,
     cell: ({ row }) => {
       const price = row.getValue("price") as number;
-      return <div className="text-sm">{price ? formatCurrency(price) : "-"}</div>;
+      return (
+        <div className="text-sm">{price ? formatCurrency(price) : "-"}</div>
+      );
     },
   },
   {
@@ -64,7 +66,9 @@ export const serviceColumns: ColumnDef<Service>[] = [
     size: 120,
     cell: ({ row }) => {
       const duration = row.getValue("durationMin") as number;
-      return <div className="text-sm">{duration ? `${duration} мин` : "-"}</div>;
+      return (
+        <div className="text-sm">{duration ? `${duration} мин` : "-"}</div>
+      );
     },
   },
   {

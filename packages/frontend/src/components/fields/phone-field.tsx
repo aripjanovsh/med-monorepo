@@ -32,7 +32,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
       value,
       ...props
     },
-    ref
+    ref,
   ) => {
     const {
       ref: maskRef,
@@ -59,7 +59,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
             onChange(cleanNumber);
           }
         },
-      }
+      },
     );
 
     // Синхронизируем внешнее значение с маской
@@ -104,7 +104,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
         </FormControl>
       </Field>
     );
-  }
+  },
 );
 
 PhoneField.displayName = "PhoneField";

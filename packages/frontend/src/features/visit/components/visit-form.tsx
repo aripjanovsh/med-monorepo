@@ -64,7 +64,7 @@ export const VisitForm = ({
             month - 1,
             day,
             now.getHours(),
-            now.getMinutes()
+            now.getMinutes(),
           );
           visitDate = dateWithTime.toISOString();
         } else {
@@ -95,7 +95,7 @@ export const VisitForm = ({
         // Если создаем из карточки пациента, редиректим туда
         if (prefilledPatientId) {
           router.push(
-            `/cabinet/patients/${prefilledPatientId}/visits/${visit.id}`
+            `/cabinet/patients/${prefilledPatientId}/visits/${visit.id}`,
           );
         } else {
           router.push(`/cabinet/visits/${visit.id}`);

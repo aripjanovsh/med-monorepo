@@ -9,7 +9,7 @@ export {
   useGetDoctorQueueQuery,
   useStartVisitMutation,
   useCompleteVisitMutation,
-} from "./api/doctor.api";
+} from "@/features/visit/visit.api";
 
 // Types
 export type {

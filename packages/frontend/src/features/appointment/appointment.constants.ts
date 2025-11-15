@@ -36,7 +36,7 @@ export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
 };
 
 export const APPOINTMENT_STATUS_OPTIONS = Object.entries(
-  APPOINTMENT_STATUS_LABELS
+  APPOINTMENT_STATUS_LABELS,
 ).map(([value, label]) => ({
   value,
   label,

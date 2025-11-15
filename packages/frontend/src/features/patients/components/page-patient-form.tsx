@@ -58,7 +58,7 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
   dateOfBirth: "",
   gender: undefined,
   status: "ACTIVE",
-  
+
   // Passport information
   passport: "",
   passportSeries: "",
@@ -103,7 +103,10 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
   notes: "",
 };
 
-export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) {
+export function PagePatientForm({
+  patient,
+  mode: _mode,
+}: PagePatientFormProps) {
   const router = useRouter();
   const [createPatient, { isLoading: isCreating }] = useCreatePatientMutation();
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation();
@@ -115,7 +118,7 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
   });
 
   const [lastPatientId, setLastPatientId] = React.useState<string | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -124,9 +127,10 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
       if (patient) {
         const formData = mapPatientToFormData(patient);
         // Объединяем серию и номер паспорта в одно поле
-        const passport = patient.passportSeries && patient.passportNumber 
-          ? `${patient.passportSeries}${patient.passportNumber}` 
-          : "";
+        const passport =
+          patient.passportSeries && patient.passportNumber
+            ? `${patient.passportSeries}${patient.passportNumber}`
+            : "";
         form.reset({
           ...formData,
           passport,
@@ -176,7 +180,7 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
   // Get used contact types
   const usedContactTypes = contacts.map((c) => c.type);
   const availableContactTypes = CONTACT_TYPE_OPTIONS.filter(
-    (option) => !usedContactTypes.includes(option.value as any)
+    (option) => !usedContactTypes.includes(option.value as any),
   );
 
   const addContact = (type: string) => {
@@ -581,8 +585,8 @@ export function PagePatientForm({ patient, mode: _mode }: PagePatientFormProps) 
               {isLoading
                 ? "Сохранение..."
                 : patient
-                ? "Обновить пациента"
-                : "Создать пациента"}
+                  ? "Обновить пациента"
+                  : "Создать пациента"}
             </Button>
           </div>
         </form>

@@ -16,7 +16,10 @@ import { VALIDATION_MESSAGES } from "@/lib/validation-messages";
 export const patientContactSchema = yup.object({
   id: yup.string().optional(),
   relation: yup.string().oneOf(Object.values(CONTACT_RELATION)).optional(),
-  type: yup.string().oneOf(Object.values(CONTACT_TYPE)).required("Тип контакта обязателен"),
+  type: yup
+    .string()
+    .oneOf(Object.values(CONTACT_TYPE))
+    .required("Тип контакта обязателен"),
   firstName: yup.string().optional(),
   lastName: yup.string().optional(),
   primaryPhone: yup
@@ -54,17 +57,14 @@ export const patientFormSchema = yup.object({
       const today = new Date();
       return birthDate <= today;
     }),
-  gender: yup
-    .string()
-    .oneOf(Object.values(GENDER))
-    .required("Пол обязателен"),
-  
+  gender: yup.string().oneOf(Object.values(GENDER)).required("Пол обязателен"),
+
   // Passport information (combined field for form UI)
   passport: yup
     .string()
     .matches(
       /^[A-Za-zА-Яа-я]{2}\d{7}$/,
-      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)"
+      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)",
     ),
   // Individual fields (populated from passport field)
   passportSeries: yup.string(),
@@ -75,22 +75,19 @@ export const patientFormSchema = yup.object({
 
   // Optional core fields
   patientId: yup.string(),
-  status: yup
-    .string()
-    .oneOf(Object.values(PATIENT_STATUS))
-    .default("ACTIVE"),
+  status: yup.string().oneOf(Object.values(PATIENT_STATUS)).default("ACTIVE"),
 
   // Language IDs (new fields)
   primaryLanguageId: yup.string(),
   secondaryLanguageId: yup.string(),
-  
+
   // Address IDs (new fields)
   countryId: yup.string(),
   regionId: yup.string(),
   cityId: yup.string(),
   districtId: yup.string(),
   address: yup.string(), // Specific street address
-  
+
   // UI helper field for LocationSelectField
   locationHierarchy: yup.object().shape({
     countryId: yup.string(),
@@ -122,9 +119,12 @@ export const createPatientRequestSchema = yup.object({
   lastName: yup.string().required("Last name is required"),
   middleName: yup.string(),
   dateOfBirth: yup.string().required("Date of birth is required"),
-  gender: yup.string().oneOf(Object.values(GENDER)).required("Gender is required"),
+  gender: yup
+    .string()
+    .oneOf(Object.values(GENDER))
+    .required("Gender is required"),
   createdBy: yup.string().required("Created by is required"),
-  
+
   // Passport information
   passportSeries: yup.string(),
   passportNumber: yup.string(),
@@ -135,11 +135,11 @@ export const createPatientRequestSchema = yup.object({
   // Optional fields
   patientId: yup.string(),
   status: yup.string().oneOf(Object.values(PATIENT_STATUS)).default("ACTIVE"),
-  
+
   // Language IDs (new fields)
   primaryLanguageId: yup.string(),
   secondaryLanguageId: yup.string(),
-  
+
   // Address IDs (new fields)
   countryId: yup.string(),
   regionId: yup.string(),
@@ -162,7 +162,7 @@ export const createPatientRequestSchema = yup.object({
       country: yup.string(),
       textNotificationsEnabled: yup.boolean().default(false),
       emailNotificationsEnabled: yup.boolean().default(false),
-    })
+    }),
   ),
   doctorIds: yup.array().of(yup.string().required()),
 });
@@ -254,20 +254,11 @@ export type PatientFormStep1Extended = PatientFormStep1 & {
   };
 };
 
-export type PatientFormStep2 = Pick<
-  PatientFormData,
-  "contacts"
->;
+export type PatientFormStep2 = Pick<PatientFormData, "contacts">;
 
-export type PatientFormStep3 = Pick<
-  PatientFormData,
-  "doctorIds"
->;
+export type PatientFormStep3 = Pick<PatientFormData, "doctorIds">;
 
-export type PatientFormStep4 = Pick<
-  PatientFormData,
-  "status"
->;
+export type PatientFormStep4 = Pick<PatientFormData, "status">;
 
 // Quick create patient schema (minimal required fields)
 export const patientQuickCreateSchema = yup.object({
@@ -289,14 +280,13 @@ export const patientQuickCreateSchema = yup.object({
       const today = new Date();
       return birthDate <= today;
     }),
-  gender: yup
-    .string()
-    .oneOf(Object.values(GENDER))
-    .required("Пол обязателен"),
+  gender: yup.string().oneOf(Object.values(GENDER)).required("Пол обязателен"),
   primaryPhone: yup
     .string()
     .required("Основной телефон обязателен")
     .min(10, "Телефон должен содержать минимум 10 цифр"),
 });
 
-export type PatientQuickCreateData = yup.InferType<typeof patientQuickCreateSchema>;
+export type PatientQuickCreateData = yup.InferType<
+  typeof patientQuickCreateSchema
+>;

@@ -1,12 +1,16 @@
-import { rootApi } from '@/store/api/root.api';
-import type { ParameterDefinition, CreateParameterDefinitionRequest, UpdateParameterDefinitionRequest } from './parameter-definition.model';
-import type { PaginatedResponseDto } from '@/types/api.types';
+import { rootApi } from "@/store/api/root.api";
+import type {
+  ParameterDefinition,
+  CreateParameterDefinitionRequest,
+  UpdateParameterDefinitionRequest,
+} from "./parameter-definition.model";
+import type { PaginatedResponseDto } from "@/types/api.types";
 
 type PaginationParams = {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 };
 
 type FindAllParams = PaginationParams & {
@@ -17,48 +21,67 @@ type FindAllParams = PaginationParams & {
 
 export const parameterDefinitionApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
-    createParameterDefinition: builder.mutation<ParameterDefinition, CreateParameterDefinitionRequest>({
+    createParameterDefinition: builder.mutation<
+      ParameterDefinition,
+      CreateParameterDefinitionRequest
+    >({
       query: (data) => ({
-        url: '/api/v1/parameter-definitions',
-        method: 'POST',
+        url: "/api/v1/parameter-definitions",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['ParameterDefinition'],
+      invalidatesTags: ["ParameterDefinition"],
     }),
 
-    getParameterDefinitions: builder.query<PaginatedResponseDto<ParameterDefinition>, FindAllParams | void>({
+    getParameterDefinitions: builder.query<
+      PaginatedResponseDto<ParameterDefinition>,
+      FindAllParams | void
+    >({
       query: (params) => ({
-        url: '/api/v1/parameter-definitions',
+        url: "/api/v1/parameter-definitions",
         params: params ?? {},
       }),
-      providesTags: ['ParameterDefinition'],
+      providesTags: ["ParameterDefinition"],
     }),
 
     getParameterDefinition: builder.query<ParameterDefinition, string>({
       query: (id) => `/api/v1/parameter-definitions/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'ParameterDefinition', id }],
+      providesTags: (_result, _error, id) => [
+        { type: "ParameterDefinition", id },
+      ],
     }),
 
-    getParameterDefinitionByCode: builder.query<ParameterDefinition | null, string>({
+    getParameterDefinitionByCode: builder.query<
+      ParameterDefinition | null,
+      string
+    >({
       query: (code) => `/api/v1/parameter-definitions/by-code/${code}`,
-      providesTags: (_result, _error, code) => [{ type: 'ParameterDefinition', id: code }],
+      providesTags: (_result, _error, code) => [
+        { type: "ParameterDefinition", id: code },
+      ],
     }),
 
-    updateParameterDefinition: builder.mutation<ParameterDefinition, { id: string; data: UpdateParameterDefinitionRequest }>({
+    updateParameterDefinition: builder.mutation<
+      ParameterDefinition,
+      { id: string; data: UpdateParameterDefinitionRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/api/v1/parameter-definitions/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'ParameterDefinition', id }, 'ParameterDefinition'],
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "ParameterDefinition", id },
+        "ParameterDefinition",
+      ],
     }),
 
     deleteParameterDefinition: builder.mutation<void, string>({
       query: (id) => ({
         url: `/api/v1/parameter-definitions/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['ParameterDefinition'],
+      invalidatesTags: ["ParameterDefinition"],
     }),
   }),
 });

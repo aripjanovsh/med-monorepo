@@ -10,7 +10,7 @@ export const VALIDATION_MESSAGES = {
   PASSWORD_MIN: "Password must be at least 6 characters",
   PASSWORD_REQUIRED: "Password is required when creating user account",
   USER_ROLE_REQUIRED: "User role is required when creating user account",
-  
+
   // Common messages
   REQUIRED: "This field is required",
   INVALID_FORMAT: "Invalid format",

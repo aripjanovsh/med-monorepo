@@ -1,9 +1,9 @@
-import { Field, FieldProps } from '@/components/fields/field';
-import { FormControl } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import * as React from 'react';
-import { forwardRef, useEffect } from 'react';
-import { useIMask } from 'react-imask';
+import { Field, FieldProps } from "@/components/fields/field";
+import { FormControl } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import * as React from "react";
+import { forwardRef, useEffect } from "react";
+import { useIMask } from "react-imask";
 
 /**
  * NumberField компонент для ввода чисел с форматированием тысяч
@@ -44,17 +44,17 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
       {
         mask: Number,
         scale: 0, // Целое число
-        thousandsSeparator: ' ', // Разделитель тысяч
+        thousandsSeparator: " ", // Разделитель тысяч
         padFractionalZeros: false, // Не добавлять нули после запятой
         normalizeZeros: true, // Нормализовать нули
-        radix: '.', // Разделитель дробной части (не используется, так как scale: 0)
-        mapToRadix: ['.'], // Маппинг для разделителя дробной части
+        radix: ".", // Разделитель дробной части (не используется, так как scale: 0)
+        mapToRadix: ["."], // Маппинг для разделителя дробной части
       },
       {
         onAccept: (value) => {
           if (onChange) {
             // Убираем все разделители тысяч из значения
-            const cleanNumber = value.replace(/[,\s]/g, '');
+            const cleanNumber = value.replace(/[,\s]/g, "");
             onChange(Number(cleanNumber));
           }
         },
@@ -87,7 +87,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
         */}
           <Input
             ref={(node) => {
-              if (typeof ref === 'function') {
+              if (typeof ref === "function") {
                 ref(node);
               } else if (ref) {
                 ref.current = node;

@@ -98,7 +98,7 @@ export const AnalysisFormView = ({
                 ? getApplicableRange(
                     row.referenceRanges,
                     patientGender,
-                    patientAge
+                    patientAge,
                   )
                 : null;
 

@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import React, { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface InteractiveFormRendererProps {
   content: any;
   onFormDataChange: (data: Record<string, any>) => void;
 }
 
-export default function InteractiveFormRenderer({ 
-  content, 
-  onFormDataChange 
+export default function InteractiveFormRenderer({
+  content,
+  onFormDataChange,
 }: InteractiveFormRendererProps) {
   const [formValues, setFormValues] = useState<Record<string, any>>({});
 
@@ -30,9 +30,9 @@ export default function InteractiveFormRenderer({
   }, [formValues, onFormDataChange]);
 
   const handleInputChange = (id: string, value: any) => {
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
-      [id]: value
+      [id]: value,
     }));
   };
 
@@ -40,12 +40,12 @@ export default function InteractiveFormRenderer({
     if (!node) return null;
 
     // Обработка текстовых нод
-    if (node.type === 'text') {
+    if (node.type === "text") {
       return <span key={index}>{node.text}</span>;
     }
 
     // Обработка параграфов
-    if (node.type === 'paragraph') {
+    if (node.type === "paragraph") {
       return (
         <p key={index} className="mb-4">
           {node.children?.map((child: any, i: number) => renderNode(child, i))}
@@ -54,7 +54,7 @@ export default function InteractiveFormRenderer({
     }
 
     // Обработка заголовков
-    if (node.type === 'heading') {
+    if (node.type === "heading") {
       const Tag = node.tag as keyof JSX.IntrinsicElements;
       return (
         <Tag key={index} className="mb-4 font-bold">
@@ -64,8 +64,8 @@ export default function InteractiveFormRenderer({
     }
 
     // Обработка списков
-    if (node.type === 'list') {
-      const Tag = node.listType === 'number' ? 'ol' : 'ul';
+    if (node.type === "list") {
+      const Tag = node.listType === "number" ? "ol" : "ul";
       return (
         <Tag key={index} className="mb-4 ml-6 list-disc">
           {node.children?.map((child: any, i: number) => renderNode(child, i))}
@@ -73,7 +73,7 @@ export default function InteractiveFormRenderer({
       );
     }
 
-    if (node.type === 'listitem') {
+    if (node.type === "listitem") {
       return (
         <li key={index}>
           {node.children?.map((child: any, i: number) => renderNode(child, i))}
@@ -82,12 +82,15 @@ export default function InteractiveFormRenderer({
     }
 
     // Обработка кастомных элементов форм
-    if (node.type === 'text-input' && node.data) {
-      const { id, label, placeholder, required, displayMode, width } = node.data;
+    if (node.type === "text-input" && node.data) {
+      const { id, label, placeholder, required, displayMode, width } =
+        node.data;
       return (
         <span
           key={index}
-          className={displayMode === 'block' ? 'block my-2' : 'inline-block mx-1'}
+          className={
+            displayMode === "block" ? "block my-2" : "inline-block mx-1"
+          }
         >
           {label && (
             <Label htmlFor={id} className="mr-2">
@@ -99,17 +102,17 @@ export default function InteractiveFormRenderer({
             id={id}
             type="text"
             placeholder={placeholder}
-            value={formValues[id] || ''}
+            value={formValues[id] || ""}
             onChange={(e) => handleInputChange(id, e.target.value)}
-            className={displayMode === 'inline' ? 'inline-flex h-8' : ''}
-            style={displayMode === 'inline' ? { width: width || '150px' } : {}}
+            className={displayMode === "inline" ? "inline-flex h-8" : ""}
+            style={displayMode === "inline" ? { width: width || "150px" } : {}}
             required={required}
           />
         </span>
       );
     }
 
-    if (node.type === 'textarea-input' && node.data) {
+    if (node.type === "textarea-input" && node.data) {
       const { id, label, placeholder, required, rows } = node.data;
       return (
         <div key={index} className="my-2">
@@ -122,7 +125,7 @@ export default function InteractiveFormRenderer({
           <Textarea
             id={id}
             placeholder={placeholder}
-            value={formValues[id] || ''}
+            value={formValues[id] || ""}
             onChange={(e) => handleInputChange(id, e.target.value)}
             rows={rows || 4}
             required={required}
@@ -131,12 +134,15 @@ export default function InteractiveFormRenderer({
       );
     }
 
-    if (node.type === 'select-input' && node.data) {
-      const { id, label, placeholder, required, options, displayMode, width } = node.data;
+    if (node.type === "select-input" && node.data) {
+      const { id, label, placeholder, required, options, displayMode, width } =
+        node.data;
       return (
         <span
           key={index}
-          className={displayMode === 'block' ? 'block my-2' : 'inline-block mx-1'}
+          className={
+            displayMode === "block" ? "block my-2" : "inline-block mx-1"
+          }
         >
           {label && (
             <Label htmlFor={id} className="mr-2">
@@ -145,12 +151,14 @@ export default function InteractiveFormRenderer({
             </Label>
           )}
           <Select
-            value={formValues[id] || ''}
+            value={formValues[id] || ""}
             onValueChange={(value) => handleInputChange(id, value)}
           >
-            <SelectTrigger 
-              className={displayMode === 'inline' ? 'inline-flex h-8' : ''}
-              style={displayMode === 'inline' ? { width: width || '150px' } : {}}
+            <SelectTrigger
+              className={displayMode === "inline" ? "inline-flex h-8" : ""}
+              style={
+                displayMode === "inline" ? { width: width || "150px" } : {}
+              }
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
@@ -166,7 +174,7 @@ export default function InteractiveFormRenderer({
       );
     }
 
-    if (node.type === 'radio-input' && node.data) {
+    if (node.type === "radio-input" && node.data) {
       const { id, label, required, options } = node.data;
       return (
         <div key={index} className="my-2">
@@ -177,12 +185,18 @@ export default function InteractiveFormRenderer({
             </Label>
           )}
           <RadioGroup
-            value={formValues[id] || ''}
+            value={formValues[id] || ""}
             onValueChange={(value) => handleInputChange(id, value)}
           >
             {options?.map((option: any) => (
-              <div key={option.value} className="flex items-center space-x-2 mb-1">
-                <RadioGroupItem value={option.value} id={`${id}-${option.value}`} />
+              <div
+                key={option.value}
+                className="flex items-center space-x-2 mb-1"
+              >
+                <RadioGroupItem
+                  value={option.value}
+                  id={`${id}-${option.value}`}
+                />
                 <Label htmlFor={`${id}-${option.value}`}>{option.label}</Label>
               </div>
             ))}
@@ -191,9 +205,10 @@ export default function InteractiveFormRenderer({
       );
     }
 
-    if (node.type === 'checkbox-input' && node.data) {
-      const { id, label, placeholder, required, options, displayMode } = node.data;
-      
+    if (node.type === "checkbox-input" && node.data) {
+      const { id, label, placeholder, required, options, displayMode } =
+        node.data;
+
       if (options && options.length > 0) {
         return (
           <div key={index} className="my-2">
@@ -214,11 +229,18 @@ export default function InteractiveFormRenderer({
                       if (checked) {
                         handleInputChange(id, [...currentValues, option.value]);
                       } else {
-                        handleInputChange(id, currentValues.filter((v: string) => v !== option.value));
+                        handleInputChange(
+                          id,
+                          currentValues.filter(
+                            (v: string) => v !== option.value,
+                          ),
+                        );
                       }
                     }}
                   />
-                  <Label htmlFor={`${id}-${option.value}`}>{option.label}</Label>
+                  <Label htmlFor={`${id}-${option.value}`}>
+                    {option.label}
+                  </Label>
                 </div>
               ))}
             </div>
@@ -229,7 +251,9 @@ export default function InteractiveFormRenderer({
       return (
         <span
           key={index}
-          className={displayMode === 'block' ? 'block my-2' : 'inline-block mx-1'}
+          className={
+            displayMode === "block" ? "block my-2" : "inline-block mx-1"
+          }
         >
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -247,7 +271,7 @@ export default function InteractiveFormRenderer({
     }
 
     // Обработка корневого элемента
-    if (node.type === 'root') {
+    if (node.type === "root") {
       return (
         <div key={index}>
           {node.children?.map((child: any, i: number) => renderNode(child, i))}

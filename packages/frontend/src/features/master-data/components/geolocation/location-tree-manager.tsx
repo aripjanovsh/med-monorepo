@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Plus, 
-  Globe, 
-  MapPin, 
-  Building, 
+import {
+  Search,
+  Plus,
+  Globe,
+  MapPin,
+  Building,
   Navigation,
   ChevronRight,
   ChevronDown,
@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { 
+import {
   useGetLocationTreeQuery,
   useToggleLocationStatusMutation,
   useDeleteLocationMutation,
@@ -39,24 +39,24 @@ import { toast } from "sonner";
 
 interface FormState {
   open: boolean;
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   location?: LocationTreeNode;
   parentId?: string;
 }
 
 // Иконки и цвета для типов локаций
 const LOCATION_CONFIG = {
-  'COUNTRY': { icon: Globe, color: 'text-blue-600', label: 'Страна' },
-  'REGION': { icon: MapPin, color: 'text-green-600', label: 'Регион' },
-  'CITY': { icon: Building, color: 'text-purple-600', label: 'Город' },
-  'DISTRICT': { icon: Navigation, color: 'text-orange-600', label: 'Район' },
+  COUNTRY: { icon: Globe, color: "text-blue-600", label: "Страна" },
+  REGION: { icon: MapPin, color: "text-green-600", label: "Регион" },
+  CITY: { icon: Building, color: "text-purple-600", label: "Город" },
+  DISTRICT: { icon: Navigation, color: "text-orange-600", label: "Район" },
 } as const;
 
 export function LocationTreeManager() {
   const [search, setSearch] = useState("");
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [form, setForm] = useState<FormState>({ open: false, mode: 'create' });
+  const [form, setForm] = useState<FormState>({ open: false, mode: "create" });
 
   // API hooks
   const { data: treeData = [], isLoading } = useGetLocationTreeQuery();
@@ -65,18 +65,18 @@ export function LocationTreeManager() {
 
   // Утилиты
   const toggleExpanded = (nodeId: string) => {
-    setExpanded(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
+    setExpanded((prev) => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
 
-  const closeForm = () => setForm({ open: false, mode: 'create' });
+  const closeForm = () => setForm({ open: false, mode: "create" });
 
   // Обработчики действий
   const handleCreate = (parentId?: string) => {
-    setForm({ open: true, mode: 'create', parentId });
+    setForm({ open: true, mode: "create", parentId });
   };
 
   const handleEdit = (location: LocationTreeNode) => {
-    setForm({ open: true, mode: 'edit', location });
+    setForm({ open: true, mode: "edit", location });
   };
 
   const handleToggleStatus = async (location: LocationTreeNode) => {
@@ -90,7 +90,7 @@ export function LocationTreeManager() {
 
   const handleDelete = async (location: LocationTreeNode) => {
     if (!confirm(`Удалить "${location.name}"?`)) return;
-    
+
     try {
       await deleteLocation(location.id).unwrap();
       toast.success(`"${location.name}" удален`);
@@ -101,32 +101,38 @@ export function LocationTreeManager() {
 
   // Фильтрация дерева (рекурсивно)
   const filterTree = (nodes: LocationTreeNode[]): LocationTreeNode[] => {
-    return nodes.filter(node => {
-      const matchesSearch = !search || 
-        node.name.toLowerCase().includes(search.toLowerCase()) ||
-        node.code?.toLowerCase().includes(search.toLowerCase());
-      
-      const matchesActive = !showActiveOnly || node.isActive;
-      
-      // Если узел не проходит фильтр, но у него есть дети, проверяем детей
-      if (!matchesSearch || !matchesActive) {
-        if (node.children?.length) {
-          const filteredChildren = filterTree(node.children);
-          if (filteredChildren.length > 0) {
-            return true; // Показываем родителя, если есть подходящие дети
+    return nodes
+      .filter((node) => {
+        const matchesSearch =
+          !search ||
+          node.name.toLowerCase().includes(search.toLowerCase()) ||
+          node.code?.toLowerCase().includes(search.toLowerCase());
+
+        const matchesActive = !showActiveOnly || node.isActive;
+
+        // Если узел не проходит фильтр, но у него есть дети, проверяем детей
+        if (!matchesSearch || !matchesActive) {
+          if (node.children?.length) {
+            const filteredChildren = filterTree(node.children);
+            if (filteredChildren.length > 0) {
+              return true; // Показываем родителя, если есть подходящие дети
+            }
           }
+          return false;
         }
-        return false;
-      }
-      return true;
-    }).map(node => ({
-      ...node,
-      children: node.children ? filterTree(node.children) : undefined
-    }));
+        return true;
+      })
+      .map((node) => ({
+        ...node,
+        children: node.children ? filterTree(node.children) : undefined,
+      }));
   };
 
   // Рендер узла дерева
-  const renderNode = (node: LocationTreeNode, level: number = 0): React.ReactNode => {
+  const renderNode = (
+    node: LocationTreeNode,
+    level: number = 0,
+  ): React.ReactNode => {
     const isExpanded = expanded[node.id];
     const hasChildren = node.children && node.children.length > 0;
     const config = LOCATION_CONFIG[node.type];
@@ -135,10 +141,10 @@ export function LocationTreeManager() {
     return (
       <div key={node.id} className="select-none">
         {/* Основная строка узла */}
-        <div 
+        <div
           className={cn(
             "flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-50 group transition-colors",
-            !node.isActive && "opacity-60"
+            !node.isActive && "opacity-60",
           )}
           style={{ marginLeft: `${level * 20}px` }} // Динамический отступ
         >
@@ -169,17 +175,17 @@ export function LocationTreeManager() {
               <span className="font-medium text-sm text-gray-900 truncate">
                 {node.name}
               </span>
-              
+
               {node.code && (
                 <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                   {node.code}
                 </Badge>
               )}
-              
+
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                 {config.label}
               </Badge>
-              
+
               {!node.isActive && (
                 <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
                   Неактивно
@@ -229,7 +235,7 @@ export function LocationTreeManager() {
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => handleDelete(node)}
                 className="text-red-600 focus:text-red-600"
               >
@@ -243,7 +249,7 @@ export function LocationTreeManager() {
         {/* Дочерние узлы */}
         {hasChildren && isExpanded && (
           <div>
-            {node.children?.map(child => renderNode(child, level + 1))}
+            {node.children?.map((child) => renderNode(child, level + 1))}
           </div>
         )}
       </div>
@@ -282,14 +288,17 @@ export function LocationTreeManager() {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Switch
             checked={showActiveOnly}
             onCheckedChange={setShowActiveOnly}
             id="active-only"
           />
-          <label htmlFor="active-only" className="text-sm text-gray-600 whitespace-nowrap">
+          <label
+            htmlFor="active-only"
+            className="text-sm text-gray-600 whitespace-nowrap"
+          >
             Только активные
           </label>
         </div>
@@ -304,32 +313,33 @@ export function LocationTreeManager() {
       <div className="border rounded-lg bg-white">
         {filteredData.length > 0 ? (
           <div className="p-2 space-y-1">
-            {filteredData.map(node => renderNode(node))}
+            {filteredData.map((node) => renderNode(node))}
           </div>
         ) : (
           <div className="text-center py-12 text-gray-500">
             <Globe className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p className="font-medium">Локации не найдены</p>
             <p className="text-sm mt-1">
-              {search || showActiveOnly 
-                ? "Попробуйте изменить условия поиска" 
-                : "Начните с создания первой локации"
-              }
+              {search || showActiveOnly
+                ? "Попробуйте изменить условия поиска"
+                : "Начните с создания первой локации"}
             </p>
           </div>
         )}
       </div>
 
       {/* Форма создания/редактирования */}
-      <LocationForm 
+      <LocationForm
         open={form.open}
-        onOpenChange={(open) => setForm(prev => ({ ...prev, open }))}
+        onOpenChange={(open) => setForm((prev) => ({ ...prev, open }))}
         mode={form.mode}
         location={form.location}
         parentId={form.parentId}
         onSuccess={() => {
           closeForm();
-          toast.success(form.mode === 'create' ? 'Локация создана' : 'Локация обновлена');
+          toast.success(
+            form.mode === "create" ? "Локация создана" : "Локация обновлена",
+          );
         }}
       />
     </div>

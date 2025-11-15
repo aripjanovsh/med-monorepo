@@ -40,8 +40,16 @@ import { LocationSelectField } from "@/features/master-data/components/geolocati
 import type { LocationHierarchyIds } from "@/features/master-data/components/geolocation/location-select-field";
 import { handleFieldErrors } from "@/lib/api.utils";
 
-import { patientFormSchema, PatientFormData, PatientFormStep1Extended } from "../patient.schema";
-import { mapPatientToFormData, mapFormDataToCreateRequest, mapFormDataToUpdateRequest } from "../patient.model";
+import {
+  patientFormSchema,
+  PatientFormData,
+  PatientFormStep1Extended,
+} from "../patient.schema";
+import {
+  mapPatientToFormData,
+  mapFormDataToCreateRequest,
+  mapFormDataToUpdateRequest,
+} from "../patient.model";
 import {
   PATIENT_STATUS_OPTIONS,
   GENDER_OPTIONS,
@@ -118,13 +126,16 @@ export function PatientForm({
     if (patient) {
       const formData = mapPatientToFormData(patient);
       // Объединяем серию и номер паспорта в одно поле
-      const passport = patient.passportSeries && patient.passportNumber 
-        ? `${patient.passportSeries}${patient.passportNumber}` 
-        : "";
+      const passport =
+        patient.passportSeries && patient.passportNumber
+          ? `${patient.passportSeries}${patient.passportNumber}`
+          : "";
       form.reset({
         ...DEFAULT_VALUES,
         ...formData,
-        dateOfBirth: patient.dateOfBirth ? patient.dateOfBirth.split("T")[0] : "",
+        dateOfBirth: patient.dateOfBirth
+          ? patient.dateOfBirth.split("T")[0]
+          : "",
         passport,
       });
     } else {
@@ -145,7 +156,7 @@ export function PatientForm({
     if (step === 0) {
       return await form.trigger([
         "firstName",
-        "lastName", 
+        "lastName",
         "dateOfBirth",
         "gender",
       ]);
@@ -155,22 +166,25 @@ export function PatientForm({
     }
     return true;
   }, [step, form]);
-  
+
   // Handle location hierarchy changes
-  const handleLocationChange = React.useCallback((value: LocationHierarchyIds | undefined) => {
-    if (value) {
-      form.setValue("countryId", value.countryId || "");
-      form.setValue("regionId", value.regionId || "");
-      form.setValue("cityId", value.cityId || "");
-      form.setValue("districtId", value.districtId || "");
-    } else {
-      form.setValue("countryId", "");
-      form.setValue("regionId", "");
-      form.setValue("cityId", "");
-      form.setValue("districtId", "");
-    }
-    form.setValue("locationHierarchy", value);
-  }, [form]);
+  const handleLocationChange = React.useCallback(
+    (value: LocationHierarchyIds | undefined) => {
+      if (value) {
+        form.setValue("countryId", value.countryId || "");
+        form.setValue("regionId", value.regionId || "");
+        form.setValue("cityId", value.cityId || "");
+        form.setValue("districtId", value.districtId || "");
+      } else {
+        form.setValue("countryId", "");
+        form.setValue("regionId", "");
+        form.setValue("cityId", "");
+        form.setValue("districtId", "");
+      }
+      form.setValue("locationHierarchy", value);
+    },
+    [form],
+  );
 
   const goNext = async () => {
     const ok = await validateCurrentStep();
@@ -204,7 +218,7 @@ export function PatientForm({
     if (currentContacts.length > 1) {
       form.setValue(
         "contacts",
-        currentContacts.filter((_, i) => i !== index)
+        currentContacts.filter((_, i) => i !== index),
       );
     }
   };
@@ -259,7 +273,9 @@ export function PatientForm({
                 {step === 0 && (
                   <>
                     <div className="space-y-4">
-                      <h3 className="font-semibold font-gilroy">Основная информация</h3>
+                      <h3 className="font-semibold font-gilroy">
+                        Основная информация
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                         <FormField
                           control={form.control}
@@ -330,7 +346,9 @@ export function PatientForm({
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="font-semibold font-gilroy">Паспортные данные</h3>
+                      <h3 className="font-semibold font-gilroy">
+                        Паспортные данные
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                         <FormField
                           control={form.control}
@@ -344,8 +362,14 @@ export function PatientForm({
                                 field.onChange(value);
                                 // Автоматически разделяем на серию и номер
                                 if (value && value.length >= 2) {
-                                  form.setValue("passportSeries", value.slice(0, 2));
-                                  form.setValue("passportNumber", value.slice(2));
+                                  form.setValue(
+                                    "passportSeries",
+                                    value.slice(0, 2),
+                                  );
+                                  form.setValue(
+                                    "passportNumber",
+                                    value.slice(2),
+                                  );
                                 } else {
                                   form.setValue("passportSeries", "");
                                   form.setValue("passportNumber", "");
@@ -459,8 +483,15 @@ export function PatientForm({
                 {step === 1 && (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold font-gilroy">Контактная информация</h3>
-                      <Button type="button" onClick={addContact} size="sm" variant="outline">
+                      <h3 className="font-semibold font-gilroy">
+                        Контактная информация
+                      </h3>
+                      <Button
+                        type="button"
+                        onClick={addContact}
+                        size="sm"
+                        variant="outline"
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Добавить контакт
                       </Button>
@@ -468,7 +499,10 @@ export function PatientForm({
 
                     <div className="space-y-6">
                       {contacts?.map((contact, index) => (
-                        <div key={index} className="border rounded-lg p-4 space-y-4">
+                        <div
+                          key={index}
+                          className="border rounded-lg p-4 space-y-4"
+                        >
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">Контакт {index + 1}</h4>
                             {contacts.length > 1 && (
@@ -611,7 +645,9 @@ export function PatientForm({
 
                 {step === 2 && (
                   <div className="space-y-4">
-                    <h3 className="font-semibold font-gilroy">Назначение врачей</h3>
+                    <h3 className="font-semibold font-gilroy">
+                      Назначение врачей
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Здесь будет компонент для выбора врачей
                     </p>
@@ -620,7 +656,9 @@ export function PatientForm({
 
                 {step === 3 && (
                   <div className="space-y-4">
-                    <h3 className="font-semibold font-gilroy">Дополнительная информация</h3>
+                    <h3 className="font-semibold font-gilroy">
+                      Дополнительная информация
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Дополнительные настройки и информация о пациенте
                     </p>
@@ -671,8 +709,8 @@ export function PatientForm({
                   {isLoading
                     ? "Сохранение..."
                     : patient
-                    ? "Обновить пациента"
-                    : "Создать пациента"}
+                      ? "Обновить пациента"
+                      : "Создать пациента"}
                 </Button>
               )}
             </div>

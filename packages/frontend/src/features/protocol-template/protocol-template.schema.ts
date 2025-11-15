@@ -50,11 +50,12 @@ export const createProtocolTemplateRequestSchema = yup.object({
     .required("Содержимое протокола обязательно"),
 });
 
-export const updateProtocolTemplateRequestSchema = createProtocolTemplateRequestSchema
-  .partial()
-  .shape({
+export const updateProtocolTemplateRequestSchema =
+  createProtocolTemplateRequestSchema.partial().shape({
     id: yup.string().required(),
     isActive: yup.boolean(),
   });
 
-export type ProtocolTemplateFormData = yup.InferType<typeof protocolTemplateFormSchema>;
+export type ProtocolTemplateFormData = yup.InferType<
+  typeof protocolTemplateFormSchema
+>;

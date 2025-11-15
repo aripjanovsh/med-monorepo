@@ -26,7 +26,7 @@ export const InputNumber = (props: InputNumberProps) => {
         if (props.onChange) props.onChange(Number(cleanNumber));
         if (props.onInput) props.onInput(Number(cleanNumber));
       },
-    }
+    },
   );
 
   // Синхронизируем внешнее значение с маской

@@ -15,7 +15,8 @@ export const PatientSelectField = ({ ...props }: PatientSelectFieldProps) => {
   const patients = get(data, "data", []);
 
   const options = map(patients, (patient) => ({
-    label: `${patient.lastName} ${patient.firstName} ${patient.middleName || ""}`.trim(),
+    label:
+      `${patient.lastName} ${patient.firstName} ${patient.middleName || ""}`.trim(),
     value: patient.id,
   }));
 

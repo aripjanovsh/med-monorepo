@@ -85,7 +85,7 @@ function CabinetContent({ children }: { children: React.ReactNode }) {
   const clearHeader = useCallback(() => setHeaderConfig(null), []);
   const contextValue = useMemo(
     () => ({ setHeader: setHeaderConfig, clearHeader }),
-    [clearHeader]
+    [clearHeader],
   );
 
   return (

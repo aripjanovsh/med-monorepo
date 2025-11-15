@@ -58,7 +58,7 @@ export const FormBuilderView = ({
 
   const formatFieldValue = (
     field: FormField,
-    value: FormFieldValue
+    value: FormFieldValue,
   ): React.ReactNode => {
     if (value === null || value === undefined || value === "") {
       return <span className="text-muted-foreground italic">Не заполнено</span>;

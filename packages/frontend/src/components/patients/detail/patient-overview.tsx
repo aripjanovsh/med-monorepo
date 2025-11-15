@@ -1,20 +1,26 @@
 "use client";
 
-import { 
-  Calendar, 
-  Shield, 
-  AlertTriangle, 
-  Activity, 
-  User, 
+import {
+  Calendar,
+  Shield,
+  AlertTriangle,
+  Activity,
+  User,
   Heart,
   Thermometer,
   Weight,
   Ruler,
   Clock,
-  FileText
+  FileText,
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Patient } from "@/types/patient";
@@ -24,7 +30,8 @@ interface PatientOverviewProps {
 }
 
 export function PatientOverview({ patient }: PatientOverviewProps) {
-  const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
+  const age =
+    new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
   const latestVitals = patient.vitalSigns?.[0]; // Assuming sorted by date desc
 
   return (
@@ -40,37 +47,54 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Full Name</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Full Name
+              </p>
               <p className="text-base">{patient.name}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
-              <p className="text-base">{new Date(patient.birthDate).toLocaleDateString()} ({age} years old)</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Date of Birth
+              </p>
+              <p className="text-base">
+                {new Date(patient.birthDate).toLocaleDateString()} ({age} years
+                old)
+              </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Gender</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Gender
+              </p>
               <p className="text-base">{patient.gender}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Patient ID</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Patient ID
+              </p>
               <p className="text-base font-mono">{patient.id}</p>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-2">Address</p>
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              Address
+            </p>
             <p className="text-base">{patient.address}</p>
           </div>
-          
+
           <Separator />
-          
+
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-2">Emergency Contact</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-2">
+              Emergency Contact
+            </h4>
             <div className="space-y-1">
               <p className="text-base">{patient.emergencyContact.name}</p>
-              <p className="text-sm text-muted-foreground">{patient.emergencyContact.relationship}</p>
+              <p className="text-sm text-muted-foreground">
+                {patient.emergencyContact.relationship}
+              </p>
               <p className="text-sm">{patient.emergencyContact.phone}</p>
             </div>
           </div>
@@ -90,22 +114,36 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Provider</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Provider
+                </p>
                 <p className="text-base">{patient.insurance.provider}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Policy Number</p>
-                <p className="text-base font-mono">{patient.insurance.policyNumber}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Policy Number
+                </p>
+                <p className="text-base font-mono">
+                  {patient.insurance.policyNumber}
+                </p>
               </div>
               {patient.insurance.groupNumber && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Group Number</p>
-                  <p className="text-base font-mono">{patient.insurance.groupNumber}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Group Number
+                  </p>
+                  <p className="text-base font-mono">
+                    {patient.insurance.groupNumber}
+                  </p>
                 </div>
               )}
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Expires</p>
-                <p className="text-base">{new Date(patient.insurance.expiryDate).toLocaleDateString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Expires
+                </p>
+                <p className="text-base">
+                  {new Date(patient.insurance.expiryDate).toLocaleDateString()}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -124,38 +162,44 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {latestVitals.bloodPressureSystolic && latestVitals.bloodPressureDiastolic && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Heart className="h-4 w-4 mr-2 text-red-500" />
-                    <span className="text-sm">Blood Pressure</span>
+              {latestVitals.bloodPressureSystolic &&
+                latestVitals.bloodPressureDiastolic && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Heart className="h-4 w-4 mr-2 text-red-500" />
+                      <span className="text-sm">Blood Pressure</span>
+                    </div>
+                    <span className="font-medium">
+                      {latestVitals.bloodPressureSystolic}/
+                      {latestVitals.bloodPressureDiastolic} mmHg
+                    </span>
                   </div>
-                  <span className="font-medium">
-                    {latestVitals.bloodPressureSystolic}/{latestVitals.bloodPressureDiastolic} mmHg
-                  </span>
-                </div>
-              )}
-              
+                )}
+
               {latestVitals.heartRate && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <Activity className="h-4 w-4 mr-2 text-blue-500" />
                     <span className="text-sm">Heart Rate</span>
                   </div>
-                  <span className="font-medium">{latestVitals.heartRate} bpm</span>
+                  <span className="font-medium">
+                    {latestVitals.heartRate} bpm
+                  </span>
                 </div>
               )}
-              
+
               {latestVitals.temperature && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <Thermometer className="h-4 w-4 mr-2 text-orange-500" />
                     <span className="text-sm">Temperature</span>
                   </div>
-                  <span className="font-medium">{latestVitals.temperature}°F</span>
+                  <span className="font-medium">
+                    {latestVitals.temperature}°F
+                  </span>
                 </div>
               )}
-              
+
               {latestVitals.weight && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -184,18 +228,23 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
             {patient.allergies && patient.allergies.length > 0 ? (
               <div className="space-y-3">
                 {patient.allergies.map((allergy) => (
-                  <div key={allergy.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={allergy.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div>
                       <p className="font-medium">{allergy.allergen}</p>
-                      <p className="text-sm text-muted-foreground">{allergy.reaction}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {allergy.reaction}
+                      </p>
                     </div>
                     <Badge
                       variant={
                         allergy.severity === "SEVERE"
                           ? "destructive"
                           : allergy.severity === "MODERATE"
-                          ? "secondary"
-                          : "outline"
+                            ? "secondary"
+                            : "outline"
                       }
                     >
                       {allergy.severity}
@@ -218,10 +267,12 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {patient.medications && patient.medications.filter(m => m.status === "ACTIVE").length > 0 ? (
+            {patient.medications &&
+            patient.medications.filter((m) => m.status === "ACTIVE").length >
+              0 ? (
               <div className="space-y-3">
                 {patient.medications
-                  .filter(m => m.status === "ACTIVE")
+                  .filter((m) => m.status === "ACTIVE")
                   .slice(0, 3) // Show only first 3
                   .map((medication) => (
                     <div key={medication.id} className="p-3 border rounded-lg">
@@ -234,9 +285,13 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
                       </p>
                     </div>
                   ))}
-                {patient.medications.filter(m => m.status === "ACTIVE").length > 3 && (
+                {patient.medications.filter((m) => m.status === "ACTIVE")
+                  .length > 3 && (
                   <p className="text-sm text-muted-foreground text-center">
-                    +{patient.medications.filter(m => m.status === "ACTIVE").length - 3} more medications
+                    +
+                    {patient.medications.filter((m) => m.status === "ACTIVE")
+                      .length - 3}{" "}
+                    more medications
                   </p>
                 )}
               </div>
@@ -264,12 +319,13 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
                 <div>
                   <p className="font-medium">Last Visit</p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(patient.lastVisit).toLocaleDateString()} with {patient.assignedDoctor}
+                    {new Date(patient.lastVisit).toLocaleDateString()} with{" "}
+                    {patient.assignedDoctor}
                   </p>
                 </div>
               </div>
             )}
-            
+
             {/* Latest test result */}
             {patient.testResults && patient.testResults.length > 0 && (
               <div className="flex items-start space-x-3 p-3 border rounded-lg">
@@ -277,12 +333,13 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
                 <div>
                   <p className="font-medium">Latest Test Result</p>
                   <p className="text-sm text-muted-foreground">
-                    {patient.testResults[0].testName} - {new Date(patient.testResults[0].date).toLocaleDateString()}
+                    {patient.testResults[0].testName} -{" "}
+                    {new Date(patient.testResults[0].date).toLocaleDateString()}
                   </p>
                 </div>
               </div>
             )}
-            
+
             {/* Next appointment */}
             {patient.nextAppointment && (
               <div className="flex items-start space-x-3 p-3 border rounded-lg bg-blue-50">
@@ -290,7 +347,8 @@ export function PatientOverview({ patient }: PatientOverviewProps) {
                 <div>
                   <p className="font-medium">Next Appointment</p>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(patient.nextAppointment).toLocaleDateString()} with {patient.assignedDoctor}
+                    {new Date(patient.nextAppointment).toLocaleDateString()}{" "}
+                    with {patient.assignedDoctor}
                   </p>
                 </div>
               </div>

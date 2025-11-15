@@ -332,8 +332,8 @@ export function PatientForm({
             {isLoading
               ? "Saving..."
               : patient
-              ? "Update Patient"
-              : "Create Patient"}
+                ? "Update Patient"
+                : "Create Patient"}
           </Button>
           <Button
             type="button"

@@ -15,15 +15,18 @@ const referenceRangesSchema = yup.lazy((obj) =>
         ...acc,
         [key]: referenceRangeSchema.optional(),
       }),
-      {}
-    )
-  )
+      {},
+    ),
+  ),
 );
 
 // Analysis parameter schema for form
 const analysisParameterFormSchema = yup.object({
   id: yup.string().required(),
-  name: yup.string().min(2, "Название должно содержать минимум 2 символа").required("Название обязательно"),
+  name: yup
+    .string()
+    .min(2, "Название должно содержать минимум 2 символа")
+    .required("Название обязательно"),
   unit: yup.string().optional(),
   type: yup
     .string()
@@ -36,7 +39,10 @@ const analysisParameterFormSchema = yup.object({
 // Analysis section schema for form
 const analysisSectionFormSchema = yup.object({
   id: yup.string().required(),
-  title: yup.string().min(2, "Название секции должно содержать минимум 2 символа").required("Название секции обязательно"),
+  title: yup
+    .string()
+    .min(2, "Название секции должно содержать минимум 2 символа")
+    .required("Название секции обязательно"),
   description: yup.string().optional(),
   parameters: yup
     .array()
@@ -73,14 +79,16 @@ export const analysisTemplateFormSchema = yup.object({
     .min(2, "Код должен содержать минимум 2 символа")
     .required("Код обязателен"),
   description: yup.string().optional(),
-  template: yup.object({
-    version: yup.number().default(1),
-    sections: yup
-      .array()
-      .of(analysisSectionFormSchema)
-      .min(1, "Добавьте хотя бы одну секцию")
-      .required(),
-  }).required(),
+  template: yup
+    .object({
+      version: yup.number().default(1),
+      sections: yup
+        .array()
+        .of(analysisSectionFormSchema)
+        .min(1, "Добавьте хотя бы одну секцию")
+        .required(),
+    })
+    .required(),
 });
 
 // Create request schema

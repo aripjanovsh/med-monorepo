@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,19 +10,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Plus, X, Type, List, CheckSquare, Circle, AlignLeft } from 'lucide-react';
+} from "@/components/ui/select";
+import {
+  Plus,
+  X,
+  Type,
+  List,
+  CheckSquare,
+  Circle,
+  AlignLeft,
+} from "lucide-react";
 import {
   INSERT_TEXT_INPUT_COMMAND,
   INSERT_SELECT_COMMAND,
@@ -30,10 +38,10 @@ import {
   INSERT_CHECKBOX_COMMAND,
   INSERT_TEXTAREA_COMMAND,
   CustomElementData,
-} from '../custom-plugins';
-import { generateElementId } from '../custom-plugins/utils/generateId';
+} from "../custom-plugins";
+import { generateElementId } from "../custom-plugins/utils/generateId";
 
-type ElementType = 'text' | 'select' | 'radio' | 'checkbox' | 'textarea';
+type ElementType = "text" | "select" | "radio" | "checkbox" | "textarea";
 
 interface Option {
   value: string;
@@ -43,29 +51,29 @@ interface Option {
 export default function CustomElementsToolbar() {
   const [editor] = useLexicalComposerContext();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [elementType, setElementType] = useState<ElementType>('text');
+  const [elementType, setElementType] = useState<ElementType>("text");
   const [elementData, setElementData] = useState<Partial<CustomElementData>>({
-    id: '',
-    label: '',
-    placeholder: '',
+    id: "",
+    label: "",
+    placeholder: "",
     required: false,
     options: [],
     rows: 4,
   });
-  const [newOption, setNewOption] = useState({ value: '', label: '' });
+  const [newOption, setNewOption] = useState({ value: "", label: "" });
 
   const resetForm = () => {
     setElementData({
-      id: '',
-      label: '',
-      placeholder: '',
+      id: "",
+      label: "",
+      placeholder: "",
       required: false,
-      displayMode: 'inline',
-      width: '150px',
+      displayMode: "inline",
+      width: "150px",
       options: [],
       rows: 4,
     });
-    setNewOption({ value: '', label: '' });
+    setNewOption({ value: "", label: "" });
   };
 
   const handleInsert = () => {
@@ -75,27 +83,27 @@ export default function CustomElementsToolbar() {
       label: elementData.label,
       placeholder: elementData.placeholder,
       required: elementData.required,
-      displayMode: elementData.displayMode || 'inline',
-      width: elementData.width || '150px',
+      displayMode: elementData.displayMode || "inline",
+      width: elementData.width || "150px",
       options: elementData.options,
       rows: elementData.rows,
     };
 
     // Dispatch appropriate command based on element type
     switch (elementType) {
-      case 'text':
+      case "text":
         editor.dispatchCommand(INSERT_TEXT_INPUT_COMMAND, data);
         break;
-      case 'select':
+      case "select":
         editor.dispatchCommand(INSERT_SELECT_COMMAND, data);
         break;
-      case 'radio':
+      case "radio":
         editor.dispatchCommand(INSERT_RADIO_COMMAND, data);
         break;
-      case 'checkbox':
+      case "checkbox":
         editor.dispatchCommand(INSERT_CHECKBOX_COMMAND, data);
         break;
-      case 'textarea':
+      case "textarea":
         editor.dispatchCommand(INSERT_TEXTAREA_COMMAND, data);
         break;
     }
@@ -110,7 +118,7 @@ export default function CustomElementsToolbar() {
         ...elementData,
         options: [...(elementData.options || []), newOption],
       });
-      setNewOption({ value: '', label: '' });
+      setNewOption({ value: "", label: "" });
     }
   };
 
@@ -121,7 +129,7 @@ export default function CustomElementsToolbar() {
     });
   };
 
-  const needsOptions = ['select', 'radio', 'checkbox'].includes(elementType);
+  const needsOptions = ["select", "radio", "checkbox"].includes(elementType);
 
   return (
     <>
@@ -133,7 +141,7 @@ export default function CustomElementsToolbar() {
           variant="outline"
           size="sm"
           onClick={() => {
-            setElementType('text');
+            setElementType("text");
             setDialogOpen(true);
           }}
         >
@@ -144,7 +152,7 @@ export default function CustomElementsToolbar() {
           variant="outline"
           size="sm"
           onClick={() => {
-            setElementType('select');
+            setElementType("select");
             setDialogOpen(true);
           }}
         >
@@ -155,7 +163,7 @@ export default function CustomElementsToolbar() {
           variant="outline"
           size="sm"
           onClick={() => {
-            setElementType('radio');
+            setElementType("radio");
             setDialogOpen(true);
           }}
         >
@@ -166,7 +174,7 @@ export default function CustomElementsToolbar() {
           variant="outline"
           size="sm"
           onClick={() => {
-            setElementType('checkbox');
+            setElementType("checkbox");
             setDialogOpen(true);
           }}
         >
@@ -177,7 +185,7 @@ export default function CustomElementsToolbar() {
           variant="outline"
           size="sm"
           onClick={() => {
-            setElementType('textarea');
+            setElementType("textarea");
             setDialogOpen(true);
           }}
         >
@@ -190,24 +198,26 @@ export default function CustomElementsToolbar() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              Добавить {elementType === 'text' && 'текстовое поле'}
-              {elementType === 'select' && 'выпадающий список'}
-              {elementType === 'radio' && 'радио-кнопки'}
-              {elementType === 'checkbox' && 'чекбокс'}
-              {elementType === 'textarea' && 'текстовую область'}
+              Добавить {elementType === "text" && "текстовое поле"}
+              {elementType === "select" && "выпадающий список"}
+              {elementType === "radio" && "радио-кнопки"}
+              {elementType === "checkbox" && "чекбокс"}
+              {elementType === "textarea" && "текстовую область"}
             </DialogTitle>
             <DialogDescription>
               Настройте параметры элемента формы
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div className="space-y-2">
               <Label htmlFor="element-label">Метка</Label>
               <Input
                 id="element-label"
                 value={elementData.label}
-                onChange={(e) => setElementData({ ...elementData, label: e.target.value })}
+                onChange={(e) =>
+                  setElementData({ ...elementData, label: e.target.value })
+                }
                 placeholder="Отображаемая метка"
               />
             </div>
@@ -215,8 +225,8 @@ export default function CustomElementsToolbar() {
             <div className="space-y-2">
               <Label htmlFor="display-mode">Режим отображения</Label>
               <Select
-                value={elementData.displayMode || 'inline'}
-                onValueChange={(value: 'inline' | 'block') => 
+                value={elementData.displayMode || "inline"}
+                onValueChange={(value: "inline" | "block") =>
                   setElementData({ ...elementData, displayMode: value })
                 }
               >
@@ -224,37 +234,49 @@ export default function CustomElementsToolbar() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="inline">Inline (в строке с текстом)</SelectItem>
+                  <SelectItem value="inline">
+                    Inline (в строке с текстом)
+                  </SelectItem>
                   <SelectItem value="block">Block (отдельный блок)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {elementData.displayMode === 'inline' && elementType !== 'textarea' && (
-              <div className="space-y-2">
-                <Label htmlFor="element-width">Ширина (для inline режима)</Label>
-                <Input
-                  id="element-width"
-                  value={elementData.width || '150px'}
-                  onChange={(e) => setElementData({ ...elementData, width: e.target.value })}
-                  placeholder="например: 150px, 50%, 10rem"
-                />
-              </div>
-            )}
+            {elementData.displayMode === "inline" &&
+              elementType !== "textarea" && (
+                <div className="space-y-2">
+                  <Label htmlFor="element-width">
+                    Ширина (для inline режима)
+                  </Label>
+                  <Input
+                    id="element-width"
+                    value={elementData.width || "150px"}
+                    onChange={(e) =>
+                      setElementData({ ...elementData, width: e.target.value })
+                    }
+                    placeholder="например: 150px, 50%, 10rem"
+                  />
+                </div>
+              )}
 
-            {elementType !== 'checkbox' && elementType !== 'radio' && (
+            {elementType !== "checkbox" && elementType !== "radio" && (
               <div className="space-y-2">
                 <Label htmlFor="element-placeholder">Placeholder</Label>
                 <Input
                   id="element-placeholder"
                   value={elementData.placeholder}
-                  onChange={(e) => setElementData({ ...elementData, placeholder: e.target.value })}
+                  onChange={(e) =>
+                    setElementData({
+                      ...elementData,
+                      placeholder: e.target.value,
+                    })
+                  }
                   placeholder="Подсказка"
                 />
               </div>
             )}
 
-            {elementType === 'textarea' && (
+            {elementType === "textarea" && (
               <div className="space-y-2">
                 <Label htmlFor="element-rows">Количество строк</Label>
                 <Input
@@ -263,7 +285,12 @@ export default function CustomElementsToolbar() {
                   min="1"
                   max="20"
                   value={elementData.rows}
-                  onChange={(e) => setElementData({ ...elementData, rows: parseInt(e.target.value) || 4 })}
+                  onChange={(e) =>
+                    setElementData({
+                      ...elementData,
+                      rows: parseInt(e.target.value) || 4,
+                    })
+                  }
                 />
               </div>
             )}
@@ -289,18 +316,18 @@ export default function CustomElementsToolbar() {
                     <Input
                       placeholder="Значение"
                       value={newOption.value}
-                      onChange={(e) => setNewOption({ ...newOption, value: e.target.value })}
+                      onChange={(e) =>
+                        setNewOption({ ...newOption, value: e.target.value })
+                      }
                     />
                     <Input
                       placeholder="Текст"
                       value={newOption.label}
-                      onChange={(e) => setNewOption({ ...newOption, label: e.target.value })}
+                      onChange={(e) =>
+                        setNewOption({ ...newOption, label: e.target.value })
+                      }
                     />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addOption}
-                    >
+                    <Button variant="outline" size="sm" onClick={addOption}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -312,7 +339,9 @@ export default function CustomElementsToolbar() {
               <Switch
                 id="element-required"
                 checked={elementData.required}
-                onCheckedChange={(checked) => setElementData({ ...elementData, required: checked })}
+                onCheckedChange={(checked) =>
+                  setElementData({ ...elementData, required: checked })
+                }
               />
               <Label htmlFor="element-required">Обязательное поле</Label>
             </div>
@@ -322,9 +351,7 @@ export default function CustomElementsToolbar() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Отмена
             </Button>
-            <Button onClick={handleInsert}>
-              Добавить
-            </Button>
+            <Button onClick={handleInsert}>Добавить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

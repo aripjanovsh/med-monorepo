@@ -86,7 +86,7 @@ export function FilterSheet({
               onValueChange={(selectedValue) => {
                 const currentValues = Array.isArray(value) ? value : [];
                 const newValues = currentValues.includes(
-                  selectedValue as PaymentStatus
+                  selectedValue as PaymentStatus,
                 )
                   ? currentValues.filter((v) => v !== selectedValue)
                   : [...currentValues, selectedValue as PaymentStatus];
@@ -207,7 +207,7 @@ export function FilterSheet({
                 onChange={(e) =>
                   updateFilter(
                     "minAmount",
-                    e.target.value ? Number(e.target.value) : undefined
+                    e.target.value ? Number(e.target.value) : undefined,
                   )
                 }
               />
@@ -218,7 +218,7 @@ export function FilterSheet({
                 onChange={(e) =>
                   updateFilter(
                     "maxAmount",
-                    e.target.value ? Number(e.target.value) : undefined
+                    e.target.value ? Number(e.target.value) : undefined,
                   )
                 }
               />

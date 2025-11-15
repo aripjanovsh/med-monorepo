@@ -1,4 +1,9 @@
-import { format, differenceInMinutes, differenceInHours, differenceInDays } from "date-fns";
+import {
+  format,
+  differenceInMinutes,
+  differenceInHours,
+  differenceInDays,
+} from "date-fns";
 import { ru } from "date-fns/locale";
 import type { VisitResponseDto } from "./visit.dto";
 import { VISIT_STATUS_LABELS } from "./visit.constants";
@@ -38,7 +43,9 @@ export const hasVisitUnpaidServices = (visit: VisitResponseDto): boolean => {
   );
 };
 
-export const formatDoctorShortName = (employee?: VisitResponseDto["employee"]): string => {
+export const formatDoctorShortName = (
+  employee?: VisitResponseDto["employee"],
+): string => {
   if (!employee) {
     return "—";
   }
@@ -48,19 +55,19 @@ export const formatDoctorShortName = (employee?: VisitResponseDto["employee"]): 
 export const formatTimeAgo = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
-  
+
   const minutes = differenceInMinutes(now, date);
   const hours = differenceInHours(now, date);
   const days = differenceInDays(now, date);
-  
+
   if (minutes < 1) {
     return "только что";
   }
-  
+
   if (minutes < 60) {
     const lastDigit = minutes % 10;
     const lastTwoDigits = minutes % 100;
-    
+
     let suffix = "минут";
     if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
       suffix = "минут";
@@ -69,14 +76,14 @@ export const formatTimeAgo = (dateString: string): string => {
     } else if (lastDigit >= 2 && lastDigit <= 4) {
       suffix = "минуты";
     }
-    
+
     return `${minutes} ${suffix} назад`;
   }
-  
+
   if (hours < 24) {
     const lastDigit = hours % 10;
     const lastTwoDigits = hours % 100;
-    
+
     let suffix = "часов";
     if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
       suffix = "часов";
@@ -85,14 +92,14 @@ export const formatTimeAgo = (dateString: string): string => {
     } else if (lastDigit >= 2 && lastDigit <= 4) {
       suffix = "часа";
     }
-    
+
     return `${hours} ${suffix} назад`;
   }
-  
+
   if (days < 7) {
     const lastDigit = days % 10;
     const lastTwoDigits = days % 100;
-    
+
     let suffix = "дней";
     if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
       suffix = "дней";
@@ -101,10 +108,10 @@ export const formatTimeAgo = (dateString: string): string => {
     } else if (lastDigit >= 2 && lastDigit <= 4) {
       suffix = "дня";
     }
-    
+
     return `${days} ${suffix} назад`;
   }
-  
+
   // Если больше недели, показываем дату
   return format(date, "dd.MM.yyyy", { locale: ru });
 };

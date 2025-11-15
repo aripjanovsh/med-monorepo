@@ -96,7 +96,7 @@ export function TestOrderForm({
       "CRP",
       "Vitamin D",
       "B12",
-      "Iron Studies"
+      "Iron Studies",
     ],
     URINE: [
       "Urinalysis",
@@ -105,7 +105,7 @@ export function TestOrderForm({
       "Urine Protein",
       "Microalbumin",
       "Drug Screen",
-      "Pregnancy Test"
+      "Pregnancy Test",
     ],
     IMAGING: [
       "Chest X-ray",
@@ -120,7 +120,7 @@ export function TestOrderForm({
       "Echocardiogram",
       "EKG",
       "Mammogram",
-      "Bone Density Scan"
+      "Bone Density Scan",
     ],
     BIOPSY: [
       "Skin Biopsy",
@@ -128,7 +128,7 @@ export function TestOrderForm({
       "Prostate Biopsy",
       "Liver Biopsy",
       "Kidney Biopsy",
-      "Bone Marrow Biopsy"
+      "Bone Marrow Biopsy",
     ],
     OTHER: [
       "Pulmonary Function Test",
@@ -136,8 +136,8 @@ export function TestOrderForm({
       "Colonoscopy",
       "Endoscopy",
       "Holter Monitor",
-      "Sleep Study"
-    ]
+      "Sleep Study",
+    ],
   };
 
   const selectedCategory = form.watch("category");
@@ -154,7 +154,10 @@ export function TestOrderForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Test Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
@@ -179,7 +182,10 @@ export function TestOrderForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Test Name</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select test" />
@@ -214,7 +220,7 @@ export function TestOrderForm({
                         variant="outline"
                         className={cn(
                           "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
                         )}
                       >
                         {field.value ? (
@@ -247,7 +253,10 @@ export function TestOrderForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Priority</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select priority" />
@@ -293,9 +302,7 @@ export function TestOrderForm({
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Fasting Required
-                </FormLabel>
+                <FormLabel>Fasting Required</FormLabel>
                 <div className="text-sm text-muted-foreground">
                   Patient must fast for 8-12 hours before the test
                 </div>
@@ -346,10 +353,19 @@ export function TestOrderForm({
         <div className="p-4 bg-muted/50 rounded-lg">
           <h4 className="font-medium mb-2">Common Preparation Requirements</h4>
           <div className="text-sm text-muted-foreground space-y-1">
-            <div><strong>Blood Tests:</strong> May require fasting for 8-12 hours</div>
-            <div><strong>Urine Tests:</strong> First morning sample often preferred</div>
-            <div><strong>Imaging:</strong> May require contrast preparation or medication adjustments</div>
-            <div><strong>Biopsy:</strong> May require stopping blood thinners</div>
+            <div>
+              <strong>Blood Tests:</strong> May require fasting for 8-12 hours
+            </div>
+            <div>
+              <strong>Urine Tests:</strong> First morning sample often preferred
+            </div>
+            <div>
+              <strong>Imaging:</strong> May require contrast preparation or
+              medication adjustments
+            </div>
+            <div>
+              <strong>Biopsy:</strong> May require stopping blood thinners
+            </div>
           </div>
         </div>
 
@@ -359,8 +375,8 @@ export function TestOrderForm({
             {isLoading
               ? "Ordering..."
               : test
-              ? "Update Test Order"
-              : "Order Test"}
+                ? "Update Test Order"
+                : "Order Test"}
           </Button>
           <Button
             type="button"

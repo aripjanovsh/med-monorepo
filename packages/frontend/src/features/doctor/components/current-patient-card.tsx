@@ -2,7 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, User, CheckCircle } from "lucide-react";
-import { useGetDoctorQueueQuery, useCompleteVisitMutation } from "../api/doctor.api";
+import {
+  useGetDoctorQueueQuery,
+  useCompleteVisitMutation,
+} from "@/features/visit/visit.api";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type CurrentPatientCardProps = {
@@ -19,14 +22,16 @@ export const CurrentPatientCard = ({
     date,
   });
 
-  const [completeVisit, { isLoading: isCompleting }] = useCompleteVisitMutation();
+  const [completeVisit, { isLoading: isCompleting }] =
+    useCompleteVisitMutation();
 
   const handleComplete = async () => {
     if (!data?.inProgress) return;
-    
+
     try {
       await completeVisit({
-        visitId: data.inProgress.id,
+        id: data.inProgress.id,
+        employeeId,
       }).unwrap();
     } catch (error) {
       console.error("Failed to complete visit:", error);

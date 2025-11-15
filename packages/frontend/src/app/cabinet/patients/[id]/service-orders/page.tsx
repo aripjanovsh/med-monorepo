@@ -11,10 +11,12 @@ export default function PatientServiceOrdersPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { data: patient, isLoading, error, refetch } = useGetPatientQuery(
-    { id: id as string },
-    { skip: !id }
-  );
+  const {
+    data: patient,
+    isLoading,
+    error,
+    refetch,
+  } = useGetPatientQuery({ id: id as string }, { skip: !id });
 
   if (isLoading) {
     return <LoadingState title="Загрузка назначений..." />;

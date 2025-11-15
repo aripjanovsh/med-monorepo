@@ -1,6 +1,6 @@
 /**
  * Примеры использования Dialog Manager
- * 
+ *
  * Этот файл содержит примеры миграции и использования системы Dialog Manager.
  * Удалите этот файл после того как изучите примеры.
  */
@@ -103,7 +103,9 @@ export const Example3_UpdateProps = () => {
     <div>
       <Button onClick={handleOpen}>Открыть</Button>
       {appointmentDialog.isOpen && (
-        <Button onClick={handleSwitchToEdit}>Переключить в режим редактирования</Button>
+        <Button onClick={handleSwitchToEdit}>
+          Переключить в режим редактирования
+        </Button>
       )}
     </div>
   );

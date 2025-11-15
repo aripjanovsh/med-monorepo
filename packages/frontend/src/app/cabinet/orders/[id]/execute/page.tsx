@@ -40,23 +40,17 @@ export default function ExecuteServiceOrderPage({
   }, [orderId, updateServiceOrder]);
 
   const handleSaveDraft = useCallback(
-    async (data: {
-      resultText?: string;
-      resultData?: Record<string, any>;
-    }) => {
+    async (data: { resultText?: string; resultData?: Record<string, any> }) => {
       await updateServiceOrder({
         id: orderId,
         ...data,
       }).unwrap();
     },
-    [orderId, updateServiceOrder]
+    [orderId, updateServiceOrder],
   );
 
   const handleComplete = useCallback(
-    async (data: {
-      resultText?: string;
-      resultData?: Record<string, any>;
-    }) => {
+    async (data: { resultText?: string; resultData?: Record<string, any> }) => {
       await updateServiceOrder({
         id: orderId,
         status: "COMPLETED",
@@ -65,7 +59,7 @@ export default function ExecuteServiceOrderPage({
 
       router.push(url(ROUTES.ORDER_DETAIL, { id: orderId }));
     },
-    [orderId, updateServiceOrder, router]
+    [orderId, updateServiceOrder, router],
   );
 
   const handleCancel = useCallback(async () => {
@@ -100,14 +94,22 @@ export default function ExecuteServiceOrderPage({
             )}
             <ProfileField
               label="Пол"
-              value={order.patient.gender ? getGenderDisplay(order.patient.gender) : "—"}
+              value={
+                order.patient.gender
+                  ? getGenderDisplay(order.patient.gender)
+                  : "—"
+              }
             />
             {order.patient.dateOfBirth && (
               <ProfileField
                 label="Дата рождения"
-                value={format(new Date(order.patient.dateOfBirth), "dd.MM.yyyy", {
-                  locale: ru,
-                })}
+                value={format(
+                  new Date(order.patient.dateOfBirth),
+                  "dd.MM.yyyy",
+                  {
+                    locale: ru,
+                  },
+                )}
               />
             )}
           </div>

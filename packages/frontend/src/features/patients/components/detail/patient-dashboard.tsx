@@ -1,14 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LineChartComponent } from "@/components/charts/line-chart";
 import { PieChartComponent } from "@/components/charts/pie-chart";
 import { AreaChartComponent } from "@/components/charts/area-chart";
 import { BarChartComponent } from "@/components/charts/bar-chart";
-import { 
-  Calendar, 
+import {
+  Calendar,
   ClipboardList,
   TrendingUp,
   Clock,
@@ -18,13 +24,11 @@ import {
   Users,
   Target,
   Zap,
-  Shield
+  Shield,
 } from "lucide-react";
 
 import type { PatientResponseDto } from "../../patient.dto";
-import {
-  calculatePatientAge,
-} from "../../patient.model";
+import { calculatePatientAge } from "../../patient.model";
 import { formatDate } from "@/lib/date.utils";
 
 interface PatientDashboardProps {
@@ -89,23 +93,81 @@ const mockDepartmentVisits = [
 ];
 
 const mockRecentVisits = [
-  { id: "1", date: "2024-06-28", doctor: "Др. Иванов А.С.", department: "Кардиология", status: "completed" },
-  { id: "2", date: "2024-06-15", doctor: "Др. Петров М.И.", department: "Терапия", status: "completed" },
-  { id: "3", date: "2024-06-01", doctor: "Др. Сидорова Е.Н.", department: "Неврология", status: "completed" },
-  { id: "4", date: "2024-05-20", doctor: "Др. Козлов Д.В.", department: "Диагностика", status: "completed" },
-  { id: "5", date: "2024-05-10", doctor: "Др. Новикова Т.А.", department: "Кардиология", status: "completed" },
+  {
+    id: "1",
+    date: "2024-06-28",
+    doctor: "Др. Иванов А.С.",
+    department: "Кардиология",
+    status: "completed",
+  },
+  {
+    id: "2",
+    date: "2024-06-15",
+    doctor: "Др. Петров М.И.",
+    department: "Терапия",
+    status: "completed",
+  },
+  {
+    id: "3",
+    date: "2024-06-01",
+    doctor: "Др. Сидорова Е.Н.",
+    department: "Неврология",
+    status: "completed",
+  },
+  {
+    id: "4",
+    date: "2024-05-20",
+    doctor: "Др. Козлов Д.В.",
+    department: "Диагностика",
+    status: "completed",
+  },
+  {
+    id: "5",
+    date: "2024-05-10",
+    doctor: "Др. Новикова Т.А.",
+    department: "Кардиология",
+    status: "completed",
+  },
 ];
 
 const mockActiveOrders = [
-  { id: "1", name: "ЭКГ", department: "Кардиология", status: "ordered", date: "2024-06-30" },
-  { id: "2", name: "Анализ крови", department: "Лаборатория", status: "inProgress", date: "2024-06-29" },
-  { id: "3", name: "УЗИ сердца", department: "Диагностика", status: "ordered", date: "2024-06-28" },
+  {
+    id: "1",
+    name: "ЭКГ",
+    department: "Кардиология",
+    status: "ordered",
+    date: "2024-06-30",
+  },
+  {
+    id: "2",
+    name: "Анализ крови",
+    department: "Лаборатория",
+    status: "inProgress",
+    date: "2024-06-29",
+  },
+  {
+    id: "3",
+    name: "УЗИ сердца",
+    department: "Диагностика",
+    status: "ordered",
+    date: "2024-06-28",
+  },
 ];
 
 const mockDoctors = [
-  { id: "1", name: "Др. Иванов А.С.", specialty: "Кардиолог", status: "active" },
+  {
+    id: "1",
+    name: "Др. Иванов А.С.",
+    specialty: "Кардиолог",
+    status: "active",
+  },
   { id: "2", name: "Др. Петров М.И.", specialty: "Терапевт", status: "active" },
-  { id: "3", name: "Др. Сидорова Е.Н.", specialty: "Невролог", status: "inactive" },
+  {
+    id: "3",
+    name: "Др. Сидорова Е.Н.",
+    specialty: "Невролог",
+    status: "inactive",
+  },
 ];
 
 export function PatientDashboard({ patient }: PatientDashboardProps) {
@@ -156,15 +218,17 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               <div className="flex items-center gap-3 mt-2 text-gray-600 dark:text-gray-400">
                 <span className="font-medium">{age} лет</span>
                 <span>•</span>
-                <span>{patient.gender === 'MALE' ? 'Мужской' : 'Женский'}</span>
+                <span>{patient.gender === "MALE" ? "Мужской" : "Женский"}</span>
                 <span>•</span>
                 <Badge variant={getStatusVariant(patient.status)}>
-                  {patient.status === 'ACTIVE' ? 'Активен' : patient.status}
+                  {patient.status === "ACTIVE" ? "Активен" : patient.status}
                 </Badge>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">ID пациента</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                ID пациента
+              </div>
               <div className="font-mono font-medium">{patient.patientId}</div>
             </div>
           </div>
@@ -177,9 +241,15 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Всего визитов</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">17</p>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">+2 за последний месяц</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Всего визитов
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  17
+                </p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                  +2 за последний месяц
+                </p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
                 <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -192,9 +262,15 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Активные назначения</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">3</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Требуют внимания</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Активные назначения
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  3
+                </p>
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                  Требуют внимания
+                </p>
               </div>
               <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
                 <ClipboardList className="h-6 w-6 text-orange-600 dark:text-orange-400" />
@@ -207,9 +283,15 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Лечащие врачи</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">2</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">1 активный</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Лечащие врачи
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  2
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  1 активный
+                </p>
               </div>
               <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
                 <Stethoscope className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -222,9 +304,15 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Последний визит</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">28 июня</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">2 дня назад</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Последний визит
+                </p>
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  28 июня
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  2 дня назад
+                </p>
               </div>
               <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
                 <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -243,7 +331,9 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               <TrendingUp className="h-5 w-5 text-blue-500" />
               Динамика визитов
             </CardTitle>
-            <CardDescription>Количество визитов за последние 6 месяцев</CardDescription>
+            <CardDescription>
+              Количество визитов за последние 6 месяцев
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <LineChartComponent
@@ -269,7 +359,9 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               <Target className="h-5 w-5 text-orange-500" />
               Статус назначений
             </CardTitle>
-            <CardDescription>Распределение по статусам выполнения</CardDescription>
+            <CardDescription>
+              Распределение по статусам выполнения
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <PieChartComponent
@@ -320,7 +412,9 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
               <Shield className="h-5 w-5 text-green-500" />
               Посещения по отделениям
             </CardTitle>
-            <CardDescription>Распределение визитов по специализациям</CardDescription>
+            <CardDescription>
+              Распределение визитов по специализациям
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <BarChartComponent
@@ -351,16 +445,23 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent>
             <div className="space-y-4">
               {mockRecentVisits.map((visit) => (
-                <div key={visit.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div
+                  key={visit.id}
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     <div>
                       <div className="font-medium">{visit.doctor}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{visit.department}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {visit.department}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">{formatDate(visit.date)}</div>
+                    <div className="text-sm font-medium">
+                      {formatDate(visit.date)}
+                    </div>
                     {getStatusBadge(visit.status)}
                   </div>
                 </div>
@@ -385,16 +486,23 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent>
             <div className="space-y-4">
               {mockActiveOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div
+                  key={order.id}
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                     <div>
                       <div className="font-medium">{order.name}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{order.department}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {order.department}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">{formatDate(order.date)}</div>
+                    <div className="text-sm font-medium">
+                      {formatDate(order.date)}
+                    </div>
                     {getStatusBadge(order.status)}
                   </div>
                 </div>
@@ -420,16 +528,26 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {mockDoctors.map((doctor) => (
-              <div key={doctor.id} className="flex items-center gap-3 p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <div
+                key={doctor.id}
+                className="flex items-center gap-3 p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
-                  {doctor.name.split(' ').map(n => n[0]).join('')}
+                  {doctor.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </div>
                 <div className="flex-1">
                   <div className="font-medium">{doctor.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{doctor.specialty}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {doctor.specialty}
+                  </div>
                 </div>
-                <Badge variant={doctor.status === 'active' ? 'default' : 'secondary'}>
-                  {doctor.status === 'active' ? 'Активен' : 'Неактивен'}
+                <Badge
+                  variant={doctor.status === "active" ? "default" : "secondary"}
+                >
+                  {doctor.status === "active" ? "Активен" : "Неактивен"}
                 </Badge>
               </div>
             ))}

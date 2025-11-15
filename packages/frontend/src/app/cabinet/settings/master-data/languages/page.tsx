@@ -75,7 +75,7 @@ export default function LanguagesPage() {
         },
       });
     },
-    [languageFormDialog, refetch]
+    [languageFormDialog, refetch],
   );
 
   const handleToggleStatus = useCallback(
@@ -93,7 +93,7 @@ export default function LanguagesPage() {
         toast.error(errorMessage);
       }
     },
-    [toggleLanguageStatus, refetch]
+    [toggleLanguageStatus, refetch],
   );
 
   const handleDelete = useCallback(
@@ -119,7 +119,7 @@ export default function LanguagesPage() {
         },
       });
     },
-    [confirm, deleteLanguage, refetch]
+    [confirm, deleteLanguage, refetch],
   );
 
   return (

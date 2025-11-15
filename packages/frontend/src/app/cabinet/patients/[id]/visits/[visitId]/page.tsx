@@ -58,7 +58,9 @@ export default function PatientVisitDetailPage({ params }: PageProps) {
         title="Визит не найден"
         description="Не удалось загрузить данные визита"
         onRetry={refetch}
-        onBack={() => router.push(url(ROUTES.PATIENT_DETAIL, { id: patientId }))}
+        onBack={() =>
+          router.push(url(ROUTES.PATIENT_DETAIL, { id: patientId }))
+        }
         backLabel="Вернуться к пациенту"
       />
     );

@@ -39,14 +39,14 @@ export const VisitProtocol = ({
   status,
 }: VisitProtocolProps) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    initialProtocolId ?? ""
+    initialProtocolId ?? "",
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<ProtocolTemplateResponseDto | null>(null);
   const [selectedFilledProtocol, setSelectedFilledProtocol] =
     useState<string>("");
   const formDataRef = useRef<FilledFormData>(
-    initialProtocolData?.filledData ?? {}
+    initialProtocolData?.filledData ?? {},
   );
   const [activeTab, setActiveTab] = useState<string>("new");
 
@@ -77,7 +77,7 @@ export const VisitProtocol = ({
   const handleNewTemplateSelect = useCallback(
     (
       templateId: string | undefined,
-      template?: ProtocolTemplateResponseDto
+      template?: ProtocolTemplateResponseDto,
     ) => {
       if (!isEditable || !templateId) return;
 
@@ -88,7 +88,7 @@ export const VisitProtocol = ({
       formDataRef.current = {};
       setActiveTab("new");
     },
-    [isEditable]
+    [isEditable],
   );
 
   const handleFilledProtocolSelect = useCallback(
@@ -112,7 +112,7 @@ export const VisitProtocol = ({
       formDataRef.current = protocolData.filledData;
       setActiveTab("new");
     },
-    [isEditable]
+    [isEditable],
   );
 
   const handleDataChange = useCallback((data: FilledFormData) => {

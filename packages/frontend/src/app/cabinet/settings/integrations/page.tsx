@@ -59,7 +59,7 @@ export default function IntegrationsSettingsPage() {
                     "w-12 h-12 rounded-xl flex items-center justify-center",
                     integration.status === "connected"
                       ? "bg-green-50 text-green-600"
-                      : "bg-gray-50 text-gray-400"
+                      : "bg-gray-50 text-gray-400",
                   )}
                 >
                   <Icon className="w-6 h-6" />
@@ -72,7 +72,7 @@ export default function IntegrationsSettingsPage() {
                     "text-xs font-medium",
                     integration.status === "connected"
                       ? "bg-green-50 text-green-700 border-green-200"
-                      : "bg-gray-50 text-gray-600 border-gray-200"
+                      : "bg-gray-50 text-gray-600 border-gray-200",
                   )}
                 >
                   {integration.status}

@@ -7,11 +7,16 @@ import {
 } from "./service-order.constants";
 
 export const getOrderStatusLabel = (status: string): string => {
-  return ORDER_STATUS_LABELS[status as keyof typeof ORDER_STATUS_LABELS] || status;
+  return (
+    ORDER_STATUS_LABELS[status as keyof typeof ORDER_STATUS_LABELS] || status
+  );
 };
 
 export const getPaymentStatusLabel = (status: string): string => {
-  return PAYMENT_STATUS_LABELS[status as keyof typeof PAYMENT_STATUS_LABELS] || status;
+  return (
+    PAYMENT_STATUS_LABELS[status as keyof typeof PAYMENT_STATUS_LABELS] ||
+    status
+  );
 };
 
 export const getOrderStatusIcon = (status: string): string => {
@@ -19,11 +24,13 @@ export const getOrderStatusIcon = (status: string): string => {
 };
 
 export const getPaymentStatusIcon = (status: string): string => {
-  return PAYMENT_STATUS_ICONS[status as keyof typeof PAYMENT_STATUS_ICONS] || "";
+  return (
+    PAYMENT_STATUS_ICONS[status as keyof typeof PAYMENT_STATUS_ICONS] || ""
+  );
 };
 
 export const getOrderStatusVariant = (
-  status: string
+  status: string,
 ): "default" | "secondary" | "outline" | "destructive" => {
   switch (status) {
     case "ORDERED":
@@ -40,7 +47,7 @@ export const getOrderStatusVariant = (
 };
 
 export const getPaymentStatusVariant = (
-  status: string
+  status: string,
 ): "default" | "secondary" | "outline" | "destructive" => {
   switch (status) {
     case "PAID":
@@ -78,7 +85,9 @@ export const calculateTotal = (orders: ServiceOrderResponseDto[]): number => {
   return orders.reduce((sum, order) => sum + Number(order.service.price), 0);
 };
 
-export const calculateUnpaidTotal = (orders: ServiceOrderResponseDto[]): number => {
+export const calculateUnpaidTotal = (
+  orders: ServiceOrderResponseDto[],
+): number => {
   return orders
     .filter((order) => order.paymentStatus === "UNPAID")
     .reduce((sum, order) => sum + Number(order.service.price), 0);

@@ -157,7 +157,7 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id} className={columnMeta.className}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     );

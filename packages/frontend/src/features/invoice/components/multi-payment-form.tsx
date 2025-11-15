@@ -73,7 +73,7 @@ export const MultiPaymentForm = ({
   const { data: invoice, isLoading: isLoadingInvoice } =
     useGetInvoiceQuery(invoiceId);
   const [payments, setPayments] = useState<Map<PaymentMethod, number>>(
-    new Map()
+    new Map(),
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addPayment] = useAddPaymentMutation();
@@ -82,7 +82,7 @@ export const MultiPaymentForm = ({
   const paidAmount = invoice?.paidAmount ?? 0;
   const totalPaid = Array.from(payments.values()).reduce(
     (sum, amount) => sum + amount,
-    0
+    0,
   );
   const remaining = totalAmount - paidAmount - totalPaid;
 
@@ -107,7 +107,7 @@ export const MultiPaymentForm = ({
 
   const handlePaymentChange = (
     method: PaymentMethod,
-    amount: number | null
+    amount: number | null,
   ) => {
     const newPayments = new Map(payments);
 
@@ -141,7 +141,7 @@ export const MultiPaymentForm = ({
 
   const handleSubmit = async () => {
     const activePayments = Array.from(payments.entries()).filter(
-      ([_, amount]) => amount > 0
+      ([_, amount]) => amount > 0,
     );
 
     if (activePayments.length === 0) {

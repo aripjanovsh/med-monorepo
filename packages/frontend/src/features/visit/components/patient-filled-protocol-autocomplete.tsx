@@ -5,7 +5,10 @@ import { ru } from "date-fns/locale";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 import { useGetVisitsQuery } from "../visit.api";
-import type { SavedProtocolData, FilledProtocolOption } from "../visit-protocol.types";
+import type {
+  SavedProtocolData,
+  FilledProtocolOption,
+} from "../visit-protocol.types";
 import { getEmployeeShortName } from "@/features/employees";
 
 type PatientFilledProtocolAutocompleteFieldProps = {
@@ -48,7 +51,9 @@ export const PatientFilledProtocolAutocompleteField = ({
       .filter((visit) => visit.protocolData && visit.protocol)
       .map((visit) => {
         try {
-          const protocolData = JSON.parse(visit.protocolData!) as SavedProtocolData;
+          const protocolData = JSON.parse(
+            visit.protocolData!,
+          ) as SavedProtocolData;
           return {
             visitId: visit.id,
             visitDate: visit.visitDate,
@@ -65,9 +70,13 @@ export const PatientFilledProtocolAutocompleteField = ({
 
   const options = useMemo(() => {
     return filledProtocolOptions.map((option) => {
-      const visitDateFormatted = format(parseISO(option.visitDate), "dd MMM yyyy", {
-        locale: ru,
-      });
+      const visitDateFormatted = format(
+        parseISO(option.visitDate),
+        "dd MMM yyyy",
+        {
+          locale: ru,
+        },
+      );
       return {
         label: `${option.templateName} - ${visitDateFormatted} (${option.doctorName})`,
         value: option.visitId,
@@ -82,14 +91,14 @@ export const PatientFilledProtocolAutocompleteField = ({
 
       if (selectedValue && onProtocolSelected) {
         const selectedOption = filledProtocolOptions.find(
-          (o) => o.visitId === selectedValue
+          (o) => o.visitId === selectedValue,
         );
         if (selectedOption) {
           onProtocolSelected(selectedOption);
         }
       }
     },
-    [onChange, onProtocolSelected, filledProtocolOptions]
+    [onChange, onProtocolSelected, filledProtocolOptions],
   );
 
   return (

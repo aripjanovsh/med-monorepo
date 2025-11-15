@@ -3,7 +3,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
+} from "@/components/ui/chart";
 import {
   Area,
   AreaChart,
@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 
 export interface AreaChartProps {
   /** Данные для графика */
@@ -87,7 +87,7 @@ export interface AreaChartProps {
  */
 export function AreaChartComponent({
   data,
-  xKey = 'month',
+  xKey = "month",
   dataKeys,
   labels,
   height = 300,
@@ -97,7 +97,7 @@ export function AreaChartComponent({
   yAxisFormatter,
   secondYAxisFormatter,
   stacked = false,
-  className = '',
+  className = "",
   fillOpacity = 0.4,
   colors,
   useSecondYAxis = false,
@@ -105,15 +105,18 @@ export function AreaChartComponent({
 }: AreaChartProps) {
   // Если dataKeys не указаны, берем все ключи кроме xKey из первого объекта данных
   const keys =
-    dataKeys || (data && data.length > 0 ? Object.keys(data[0]).filter((key) => key !== xKey) : []);
+    dataKeys ||
+    (data && data.length > 0
+      ? Object.keys(data[0]).filter((key) => key !== xKey)
+      : []);
 
   // Строим конфигурацию для графика
   const config: ChartConfig = keys.reduce((cfg, key, index) => {
     const defaultColors = [
-      'hsl(var(--chart-1))',
-      'hsl(var(--chart-2))',
-      'hsl(var(--chart-3))',
-      'hsl(var(--chart-4))',
+      "hsl(var(--chart-1))",
+      "hsl(var(--chart-2))",
+      "hsl(var(--chart-3))",
+      "hsl(var(--chart-4))",
     ];
     return {
       ...cfg,
@@ -136,8 +139,8 @@ export function AreaChartComponent({
     <div
       className={`${className}`}
       style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        width: '100%',
+        height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
       }}
     >
       <ChartContainer config={config} className="h-full w-full">
@@ -151,16 +154,25 @@ export function AreaChartComponent({
               bottom: 12,
             }}
           >
-            {showGrid && <CartesianGrid vertical={false} strokeDasharray="3 3" />}
+            {showGrid && (
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            )}
 
-            <XAxis dataKey={xKey} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey={xKey}
+              tick={{ fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+            />
 
             {showYAxis && (
               <YAxis
                 tick={{ fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={yAxisFormatter || ((value) => value.toLocaleString())}
+                tickFormatter={
+                  yAxisFormatter || ((value) => value.toLocaleString())
+                }
                 yAxisId="left"
               />
             )}
@@ -172,7 +184,9 @@ export function AreaChartComponent({
                 axisLine={false}
                 orientation="right"
                 yAxisId="right"
-                tickFormatter={secondYAxisFormatter || ((value) => value.toString())}
+                tickFormatter={
+                  secondYAxisFormatter || ((value) => value.toString())
+                }
               />
             )}
 
@@ -188,8 +202,8 @@ export function AreaChartComponent({
                 stroke={config[key]?.color}
                 fill={config[key]?.color}
                 fillOpacity={fillOpacity}
-                stackId={stacked ? 'stack' : undefined}
-                yAxisId={key === secondAxis ? 'right' : 'left'}
+                stackId={stacked ? "stack" : undefined}
+                yAxisId={key === secondAxis ? "right" : "left"}
               />
             ))}
           </AreaChart>

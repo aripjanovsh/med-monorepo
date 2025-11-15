@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import type { ProtocolTemplateFormData } from "../protocol-template.schema";
 import { protocolTemplateFormSchema } from "../protocol-template.schema";
 import { formatProtocolContent } from "../protocol-template.model";
-import { 
+import {
   FormBuilderEditor,
   FormBuilderInteractive,
   createEmptyFormBuilderContent,
@@ -65,7 +65,7 @@ export const ProtocolTemplateForm = ({
       toast.success(
         mode === "create"
           ? "Протокол успешно создан"
-          : "Протокол успешно обновлен"
+          : "Протокол успешно обновлен",
       );
       onSuccess?.();
     } catch (error: any) {
@@ -79,7 +79,7 @@ export const ProtocolTemplateForm = ({
         toast.error(
           mode === "create"
             ? "Ошибка при создании протокола"
-            : "Ошибка при обновлении протокола"
+            : "Ошибка при обновлении протокола",
         );
       }
     }
@@ -135,7 +135,6 @@ export const ProtocolTemplateForm = ({
     }
   };
 
-
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="space-y-4">
@@ -170,7 +169,6 @@ export const ProtocolTemplateForm = ({
           )}
         </div>
 
-
         <div className="space-y-2">
           <Label>Содержимое протокола *</Label>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -201,7 +199,10 @@ export const ProtocolTemplateForm = ({
             <TabsContent value="preview" className="mt-4">
               <div className="border rounded-lg overflow-hidden min-h-[500px]">
                 <FormBuilderInteractive
-                  templateJson={form.watch("content") || JSON.stringify(createEmptyFormBuilderContent())}
+                  templateJson={
+                    form.watch("content") ||
+                    JSON.stringify(createEmptyFormBuilderContent())
+                  }
                   readonly={true}
                 />
               </div>

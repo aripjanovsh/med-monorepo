@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -9,9 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,18 +19,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { 
-  MoreHorizontal, 
-  Edit, 
-  Trash, 
-  Copy,
-  Eye,
-  EyeOff 
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import type { ProtocolTemplateResponseDto } from '@/features/protocol-template';
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Edit, Trash, Copy, Eye, EyeOff } from "lucide-react";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import type { ProtocolTemplateResponseDto } from "@/features/protocol-template";
 
 interface ProtocolsTableProps {
   protocols: ProtocolTemplateResponseDto[];
@@ -63,11 +56,11 @@ export function ProtocolsTable({
   };
 
   const formatDate = (date: Date | string) => {
-    if (!isClient) return '—';
+    if (!isClient) return "—";
     try {
-      return format(new Date(date), 'dd MMM yyyy', { locale: ru });
+      return format(new Date(date), "dd MMM yyyy", { locale: ru });
     } catch {
-      return '—';
+      return "—";
     }
   };
 
@@ -87,7 +80,10 @@ export function ProtocolsTable({
         <TableBody>
           {protocols.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="text-center py-8 text-muted-foreground"
+              >
                 Нет доступных шаблонов протоколов
               </TableCell>
             </TableRow>
@@ -99,16 +95,12 @@ export function ProtocolsTable({
                   {protocol.description}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={protocol.isActive ? 'default' : 'secondary'}>
-                    {protocol.isActive ? 'Активен' : 'Неактивен'}
+                  <Badge variant={protocol.isActive ? "default" : "secondary"}>
+                    {protocol.isActive ? "Активен" : "Неактивен"}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  {formatDate(protocol.createdAt)}
-                </TableCell>
-                <TableCell>
-                  {formatDate(protocol.updatedAt)}
-                </TableCell>
+                <TableCell>{formatDate(protocol.createdAt)}</TableCell>
+                <TableCell>{formatDate(protocol.updatedAt)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -123,14 +115,16 @@ export function ProtocolsTable({
                         <Edit className="mr-2 h-4 w-4" />
                         Редактировать
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => onDuplicate?.(protocol.id)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
                         Дублировать
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onToggleActive?.(protocol.id, !protocol.isActive)}
+                        onClick={() =>
+                          onToggleActive?.(protocol.id, !protocol.isActive)
+                        }
                       >
                         {protocol.isActive ? (
                           <>
@@ -145,7 +139,7 @@ export function ProtocolsTable({
                         )}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => onDelete?.(protocol.id)}
                         className="text-destructive"
                       >

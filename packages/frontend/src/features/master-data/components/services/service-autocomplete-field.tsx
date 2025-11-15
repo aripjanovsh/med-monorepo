@@ -54,7 +54,7 @@ export const ServiceAutocompleteField = ({
   const handleChange = useCallback(
     (selectedValue: string | undefined) => {
       onChange(selectedValue);
-      
+
       if (selectedValue && onServiceSelected) {
         const selectedService = services.find((s) => s.id === selectedValue);
         if (selectedService) {
@@ -62,7 +62,7 @@ export const ServiceAutocompleteField = ({
         }
       }
     },
-    [onChange, onServiceSelected, services]
+    [onChange, onServiceSelected, services],
   );
 
   return (

@@ -19,10 +19,16 @@ export {
 } from "./prescription.constants";
 
 // Schemas
-export { prescriptionFormSchema, createPrescriptionRequestSchema } from "./prescription.schema";
+export {
+  prescriptionFormSchema,
+  createPrescriptionRequestSchema,
+} from "./prescription.schema";
 
 // Model functions
-export { getEmployeeFullName, formatPrescriptionDisplay } from "./prescription.model";
+export {
+  getEmployeeFullName,
+  formatPrescriptionDisplay,
+} from "./prescription.model";
 
 // API hooks
 export {

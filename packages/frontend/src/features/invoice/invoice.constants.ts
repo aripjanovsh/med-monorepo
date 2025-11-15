@@ -19,7 +19,11 @@ export const PAYMENT_METHOD = {
 // Payment Status Options (for UI)
 export const PAYMENT_STATUS_OPTIONS = [
   { value: PAYMENT_STATUS.UNPAID, label: "Не оплачен", color: "red" },
-  { value: PAYMENT_STATUS.PARTIALLY_PAID, label: "Частично оплачен", color: "orange" },
+  {
+    value: PAYMENT_STATUS.PARTIALLY_PAID,
+    label: "Частично оплачен",
+    color: "orange",
+  },
   { value: PAYMENT_STATUS.PAID, label: "Оплачен", color: "green" },
   { value: PAYMENT_STATUS.REFUNDED, label: "Возврат", color: "gray" },
 ] as const;
@@ -33,7 +37,10 @@ export const PAYMENT_METHOD_OPTIONS = [
 ] as const;
 
 // Payment Status Map
-export const PAYMENT_STATUS_MAP: Record<PaymentStatus, { label: string; color: string }> = {
+export const PAYMENT_STATUS_MAP: Record<
+  PaymentStatus,
+  { label: string; color: string }
+> = {
   UNPAID: { label: "Не оплачен", color: "red" },
   PARTIALLY_PAID: { label: "Частично оплачен", color: "orange" },
   PAID: { label: "Оплачен", color: "green" },
@@ -41,7 +48,10 @@ export const PAYMENT_STATUS_MAP: Record<PaymentStatus, { label: string; color: s
 };
 
 // Payment Method Map
-export const PAYMENT_METHOD_MAP: Record<PaymentMethod, { label: string; icon: string }> = {
+export const PAYMENT_METHOD_MAP: Record<
+  PaymentMethod,
+  { label: string; icon: string }
+> = {
   CASH: { label: "Наличные", icon: "💵" },
   CARD: { label: "Карта", icon: "💳" },
   ONLINE: { label: "Онлайн", icon: "🌐" },
@@ -55,8 +65,10 @@ export const INVOICE_API_TAG = "Invoice" as const;
 export const INVOICE_QUERY_KEYS = {
   all: ["invoices"] as const,
   lists: () => [...INVOICE_QUERY_KEYS.all, "list"] as const,
-  list: (params: Record<string, unknown>) => [...INVOICE_QUERY_KEYS.lists(), params] as const,
+  list: (params: Record<string, unknown>) =>
+    [...INVOICE_QUERY_KEYS.lists(), params] as const,
   details: () => [...INVOICE_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...INVOICE_QUERY_KEYS.details(), id] as const,
-  payments: (id: string) => [...INVOICE_QUERY_KEYS.detail(id), "payments"] as const,
+  payments: (id: string) =>
+    [...INVOICE_QUERY_KEYS.detail(id), "payments"] as const,
 } as const;

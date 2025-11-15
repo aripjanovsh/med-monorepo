@@ -35,7 +35,7 @@ export const QuickSearchWidget = ({
 
   const { data: patientsData, isLoading } = useGetPatientsQuery(
     { search: debouncedSearch, limit: 10, page: 1 },
-    { skip: debouncedSearch.length < 2 }
+    { skip: debouncedSearch.length < 2 },
   );
 
   const searchResults = patientsData?.data;
@@ -46,7 +46,7 @@ export const QuickSearchWidget = ({
       setOpen(false);
       setSearchValue("");
     },
-    [onPatientSelect]
+    [onPatientSelect],
   );
 
   return (
@@ -74,9 +74,7 @@ export const QuickSearchWidget = ({
               <div className="py-6 text-center text-sm">Поиск...</div>
             )}
             {!isLoading && debouncedSearch.length < 2 && (
-              <CommandEmpty>
-                Введите минимум 2 символа для поиска
-              </CommandEmpty>
+              <CommandEmpty>Введите минимум 2 символа для поиска</CommandEmpty>
             )}
             {!isLoading &&
               debouncedSearch.length >= 2 &&
@@ -109,7 +107,7 @@ export const QuickSearchWidget = ({
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {new Date(patient.dateOfBirth).toLocaleDateString(
-                              "ru-RU"
+                              "ru-RU",
                             )}
                           </span>
                         )}

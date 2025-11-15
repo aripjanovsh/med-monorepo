@@ -50,7 +50,8 @@ type AddPatientAllergyDialogOwnProps = {
 /**
  * Полные пропсы с DialogProps
  */
-type AddPatientAllergyDialogProps = AddPatientAllergyDialogOwnProps & DialogProps;
+type AddPatientAllergyDialogProps = AddPatientAllergyDialogOwnProps &
+  DialogProps;
 
 export const AddPatientAllergyDialog = ({
   patientId,
@@ -59,7 +60,8 @@ export const AddPatientAllergyDialog = ({
   open,
   onOpenChange,
 }: AddPatientAllergyDialogProps) => {
-  const [createPatientAllergy, { isLoading }] = useCreatePatientAllergyMutation();
+  const [createPatientAllergy, { isLoading }] =
+    useCreatePatientAllergyMutation();
 
   const form = useForm<AddPatientAllergyFormData>({
     defaultValues: {
@@ -159,7 +161,10 @@ export const AddPatientAllergyDialog = ({
                 <FormItem>
                   <FormLabel>Примечание</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Дополнительная информация" />
+                    <Textarea
+                      {...field}
+                      placeholder="Дополнительная информация"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

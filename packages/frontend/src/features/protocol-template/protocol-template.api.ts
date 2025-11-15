@@ -49,7 +49,10 @@ export const protocolTemplateApi = rootApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: API_TAG, id }, API_TAG],
+      invalidatesTags: (result, error, { id }) => [
+        { type: API_TAG, id },
+        API_TAG,
+      ],
     }),
 
     deleteProtocolTemplate: builder.mutation<{ message: string }, string>({

@@ -19,7 +19,8 @@ export function DataTableErrorState({
   retryText = "Повторить попытку",
 }: DataTableErrorStateProps) {
   // Extract error message
-  const errorMessage = description || (error instanceof Error ? error.message : undefined);
+  const errorMessage =
+    description || (error instanceof Error ? error.message : undefined);
 
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -28,7 +29,9 @@ export function DataTableErrorState({
       </div>
       <h3 className="mb-2 text-lg font-semibold text-destructive">{title}</h3>
       {errorMessage && (
-        <p className="mb-4 text-sm text-muted-foreground max-w-sm">{errorMessage}</p>
+        <p className="mb-4 text-sm text-muted-foreground max-w-sm">
+          {errorMessage}
+        </p>
       )}
       {onRetry && (
         <Button onClick={onRetry} variant="outline">

@@ -48,14 +48,16 @@ type EditPatientAllergyDialogOwnProps = {
 /**
  * Полные пропсы с DialogProps
  */
-type EditPatientAllergyDialogProps = EditPatientAllergyDialogOwnProps & DialogProps;
+type EditPatientAllergyDialogProps = EditPatientAllergyDialogOwnProps &
+  DialogProps;
 
 export const EditPatientAllergyDialog = ({
   allergy,
   open,
   onOpenChange,
 }: EditPatientAllergyDialogProps) => {
-  const [updatePatientAllergy, { isLoading }] = useUpdatePatientAllergyMutation();
+  const [updatePatientAllergy, { isLoading }] =
+    useUpdatePatientAllergyMutation();
 
   const form = useForm<EditPatientAllergyFormData>({
     defaultValues: {
@@ -125,10 +127,7 @@ export const EditPatientAllergyDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Степень тяжести</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Выберите степень" />
@@ -152,7 +151,10 @@ export const EditPatientAllergyDialog = ({
                 <FormItem>
                   <FormLabel>Примечание</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Дополнительная информация" />
+                    <Textarea
+                      {...field}
+                      placeholder="Дополнительная информация"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

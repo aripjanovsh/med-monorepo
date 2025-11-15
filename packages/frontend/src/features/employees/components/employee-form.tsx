@@ -43,7 +43,10 @@ import { ServiceTypeListField } from "@/features/master-data/components/service-
 import { LanguageSelectField } from "@/features/master-data/components/languages/language-select-field";
 import { SelectField } from "@/components/fields/select-field";
 import { RoleListField } from "@/features/roles/components/role-list-field";
-import { LocationSelectField, LocationHierarchyIds } from "@/features/master-data/components/geolocation/location-select-field";
+import {
+  LocationSelectField,
+  LocationHierarchyIds,
+} from "@/features/master-data/components/geolocation/location-select-field";
 
 interface EmployeeFormProps {
   open: boolean;
@@ -110,21 +113,29 @@ export function EmployeeForm({
 
     if (employee) {
       // Build locationHierarchy from individual location IDs
-      const locationHierarchy: LocationHierarchyIds | undefined = 
-        employee.countryId || employee.regionId || employee.cityId || employee.districtId
+      const locationHierarchy: LocationHierarchyIds | undefined =
+        employee.countryId ||
+        employee.regionId ||
+        employee.cityId ||
+        employee.districtId
           ? {
               countryId: employee.countryId,
               regionId: employee.regionId,
               cityId: employee.cityId,
               districtId: employee.districtId,
-              selectedId: employee.districtId || employee.cityId || employee.regionId || employee.countryId,
+              selectedId:
+                employee.districtId ||
+                employee.cityId ||
+                employee.regionId ||
+                employee.countryId,
             }
           : undefined;
 
       // Объединяем серию и номер паспорта в одно поле
-      const passport = employee.passportSeries && employee.passportNumber 
-        ? `${employee.passportSeries}${employee.passportNumber}` 
-        : "";
+      const passport =
+        employee.passportSeries && employee.passportNumber
+          ? `${employee.passportSeries}${employee.passportNumber}`
+          : "";
 
       form.reset({
         ...DEFAULT_VALUES,
@@ -149,11 +160,7 @@ export function EmployeeForm({
 
   const validateCurrentStep = React.useCallback(async () => {
     if (step === 0) {
-      return await form.trigger([
-        "firstName",
-        "lastName",
-        "hireDate",
-      ]);
+      return await form.trigger(["firstName", "lastName", "hireDate"]);
     }
     if (step === 3) {
       return await form.trigger([
@@ -343,7 +350,9 @@ export function EmployeeForm({
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="font-semibold font-gilroy">Паспортные данные</h3>
+                      <h3 className="font-semibold font-gilroy">
+                        Паспортные данные
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                         <FormField
                           control={form.control}
@@ -357,8 +366,14 @@ export function EmployeeForm({
                                 field.onChange(value);
                                 // Автоматически разделяем на серию и номер
                                 if (value && value.length >= 2) {
-                                  form.setValue("passportSeries", value.slice(0, 2));
-                                  form.setValue("passportNumber", value.slice(2));
+                                  form.setValue(
+                                    "passportSeries",
+                                    value.slice(0, 2),
+                                  );
+                                  form.setValue(
+                                    "passportNumber",
+                                    value.slice(2),
+                                  );
                                 } else {
                                   form.setValue("passportSeries", "");
                                   form.setValue("passportNumber", "");
@@ -474,10 +489,22 @@ export function EmployeeForm({
                                     field.onChange(value);
                                     // Update individual location fields
                                     if (value) {
-                                      form.setValue("countryId", value.countryId || "");
-                                      form.setValue("regionId", value.regionId || "");
-                                      form.setValue("cityId", value.cityId || "");
-                                      form.setValue("districtId", value.districtId || "");
+                                      form.setValue(
+                                        "countryId",
+                                        value.countryId || "",
+                                      );
+                                      form.setValue(
+                                        "regionId",
+                                        value.regionId || "",
+                                      );
+                                      form.setValue(
+                                        "cityId",
+                                        value.cityId || "",
+                                      );
+                                      form.setValue(
+                                        "districtId",
+                                        value.districtId || "",
+                                      );
                                     } else {
                                       form.setValue("countryId", "");
                                       form.setValue("regionId", "");
@@ -676,8 +703,8 @@ export function EmployeeForm({
                   {isLoading
                     ? "Сохранение..."
                     : employee
-                    ? "Обновить сотрудника"
-                    : "Создать сотрудника"}
+                      ? "Обновить сотрудника"
+                      : "Создать сотрудника"}
                 </Button>
               )}
             </div>

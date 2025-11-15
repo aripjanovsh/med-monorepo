@@ -19,21 +19,20 @@ export const patientApi = rootApi.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
     // Get all patients with pagination
-    getPatients: builder.query<
-      PatientsListResponseDto,
-      PatientsQueryParamsDto
-    >({
-      query: (params) => ({
-        url: "/api/v1/patients",
-        method: "GET",
-        params, // DTO matches domain params
-      }),
-      providesTags: [API_TAG_OPERATIONS_PATIENTS],
-    }),
+    getPatients: builder.query<PatientsListResponseDto, PatientsQueryParamsDto>(
+      {
+        query: (params) => ({
+          url: "/api/v1/patients",
+          method: "GET",
+          params, // DTO matches domain params
+        }),
+        providesTags: [API_TAG_OPERATIONS_PATIENTS],
+      },
+    ),
 
     // Get patient by ID
     getPatient: builder.query<
-      PatientResponseDto, 
+      PatientResponseDto,
       { id: string; params?: PatientByIdQueryDto }
     >({
       query: ({ id, params }) => ({
@@ -108,7 +107,7 @@ export const patientApi = rootApi.injectEndpoints({
 
     // Delete patient
     deletePatient: builder.mutation<
-      { message: string }, 
+      { message: string },
       { id: string; params?: PatientByIdQueryDto }
     >({
       query: ({ id, params }) => ({

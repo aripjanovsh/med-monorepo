@@ -64,7 +64,7 @@ export function UploadFileSheet({
         setFileDescription("");
       }
     },
-    []
+    [],
   );
 
   const handleUpload = useCallback(async () => {
@@ -113,7 +113,7 @@ export function UploadFileSheet({
 
   const availableCategories = allowedCategories
     ? Object.entries(FILE_CATEGORY_LABELS).filter(([key]) =>
-        allowedCategories.includes(key as FileCategory)
+        allowedCategories.includes(key as FileCategory),
       )
     : Object.entries(FILE_CATEGORY_LABELS);
 
