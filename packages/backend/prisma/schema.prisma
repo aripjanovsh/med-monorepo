@@ -24,7 +24,6 @@ model Organization {
   departments          Department[]
   employees            Employee[]
   invoices             Invoice[]
-  medicalRecords       MedicalRecord[]
   parameterDefinitions ParameterDefinition[]
   allergies            PatientAllergy[]
   patientParameters    PatientParameter[]
@@ -90,7 +89,6 @@ model Patient {
   organizationId      String
   appointments        Appointment[]
   invoices            Invoice[]
-  medicalRecords      MedicalRecord[]
   allergies           PatientAllergy[]
   contacts            PatientContact[]
   doctors             PatientDoctor[]
@@ -220,7 +218,6 @@ model Appointment {
   organization   Organization      @relation(fields: [organizationId], references: [id])
   patient        Patient           @relation(fields: [patientId], references: [id])
   service        Service?          @relation(fields: [serviceId], references: [id])
-  medicalRecord  MedicalRecord?
   visits         Visit[]
 
   @@map("appointments")
@@ -232,7 +229,6 @@ model Visit {
   status             VisitStatus        @default(WAITING)
   type               VisitType          @default(STANDARD)
   notes              String?
-  queueNumber        Int?
   queuedAt           DateTime?
   startedAt          DateTime?
   completedAt        DateTime?
@@ -247,7 +243,6 @@ model Visit {
   protocolId         String?
   protocolData       String?
   invoices           Invoice[]
-  medicalRecords     MedicalRecord[]
   allergies          PatientAllergy[]
   patientParameters  PatientParameter[]
   prescriptions      Prescription[]
@@ -264,33 +259,6 @@ model Visit {
   @@map("visits")
 }
 
-model MedicalRecord {
-  id             String       @id @default(uuid())
-  type           RecordType
-  content        Json
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  organizationId String
-  visitId        String
-  patientId      String
-  createdById    String
-  employeeId     String?
-  appointmentId  String?      @unique
-  diagnosis      String?
-  symptoms       String?
-  treatment      String?
-  medications    String?
-  notes          String?
-  followUp       DateTime?
-  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
-  createdBy      Employee     @relation(fields: [createdById], references: [id])
-  employee       Employee?    @relation("LegacyMedicalRecordEmployee", fields: [employeeId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  patient        Patient      @relation(fields: [patientId], references: [id])
-  visit          Visit        @relation(fields: [visitId], references: [id], onDelete: Cascade)
-
-  @@map("medical_records")
-}
 
 model Prescription {
   id          String   @id @default(uuid())
@@ -362,8 +330,6 @@ model Employee {
   deletedFiles             File[]                @relation("FileDeletedBy")
   uploadedFiles            File[]                @relation("FileUploadedBy")
   createdInvoices          Invoice[]             @relation("EmployeeInvoices")
-  medicalRecordsCreated    MedicalRecord[]
-  medicalRecords           MedicalRecord[]       @relation("LegacyMedicalRecordEmployee")
   recordedAllergies        PatientAllergy[]
   patientDoctors           PatientDoctor[]
   recordedParameters       PatientParameter[]

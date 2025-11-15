@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsEnum, IsUUID, IsDateString, IsArray } from "class-validator";
+import {
+  IsOptional,
+  IsEnum,
+  IsUUID,
+  IsDateString,
+  IsArray,
+} from "class-validator";
 import { Expose, Exclude, Type, Transform } from "class-transformer";
 import { VisitStatus } from "@prisma/client";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
@@ -12,7 +18,6 @@ export enum VisitIncludeRelation {
   APPOINTMENT = "appointment",
   PROTOCOL = "protocol",
   ORGANIZATION = "organization",
-  MEDICAL_RECORDS = "medicalRecords",
   PRESCRIPTIONS = "prescriptions",
   SERVICE_ORDERS = "serviceOrders",
 }

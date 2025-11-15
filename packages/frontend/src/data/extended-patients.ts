@@ -1,6 +1,6 @@
 import { Patient } from "@/types/patient";
 
-export const extendedMockPatients: Patient[] = [
+export const extendedMockPatients: any[] = [
   {
     id: "1",
     name: "Emily Johnson",
@@ -258,7 +258,8 @@ export const extendedMockPatients: Patient[] = [
         date: "2024-01-15",
         author: "Dr. Smith",
         type: "CLINICAL",
-        content: "Patient reports excellent adherence to medication regimen. Blood sugar levels well controlled. Recommend continuing current treatment plan.",
+        content:
+          "Patient reports excellent adherence to medication regimen. Blood sugar levels well controlled. Recommend continuing current treatment plan.",
         isPrivate: false,
       },
       {
@@ -266,7 +267,8 @@ export const extendedMockPatients: Patient[] = [
         date: "2024-01-10",
         author: "Nurse Johnson",
         type: "ADMINISTRATIVE",
-        content: "Patient arrived 15 minutes early for appointment. Insurance verified and updated in system.",
+        content:
+          "Patient arrived 15 minutes early for appointment. Insurance verified and updated in system.",
         isPrivate: true,
       },
     ],
@@ -275,5 +277,5 @@ export const extendedMockPatients: Patient[] = [
 
 // Helper function to get patient by ID
 export const getPatientById = (id: string): Patient | undefined => {
-  return extendedMockPatients.find(patient => patient.id === id);
+  return extendedMockPatients.find((patient) => patient.id === id);
 };

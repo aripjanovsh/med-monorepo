@@ -7,7 +7,6 @@ export enum VisitIncludeRelation {
   APPOINTMENT = "appointment",
   PROTOCOL = "protocol",
   ORGANIZATION = "organization",
-  MEDICAL_RECORDS = "medicalRecords",
   PRESCRIPTIONS = "prescriptions",
   SERVICE_ORDERS = "serviceOrders",
 }
@@ -53,13 +52,6 @@ export interface SimplePrescriptionDto {
   createdAt: string; // ISO
 }
 
-export interface SimpleMedicalRecordDto {
-  id: string;
-  type: string;
-  content: unknown;
-  createdAt: string; // ISO
-}
-
 export interface SimpleOrganizationDto {
   id: string;
   name: string;
@@ -98,7 +90,6 @@ export interface VisitResponseDto {
   appointment?: SimpleAppointmentDto;
   protocol?: SimpleProtocolTemplateDto;
   protocolData?: string; // JSON string of FilledFormData
-  medicalRecords?: SimpleMedicalRecordDto[];
   prescriptions?: SimplePrescriptionDto[];
   serviceOrders?: SimpleServiceOrderDto[];
   organization?: SimpleOrganizationDto;

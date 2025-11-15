@@ -1,10 +1,13 @@
 import { Patient } from "@/types/patient";
 
 // Use extended patients data for detailed view
-export { extendedMockPatients as mockPatients, getPatientById } from "./extended-patients";
+export {
+  extendedMockPatients as mockPatients,
+  getPatientById,
+} from "./extended-patients";
 
 // Simplified patients for list view (backward compatibility)
-export const simpleMockPatients: Patient[] = [
+export const simpleMockPatients: any[] = [
   {
     id: "1",
     name: "Emily Johnson",

@@ -66,14 +66,6 @@ const VISIT_INCLUDE_RELATIONS = {
       slug: true,
     },
   },
-  medicalRecords: {
-    select: {
-      id: true,
-      type: true,
-      content: true,
-      createdAt: true,
-    },
-  },
   prescriptions: {
     select: {
       id: true,
@@ -114,9 +106,6 @@ function buildIncludeObject(
         break;
       case VisitIncludeRelation.ORGANIZATION:
         include.organization = VISIT_INCLUDE_RELATIONS.organization;
-        break;
-      case VisitIncludeRelation.MEDICAL_RECORDS:
-        include.medicalRecords = VISIT_INCLUDE_RELATIONS.medicalRecords;
         break;
       case VisitIncludeRelation.PRESCRIPTIONS:
         include.prescriptions = VISIT_INCLUDE_RELATIONS.prescriptions;
@@ -321,12 +310,6 @@ export class VisitService {
       where,
       include: {
         ...VISIT_INCLUDE_RELATIONS,
-        medicalRecords: {
-          ...VISIT_INCLUDE_RELATIONS.medicalRecords,
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
         prescriptions: {
           ...VISIT_INCLUDE_RELATIONS.prescriptions,
           orderBy: {

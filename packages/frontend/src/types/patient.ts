@@ -18,7 +18,6 @@ export interface Patient {
   allergies: Allergy[];
   medications: Medication[];
   vaccinations: Vaccination[];
-  medicalRecords: MedicalRecord[];
   testResults: TestResult[];
   appointments: Appointment[];
   documents: MedicalDocument[];
@@ -67,19 +66,6 @@ export interface Vaccination {
   administeredBy: string;
   lotNumber?: string;
   nextDue?: string;
-}
-
-export interface MedicalRecord {
-  id: string;
-  date: string;
-  type: "CONSULTATION" | "PROCEDURE" | "SURGERY" | "EMERGENCY";
-  doctor: string;
-  department: string;
-  diagnosis: string;
-  treatment: string;
-  notes: string;
-  followUpRequired: boolean;
-  followUpDate?: string;
 }
 
 export interface TestResult {

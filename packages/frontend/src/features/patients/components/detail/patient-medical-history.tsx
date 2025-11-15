@@ -1,12 +1,18 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  FileText, 
-  Plus, 
-  Calendar, 
+import {
+  FileText,
+  Plus,
+  Calendar,
   User,
   AlertTriangle,
   Heart,
@@ -18,148 +24,142 @@ import {
   Stethoscope,
   Filter,
   Download,
-  Eye
+  Eye,
 } from "lucide-react";
 import { formatDate } from "@/lib/date.utils";
-
-interface MedicalRecord {
-  id: string;
-  date: string;
-  type: "DIAGNOSIS" | "TREATMENT" | "ALLERGY" | "MEDICATION" | "NOTE" | "TEST" | "VACCINATION";
-  title: string;
-  description: string;
-  doctor: {
-    firstName: string;
-    lastName: string;
-    specialty?: string;
-  };
-  severity?: "LOW" | "MEDIUM" | "HIGH";
-  status?: "ACTIVE" | "COMPLETED" | "CANCELLED";
-  attachments?: number;
-}
 
 interface PatientMedicalHistoryProps {
   patientId: string;
 }
 
 // Расширенные mock данные для демонстрации
-const mockMedicalHistory: MedicalRecord[] = [
+const mockMedicalHistory: any[] = [
   {
     id: "1",
     date: "2024-06-28",
     type: "DIAGNOSIS",
     title: "Гипертония I степени",
-    description: "Артериальное давление 150/90 мм рт.ст. Рекомендованы регулярные измерения и коррекция образа жизни. Назначена диета с ограничением соли.",
+    description:
+      "Артериальное давление 150/90 мм рт.ст. Рекомендованы регулярные измерения и коррекция образа жизни. Назначена диета с ограничением соли.",
     doctor: {
       firstName: "Иван",
       lastName: "Петров",
-      specialty: "Кардиолог"
+      specialty: "Кардиолог",
     },
     severity: "MEDIUM",
     status: "ACTIVE",
-    attachments: 2
+    attachments: 2,
   },
   {
     id: "2",
     date: "2024-06-28",
     type: "MEDICATION",
     title: "Эналаприл 10 мг",
-    description: "По 1 таблетке 2 раза в день утром и вечером. Контроль АД через 2 недели. Избегать одновременного приема с калийсберегающими диуретиками.",
+    description:
+      "По 1 таблетке 2 раза в день утром и вечером. Контроль АД через 2 недели. Избегать одновременного приема с калийсберегающими диуретиками.",
     doctor: {
       firstName: "Иван",
       lastName: "Петров",
-      specialty: "Кардиолог"
+      specialty: "Кардиолог",
     },
     status: "ACTIVE",
-    attachments: 1
+    attachments: 1,
   },
   {
     id: "3",
     date: "2024-06-15",
     type: "ALLERGY",
     title: "Аллергия на пенициллин",
-    description: "Кожная сыпь, зуд. Избегать препаратов пенициллинового ряда. В медицинской карте отмечена красным цветом.",
+    description:
+      "Кожная сыпь, зуд. Избегать препаратов пенициллинового ряда. В медицинской карте отмечена красным цветом.",
     doctor: {
       firstName: "Мария",
       lastName: "Сидорова",
-      specialty: "Аллерголог"
+      specialty: "Аллерголог",
     },
     severity: "HIGH",
     status: "ACTIVE",
-    attachments: 1
+    attachments: 1,
   },
   {
     id: "4",
     date: "2024-06-15",
     type: "TEST",
     title: "ЭКГ обследование",
-    description: "ЭКГ в норме. Ритм синусовый, ЧСС 72 уд/мин. Патологических изменений не выявлено. Сегмент ST без изменений.",
+    description:
+      "ЭКГ в норме. Ритм синусовый, ЧСС 72 уд/мин. Патологических изменений не выявлено. Сегмент ST без изменений.",
     doctor: {
       firstName: "Мария",
       lastName: "Сидорова",
-      specialty: "Кардиолог"
+      specialty: "Кардиолог",
     },
     status: "COMPLETED",
-    attachments: 3
+    attachments: 3,
   },
   {
     id: "5",
     date: "2024-06-10",
     type: "TREATMENT",
     title: "Физиотерапия: магнитотерапия",
-    description: "Курс 10 процедур. Назначено для улучшения кровообращения и снижения давления. Процедуры проводятся 2 раза в неделю.",
+    description:
+      "Курс 10 процедур. Назначено для улучшения кровообращения и снижения давления. Процедуры проводятся 2 раза в неделю.",
     doctor: {
       firstName: "Елена",
       lastName: "Козлова",
-      specialty: "Физиотерапевт"
+      specialty: "Физиотерапевт",
     },
     status: "COMPLETED",
-    attachments: 0
+    attachments: 0,
   },
   {
     id: "6",
     date: "2024-06-01",
     type: "VACCINATION",
     title: "Гриппол Quadrivalent",
-    description: "Вакцинация против гриппа. Переносимость хорошая, побочных реакций нет. Следующая вакцинация через 12 месяцев.",
+    description:
+      "Вакцинация против гриппа. Переносимость хорошая, побочных реакций нет. Следующая вакцинация через 12 месяцев.",
     doctor: {
       firstName: "Анна",
       lastName: "Новикова",
-      specialty: "Терапевт"
+      specialty: "Терапевт",
     },
     status: "COMPLETED",
-    attachments: 1
+    attachments: 1,
   },
   {
     id: "7",
     date: "2024-05-20",
     type: "NOTE",
     title: "Профилактический осмотр",
-    description: "Общее состояние удовлетворительное. Жалоб нет. Рекомендован контроль через 6 месяцев. Продолжать прием эналаприла.",
+    description:
+      "Общее состояние удовлетворительное. Жалоб нет. Рекомендован контроль через 6 месяцев. Продолжать прием эналаприла.",
     doctor: {
       firstName: "Иван",
       lastName: "Петров",
-      specialty: "Кардиолог"
+      specialty: "Кардиолог",
     },
-    attachments: 0
+    attachments: 0,
   },
   {
     id: "8",
     date: "2024-05-15",
     type: "TEST",
     title: "Общий анализ крови",
-    description: "Гемоглобин 145 г/л, эритроциты 4.5 млн/мкл, лейкоциты 6.2 тыс/мкл. Показатели в пределах нормы.",
+    description:
+      "Гемоглобин 145 г/л, эритроциты 4.5 млн/мкл, лейкоциты 6.2 тыс/мкл. Показатели в пределах нормы.",
     doctor: {
       firstName: "Ольга",
       lastName: "Морозова",
-      specialty: "Лаборант"
+      specialty: "Лаборант",
     },
     status: "COMPLETED",
-    attachments: 2
+    attachments: 2,
   },
 ];
 
-export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps) {
+export function PatientMedicalHistory({
+  patientId,
+}: PatientMedicalHistoryProps) {
   const getRecordTypeIcon = (type: string) => {
     switch (type) {
       case "DIAGNOSIS":
@@ -276,28 +276,43 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
   };
 
   // Группируем записи по типу для быстрого доступа
-  const allergies = mockMedicalHistory.filter(record => record.type === "ALLERGY");
-  const medications = mockMedicalHistory.filter(record => record.type === "MEDICATION" && record.status === "ACTIVE");
-  const diagnoses = mockMedicalHistory.filter(record => record.type === "DIAGNOSIS" && record.status === "ACTIVE");
-  const recentTests = mockMedicalHistory.filter(record => record.type === "TEST").slice(0, 3);
+  const allergies = mockMedicalHistory.filter(
+    (record) => record.type === "ALLERGY"
+  );
+  const medications = mockMedicalHistory.filter(
+    (record) => record.type === "MEDICATION" && record.status === "ACTIVE"
+  );
+  const diagnoses = mockMedicalHistory.filter(
+    (record) => record.type === "DIAGNOSIS" && record.status === "ACTIVE"
+  );
+  const recentTests = mockMedicalHistory
+    .filter((record) => record.type === "TEST")
+    .slice(0, 3);
 
   // Сортируем по дате (новые сверху)
-  const sortedHistory = [...mockMedicalHistory].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+  const sortedHistory = [...mockMedicalHistory].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   // Статистика
   const stats = {
     total: mockMedicalHistory.length,
-    active: mockMedicalHistory.filter(r => r.status === "ACTIVE").length,
-    highSeverity: mockMedicalHistory.filter(r => r.severity === "HIGH").length,
+    active: mockMedicalHistory.filter((r) => r.status === "ACTIVE").length,
+    highSeverity: mockMedicalHistory.filter((r) => r.severity === "HIGH")
+      .length,
     lastUpdate: sortedHistory[0]?.date || null,
-    attachments: mockMedicalHistory.reduce((sum, r) => sum + (r.attachments || 0), 0)
+    attachments: mockMedicalHistory.reduce(
+      (sum, r) => sum + (r.attachments || 0),
+      0
+    ),
   };
 
   const getDaysSinceLastUpdate = () => {
     if (!stats.lastUpdate) return null;
-    const days = Math.floor((Date.now() - new Date(stats.lastUpdate).getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor(
+      (Date.now() - new Date(stats.lastUpdate).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
     return days;
   };
 
@@ -308,11 +323,17 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
         <div>
           <h2 className="text-2xl font-semibold">Медицинская карта</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Последнее обновление: {stats.lastUpdate ? formatDate(stats.lastUpdate) : 'Нет данных'}
+            Последнее обновление:{" "}
+            {stats.lastUpdate ? formatDate(stats.lastUpdate) : "Нет данных"}
             {getDaysSinceLastUpdate() !== null && (
               <span className="ml-2">
-                ({getDaysSinceLastUpdate()} {getDaysSinceLastUpdate() === 1 ? 'день' : 
-                   getDaysSinceLastUpdate()! < 5 ? 'дня' : 'дней'} назад)
+                ({getDaysSinceLastUpdate()}{" "}
+                {getDaysSinceLastUpdate() === 1
+                  ? "день"
+                  : getDaysSinceLastUpdate()! < 5
+                    ? "дня"
+                    : "дней"}{" "}
+                назад)
               </span>
             )}
           </p>
@@ -339,7 +360,9 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Всего записей</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Всего записей
+                </p>
                 <p className="text-2xl font-bold">{stats.total}</p>
                 <p className="text-xs text-green-600 mt-1">
                   {stats.active} активных
@@ -356,7 +379,9 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Активные диагнозы</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Активные диагнозы
+                </p>
                 <p className="text-2xl font-bold">{diagnoses.length}</p>
                 <p className="text-xs text-orange-600 mt-1">
                   {stats.highSeverity} высокой важности
@@ -373,7 +398,9 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Текущие препараты</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Текущие препараты
+                </p>
                 <p className="text-2xl font-bold">{medications.length}</p>
                 <p className="text-xs text-blue-600 mt-1">
                   {allergies.length} аллергий
@@ -390,7 +417,9 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Вложения</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Вложения
+                </p>
                 <p className="text-2xl font-bold">{stats.attachments}</p>
                 <p className="text-xs text-purple-600 mt-1">
                   Документы и анализы
@@ -423,7 +452,10 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="space-y-2">
             {allergies.length > 0 ? (
               allergies.map((allergy) => (
-                <div key={allergy.id} className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border-l-4 border-red-500">
+                <div
+                  key={allergy.id}
+                  className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border-l-4 border-red-500"
+                >
                   <div className="flex items-center justify-between mb-1">
                     <div className="font-medium text-sm">{allergy.title}</div>
                     {allergy.attachments && (
@@ -470,9 +502,14 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="space-y-2">
             {medications.length > 0 ? (
               medications.map((medication) => (
-                <div key={medication.id} className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border-l-4 border-blue-500">
+                <div
+                  key={medication.id}
+                  className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border-l-4 border-blue-500"
+                >
                   <div className="flex items-center justify-between mb-1">
-                    <div className="font-medium text-sm">{medication.title}</div>
+                    <div className="font-medium text-sm">
+                      {medication.title}
+                    </div>
                     {medication.attachments && (
                       <Badge variant="outline" className="text-xs">
                         {medication.attachments} файл
@@ -517,12 +554,18 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent className="space-y-2">
             {diagnoses.length > 0 ? (
               diagnoses.map((diagnosis) => (
-                <div key={diagnosis.id} className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500">
+                <div
+                  key={diagnosis.id}
+                  className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500"
+                >
                   <div className="flex items-center justify-between mb-1">
                     <div className="font-medium text-sm">{diagnosis.title}</div>
                     <div className="flex gap-1">
                       {diagnosis.severity && (
-                        <Badge variant={getSeverityVariant(diagnosis.severity)} className="text-xs">
+                        <Badge
+                          variant={getSeverityVariant(diagnosis.severity)}
+                          className="text-xs"
+                        >
                           {getSeverityLabel(diagnosis.severity)}
                         </Badge>
                       )}
@@ -570,10 +613,16 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {recentTests.map((test) => (
-                <div key={test.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div
+                  key={test.id}
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <div className="font-medium text-sm">{test.title}</div>
-                    <Badge variant={getStatusVariant(test.status)} className="text-xs">
+                    <Badge
+                      variant={getStatusVariant(test.status)}
+                      className="text-xs"
+                    >
                       {getStatusLabel(test.status)}
                     </Badge>
                   </div>
@@ -615,25 +664,34 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
           {sortedHistory.length > 0 ? (
             <div className="space-y-4">
               {sortedHistory.slice(0, 10).map((record) => (
-                <div key={record.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                <div
+                  key={record.id}
+                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
                       <div className="mt-1">
                         {getRecordTypeIcon(record.type)}
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant={getRecordTypeVariant(record.type)}>
                             {getRecordTypeLabel(record.type)}
                           </Badge>
                           {record.severity && (
-                            <Badge variant={getSeverityVariant(record.severity)} className="text-xs">
+                            <Badge
+                              variant={getSeverityVariant(record.severity)}
+                              className="text-xs"
+                            >
                               {getSeverityLabel(record.severity)}
                             </Badge>
                           )}
                           {record.status && (
-                            <Badge variant={getStatusVariant(record.status)} className="text-xs">
+                            <Badge
+                              variant={getStatusVariant(record.status)}
+                              className="text-xs"
+                            >
                               {getStatusLabel(record.status)}
                             </Badge>
                           )}
@@ -643,12 +701,12 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
                             </Badge>
                           )}
                         </div>
-                        
+
                         <h4 className="font-medium mb-1">{record.title}</h4>
                         <p className="text-sm text-muted-foreground mb-2">
                           {record.description}
                         </p>
-                        
+
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
@@ -670,7 +728,7 @@ export function PatientMedicalHistory({ patientId }: PatientMedicalHistoryProps)
                   </div>
                 </div>
               ))}
-              
+
               {sortedHistory.length > 10 && (
                 <div className="text-center">
                   <Button variant="outline" className="w-full">

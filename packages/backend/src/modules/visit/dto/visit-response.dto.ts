@@ -101,25 +101,6 @@ class SimpleAppointmentResponseDto {
 }
 
 @Exclude()
-class SimpleMedicalRecordResponseDto {
-  @Expose()
-  @ApiProperty()
-  id: string;
-
-  @Expose()
-  @ApiProperty()
-  type: string;
-
-  @Expose()
-  @ApiProperty()
-  content: unknown;
-
-  @Expose()
-  @ApiProperty()
-  createdAt: Date;
-}
-
-@Exclude()
 class SimplePrescriptionResponseDto {
   @Expose()
   @ApiProperty()
@@ -302,14 +283,6 @@ export class VisitResponseDto extends BaseResponseDto {
     example: '{"field1": "value1", "field2": "value2"}',
   })
   protocolData?: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Medical records",
-    type: [SimpleMedicalRecordResponseDto],
-  })
-  @Type(() => SimpleMedicalRecordResponseDto)
-  medicalRecords: SimpleMedicalRecordResponseDto[];
 
   @Expose()
   @ApiProperty({
