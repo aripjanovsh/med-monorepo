@@ -72,7 +72,7 @@ export const ReceptionDashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <StatsWidget date={selectedDate} />
+      {/* <StatsWidget date={selectedDate} /> */}
 
       {/* Quick Actions Panel */}
       <QuickActionsWidget

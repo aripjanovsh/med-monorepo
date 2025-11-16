@@ -10,7 +10,15 @@ import {
   addMinutes,
 } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Check, Clock, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Clock,
+  X,
+  User,
+  Stethoscope,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -205,7 +213,7 @@ export const CalendarView = ({
       <ScrollArea className="w-full">
         <div className="min-w-fit">
           {/* Days Header */}
-          <div className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-2">
+          <div className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-1">
             <div className="p-1" />
             {weekDays.map((day) => {
               const eventsCount =
@@ -248,7 +256,7 @@ export const CalendarView = ({
               <div
                 id={`time-slot-${timeSlot}`}
                 key={timeSlot}
-                className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-2"
+                className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-1"
               >
                 {/* Time Label */}
                 <div className="p-1 text-xs font-medium text-muted-foreground flex items-start justify-end">
@@ -266,7 +274,7 @@ export const CalendarView = ({
                     <div
                       key={`${day.toString()}-${timeSlot}`}
                       className={cn(
-                        "bg-muted/50 dark:bg-card p-1 min-h-[70px] min-w-[150px]",
+                        "bg-muted/50 dark:bg-card p-1 min-h-[70px] min-w-[150px] border-b border-border/50",
                         isToday(day) && "bg-blue-50 dark:bg-blue-900/20"
                       )}
                     >
@@ -297,14 +305,26 @@ export const CalendarView = ({
                                     )}
                                   </div>
                                   <div className="flex items-center gap-1 mt-1">
+                                    {showEmployee ? (
+                                      <Stethoscope className="size-4" />
+                                    ) : (
+                                      <User className="size-4" />
+                                    )}
+
                                     <div className="text-xs text-foreground font-medium truncate">
-                                      {showEmployee
-                                        ? getEmployeeFullName(
+                                      {showEmployee ? (
+                                        <>
+                                          {getEmployeeFullName(
                                             appointment.employee
-                                          )
-                                        : getPatientFullName(
+                                          )}
+                                        </>
+                                      ) : (
+                                        <>
+                                          {getPatientFullName(
                                             appointment.patient
                                           )}
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                   <div className="text-[11px] text-muted-foreground mt-1 truncate">
