@@ -1,9 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronRight } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { ChevronRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   Users,
@@ -13,7 +11,6 @@ import {
   CreditCard,
   Lock,
   Zap,
-  FileText,
   Database,
 } from "lucide-react";
 import Link from "next/link";
@@ -97,7 +94,7 @@ export default function SettingsLayout({
 
   // Get current section based on pathname
   const currentSection = settingsSections.find((section) =>
-    pathname.startsWith(section.href),
+    pathname.startsWith(section.href)
   );
 
   const isMasterDataPage = pathname.startsWith("/cabinet/settings/master-data");

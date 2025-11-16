@@ -5,7 +5,6 @@ export {
   ReceptionQueueWidget,
   QuickSearchWidget,
   QuickActionsWidget,
-  CalendarWidget,
 } from "./reception";
 
 // Doctor Dashboard

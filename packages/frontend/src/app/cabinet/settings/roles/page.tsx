@@ -6,8 +6,8 @@ import { Plus } from "lucide-react";
 import { Role, CreateRoleDto, RoleFilters } from "@/features/roles/role.types";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
-import { createRoleColumns } from "@/components/roles/role-columns";
-import { RoleSheet } from "@/components/roles/role-sheet";
+import { createRoleColumns } from "@/features/roles/components/role-columns";
+import { RoleSheet } from "@/features/roles/components/role-sheet";
 import {
   useGetRolesQuery,
   useCreateRoleMutation,

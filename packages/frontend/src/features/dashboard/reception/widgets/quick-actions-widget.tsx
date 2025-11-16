@@ -91,7 +91,7 @@ export const QuickActionsWidget = ({
                 <action.icon className="h-5 w-5" />
                 <span className="font-semibold">{action.label}</span>
               </div>
-              <span className="text-xs font-normal text-muted-foreground">
+              <span className="text-xs font-normal text-primary-foreground">
                 {action.description}
               </span>
             </Button>

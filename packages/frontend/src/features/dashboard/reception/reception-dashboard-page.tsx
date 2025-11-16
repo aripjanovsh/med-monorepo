@@ -5,19 +5,17 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 import { useGetMeQuery } from "@/features/auth";
-import {
-  QuickCreateVisitModal,
-  CompletedVisitsPanel,
-} from "@/features/reception";
+import { CompletedVisitsPanel } from "@/features/dashboard/reception";
 import { CreateInvoiceWithPaymentSheet } from "@/features/invoice/components/create-invoice-with-payment-sheet";
-import { StatsWidget } from "../../dashboard/reception/widgets/stats-widget";
-import { QueueWidget } from "../../dashboard/reception/widgets/queue-widget";
-import { InProgressWidget } from "../../dashboard/reception/widgets/in-progress-widget";
-import { QuickActionsWidget } from "../../dashboard/reception/widgets/quick-actions-widget";
+import { StatsWidget } from "@/features/dashboard/reception/widgets/stats-widget";
+import { QueueWidget } from "@/features/dashboard/reception/widgets/queue-widget";
+import { InProgressWidget } from "@/features/dashboard/reception/widgets/in-progress-widget";
+import { QuickActionsWidget } from "@/features/dashboard/reception/widgets/quick-actions-widget";
+import { QuickCreateVisitModal } from "@/features/visit/components/quick-create-visit-modal";
 
 export const ReceptionDashboardPage = () => {
   const [selectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+    new Date().toISOString().split("T")[0]
   );
   const router = useRouter();
 
@@ -43,14 +41,14 @@ export const ReceptionDashboardPage = () => {
         },
       });
     },
-    [invoiceDialog],
+    [invoiceDialog]
   );
 
   const handlePatientSelect = useCallback(
     (patientId: string) => {
       router.push(`/cabinet/patients/${patientId}`);
     },
-    [router],
+    [router]
   );
 
   const handleCreatePatient = useCallback(() => {
