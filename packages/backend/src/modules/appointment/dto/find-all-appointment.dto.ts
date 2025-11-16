@@ -1,10 +1,19 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsUUID, IsEnum, IsDate } from "class-validator";
-import { Expose, Exclude } from "class-transformer";
+import {
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  IsDate,
+  IsInt,
+  Min,
+  Max,
+} from "class-validator";
+import { Expose, Exclude, Type } from "class-transformer";
 import { AppointmentStatus } from "@prisma/client";
 import { TransformDate } from "@/common/decorators";
 import { PaginationDto } from "@/common/dto/pagination.dto";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
+import { Default } from "@/common/decorators/default.decorator";
 
 @Exclude()
 export class FindAllAppointmentDto extends PaginationDto {
@@ -67,4 +76,12 @@ export class FindAllAppointmentDto extends PaginationDto {
   @IsDate()
   @TransformDate()
   scheduledTo?: Date;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(1000)
+  @Default(10)
+  limit?: number;
 }

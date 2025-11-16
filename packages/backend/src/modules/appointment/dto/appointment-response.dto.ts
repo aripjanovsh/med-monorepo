@@ -2,6 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Exclude, Expose, Type } from "class-transformer";
 import { AppointmentStatus } from "@prisma/client";
 import { BaseResponseDto } from "@/common/dto/response.dto";
+import { SafeDecimal } from "@/common/types";
+import { TransformDecimal } from "@/common/decorators";
 
 // Simplified response DTOs for nested relations
 @Exclude()
@@ -78,6 +80,8 @@ class SimpleServiceResponseDto {
 
   @Expose()
   @ApiProperty()
+  @Type(() => SafeDecimal)
+  @TransformDecimal()
   price?: number;
 }
 

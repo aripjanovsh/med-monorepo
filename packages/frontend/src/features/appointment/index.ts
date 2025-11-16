@@ -63,7 +63,7 @@ export {
 // Components
 export { AppointmentStatusBadge } from "./components/appointment-status-badge";
 export { createAppointmentColumns } from "./components/appointment-columns";
-export { CalendarView } from "./components/calendar-view";
+export { CalendarView, Navigation } from "./components/calendar-view";
 export { ListView } from "./components/list-view";
 export { ViewSwitcher } from "./components/view-switcher";
 export { AppointmentViewSheet } from "./components/appointment-view-sheet";

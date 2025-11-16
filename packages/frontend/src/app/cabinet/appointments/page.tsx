@@ -17,6 +17,7 @@ import {
   type AppointmentResponseDto,
   type AppointmentStatus,
   CalendarView,
+  Navigation,
   ListView,
   ViewSwitcher,
   AppointmentViewSheet,
@@ -34,7 +35,7 @@ export default function AppointmentsPage() {
     AppointmentStatus | "all"
   >("all");
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
+    startOfWeek(new Date(), { weekStartsOn: 1 })
   );
 
   // Dialog Manager для управления sheets и dialogs
@@ -160,7 +161,7 @@ export default function AppointmentsPage() {
     handleDelete,
     handleConfirm,
     handleCheckIn,
-    handleCancel,
+    handleCancel
   );
 
   const appointments = useMemo(() => data?.data || [], [data?.data]);
@@ -192,7 +193,7 @@ export default function AppointmentsPage() {
         </div>
 
         {viewMode === "calendar" && (
-          <CalendarView.Navigation
+          <Navigation
             currentWeekStart={currentWeekStart}
             onWeekChange={setCurrentWeekStart}
             onGoToToday={handleGoToToday}
