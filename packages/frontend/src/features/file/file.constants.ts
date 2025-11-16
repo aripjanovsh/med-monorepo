@@ -34,6 +34,13 @@ export const PATIENT_FILE_CATEGORIES = [
   FileCategory.GENERAL,
 ] as const;
 
+// Категории файлов специфичные для сотрудников
+export const EMPLOYEE_FILE_CATEGORIES = [
+  FileCategory.AVATAR,
+  FileCategory.DOCUMENT,
+  FileCategory.GENERAL,
+] as const;
+
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 

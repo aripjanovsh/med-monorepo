@@ -221,22 +221,4 @@ export const employeePatientColumns: ColumnDef<PatientResponseDto>[] = [
       );
     },
   },
-  {
-    id: "actions",
-    header: "Действия",
-    cell: ({ row }) => {
-      const patient = row.original;
-      return (
-        <div className="text-right">
-          <Link
-            href={url(ROUTES.PATIENT_DETAIL, { id: patient.id })}
-            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-          >
-            Открыть
-            <ExternalLink className="ml-1 h-3 w-3" />
-          </Link>
-        </div>
-      );
-    },
-  },
 ];

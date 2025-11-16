@@ -134,24 +134,4 @@ export const employeeVisitColumns: ColumnDef<VisitResponseDto>[] = [
       return <VisitStatusBadge status={visit.status} />;
     },
   },
-  {
-    id: "actions",
-    header: "Действия",
-    cell: ({ row }) => {
-      const visit = row.original;
-      if (!visit.patient?.id) return null;
-
-      return (
-        <div className="text-right">
-          <Link
-            href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}
-            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-          >
-            Открыть
-            <ExternalLink className="ml-1 h-3 w-3" />
-          </Link>
-        </div>
-      );
-    },
-  },
 ];

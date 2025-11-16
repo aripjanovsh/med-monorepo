@@ -26,8 +26,10 @@ import { AppointmentModule } from "./modules/appointment/appointment.module";
 import { InvoiceModule } from "./modules/invoice/invoice.module";
 import { StatsModule } from "./modules/stats/stats.module";
 import { FileModule } from "./modules/file/file.module";
-import { APP_GUARD } from "@nestjs/core";
+import { AuditLogModule } from "./modules/audit-log/audit-log.module";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
+import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor";
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
     InvoiceModule,
     StatsModule,
     FileModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
   providers: [
@@ -66,6 +69,10 @@ import { RolesGuard } from "./common/guards/roles.guard";
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: AuditLogInterceptor,
+    // },
   ],
 })
 export class AppModule {
