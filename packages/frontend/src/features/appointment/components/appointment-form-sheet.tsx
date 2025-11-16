@@ -46,6 +46,7 @@ type AppointmentFormSheetOwnProps = {
   appointmentId?: string | null;
   onSuccess?: () => void;
   patientId?: string;
+  employeeId?: string;
 };
 
 /**
@@ -60,6 +61,7 @@ export const AppointmentFormSheet = ({
   onOpenChange,
   onSuccess,
   patientId: prefilledPatientId,
+  employeeId: prefilledEmployeeId,
 }: AppointmentFormSheetProps) => {
   const { user } = useMe();
   const [createAppointment, { isLoading: isCreating }] =
@@ -76,7 +78,7 @@ export const AppointmentFormSheet = ({
     schema: appointmentFormSchema,
     defaultValues: {
       patientId: prefilledPatientId || "",
-      employeeId: "",
+      employeeId: prefilledEmployeeId || "",
       date: "",
       time: "",
       duration: 30,

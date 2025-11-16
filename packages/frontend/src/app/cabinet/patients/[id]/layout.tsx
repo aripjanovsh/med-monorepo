@@ -46,7 +46,7 @@ export default function PatientDetailLayout({
   const { id } = use(params);
   const { data: patient, isLoading } = useGetPatientQuery(
     { id: id as string },
-    { skip: !id },
+    { skip: !id }
   );
 
   const navItems = [
@@ -60,6 +60,11 @@ export default function PatientDetailLayout({
       label: "Врачи",
       href: `/cabinet/patients/${id}/doctors`,
       value: "doctors",
+    },
+    {
+      label: "Записи",
+      href: `/cabinet/patients/${id}/appointments`,
+      value: "appointments",
     },
     {
       label: "Визиты",
@@ -139,7 +144,7 @@ export default function PatientDetailLayout({
     const start = new Date(startTime);
     const now = new Date();
     const diffMinutes = Math.floor(
-      (now.getTime() - start.getTime()) / (1000 * 60),
+      (now.getTime() - start.getTime()) / (1000 * 60)
     );
 
     if (diffMinutes < 60) {
@@ -205,8 +210,8 @@ export default function PatientDetailLayout({
 
       {/* Активный визит */}
       {activeVisit && (
-        <Card className="border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-          <CardContent className="p-4">
+        <Card className="border-green-200 dark:border-green-800 p-2 px-4">
+          <CardContent className="px-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 flex-1">
                 {/* Статус индикатор */}
@@ -234,7 +239,7 @@ export default function PatientDetailLayout({
                         {
                           hour: "2-digit",
                           minute: "2-digit",
-                        },
+                        }
                       )}
                     </span>
                     <span className="text-muted-foreground">
@@ -274,13 +279,13 @@ export default function PatientDetailLayout({
                 size="sm"
                 onClick={() =>
                   router.push(
-                    `/cabinet/patients/${id}/visits/${activeVisit.id}`,
+                    `/cabinet/patients/${id}/visits/${activeVisit.id}`
                   )
                 }
                 className="bg-green-600 hover:bg-green-700"
               >
                 Открыть визит
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight />
               </Button>
             </div>
           </CardContent>

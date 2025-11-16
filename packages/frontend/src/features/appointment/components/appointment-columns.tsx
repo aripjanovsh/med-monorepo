@@ -41,29 +41,8 @@ export const createAppointmentColumns = (
   onConfirm?: (appointment: AppointmentResponseDto) => void,
   onCheckIn?: (appointment: AppointmentResponseDto) => void,
   onCancel?: (appointment: AppointmentResponseDto) => void,
+  showEmployee?: boolean
 ): ColumnDef<AppointmentResponseDto>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Выбрать все"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Выбрать строку"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "scheduledAt",
     header: "ДАТА И ВРЕМЯ",
@@ -77,28 +56,22 @@ export const createAppointmentColumns = (
     },
   },
   {
-    accessorKey: "patient",
-    header: "ПАЦИЕНТ",
+    accessorKey: showEmployee ? "employee" : "patient",
+    header: showEmployee ? "ВРАЧ" : "ПАЦИЕНТ",
     cell: ({ row }) => {
       const appointment = row.original;
-      const patientName = getPatientFullName(appointment.patient);
+      const displayName = showEmployee
+        ? getEmployeeFullName(appointment.employee)
+        : getPatientFullName(appointment.patient);
       return (
         <button
           type="button"
           className="font-medium text-left hover:text-blue-600 transition-colors"
           onClick={() => onView?.(appointment)}
         >
-          {patientName}
+          {displayName}
         </button>
       );
-    },
-  },
-  {
-    accessorKey: "employee",
-    header: "ВРАЧ",
-    cell: ({ row }) => {
-      const employeeName = getEmployeeFullName(row.original.employee);
-      return <div className="text-sm">{employeeName}</div>;
     },
   },
   {

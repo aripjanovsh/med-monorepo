@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import type { AppointmentResponseDto } from "../appointment.dto";
 import {
   getPatientFullName,
+  getEmployeeFullName,
   formatAppointmentTime,
 } from "../appointment.model";
 
@@ -88,6 +89,7 @@ type CalendarViewProps = {
   appointments: AppointmentResponseDto[];
   currentWeekStart: Date;
   onAppointmentClick?: (appointment: AppointmentResponseDto) => void;
+  showEmployee?: boolean;
 };
 
 export const Navigation = ({
@@ -145,6 +147,7 @@ export const CalendarView = ({
   appointments,
   currentWeekStart,
   onAppointmentClick,
+  showEmployee = false,
 }: CalendarViewProps) => {
   const weekDays = useMemo(() => {
     const start = startOfWeek(currentWeekStart, { weekStartsOn: 1 });
@@ -295,7 +298,13 @@ export const CalendarView = ({
                                   </div>
                                   <div className="flex items-center gap-1 mt-1">
                                     <div className="text-xs text-foreground font-medium truncate">
-                                      {getPatientFullName(appointment.patient)}
+                                      {showEmployee
+                                        ? getEmployeeFullName(
+                                            appointment.employee
+                                          )
+                                        : getPatientFullName(
+                                            appointment.patient
+                                          )}
                                     </div>
                                   </div>
                                   <div className="text-[11px] text-muted-foreground mt-1 truncate">

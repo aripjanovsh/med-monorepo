@@ -204,37 +204,6 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header с основной информацией */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
-              {initials}
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {patient.firstName} {patient.lastName}
-              </h1>
-              <div className="flex items-center gap-3 mt-2 text-gray-600 dark:text-gray-400">
-                <span className="font-medium">{age} лет</span>
-                <span>•</span>
-                <span>{patient.gender === "MALE" ? "Мужской" : "Женский"}</span>
-                <span>•</span>
-                <Badge variant={getStatusVariant(patient.status)}>
-                  {patient.status === "ACTIVE" ? "Активен" : patient.status}
-                </Badge>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                ID пациента
-              </div>
-              <div className="font-mono font-medium">{patient.patientId}</div>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Ключевые метрики */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="hover:shadow-lg transition-shadow">
