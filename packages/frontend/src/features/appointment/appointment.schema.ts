@@ -1,14 +1,13 @@
 import * as yup from "yup";
 
 export const appointmentFormSchema = yup.object({
-  scheduledAt: yup.string().required("Дата и время обязательны"),
+  date: yup.string().required("Дата обязательна"),
+  time: yup.string().required("Время обязательно"),
   duration: yup
     .number()
     .required("Длительность обязательна")
     .min(1, "Минимальная длительность 1 минута"),
-  notes: yup.string().optional(),
   reason: yup.string().optional(),
-  roomNumber: yup.string().optional(),
   patientId: yup.string().required("Пациент обязателен"),
   employeeId: yup.string().required("Врач обязателен"),
   serviceId: yup.string().optional(),

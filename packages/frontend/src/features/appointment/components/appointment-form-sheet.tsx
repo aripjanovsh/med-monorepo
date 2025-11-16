@@ -5,6 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetBody,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import { useForm } from "@/hooks/use-form";
 import { Button } from "@/components/ui/button";
@@ -17,14 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
 import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
@@ -41,6 +34,9 @@ import {
 import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
 import { useMe } from "@/features/auth/use-me";
 import { PatientAutocompleteField } from "@/features/patients";
+import { DatePickerField } from "@/components/fields/date-picker-field";
+import { TimePickerField } from "@/components/fields/time-picker-field";
+import { EmployeeAutocompleteField } from "@/features/employees";
 
 /**
  * Пропсы для AppointmentFormSheet (без базовых DialogProps)
@@ -81,12 +77,10 @@ export const AppointmentFormSheet = ({
     defaultValues: {
       patientId: prefilledPatientId || "",
       employeeId: "",
-      scheduledAt: "",
+      date: "",
+      time: "",
       duration: 30,
-      type: "STANDARD",
-      notes: "",
       reason: "",
-      roomNumber: "",
       serviceId: "",
     },
   });
@@ -95,17 +89,16 @@ export const AppointmentFormSheet = ({
   useEffect(() => {
     if (existingAppointment && mode === "edit") {
       const scheduledAt = new Date(existingAppointment.scheduledAt);
-      const formattedDate = scheduledAt.toISOString().slice(0, 16);
+      const date = scheduledAt.toISOString().split("T")[0];
+      const time = scheduledAt.toTimeString().slice(0, 5);
 
       form.reset({
         patientId: existingAppointment.patient.id,
         employeeId: existingAppointment.employee.id,
-        scheduledAt: formattedDate,
+        date,
+        time,
         duration: existingAppointment.duration,
-        type: existingAppointment.type,
-        notes: existingAppointment.notes || "",
         reason: existingAppointment.reason || "",
-        roomNumber: existingAppointment.roomNumber || "",
         serviceId: existingAppointment.service?.id || "",
       });
     }
@@ -118,14 +111,15 @@ export const AppointmentFormSheet = ({
         return;
       }
 
+      // Combine date and time into ISO string
+      const scheduledAt = new Date(`${data.date}T${data.time}`).toISOString();
+
       const payload = {
         patientId: data.patientId,
         employeeId: data.employeeId,
-        scheduledAt: new Date(data.scheduledAt).toISOString(),
+        scheduledAt,
         duration: data.duration,
-        notes: data.notes,
         reason: data.reason,
-        roomNumber: data.roomNumber,
         serviceId: data.serviceId || undefined,
         createdById: user.id,
       };
@@ -166,142 +160,120 @@ export const AppointmentFormSheet = ({
           </SheetTitle>
         </SheetHeader>
 
-        <SheetBody>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {!prefilledPatientId && (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex-1 flex flex-col"
+          >
+            <SheetBody>
+              <div className="space-y-4">
+                {!prefilledPatientId && (
+                  <FormField
+                    control={form.control}
+                    name="patientId"
+                    render={({ field }) => (
+                      <PatientAutocompleteField label="Пациент*" {...field} />
+                    )}
+                  />
+                )}
+
                 <FormField
                   control={form.control}
-                  name="patientId"
+                  name="employeeId"
+                  render={({ field }) => (
+                    <EmployeeAutocompleteField label="Врач" {...field} />
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Дата *</FormLabel>
+                        <FormControl>
+                          <DatePickerField {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Время *</FormLabel>
+                        <FormControl>
+                          <TimePickerField {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="duration"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Пациент *</FormLabel>
+                      <FormLabel>Длительность (минуты) *</FormLabel>
                       <FormControl>
-                        <PatientAutocompleteField {...field} />
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
 
-              <FormField
-                control={form.control}
-                name="employeeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Врач *</FormLabel>
-                    <FormControl>
-                      <EmployeeSelectField {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="scheduledAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Дата и время *</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Длительность (минуты) *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="roomNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Номер кабинета</FormLabel>
-                    <FormControl>
-                      <Input placeholder="101" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Причина обращения</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Профилактический осмотр, жалобы пациента..."
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Примечания</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Дополнительная информация..."
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleClose}
-                  disabled={isLoading}
-                >
-                  Отмена
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading
-                    ? "Сохранение..."
-                    : mode === "edit"
-                      ? "Обновить запись"
-                      : "Создать запись"}
-                </Button>
+                <FormField
+                  control={form.control}
+                  name="reason"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Причина обращения</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Профилактический осмотр, жалобы пациента..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            </form>
-          </Form>
-        </SheetBody>
+            </SheetBody>
+
+            <SheetFooter className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isLoading}
+              >
+                Отмена
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? "Сохранение..."
+                  : mode === "edit"
+                    ? "Обновить запись"
+                    : "Создать запись"}
+              </Button>
+            </SheetFooter>
+          </form>
+        </Form>
       </SheetContent>
     </Sheet>
   );

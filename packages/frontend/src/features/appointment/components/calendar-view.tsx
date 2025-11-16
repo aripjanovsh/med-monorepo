@@ -111,25 +111,29 @@ export const Navigation = ({
 
   return (
     <div className="flex items-center gap-2">
-      <ButtonGroup>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handlePreviousWeek}
-          aria-label="Previous week"
-        >
-          <ChevronLeft />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNextWeek}
-          aria-label="Next week"
-        >
-          <ChevronRight />
-        </Button>
-      </ButtonGroup>
-      <div className="text-sm font-medium">{weekRange}</div>
+      <div className="flex items-center gap-2 bg-muted p-[2px] pr-2 rounded-lg shadow-xs">
+        <ButtonGroup>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handlePreviousWeek}
+            aria-label="Previous week"
+          >
+            <ChevronLeft />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handleNextWeek}
+            aria-label="Next week"
+          >
+            <ChevronRight />
+          </Button>
+        </ButtonGroup>
+        <div className="text-xs font-medium">{weekRange}</div>
+      </div>
       <Button variant="outline" size="sm" onClick={onGoToToday}>
         Сегодня
       </Button>
@@ -194,36 +198,42 @@ export const CalendarView = ({
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+    <div className="">
       <ScrollArea className="w-full">
         <div className="min-w-fit">
           {/* Days Header */}
-          <div className="grid grid-cols-[80px_repeat(7,minmax(150px,1fr))] gap-x-2">
-            <div className="p-3" />
+          <div className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-2">
+            <div className="p-1" />
             {weekDays.map((day) => {
               const eventsCount =
                 appointmentsByDay.get(format(day, "yyyy-MM-dd"))?.length || 0;
+
               return (
                 <div
                   key={day.toString()}
-                  className="bg-white dark:bg-gray-800 rounded-t-lg p-3 min-w-[150px]"
+                  className={cn(
+                    "bg-muted/50 dark:bg-card rounded-t-lg p-3 min-w-[150px] border-b border-border",
+                    isToday(day) && "bg-blue-50 dark:bg-blue-900/20"
+                  )}
                 >
-                  <div className="text-base font-semibold text-foreground">
+                  <div className="text-base font-semibold font-gilroy text-foreground">
                     {format(day, "d MMMM", { locale: ru })}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {format(day, "EEEE", { locale: ru })}
-                  </div>
-                  {eventsCount > 0 && (
-                    <div className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                      {eventsCount}{" "}
-                      {eventsCount === 1
-                        ? "запись"
-                        : eventsCount < 5
-                          ? "записи"
-                          : "записей"}
+                  <div className="flex flex-row items-center gap-2">
+                    <div className="text-xs text-muted-foreground">
+                      {format(day, "EEEE", { locale: ru })}
                     </div>
-                  )}
+                    {eventsCount > 0 && (
+                      <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                        {eventsCount}{" "}
+                        {eventsCount === 1
+                          ? "запись"
+                          : eventsCount < 5
+                            ? "записи"
+                            : "записей"}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -235,10 +245,10 @@ export const CalendarView = ({
               <div
                 id={`time-slot-${timeSlot}`}
                 key={timeSlot}
-                className="grid grid-cols-[80px_repeat(7,minmax(150px,1fr))] gap-x-2"
+                className="grid grid-cols-[50px_repeat(7,minmax(150px,1fr))] gap-x-2"
               >
                 {/* Time Label */}
-                <div className="p-3 text-xs font-medium text-muted-foreground flex items-start">
+                <div className="p-1 text-xs font-medium text-muted-foreground flex items-start justify-end">
                   {timeSlot}
                 </div>
 
@@ -253,7 +263,7 @@ export const CalendarView = ({
                     <div
                       key={`${day.toString()}-${timeSlot}`}
                       className={cn(
-                        "bg-white dark:bg-gray-800 p-2 min-h-[70px] min-w-[150px]",
+                        "bg-muted/50 dark:bg-card p-1 min-h-[70px] min-w-[150px]",
                         isToday(day) && "bg-blue-50 dark:bg-blue-900/20"
                       )}
                     >
@@ -265,7 +275,7 @@ export const CalendarView = ({
                               type="button"
                               onClick={() => onAppointmentClick?.(appointment)}
                               className={cn(
-                                "w-full text-left p-2 rounded border-l-4 bg-white dark:bg-gray-700 shadow-sm hover:shadow-md transition-shadow",
+                                "w-full text-left p-2 rounded border-l-2 bg-white dark:bg-gray-700 shadow-sm hover:shadow-md transition-shadow",
                                 getStatusBorderColor(appointment.status)
                               )}
                             >
@@ -275,13 +285,15 @@ export const CalendarView = ({
                                     {formatAppointmentTime(
                                       appointment.scheduledAt
                                     )}
+                                    {" - "}
+                                    {formatAppointmentTime(
+                                      addMinutes(
+                                        new Date(appointment.scheduledAt),
+                                        appointment.duration
+                                      )
+                                    )}
                                   </div>
                                   <div className="flex items-center gap-1 mt-1">
-                                    <div className="w-4 h-4 rounded-full bg-muted dark:bg-gray-600 flex items-center justify-center text-[10px] flex-shrink-0">
-                                      {getPatientFullName(appointment.patient)
-                                        .charAt(0)
-                                        .toUpperCase()}
-                                    </div>
                                     <div className="text-xs text-foreground font-medium truncate">
                                       {getPatientFullName(appointment.patient)}
                                     </div>
