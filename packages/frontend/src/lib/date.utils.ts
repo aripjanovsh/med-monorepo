@@ -2,7 +2,14 @@
  * Date utility functions using date-fns
  */
 
-import { differenceInYears, parseISO, isValid, format } from "date-fns";
+import {
+  differenceInYears,
+  parseISO,
+  isValid,
+  format,
+  startOfDay,
+  endOfDay,
+} from "date-fns";
 
 /**
  * Calculate age from date of birth string
@@ -59,7 +66,7 @@ export const formatAge = (dateOfBirth: string): string => {
  */
 export const formatDate = (
   date: string | Date,
-  formatString: string = "dd.MM.yyyy",
+  formatString: string = "dd.MM.yyyy"
 ): string => {
   if (!date) return "";
 
@@ -72,4 +79,12 @@ export const formatDate = (
   } catch {
     return "";
   }
+};
+
+export const startOfToday = (): Date => {
+  return startOfDay(new Date());
+};
+
+export const endOfToday = (): Date => {
+  return endOfDay(new Date());
 };

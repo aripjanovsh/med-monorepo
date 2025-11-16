@@ -1,0 +1,33 @@
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+
+interface EmptyStateProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  actions?: React.ReactNode | React.ReactNode[];
+}
+
+export function EmptyState({
+  icon,
+  title,
+  description,
+  actions,
+}: EmptyStateProps) {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">{icon}</EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{description}</EmptyDescription>
+      </EmptyHeader>
+      {actions && <EmptyContent>{actions}</EmptyContent>}
+    </Empty>
+  );
+}

@@ -44,13 +44,6 @@ export const ReceptionDashboardPage = () => {
     [invoiceDialog]
   );
 
-  const handlePatientSelect = useCallback(
-    (patientId: string) => {
-      router.push(`/cabinet/patients/${patientId}`);
-    },
-    [router]
-  );
-
   const handleCreatePatient = useCallback(() => {
     router.push("/cabinet/patients/new");
   }, [router]);

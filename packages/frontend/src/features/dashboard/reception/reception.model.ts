@@ -25,38 +25,6 @@ export const isLongWaitTime = (minutes: number): boolean => {
 };
 
 /**
- * Format patient full name
- */
-export const formatPatientName = (patient: {
-  lastName: string;
-  firstName: string;
-  middleName?: string;
-}): string => {
-  const parts = [
-    patient.lastName,
-    patient.firstName,
-    patient.middleName,
-  ].filter(Boolean);
-  return parts.join(" ");
-};
-
-/**
- * Format employee short name (e.g., "Иванов И.И.")
- */
-export const formatEmployeeShortName = (employee: {
-  lastName: string;
-  firstName: string;
-  middleName?: string;
-}): string => {
-  const firstInitial = employee.firstName.charAt(0).toUpperCase();
-  const middleInitial = employee.middleName
-    ? employee.middleName.charAt(0).toUpperCase()
-    : "";
-
-  return `${employee.lastName} ${firstInitial}.${middleInitial ? ` ${middleInitial}.` : ""}`.trim();
-};
-
-/**
  * Get queue item priority based on appointment type and wait time
  */
 export const getQueuePriority = (item: QueueItemResponseDto): number => {
@@ -85,7 +53,7 @@ export const getQueuePriority = (item: QueueItemResponseDto): number => {
  * Sort queue items by priority
  */
 export const sortQueueByPriority = (
-  items: QueueItemResponseDto[],
+  items: QueueItemResponseDto[]
 ): QueueItemResponseDto[] => {
   return [...items].sort((a, b) => getQueuePriority(b) - getQueuePriority(a));
 };

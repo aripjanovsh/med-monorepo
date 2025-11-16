@@ -18,6 +18,7 @@ import {
   AlertCircle,
   MoreVertical,
   CheckCircle,
+  FileText,
 } from "lucide-react";
 import {
   useGetVisitsQuery,
@@ -31,6 +32,8 @@ import { useMemo, useCallback } from "react";
 import { differenceInMinutes } from "date-fns";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ErrorState, LoadingState } from "@/components/states";
+import { EmptyState } from "@/components/states/empty-state";
 
 const REFRESH_INTERVAL_MS = 30000;
 
@@ -52,7 +55,7 @@ export const InProgressWidget = () => {
     },
     {
       pollingInterval: REFRESH_INTERVAL_MS,
-    },
+    }
   );
 
   const [completeVisit] = useCompleteVisitMutation();
@@ -68,14 +71,14 @@ export const InProgressWidget = () => {
         toast.error("Не удалось завершить приём");
       }
     },
-    [completeVisit],
+    [completeVisit]
   );
 
   const handleViewVisit = useCallback(
     (visitId: string) => {
       router.push(`/cabinet/visits/${visitId}`);
     },
-    [router],
+    [router]
   );
 
   const visits = useMemo(() => {
@@ -91,12 +94,8 @@ export const InProgressWidget = () => {
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
-            ))}
-          </div>
+        <CardContent>
+          <LoadingState />
         </CardContent>
       </Card>
     );
@@ -105,11 +104,22 @@ export const InProgressWidget = () => {
   if (error) {
     return (
       <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4" />
-            Ошибка загрузки приёмов
-          </div>
+        <CardContent>
+          <ErrorState />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!visits || visits.length === 0) {
+    return (
+      <Card>
+        <CardContent>
+          <EmptyState
+            icon={<FileText />}
+            title="Активные приемы"
+            description="Нет активных приемов"
+          />
         </CardContent>
       </Card>
     );
@@ -118,96 +128,84 @@ export const InProgressWidget = () => {
   return (
     <Card>
       <CardContent className="p-0">
-        {!visits || visits.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">
-            Нет активных приёмов
-          </div>
-        ) : (
-          <ScrollArea className="max-h-[400px] md:max-h-[600px] px-4">
-            <div className="space-y-3">
-              {visits.map((item) => (
-                <div
-                  key={item.visit.id}
-                  className="rounded-lg border p-3 transition-colors hover:bg-muted/50 cursor-pointer"
-                  onClick={() => handleViewVisit(item.visit.id)}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <User className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="text-sm font-medium truncate">
-                            {getPatientFullName(item.visit.patient)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Stethoscope className="h-3.5 w-3.5" />
-                        <span>
-                          {formatDoctorShortName(item.visit.employee)}
+        <ScrollArea className="max-h-[400px] md:max-h-[600px] px-4">
+          <div className="space-y-3">
+            {visits.map((item) => (
+              <div
+                key={item.visit.id}
+                className="rounded-lg border p-3 transition-colors hover:bg-muted/50 cursor-pointer"
+                onClick={() => handleViewVisit(item.visit.id)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <User className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-sm font-medium truncate">
+                          {getPatientFullName(item.visit.patient)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge variant="default">На приёме</Badge>
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 text-xs font-medium",
-                            getServiceTimeColor(item.serviceTime),
-                          )}
-                        >
-                          <Clock className="h-3 w-3" />
-                          {item.serviceTime} мин
-                        </div>
-                      </div>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <MoreVertical />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewVisit(item.visit.id);
-                            }}
-                          >
-                            <User className="mr-2 h-4 w-4" />
-                            Открыть визит
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCompleteVisit(
-                                item.visit.id,
-                                getPatientFullName(item.visit.patient),
-                              );
-                            }}
-                          >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Завершить приём
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Stethoscope className="h-3.5 w-3.5" />
+                      <span>{formatDoctorShortName(item.visit.employee)}</span>
                     </div>
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge variant="default">На приёме</Badge>
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 text-xs font-medium",
+                          getServiceTimeColor(item.serviceTime)
+                        )}
+                      >
+                        <Clock className="h-3 w-3" />
+                        {item.serviceTime} мин
+                      </div>
+                    </div>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        asChild
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewVisit(item.visit.id);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Открыть визит
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCompleteVisit(
+                              item.visit.id,
+                              getPatientFullName(item.visit.patient)
+                            );
+                          }}
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Завершить приём
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
