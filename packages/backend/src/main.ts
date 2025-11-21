@@ -6,6 +6,7 @@ import { useValidator } from "./common/useValidator";
 import { useContainer } from "class-validator";
 import { useSwagger } from "./common/useSwagger";
 import { Logger } from "@nestjs/common";
+import * as hbs from "hbs";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
@@ -18,6 +19,10 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, "..", "public"));
   app.setBaseViewsDir(join(__dirname, "..", "modules", "html", "templates"));
   app.setViewEngine("hbs");
+
+  // Register Handlebars helpers for templates
+  hbs.registerHelper("eq", (a, b) => a === b);
+  hbs.registerHelper("ne", (a, b) => a !== b);
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   useValidator(app);

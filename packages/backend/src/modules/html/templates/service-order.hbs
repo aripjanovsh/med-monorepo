@@ -1,0 +1,231 @@
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Результаты - {{serviceOrder.service.name}}</title>
+    <link rel="stylesheet" href="/html/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <h1 class="header-title">{{organization.name}}</h1>
+          {{#if organization.address}}
+            <p class="text-sm text-secondary">{{organization.address}}</p>
+          {{/if}}
+          {{#if organization.phone}}
+            <p class="text-sm text-secondary">{{organization.phone}}</p>
+          {{/if}}
+          {{#if organization.email}}
+            <p class="text-sm text-secondary">{{organization.email}}</p>
+          {{/if}}
+        </div>
+        <div class="header-right">
+          <p
+            class="text-sm text-secondary"
+          >{{serviceOrder.createdAtFormatted}}</p>
+          <span
+            class="{{serviceOrder.statusBadgeClass}}"
+          >{{serviceOrder.statusLabel}}</span>
+        </div>
+      </div>
+
+      <!-- Document Title -->
+      <div class="section">
+        <div class="patient-doctor-info">
+          <!-- Patient -->
+          <div class="info-row">
+            <span class="info-label-inline">Пациент:</span>
+            <span class="info-value-inline font-medium">
+              {{serviceOrder.patient.firstName}}
+              {{serviceOrder.patient.lastName}}
+              {{#if serviceOrder.patient.middleName}}
+                {{serviceOrder.patient.middleName}}
+              {{/if}}
+            </span>
+            {{#if serviceOrder.patient.dateOfBirthFormatted}}
+              <span class="text-secondary">•</span>
+              <span
+                class="text-secondary"
+              >{{serviceOrder.patient.dateOfBirthFormatted}}</span>
+            {{/if}}
+            {{#if serviceOrder.patient.contacts.[0].phone}}
+              <span class="text-secondary">•</span>
+              <span
+                class="text-secondary"
+              >{{serviceOrder.patient.contacts.[0].phone}}</span>
+            {{/if}}
+          </div>
+
+          <!-- Doctor -->
+          <div class="info-row">
+            <span class="info-label-inline">Врач:</span>
+            <span class="info-value-inline font-medium">
+              {{#if serviceOrder.doctor.title}}
+                {{serviceOrder.doctor.title.name}}
+              {{/if}}
+              {{serviceOrder.doctor.firstName}}
+              {{serviceOrder.doctor.lastName}}
+            </span>
+            {{#if serviceOrder.performedBy}}
+              <span class="text-secondary">•</span>
+              <span class="text-secondary">
+                Выполнил:
+                {{serviceOrder.performedBy.firstName}}
+                {{serviceOrder.performedBy.lastName}}
+              </span>
+            {{/if}}
+            {{#if serviceOrder.resultAtFormatted}}
+              <span class="text-secondary">•</span>
+              <span
+                class="text-secondary"
+              >{{serviceOrder.resultAtFormatted}}</span>
+            {{/if}}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Analysis Results (structured data) -->
+      {{#if (eq serviceOrder.resultType "analysis")}}
+        {{#if serviceOrder.analysisData.filledData.rows.length}}
+          <div class="section keep-together">
+            <h3 class="heading-4">{{serviceOrder.service.name}}</h3>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Показатель</th>
+                  <th class="align-center">Значение</th>
+                  <th class="align-center">Единица</th>
+                  <th class="align-center">Референсная норма</th>
+                  <th class="align-center">Статус</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each serviceOrder.analysisData.filledData.rows}}
+                  <tr>
+                    <td>
+                      <div class="font-medium">{{this.parameterName}}</div>
+                    </td>
+                    <td class="align-center font-medium">{{this.value}}</td>
+                    <td class="align-center text-secondary">{{this.unit}}</td>
+                    <td
+                      class="align-center text-secondary"
+                    >{{this.normalRange}}</td>
+                    <td class="align-center">
+                      {{#if (eq this.status "normal")}}
+                        <span class="status-badge status-normal">Норма</span>
+                      {{else if (eq this.status "abnormal")}}
+                        <span class="status-badge status-abnormal">Не норма</span>
+                      {{else}}
+                        <span class="text-secondary">—</span>
+                      {{/if}}
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        {{/if}}
+      {{/if}}
+
+      <!-- Protocol Results (form data) -->
+      {{#if (eq serviceOrder.resultType "protocol")}}
+        <div class="section keep-together">
+          <h3 class="heading-4">{{serviceOrder.protocolData.templateName}}</h3>
+          <div class="protocol-fields">
+            {{#each serviceOrder.protocolData.fieldsWithLabels}}
+              <div class="protocol-field">
+                <div class="protocol-label">{{this.label}}</div>
+                <div class="protocol-value">{{this.value}}</div>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
+
+      <!-- Text Results (fallback) -->
+      {{#if (eq serviceOrder.resultType "text")}}
+        {{#if serviceOrder.resultText}}
+          <div class="section keep-together">
+            <div class="section-title">Результаты</div>
+            <div class="result-text">
+              {{serviceOrder.resultText}}
+            </div>
+          </div>
+        {{/if}}
+      {{/if}}
+
+      <!-- PatientParameters Table (legacy support, if not in analysisData) -->
+      {{#unless serviceOrder.resultType}}
+        {{#if serviceOrder.patientParameters.length}}
+          <div class="section keep-together">
+            <div class="section-title">Показатели</div>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th style="width: 40%;">Показатель</th>
+                  <th class="align-center">Значение</th>
+                  <th class="align-center">Единица</th>
+                  <th class="align-center">Норма</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each serviceOrder.patientParameters}}
+                  <tr>
+                    <td>
+                      <div class="font-medium">{{this.definition.name}}</div>
+                      {{#if this.definition.description}}
+                        <div
+                          class="text-xs text-secondary mt-xs"
+                        >{{this.definition.description}}</div>
+                      {{/if}}
+                    </td>
+                    <td class="align-center font-medium">{{this.value}}</td>
+                    <td
+                      class="align-center text-secondary"
+                    >{{this.definition.unit}}</td>
+                    <td class="align-center text-secondary">
+                      {{#if this.definition.referenceRange}}
+                        {{this.definition.referenceRange}}
+                      {{else}}
+                        -
+                      {{/if}}
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        {{/if}}
+
+        <!-- Results Text (legacy) -->
+        {{#if serviceOrder.resultText}}
+          <div class="section keep-together">
+            <div class="section-title">Результаты</div>
+            <div class="result-text">
+              {{serviceOrder.resultText}}
+            </div>
+          </div>
+        {{/if}}
+      {{/unless}}
+
+      <!-- Footer -->
+      <footer class="footer avoid-break-before">
+        <div class="divider"></div>
+        <p class="text-xs text-tertiary text-center">
+          {{organization.name}}
+          {{#if organization.address}}
+            •
+            {{organization.address}}
+          {{/if}}
+          {{#if organization.phone}}
+            •
+            {{organization.phone}}
+          {{/if}}
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

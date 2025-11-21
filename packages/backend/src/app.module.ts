@@ -28,6 +28,7 @@ import { StatsModule } from "./modules/stats/stats.module";
 import { FileModule } from "./modules/file/file.module";
 import { AuditLogModule } from "./modules/audit-log/audit-log.module";
 import { HtmlModule } from "./modules/html/html.module";
+import { PdfModule } from "./modules/pdf/pdf.module";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor";
@@ -62,6 +63,7 @@ import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor
     FileModule,
     AuditLogModule,
     HtmlModule,
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [

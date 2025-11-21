@@ -10,4 +10,10 @@ export class HtmlController {
   async getInvoice(@Param("invoiceId") invoiceId: string) {
     return this.htmlService.getInvoiceData(invoiceId);
   }
+
+  @Get("service-order/:serviceOrderId")
+  @Render("service-order")
+  async getServiceOrder(@Param("serviceOrderId") serviceOrderId: string) {
+    return this.htmlService.getServiceOrderData(serviceOrderId);
+  }
 }

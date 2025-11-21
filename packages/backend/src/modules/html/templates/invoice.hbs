@@ -96,51 +96,53 @@
       </div>
 
       <!-- Services Table -->
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th style="width: 50%">Услуга</th>
-            <th class="align-right">Кол-во</th>
-            <th class="align-right">Цена</th>
-            <th class="align-right">Скидка</th>
-            <th class="align-right">Сумма</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each invoice.items}}
+      <div class="keep-together">
+        <table class="table table-bordered table-striped">
+          <thead>
             <tr>
-              <td>
-                <div class="font-medium">{{this.service.name}}</div>
-                {{#if this.description}}
-                  <div
-                    class="text-xs text-secondary mt-xs"
-                  >{{this.description}}</div>
-                {{/if}}
-              </td>
-              <td class="align-right">{{this.quantity}}</td>
-              <td class="align-right">{{this.unitPrice}}</td>
-              <td class="align-right">{{this.discount}}</td>
-              <td class="align-right font-medium">{{this.totalPrice}}</td>
+              <th style="width: 50%">Услуга</th>
+              <th class="align-right">Кол-во</th>
+              <th class="align-right">Цена</th>
+              <th class="align-right">Скидка</th>
+              <th class="align-right">Сумма</th>
             </tr>
-          {{/each}}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {{#each invoice.items}}
+              <tr>
+                <td>
+                  <div class="font-medium">{{this.service.name}}</div>
+                  {{#if this.description}}
+                    <div
+                      class="text-xs text-secondary mt-xs"
+                    >{{this.description}}</div>
+                  {{/if}}
+                </td>
+                <td class="align-right">{{this.quantity}}</td>
+                <td class="align-right">{{this.unitPrice}}</td>
+                <td class="align-right">{{this.discount}}</td>
+                <td class="align-right font-medium">{{this.totalPrice}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
 
-      <!-- Summary -->
-      <table class="summary-table">
-        <tr>
-          <td class="summary-label">Итого</td>
-          <td class="summary-value">{{invoice.totalAmount}}</td>
-        </tr>
-        <tr>
-          <td class="summary-label">Оплачено</td>
-          <td class="summary-value">{{invoice.paidAmount}}</td>
-        </tr>
-        <tr>
-          <td class="summary-label">К оплате</td>
-          <td class="summary-value">{{invoice.remainingAmount}}</td>
-        </tr>
-      </table>
+        <!-- Summary -->
+        <table class="summary-table">
+          <tr>
+            <td class="summary-label">Итого</td>
+            <td class="summary-value">{{invoice.totalAmount}}</td>
+          </tr>
+          <tr>
+            <td class="summary-label">Оплачено</td>
+            <td class="summary-value">{{invoice.paidAmount}}</td>
+          </tr>
+          <tr>
+            <td class="summary-label">К оплате</td>
+            <td class="summary-value">{{invoice.remainingAmount}}</td>
+          </tr>
+        </table>
+      </div>
 
       <!-- Notes -->
       {{#if invoice.notes}}
@@ -152,7 +154,7 @@
 
       <!-- Payment History -->
       {{#if invoice.payments.length}}
-        <div class="section mt-xl">
+        <div class="section mt-xl keep-together">
           <div class="section-title">История платежей</div>
           <table class="table table-bordered table-striped">
             <thead>
@@ -178,7 +180,7 @@
       {{/if}}
 
       <!-- Footer -->
-      <footer class="footer">
+      <footer class="footer avoid-break-before">
         <p>Спасибо, что выбрали {{organization.name}}.</p>
       </footer>
     </div>
