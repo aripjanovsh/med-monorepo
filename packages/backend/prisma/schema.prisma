@@ -38,6 +38,7 @@ model Organization {
   users                User[]
   visits               Visit[]
   auditLogs            AuditLog[]
+  files                File[]
 
   @@map("organizations")
 }
@@ -735,26 +736,29 @@ model Payment {
 }
 
 model File {
-  id           String          @id @default(uuid())
-  filename     String
-  storedName   String          @unique
-  path         String
-  mimeType     String
-  size         Int
-  title        String?
-  description  String?
-  category     FileCategory    @default(GENERAL)
-  width        Int?
-  height       Int?
-  uploadedById String
-  uploadedAt   DateTime        @default(now())
-  entityType   FileEntityType?
-  entityId     String?
-  deletedAt    DateTime?
-  deletedById  String?
-  deletedBy    Employee?       @relation("FileDeletedBy", fields: [deletedById], references: [id])
-  uploadedBy   Employee        @relation("FileUploadedBy", fields: [uploadedById], references: [id])
+  id             String          @id @default(uuid())
+  filename       String
+  storedName     String          @unique
+  path           String
+  mimeType       String
+  size           Int
+  title          String?
+  description    String?
+  category       FileCategory    @default(GENERAL)
+  width          Int?
+  height         Int?
+  organizationId String
+  uploadedById   String
+  uploadedAt     DateTime        @default(now())
+  entityType     FileEntityType?
+  entityId       String?
+  deletedAt      DateTime?
+  deletedById    String?
+  deletedBy      Employee?       @relation("FileDeletedBy", fields: [deletedById], references: [id])
+  uploadedBy     Employee        @relation("FileUploadedBy", fields: [uploadedById], references: [id])
+  organization   Organization    @relation(fields: [organizationId], references: [id])
 
+  @@index([organizationId])
   @@index([entityType, entityId])
   @@index([category])
   @@index([uploadedById])

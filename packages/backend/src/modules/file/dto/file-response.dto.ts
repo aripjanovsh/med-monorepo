@@ -49,6 +49,10 @@ export class FileResponseDto {
   height?: number;
 
   @Expose()
+  @ApiProperty({ description: "ID организации" })
+  organizationId: string;
+
+  @Expose()
   @ApiProperty({ description: "ID загрузившего сотрудника" })
   uploadedById: string;
 

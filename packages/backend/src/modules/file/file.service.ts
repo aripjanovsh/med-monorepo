@@ -36,7 +36,9 @@ export class FileService {
     dto: UploadFileDto,
     uploadedById: string
   ): Promise<FileResponseDto> {
-    const { filePath, fileId } = this.fileStorage.generateFilePath(dto.organizationId);
+    const { filePath, fileId } = this.fileStorage.generateFilePath(
+      dto.organizationId
+    );
     const extension = path.extname(file.originalname);
     const storedName = `${fileId}${extension}`;
 
@@ -74,6 +76,7 @@ export class FileService {
         category: dto.category,
         width,
         height,
+        organizationId: dto.organizationId,
         uploadedById,
         entityType: dto.entityType,
         entityId: dto.entityId,
@@ -94,7 +97,7 @@ export class FileService {
   ): Promise<{ data: FileResponseDto[]; total: number }> {
     const where: Prisma.FileWhereInput = {
       deletedAt: null,
-      path: { startsWith: query.organizationId },
+      organizationId: query.organizationId,
     };
 
     if (query.entityType) {
@@ -149,11 +152,14 @@ export class FileService {
   /**
    * Получает файл по ID
    */
-  async getFileById(id: string, organizationId: string): Promise<FileResponseDto> {
+  async getFileById(
+    id: string,
+    organizationId: string
+  ): Promise<FileResponseDto> {
     const file = await this.prisma.file.findFirst({
       where: {
         id,
-        path: { startsWith: organizationId },
+        organizationId,
         deletedAt: null,
       },
       include: {
@@ -180,14 +186,20 @@ export class FileService {
   /**
    * Получает содержимое файла
    */
-  async getFileContent(id: string, organizationId: string): Promise<{
+  async getFileContent(
+    id: string,
+    organizationId: string
+  ): Promise<{
     buffer: Buffer;
     mimeType: string;
     filename: string;
   }> {
     const file = await this.getFileById(id, organizationId);
 
-    const exists = await this.fileStorage.fileExists(file.path, file.storedName);
+    const exists = await this.fileStorage.fileExists(
+      file.path,
+      file.storedName
+    );
     if (!exists) {
       throw new NotFoundException(`File content not found: ${id}`);
     }
@@ -239,10 +251,7 @@ export class FileService {
   /**
    * Обновляет метаданные файла
    */
-  async updateFile(
-    id: string,
-    dto: UpdateFileDto
-  ): Promise<FileResponseDto> {
+  async updateFile(id: string, dto: UpdateFileDto): Promise<FileResponseDto> {
     await this.getFileById(id, dto.organizationId); // Проверка существования
 
     const updated = await this.prisma.file.update({
@@ -292,7 +301,7 @@ export class FileService {
     const file = await this.prisma.file.findFirst({
       where: {
         id,
-        path: { startsWith: organizationId },
+        organizationId,
       },
     });
 

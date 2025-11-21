@@ -1,17 +1,49 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import * as fs from "fs/promises";
-import * as path from "path";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+} from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class FileStorageService {
   private readonly logger = new Logger(FileStorageService.name);
-  private readonly uploadPath: string;
+  private readonly s3Client: S3Client;
+  private readonly bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.uploadPath =
-      this.configService.get<string>("FILE_STORAGE_PATH") || "uploads";
+    const accessKeyId = this.configService.get<string>(
+      "CLOUDFLARE_R2_ACCOUNT_ID"
+    );
+    const secretAccessKey = this.configService.get<string>(
+      "CLOUDFLARE_R2_SECRET_ACCESS_KEY"
+    );
+    const customEndpoint = this.configService.get<string>(
+      "CLOUDFLARE_R2_S3_API"
+    );
+    this.bucketName =
+      this.configService.get<string>("CLOUDFLARE_R2_BUCKET_NAME") || "";
+
+    // Use custom endpoint if provided, otherwise use default Cloudflare R2 format
+    const endpoint =
+      customEndpoint || `https://${accessKeyId}.r2.cloudflarestorage.com`;
+
+    this.s3Client = new S3Client({
+      region: "auto",
+      endpoint,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+    });
+
+    this.logger.log(
+      `Initialized Cloudflare R2 storage with bucket: ${this.bucketName}`
+    );
   }
 
   /**
@@ -25,127 +57,128 @@ export class FileStorageService {
     const month = (now.getMonth() + 1).toString().padStart(2, "0");
     const fileId = uuidv4();
 
-    const filePath = path.join(companyId, year, month, fileId);
+    const filePath = `${companyId}/${year}/${month}/${fileId}`;
 
     return { filePath, fileId };
   }
 
   /**
-   * Получает полный путь к файлу на диске
+   * Получает полный ключ S3 объекта
    * @param relativePath Относительный путь файла
-   * @returns Абсолютный путь к файлу
+   * @param filename Имя файла
+   * @returns S3 key
    */
-  getFullPath(relativePath: string): string {
-    return path.join(process.cwd(), this.uploadPath, relativePath);
+  private getS3Key(relativePath: string, filename: string): string {
+    return `${relativePath}/${filename}`;
   }
 
   /**
-   * Создает директорию если она не существует
-   * @param dirPath Путь к директории
-   */
-  async ensureDirectory(dirPath: string): Promise<void> {
-    try {
-      await fs.mkdir(dirPath, { recursive: true });
-    } catch (error) {
-      this.logger.error(`Failed to create directory: ${dirPath}`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Сохраняет файл на диск
+   * Сохраняет файл в R2
    * @param buffer Буфер с содержимым файла
    * @param relativePath Относительный путь для сохранения
    * @param filename Имя файла
-   * @returns Полный путь к сохраненному файлу
+   * @returns S3 key сохраненного файла
    */
   async saveFile(
     buffer: Buffer,
     relativePath: string,
     filename: string
   ): Promise<string> {
-    const fullPath = this.getFullPath(relativePath);
+    const key = this.getS3Key(relativePath, filename);
 
-    // Создаем директорию включая сам fullPath
-    await this.ensureDirectory(fullPath);
+    try {
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          Body: buffer,
+        })
+      );
 
-    const filePath = path.join(fullPath, filename);
-    await fs.writeFile(filePath, buffer);
-
-    this.logger.log(`File saved: ${filePath}`);
-    return filePath;
+      this.logger.log(`File saved to R2: ${key}`);
+      return key;
+    } catch (error) {
+      this.logger.error(`Failed to save file to R2: ${key}`, error);
+      throw error;
+    }
   }
 
   /**
-   * Удаляет файл с диска
+   * Удаляет файл из R2
    * @param relativePath Относительный путь к файлу
    * @param filename Имя файла
    */
   async deleteFile(relativePath: string, filename: string): Promise<void> {
+    const key = this.getS3Key(relativePath, filename);
+
     try {
-      const fullPath = this.getFullPath(relativePath);
-      const filePath = path.join(fullPath, filename);
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        })
+      );
 
-      await fs.unlink(filePath);
-      this.logger.log(`File deleted: ${filePath}`);
-
-      // Попытка удалить пустые директории
-      await this.cleanupEmptyDirectories(fullPath);
+      this.logger.log(`File deleted from R2: ${key}`);
     } catch (error) {
-      this.logger.error(`Failed to delete file: ${relativePath}/${filename}`, error);
+      this.logger.error(`Failed to delete file from R2: ${key}`, error);
       // Не бросаем ошибку, так как файл может уже быть удален
     }
   }
 
   /**
-   * Читает файл с диска
+   * Читает файл из R2
    * @param relativePath Относительный путь к файлу
    * @param filename Имя файла
    * @returns Буфер с содержимым файла
    */
   async readFile(relativePath: string, filename: string): Promise<Buffer> {
-    const fullPath = this.getFullPath(relativePath);
-    const filePath = path.join(fullPath, filename);
+    const key = this.getS3Key(relativePath, filename);
 
-    return await fs.readFile(filePath);
+    try {
+      const response = await this.s3Client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        })
+      );
+
+      if (!response.Body) {
+        throw new Error("Empty response body");
+      }
+
+      // Конвертируем ReadableStream в Buffer
+      const chunks: Uint8Array[] = [];
+      for await (const chunk of response.Body as any) {
+        chunks.push(chunk);
+      }
+
+      return Buffer.concat(chunks);
+    } catch (error) {
+      this.logger.error(`Failed to read file from R2: ${key}`, error);
+      throw error;
+    }
   }
 
   /**
-   * Проверяет существование файла
+   * Проверяет существование файла в R2
    * @param relativePath Относительный путь к файлу
    * @param filename Имя файла
    * @returns true если файл существует
    */
   async fileExists(relativePath: string, filename: string): Promise<boolean> {
-    try {
-      const fullPath = this.getFullPath(relativePath);
-      const filePath = path.join(fullPath, filename);
+    const key = this.getS3Key(relativePath, filename);
 
-      await fs.access(filePath);
+    try {
+      await this.s3Client.send(
+        new HeadObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        })
+      );
       return true;
     } catch {
       return false;
-    }
-  }
-
-  /**
-   * Удаляет пустые директории рекурсивно
-   * @param dirPath Путь к директории
-   */
-  private async cleanupEmptyDirectories(dirPath: string): Promise<void> {
-    try {
-      const files = await fs.readdir(dirPath);
-
-      if (files.length === 0) {
-        await fs.rmdir(dirPath);
-        this.logger.log(`Empty directory removed: ${dirPath}`);
-
-        // Рекурсивно проверяем родительскую директорию
-        const parentDir = path.dirname(dirPath);
-        await this.cleanupEmptyDirectories(parentDir);
-      }
-    } catch (error) {
-      // Игнорируем ошибки - директория может быть не пустой или это корневая директория
     }
   }
 }
