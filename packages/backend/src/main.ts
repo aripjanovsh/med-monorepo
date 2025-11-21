@@ -1,18 +1,23 @@
 import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { join } from "path";
 import { AppModule } from "./app.module";
 import { useValidator } from "./common/useValidator";
 import { useContainer } from "class-validator";
 import { useSwagger } from "./common/useSwagger";
-import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors();
 
   app.setGlobalPrefix("api/v1");
+
+  app.useStaticAssets(join(__dirname, "..", "public"));
+  app.setBaseViewsDir(join(__dirname, "..", "modules", "html", "templates"));
+  app.setViewEngine("hbs");
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   useValidator(app);

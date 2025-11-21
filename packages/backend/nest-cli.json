@@ -5,9 +5,15 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": [
+      "**/*.hbs",
       {
         "include": "assets/fonts/**/*",
         "outDir": "dist"
+      },
+      {
+        "include": "../public/**/*",
+        "outDir": "dist/public",
+        "watchAssets": true
       }
     ]
   }

@@ -1,0 +1,186 @@
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Счет {{invoice.invoiceNumber}}</title>
+    <link rel="stylesheet" href="/html/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div>
+          <h1 class="header-title">{{organization.name}}</h1>
+          <div class="text-sm text-secondary mt-xs">
+            {{#if organization.address}}
+              <div>{{organization.address}}</div>
+            {{/if}}
+            {{#if organization.phone}}
+              <div>{{organization.phone}}</div>
+            {{/if}}
+            {{#if organization.email}}
+              <div>{{organization.email}}</div>
+            {{/if}}
+          </div>
+        </div>
+        <div class="header-meta">
+          <div class="header-label">Счет</div>
+          <div class="text-lg font-semibold">№ {{invoice.invoiceNumber}}</div>
+          <div class="text-sm text-secondary mt-sm">
+            <div>{{invoice.createdAt}}</div>
+            {{#if invoice.dueDate}}
+              <div>Оплатить до: {{invoice.dueDate}}</div>
+            {{/if}}
+          </div>
+          {{#if invoice.statusLabel}}
+            <div class="mt-md">
+              <span
+                class="{{invoice.statusBadgeClass}}"
+              >{{invoice.statusLabel}}</span>
+            </div>
+          {{/if}}
+        </div>
+      </header>
+
+      <!-- Patient and Visit Info -->
+      <div class="grid grid-2 mb-xl">
+        <div>
+          <div class="card-header">Пациент</div>
+          <div class="info-block">
+            <div class="info-value font-semibold">
+              {{invoice.patient.lastName}}
+              {{invoice.patient.firstName}}
+              {{invoice.patient.middleName}}
+            </div>
+          </div>
+          {{#if invoice.patient.contacts.phone}}
+            <div class="info-block">
+              <div class="info-label">Телефон</div>
+              <div class="info-value">{{invoice.patient.contacts.phone}}</div>
+            </div>
+          {{/if}}
+          {{#if invoice.patient.contacts.email}}
+            <div class="info-block">
+              <div class="info-label">Email</div>
+              <div class="info-value">{{invoice.patient.contacts.email}}</div>
+            </div>
+          {{/if}}
+          {{#if invoice.patient.contacts.address}}
+            <div class="info-block">
+              <div class="info-label">Адрес</div>
+              <div class="info-value">{{invoice.patient.contacts.address}}</div>
+            </div>
+          {{/if}}
+        </div>
+        <div>
+          <div class="card-header">Информация о визите</div>
+          {{#if invoice.visit}}
+            <div class="info-block">
+              <div class="info-label">Дата визита</div>
+              <div class="info-value">{{invoice.visit.visitDateFormatted}}</div>
+            </div>
+            {{#if invoice.visit.employee}}
+              <div class="info-block">
+                <div class="info-label">Врач</div>
+                <div class="info-value">
+                  {{invoice.visit.employee.title.name}}
+                  {{invoice.visit.employee.firstName}}
+                  {{invoice.visit.employee.lastName}}
+                </div>
+              </div>
+            {{/if}}
+          {{else}}
+            <div class="info-value text-secondary">Без визита (прямая продажа)</div>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- Services Table -->
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th style="width: 50%">Услуга</th>
+            <th class="align-right">Кол-во</th>
+            <th class="align-right">Цена</th>
+            <th class="align-right">Скидка</th>
+            <th class="align-right">Сумма</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each invoice.items}}
+            <tr>
+              <td>
+                <div class="font-medium">{{this.service.name}}</div>
+                {{#if this.description}}
+                  <div
+                    class="text-xs text-secondary mt-xs"
+                  >{{this.description}}</div>
+                {{/if}}
+              </td>
+              <td class="align-right">{{this.quantity}}</td>
+              <td class="align-right">{{this.unitPrice}}</td>
+              <td class="align-right">{{this.discount}}</td>
+              <td class="align-right font-medium">{{this.totalPrice}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <!-- Summary -->
+      <table class="summary-table">
+        <tr>
+          <td class="summary-label">Итого</td>
+          <td class="summary-value">{{invoice.totalAmount}}</td>
+        </tr>
+        <tr>
+          <td class="summary-label">Оплачено</td>
+          <td class="summary-value">{{invoice.paidAmount}}</td>
+        </tr>
+        <tr>
+          <td class="summary-label">К оплате</td>
+          <td class="summary-value">{{invoice.remainingAmount}}</td>
+        </tr>
+      </table>
+
+      <!-- Notes -->
+      {{#if invoice.notes}}
+        <div class="section mt-xl">
+          <div class="section-title">Комментарии</div>
+          <div class="text-sm text-secondary">{{invoice.notes}}</div>
+        </div>
+      {{/if}}
+
+      <!-- Payment History -->
+      {{#if invoice.payments.length}}
+        <div class="section mt-xl">
+          <div class="section-title">История платежей</div>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width: 50%;">Способ оплаты</th>
+                <th class="align-right">Сумма</th>
+                <th class="align-right">Дата</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each invoice.payments}}
+                <tr>
+                  <td>{{this.paymentMethod}}</td>
+                  <td class="align-right font-medium">{{this.amount}}</td>
+                  <td
+                    class="align-right text-secondary"
+                  >{{this.paidAtFormatted}}</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      {{/if}}
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Спасибо, что выбрали {{organization.name}}.</p>
+      </footer>
+    </div>
+  </body>
+</html>
