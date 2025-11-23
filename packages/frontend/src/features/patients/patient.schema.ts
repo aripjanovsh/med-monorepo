@@ -27,24 +27,142 @@ export const patientFormSchema = yup.object({
     .oneOf(Object.values(GENDER))
     .required(VALIDATION_MESSAGES.REQUIRED),
 
-  // Passport information (combined field for form UI)
-  passport: yup
+  // Passport information - conditional validation
+  passportSeries: yup
     .string()
-    .optional()
     .test(
-      "passport-format",
-      VALIDATION_MESSAGES.INVALID_FORMAT,
-      (value) =>
-        !value ||
-        value.trim().length === 0 ||
-        /^[A-Za-zА-Яа-я]{2}\d{7}$/.test(value)
+      "passport-series-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
     ),
-  // Individual fields (populated from passport field)
-  passportSeries: yup.string(),
-  passportNumber: yup.string(),
-  passportIssuedBy: yup.string(),
-  passportIssueDate: yup.string(),
-  passportExpiryDate: yup.string(),
+  passportNumber: yup
+    .string()
+    .test(
+      "passport-number-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssuedBy: yup
+    .string()
+    .test(
+      "passport-issued-by-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssueDate: yup
+    .string()
+    .test(
+      "passport-issue-date-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportExpiryDate: yup
+    .string()
+    .test(
+      "passport-expiry-date-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
 
   // Optional core fields
   patientId: yup.string(),
@@ -99,11 +217,141 @@ export const createPatientRequestSchema = yup.object({
     .required("Gender is required"),
 
   // Passport information
-  passportSeries: yup.string(),
-  passportNumber: yup.string(),
-  passportIssuedBy: yup.string(),
-  passportIssueDate: yup.string(),
-  passportExpiryDate: yup.string(),
+  passportSeries: yup
+    .string()
+    .test(
+      "passport-series-required",
+      "Passport series is required when any passport information is provided",
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportNumber: yup
+    .string()
+    .test(
+      "passport-number-required",
+      "Passport number is required when any passport information is provided",
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssuedBy: yup
+    .string()
+    .test(
+      "passport-issued-by-required",
+      "Passport issued by is required when any passport information is provided",
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssueDate: yup
+    .string()
+    .test(
+      "passport-issue-date-required",
+      "Passport issue date is required when any passport information is provided",
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportExpiryDate: yup
+    .string()
+    .test(
+      "passport-expiry-date-required",
+      "Passport expiry date is required when any passport information is provided",
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
 
   // Optional fields
   patientId: yup.string(),
@@ -121,9 +369,16 @@ export const createPatientRequestSchema = yup.object({
   address: yup.string(), // Specific street address
 
   // Simple contact fields
-  phone: yup.string(),
+  phone: yup
+    .string()
+    .required(VALIDATION_MESSAGES.REQUIRED)
+    .test(
+      "phone-format",
+      VALIDATION_MESSAGES.PHONE_MIN,
+      (value) => !value || value.length >= 10
+    ),
   secondaryPhone: yup.string(),
-  email: yup.string().email("Invalid email format"),
+  email: yup.string().optional().email(VALIDATION_MESSAGES.EMAIL_INVALID),
 });
 
 // Update patient request schema

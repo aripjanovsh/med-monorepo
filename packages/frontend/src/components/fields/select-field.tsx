@@ -30,7 +30,7 @@ export const SelectField: FC<SelectFieldProps> = ({
   hintClassName,
   labelHint,
   labelHintClassName,
-
+  required,
   placeholder,
   options,
   onChange,
@@ -39,6 +39,7 @@ export const SelectField: FC<SelectFieldProps> = ({
   return (
     <Field
       {...{
+        required,
         className,
         label,
         labelClassName,

@@ -77,7 +77,6 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
   dateOfBirth: "",
   gender: undefined,
   status: "ACTIVE" as const,
-  passport: "",
   passportSeries: "",
   passportNumber: "",
   passportIssuedBy: "",
@@ -124,18 +123,12 @@ export const PatientFormSheet = ({
 
     if (patient && mode === "edit") {
       const formData = mapPatientToFormData(patient);
-      // Объединяем серию и номер паспорта в одно поле
-      const passport =
-        patient.passportSeries && patient.passportNumber
-          ? `${patient.passportSeries}${patient.passportNumber}`
-          : "";
       form.reset({
         ...DEFAULT_VALUES,
         ...formData,
         dateOfBirth: patient.dateOfBirth
           ? patient.dateOfBirth.split("T")[0]
           : "",
-        passport,
       });
     } else {
       form.reset(DEFAULT_VALUES);
@@ -243,6 +236,7 @@ export const PatientFormSheet = ({
                       render={({ field }) => (
                         <TextField
                           label="Отчество"
+                          required
                           placeholder="Введите отчество"
                           {...field}
                         />
@@ -286,34 +280,56 @@ export const PatientFormSheet = ({
                     Паспортные данные
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                    <FormField
-                      control={form.control}
-                      name="passport"
-                      render={({ field }) => (
-                        <PassportField
-                          label="Серия и номер паспорта"
-                          placeholder="AA 1234567"
-                          {...field}
-                          onChange={(value: string) => {
-                            console.log("Passport value:", value);
-                            field.onChange(value === "_________" ? "" : value);
-                            // Автоматически разделяем на серию и номер
-                            if (value && value.length >= 2) {
-                              form.setValue(
-                                "passportSeries",
-                                value.slice(0, 2)
+                    <div className="grid grid-cols-2 gap-2 items-start">
+                      <FormField
+                        control={form.control}
+                        name="passportSeries"
+                        render={({ field }) => (
+                          <TextField
+                            label="Серия паспорта"
+                            placeholder="AA"
+                            maxLength={2}
+                            {...field}
+                            onChange={(value?: string) => {
+                              field.onChange(
+                                value ? value.toUpperCase() : value
                               );
-                              form.setValue("passportNumber", value.slice(2));
-                            } else {
-                              form.setValue("passportSeries", "");
-                              form.setValue("passportNumber", "");
-                            }
-                            // Принудительно запускаем валидацию поля паспорта
-                            form.trigger("passport");
-                          }}
-                        />
-                      )}
-                    />
+                              // Trigger validation for all passport fields
+                              form.trigger([
+                                "passportSeries",
+                                "passportNumber",
+                                "passportIssuedBy",
+                                "passportIssueDate",
+                                "passportExpiryDate",
+                              ]);
+                            }}
+                          />
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="passportNumber"
+                        render={({ field }) => (
+                          <TextField
+                            label="Номер паспорта"
+                            placeholder="1234567"
+                            maxLength={7}
+                            {...field}
+                            onChange={(value: string) => {
+                              field.onChange(value);
+                              // Trigger validation for all passport fields
+                              form.trigger([
+                                "passportSeries",
+                                "passportNumber",
+                                "passportIssuedBy",
+                                "passportIssueDate",
+                                "passportExpiryDate",
+                              ]);
+                            }}
+                          />
+                        )}
+                      />
+                    </div>
 
                     <FormField
                       control={form.control}
@@ -323,6 +339,17 @@ export const PatientFormSheet = ({
                           label="Кем выдан"
                           placeholder="Введите название органа"
                           {...field}
+                          onChange={(value: string) => {
+                            field.onChange(value);
+                            // Trigger validation for all passport fields
+                            form.trigger([
+                              "passportSeries",
+                              "passportNumber",
+                              "passportIssuedBy",
+                              "passportIssueDate",
+                              "passportExpiryDate",
+                            ]);
+                          }}
                         />
                       )}
                     />
@@ -336,6 +363,17 @@ export const PatientFormSheet = ({
                           placeholder="Выберите дату"
                           valueFormat="yyyy-MM-dd"
                           {...field}
+                          onChange={(value?: string) => {
+                            field.onChange(value || "");
+                            // Trigger validation for all passport fields
+                            form.trigger([
+                              "passportSeries",
+                              "passportNumber",
+                              "passportIssuedBy",
+                              "passportIssueDate",
+                              "passportExpiryDate",
+                            ]);
+                          }}
                         />
                       )}
                     />
@@ -349,6 +387,17 @@ export const PatientFormSheet = ({
                           placeholder="Выберите дату"
                           valueFormat="yyyy-MM-dd"
                           {...field}
+                          onChange={(value?: string) => {
+                            field.onChange(value || "");
+                            // Trigger validation for all passport fields
+                            form.trigger([
+                              "passportSeries",
+                              "passportNumber",
+                              "passportIssuedBy",
+                              "passportIssueDate",
+                              "passportExpiryDate",
+                            ]);
+                          }}
                         />
                       )}
                     />
@@ -431,6 +480,7 @@ export const PatientFormSheet = ({
                       name="phone"
                       render={({ field }) => (
                         <PhoneField
+                          required
                           label="Основной телефон"
                           placeholder="Введите телефон"
                           {...field}

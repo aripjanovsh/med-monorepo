@@ -43,8 +43,6 @@ export default function PatientsPage() {
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
     defaultLimit: 10,
-    defaultSorting: [{ id: "firstName", desc: false }],
-    sortFormat: "split",
     searchDebounceMs: 500,
   });
 

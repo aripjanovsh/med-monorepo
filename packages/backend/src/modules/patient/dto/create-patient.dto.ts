@@ -16,6 +16,7 @@ import {
   TransformEmpty,
   TransformDate,
   IsDateOrDateTimeString,
+  ValidatePassportFields,
 } from "@/common/decorators";
 
 @Exclude()
@@ -86,7 +87,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportSeries?: string;
 
   @Expose()
@@ -96,7 +99,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportNumber?: string;
 
   @Expose()
@@ -106,7 +111,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportIssuedBy?: string;
 
   @Expose()
@@ -116,8 +123,10 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsDateOrDateTimeString()
   @TransformDate()
+  @ValidatePassportFields()
   passportIssueDate?: Date;
 
   @Expose()
@@ -127,8 +136,10 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsDateOrDateTimeString()
   @TransformDate()
+  @ValidatePassportFields()
   passportExpiryDate?: Date;
 
   @Expose()
@@ -245,6 +256,7 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsEmail()
   email?: string;
 

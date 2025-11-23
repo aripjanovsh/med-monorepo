@@ -15,6 +15,7 @@ export interface PhoneFieldProps extends FieldProps {
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
+  required?: boolean;
 }
 
 export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
@@ -30,9 +31,10 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
       disabled,
       onChange,
       value,
+      required,
       ...props
     },
-    ref,
+    ref
   ) => {
     const {
       ref: maskRef,
@@ -59,7 +61,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
             onChange(cleanNumber);
           }
         },
-      },
+      }
     );
 
     // Синхронизируем внешнее значение с маской
@@ -79,6 +81,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
           hintClassName,
           labelHint,
           labelHintClassName,
+          required,
         }}
       >
         <FormControl>
@@ -104,7 +107,7 @@ export const PhoneField = forwardRef<HTMLInputElement, PhoneFieldProps>(
         </FormControl>
       </Field>
     );
-  },
+  }
 );
 
 PhoneField.displayName = "PhoneField";

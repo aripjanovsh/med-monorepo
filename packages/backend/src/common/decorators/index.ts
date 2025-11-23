@@ -7,3 +7,4 @@ export * from "./unique.decorator";
 export * from "./conditional-validation.decorator";
 export * from "./transform-empty.decorator";
 export * from "./is-date-or-datetime-string.decorator";
+export * from "./passport-validation.decorator";
