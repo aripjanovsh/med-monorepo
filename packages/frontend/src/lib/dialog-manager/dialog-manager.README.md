@@ -144,7 +144,7 @@ type MyDialogOwnProps = {
 export const MyDialog = createDialog<MyDialogOwnProps>(
   ({ open, onOpenChange, userId }) => {
     // ...
-  },
+  }
 );
 ```
 
@@ -397,4 +397,19 @@ type MyDialogProps = DialogProps & {
 // Использование
 const myRef = useRef<HTMLDivElement>(null);
 dialog.open({ myRef });
+```
+
+### Q: Работают ли анимации открытия и закрытия диалогов?
+
+A: Да! Dialog Manager полностью поддерживает анимации:
+
+- **Анимация открытия**: Работает автоматически через `open={true}`
+- **Анимация закрытия**: Dialog Manager устанавливает `open={false}` и ждет 300ms (стандартное время анимации shadcn/ui) перед размонтированием компонента
+
+Это позволяет CSS transitions и animations корректно отработать при закрытии диалога.
+
+```tsx
+// Пример с кастомным временем анимации
+// Если ваш диалог использует более длинную анимацию,
+// вы можете настроить задержку в dialog-manager.context.tsx (по умолчанию 300ms)
 ```

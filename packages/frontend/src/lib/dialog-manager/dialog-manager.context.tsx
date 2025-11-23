@@ -14,6 +14,8 @@ type DialogManagerProviderProps = {
   children: ReactNode;
 };
 
+const DIALOG_ANIMATION_DURATION = 300; // ms
+
 /**
  * Глобальный провайдер для управления всеми диалогами в приложении
  *
@@ -28,6 +30,7 @@ export const DialogManagerProvider = ({
   children,
 }: DialogManagerProviderProps) => {
   const [dialogs, setDialogs] = useState<Map<string, DialogConfig>>(new Map());
+  const [closingDialogs, setClosingDialogs] = useState<Set<string>>(new Set());
 
   const openDialog = useCallback(
     <P,>(id: string, component: DialogConfig<P>["component"], props: P) => {
@@ -36,14 +39,43 @@ export const DialogManagerProvider = ({
         next.set(id, { id, component, props });
         return next;
       });
+      // Убираем из списка закрывающихся, если диалог открывается снова
+      setClosingDialogs((prev) => {
+        if (prev.has(id)) {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        }
+        return prev;
+      });
     },
-    [],
+    []
   );
 
   const closeDialog = useCallback((id: string) => {
-    setDialogs((prev) => {
-      const next = new Map(prev);
-      next.delete(id);
+    setClosingDialogs((prev) => {
+      // Если диалог уже закрывается, не запускаем процесс снова
+      if (prev.has(id)) {
+        return prev;
+      }
+
+      const next = new Set(prev);
+      next.add(id);
+
+      // Удаляем диалог после задержки для анимации
+      setTimeout(() => {
+        setDialogs((prev) => {
+          const next = new Map(prev);
+          next.delete(id);
+          return next;
+        });
+        setClosingDialogs((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, DIALOG_ANIMATION_DURATION);
+
       return next;
     });
   }, []);
@@ -66,7 +98,7 @@ export const DialogManagerProvider = ({
     (id: string) => {
       return dialogs.has(id);
     },
-    [dialogs],
+    [dialogs]
   );
 
   return (
@@ -83,11 +115,12 @@ export const DialogManagerProvider = ({
       {/* Рендерим все открытые диалоги */}
       {Array.from(dialogs.values()).map((config) => {
         const Component = config.component;
+        const isClosing = closingDialogs.has(config.id);
         return (
           <Component
             key={config.id}
             {...config.props}
-            open={true}
+            open={!isClosing}
             onOpenChange={(open: boolean) => {
               if (!open) {
                 closeDialog(config.id);

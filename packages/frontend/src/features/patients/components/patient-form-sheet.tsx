@@ -279,6 +279,8 @@ export const PatientFormSheet = ({
                   </div>
                 </div>
 
+                <div className="border-t border-border -mx-4 lg:-mx-6" />
+
                 <div className="space-y-4">
                   <h3 className="font-semibold font-gilroy">
                     Паспортные данные
@@ -353,6 +355,8 @@ export const PatientFormSheet = ({
                   </div>
                 </div>
 
+                <div className="border-t border-border -mx-4 lg:-mx-6" />
+
                 <div className="space-y-4">
                   <h3 className="font-semibold font-gilroy">Языки</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
@@ -382,9 +386,11 @@ export const PatientFormSheet = ({
                   </div>
                 </div>
 
+                <div className="border-t border-border -mx-4 lg:-mx-6" />
+
                 <div className="space-y-4">
                   <h3 className="font-semibold font-gilroy">Адрес</h3>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-4 items-start">
                     <FormField
                       control={form.control}
                       name="locationHierarchy"
@@ -403,7 +409,7 @@ export const PatientFormSheet = ({
                       name="address"
                       render={({ field }) => (
                         <TextField
-                          label="Точный адрес"
+                          label="Улица, дом, квартира"
                           placeholder="Введите улицу, дом, квартиру"
                           {...field}
                         />
@@ -411,12 +417,15 @@ export const PatientFormSheet = ({
                     />
                   </div>
                 </div>
+
+                <div className="border-t border-border -mx-4 lg:-mx-6" />
+
                 <div className="space-y-4">
                   <h3 className="font-semibold font-gilroy">
                     Контактная информация
                   </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                     <FormField
                       control={form.control}
                       name="phone"

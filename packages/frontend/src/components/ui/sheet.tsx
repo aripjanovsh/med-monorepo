@@ -37,8 +37,8 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "data-[state=open]:animate-in backdrop-blur-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/30",
-        className,
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/70",
+        className
       )}
       {...props}
     />
@@ -68,7 +68,7 @@ function SheetContent({
             "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
           side === "bottom" &&
             "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
-          className,
+          className
         )}
         {...props}
       >
@@ -89,7 +89,7 @@ function SheetBody({
 }: React.ComponentProps<typeof ScrollArea>) {
   return (
     <ScrollArea className={cn("flex-1 overflow-hidden", className)} {...props}>
-      <div className="p-4">{children}</div>
+      <div className="p-4 lg:p-6">{children}</div>
     </ScrollArea>
   );
 }
@@ -98,7 +98,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 p-4 border-b", className)}
+      className={cn("flex flex-col gap-1.5 p-4 lg:px-6 border-b", className)}
       {...props}
     />
   );
@@ -109,8 +109,8 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sheet-footer"
       className={cn(
-        "mt-auto p-4 flex flex-row justify-end gap-2 border-t",
-        className,
+        "mt-auto p-4 lg:p-6 flex flex-row justify-end gap-2 border-t",
+        className
       )}
       {...props}
     />
