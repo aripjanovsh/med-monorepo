@@ -6,9 +6,10 @@ import {
   type AsyncOption,
 } from "@/components/fields/async-combobox-field";
 import type { FieldProps } from "@/components/fields/field";
+import { useDialog } from "@/lib/dialog-manager";
 import { useGetPatientsQuery } from "@/features/patients/patient.api";
 import type { PatientResponseDto } from "@/features/patients/patient.dto";
-import { PatientQuickCreateSheet } from "./patient-quick-create-sheet";
+import { PatientFormSheet } from "./patient-form-sheet";
 
 type PatientAutocompleteFieldProps = Omit<FieldProps, "children"> & {
   value?: string;
@@ -34,9 +35,9 @@ export const PatientAutocompleteField = ({
 }: PatientAutocompleteFieldProps): ReactElement => {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
-  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [recentlyCreatedPatient, setRecentlyCreatedPatient] =
     useState<PatientResponseDto | null>(null);
+  const patientFormSheet = useDialog(PatientFormSheet);
 
   const { data, isLoading } = useGetPatientsQuery({
     search,
@@ -74,18 +75,26 @@ export const PatientAutocompleteField = ({
     setSearch(searchValue);
   }, []);
 
-  const handleCreate = useCallback((searchValue: string) => {
-    setSearch(searchValue);
-    setQuickCreateOpen(true);
-  }, []);
-
   const handleQuickCreateSuccess = useCallback(
-    (patient: PatientResponseDto) => {
+    (patient?: PatientResponseDto) => {
+      if (!patient) return;
       setRecentlyCreatedPatient(patient);
       onChange(patient.id);
       onPatientCreated?.(patient);
     },
-    [onChange, onPatientCreated],
+    [onChange, onPatientCreated]
+  );
+
+  const handleCreate = useCallback(
+    (searchValue: string) => {
+      setSearch(searchValue);
+      patientFormSheet.open({
+        mode: "create",
+        patientId: null,
+        onSuccess: handleQuickCreateSuccess,
+      });
+    },
+    [handleQuickCreateSuccess]
   );
 
   return (
@@ -104,15 +113,6 @@ export const PatientAutocompleteField = ({
         onCreate={handleCreate}
         createButtonText={createButtonText ?? t("Добавить пациента")}
       />
-
-      {enableQuickCreate && (
-        <PatientQuickCreateSheet
-          open={quickCreateOpen}
-          onOpenChange={setQuickCreateOpen}
-          onSuccess={handleQuickCreateSuccess}
-          defaultSearch={search}
-        />
-      )}
     </>
   );
 };

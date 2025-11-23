@@ -1,20 +1,28 @@
 export const VALIDATION_MESSAGES = {
+  // Common form messages
+  REQUIRED: "Обязательное поле",
+  INVALID_FORMAT: "Неверный формат",
+
   // Employee form messages
-  FIRST_NAME_MIN: "First name must be at least 2 characters",
-  FIRST_NAME_REQUIRED: "First name is required",
-  LAST_NAME_MIN: "Last name must be at least 2 characters",
-  LAST_NAME_REQUIRED: "Last name is required",
+  FIRST_NAME_MIN: "Имя должно содержать минимум 2 символа",
+  FIRST_NAME_REQUIRED: "Обязательное поле",
+  LAST_NAME_MIN: "Фамилия должна содержать минимум 2 символа",
+  LAST_NAME_REQUIRED: "Обязательное поле",
   HIRE_DATE_REQUIRED: "Hire date is required",
-  EMAIL_INVALID: "Invalid email format",
+  EMAIL_INVALID: "Неверный формат email",
   SALARY_POSITIVE: "Salary must be positive",
-  PASSWORD_MIN: "Password must be at least 6 characters",
-  PASSWORD_REQUIRED: "Password is required when creating user account",
-  USER_ROLE_REQUIRED: "User role is required when creating user account",
+
+  // Patient form messages
+  DATE_OF_BIRTH_REQUIRED: "Обязательное поле",
+  DATE_OF_BIRTH_FUTURE: "Дата рождения не может быть в будущем",
+  GENDER_REQUIRED: "Обязательное поле",
+  PASSPORT_FORMAT: "Неверный формат паспорта",
+  PHONE_MIN: "Неверный формат телефона",
+  PHONE_REQUIRED: "Обязательное поле",
 
   // Common messages
-  REQUIRED: "This field is required",
-  INVALID_FORMAT: "Invalid format",
-  MIN_LENGTH: (min: number) => `Must be at least ${min} characters`,
-  MAX_LENGTH: (max: number) => `Must be no more than ${max} characters`,
-  POSITIVE_NUMBER: "Must be a positive number",
+
+  MIN_LENGTH: (min: number) => `Должно содержать минимум ${min} символов`,
+  MAX_LENGTH: (max: number) => `Должно содержать не более ${max} символов`,
+  POSITIVE_NUMBER: "Должно быть положительным числом",
 } as const;

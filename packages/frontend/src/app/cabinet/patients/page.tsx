@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useDialog } from "@/lib/dialog-manager";
 import { Edit, Eye, MoreHorizontal, Plus, Trash, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ import {
   type PatientStatusDto,
   useGetPatientsQuery,
   useDeletePatientMutation,
+  PatientFormSheet,
 } from "@/features/patients";
 import PageHeader from "@/components/layouts/page-header";
 import { useConfirmDialog } from "@/components/dialogs";
@@ -35,6 +37,7 @@ import Link from "next/link";
 export default function PatientsPage() {
   const router = useRouter();
   const confirm = useConfirmDialog();
+  const patientFormSheet = useDialog(PatientFormSheet);
   const [activeTab, setActiveTab] = useState("active");
 
   // DataTable state management with built-in debounce
@@ -84,7 +87,23 @@ export default function PatientsPage() {
   const [deletePatient] = useDeletePatientMutation();
 
   const handleCreatePatient = () => {
-    router.push("/cabinet/patients/create");
+    patientFormSheet.open({
+      mode: "create",
+      patientId: null,
+      onSuccess: () => {
+        refetchPatients();
+      },
+    });
+  };
+
+  const handleEditPatient = (patient: PatientResponseDto) => {
+    patientFormSheet.open({
+      mode: "edit",
+      patientId: patient.id,
+      onSuccess: () => {
+        refetchPatients();
+      },
+    });
   };
 
   const handleDeletePatient = useCallback(
@@ -110,7 +129,7 @@ export default function PatientsPage() {
         },
       });
     },
-    [confirm, deletePatient, refetchPatients],
+    [confirm, deletePatient, refetchPatients]
   );
 
   const patients = patientsData?.data || [];
@@ -166,15 +185,23 @@ export default function PatientsPage() {
                         Просмотр
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/cabinet/patients/${patient.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Редактировать
-                      </Link>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleEditPatient(patient);
+                      }}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Редактировать
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => handleDeletePatient(patient)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeletePatient(patient);
+                      }}
                       className="text-destructive"
                     >
                       <Trash className="mr-2 h-4 w-4" />

@@ -53,22 +53,22 @@
               {{invoice.patient.middleName}}
             </div>
           </div>
-          {{#if invoice.patient.contacts.phone}}
+          {{#if invoice.patient.phone}}
             <div class="info-block">
               <div class="info-label">Телефон</div>
-              <div class="info-value">{{invoice.patient.contacts.phone}}</div>
+              <div class="info-value">{{invoice.patient.phone}}</div>
             </div>
           {{/if}}
-          {{#if invoice.patient.contacts.email}}
+          {{#if invoice.patient.email}}
             <div class="info-block">
               <div class="info-label">Email</div>
-              <div class="info-value">{{invoice.patient.contacts.email}}</div>
+              <div class="info-value">{{invoice.patient.email}}</div>
             </div>
           {{/if}}
-          {{#if invoice.patient.contacts.address}}
+          {{#if invoice.patient.address}}
             <div class="info-block">
               <div class="info-label">Адрес</div>
-              <div class="info-value">{{invoice.patient.contacts.address}}</div>
+              <div class="info-value">{{invoice.patient.address}}</div>
             </div>
           {{/if}}
         </div>

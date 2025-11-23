@@ -109,7 +109,7 @@ export const DatePickerField = ({
         // Invalid date format, ignore
       }
     },
-    [onChange, value, valueFormat, displayFormat, minDate, maxDate],
+    [onChange, value, valueFormat, displayFormat, minDate, maxDate]
   );
 
   // Handle calendar selection
@@ -127,7 +127,7 @@ export const DatePickerField = ({
       }
       setIsOpen(false);
     },
-    [onChange, valueFormat],
+    [onChange, valueFormat]
   );
 
   // Disable dates in calendar based on min/max constraints
@@ -137,7 +137,7 @@ export const DatePickerField = ({
       if (maxDate && date > maxDate) return true;
       return false;
     },
-    [minDate, maxDate],
+    [minDate, maxDate]
   );
 
   return (
@@ -186,7 +186,8 @@ export const DatePickerField = ({
               overwrite={true}
               className={cn(
                 "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pr-10",
-                disabled && "opacity-50 cursor-not-allowed",
+                "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
+                disabled && "opacity-50 cursor-not-allowed"
               )}
             />
           </FormControl>
@@ -197,7 +198,7 @@ export const DatePickerField = ({
               disabled={disabled}
               className={cn(
                 "absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-sm opacity-50 hover:opacity-100 transition-opacity",
-                disabled && "cursor-not-allowed opacity-30",
+                disabled && "cursor-not-allowed opacity-30"
               )}
             >
               <CalendarIcon className="h-4 w-4" />

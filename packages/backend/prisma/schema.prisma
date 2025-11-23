@@ -87,13 +87,15 @@ model Patient {
   cityId              String?
   districtId          String?
   address             String?
+  phone               String?
+  secondaryPhone      String?
+  email               String?
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   organizationId      String
   appointments        Appointment[]
   invoices            Invoice[]
   allergies           PatientAllergy[]
-  contacts            PatientContact[]
   doctors             PatientDoctor[]
   patientParameters   PatientParameter[]
   city                Location?          @relation("PatientCity", fields: [cityId], references: [id])
@@ -110,27 +112,6 @@ model Patient {
   @@map("patients")
 }
 
-model PatientContact {
-  id                        String              @id @default(uuid())
-  relation                  ContactRelationType
-  type                      ContactType
-  firstName                 String?
-  lastName                  String?
-  primaryPhone              String
-  secondaryPhone            String?
-  address                   String?
-  city                      String?
-  state                     String?
-  country                   String?
-  textNotificationsEnabled  Boolean             @default(false)
-  emailNotificationsEnabled Boolean             @default(false)
-  createdAt                 DateTime            @default(now())
-  updatedAt                 DateTime            @updatedAt
-  patientId                 String
-  patient                   Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
-
-  @@map("patient_contacts")
-}
 
 model PatientDoctor {
   id         String   @id @default(uuid())
@@ -866,18 +847,6 @@ enum PatientStatus {
   DECEASED
 }
 
-enum ContactRelationType {
-  SELF
-  PARENT
-  GUARDIAN
-  EMERGENCY
-  OTHER
-}
-
-enum ContactType {
-  PRIMARY
-  SECONDARY
-}
 
 enum LocationType {
   COUNTRY

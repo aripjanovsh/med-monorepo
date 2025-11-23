@@ -7,8 +7,6 @@ export const ROUTES = {
   DASHBOARD: "/cabinet",
   PATIENTS: "/cabinet/patients",
   PATIENT_DETAIL: "/cabinet/patients/[id]",
-  PATIENT_CREATE: "/cabinet/patients/create",
-  PATIENT_EDIT: "/cabinet/patients/[id]/edit",
   DOCTORS: "/cabinet/doctors",
   APPOINTMENTS: "/cabinet/appointments",
   PROFILE: "/cabinet/profile",
@@ -75,7 +73,7 @@ export const ROUTES = {
 // Helper functions for routes with parameters
 export const urlWithParams = (
   route: RouteValues,
-  params?: Record<string, string | number>,
+  params?: Record<string, string | number>
 ): string => {
   if (!params || Object.keys(params).length === 0) return route;
 
@@ -96,7 +94,7 @@ export const urlWithParams = (
  */
 export const url = (
   route: RouteValues,
-  params?: Record<string, string | number>,
+  params?: Record<string, string | number>
 ): string => {
   if (!params || Object.keys(params).length === 0) {
     return route;
@@ -108,7 +106,7 @@ export const url = (
     const encodedValue = encodeURIComponent(String(value));
     resolvedRoute = resolvedRoute.replace(
       new RegExp(`\\[${key}\\]`, "g"),
-      encodedValue,
+      encodedValue
     );
   });
 

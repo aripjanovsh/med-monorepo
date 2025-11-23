@@ -33,12 +33,7 @@ import {
   mapFormDataToCreateRequest,
   mapFormDataToUpdateRequest,
 } from "../patient.model";
-import {
-  PATIENT_STATUS_OPTIONS,
-  GENDER_OPTIONS,
-  CONTACT_RELATION_OPTIONS,
-  CONTACT_TYPE_OPTIONS,
-} from "../patient.constants";
+import { PATIENT_STATUS_OPTIONS, GENDER_OPTIONS } from "../patient.constants";
 import {
   useCreatePatientMutation,
   useUpdatePatientMutation,
@@ -85,16 +80,10 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
     selectedId: "",
   },
 
-  // Contacts
-  contacts: [
-    {
-      relation: "SELF",
-      type: "PRIMARY",
-      primaryPhone: "",
-      textNotificationsEnabled: false,
-      emailNotificationsEnabled: false,
-    },
-  ],
+  // Simple contact fields
+  phone: "",
+  secondaryPhone: "",
+  email: "",
 
   // Doctors
   doctorIds: [],
@@ -118,7 +107,7 @@ export function PagePatientForm({
   });
 
   const [lastPatientId, setLastPatientId] = React.useState<string | undefined>(
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -168,44 +157,6 @@ export function PagePatientForm({
 
   const handleCancel = () => {
     router.push(ROUTES.PATIENTS);
-  };
-
-  const contacts = form.watch("contacts") || [];
-  const dateOfBirth = form.watch("dateOfBirth");
-
-  // Check if patient is minor
-  const patientIsMinor = isMinor(dateOfBirth);
-  const showRelationField = dateOfBirth && patientIsMinor;
-
-  // Get used contact types
-  const usedContactTypes = contacts.map((c) => c.type);
-  const availableContactTypes = CONTACT_TYPE_OPTIONS.filter(
-    (option) => !usedContactTypes.includes(option.value as any),
-  );
-
-  const addContact = (type: string) => {
-    const newContact = {
-      relation: showRelationField ? ("OTHER" as const) : ("SELF" as const),
-      type: type as any,
-      primaryPhone: "",
-      textNotificationsEnabled: false,
-      emailNotificationsEnabled: false,
-    };
-    form.setValue("contacts", [...contacts, newContact]);
-  };
-
-  const removeContact = (index: number) => {
-    if (contacts.length > 1) {
-      const updatedContacts = contacts.filter((_, i) => i !== index);
-      form.setValue("contacts", updatedContacts);
-    }
-  };
-
-  // Get contact type label
-  const getContactTypeLabel = (type: string) => {
-    return (
-      CONTACT_TYPE_OPTIONS.find((opt) => opt.value === type)?.label || type
-    );
   };
 
   return (
@@ -415,135 +366,44 @@ export function PagePatientForm({
           {/* Contact Information */}
           <FormSection title="Контактная информация">
             <div className="space-y-4">
-              {contacts.map((contact, index) => (
-                <div
-                  key={index}
-                  className="space-y-4 p-4 border border-border rounded-lg"
-                >
-                  <div className="flex items-center justify-between min-h-10">
-                    <h4 className="text-lg font-semibold">
-                      {getContactTypeLabel(contact.type)}
-                    </h4>
-                    {contacts.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => removeContact(index)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Show relation field only if patient is minor */}
-                    {showRelationField && (
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.relation`}
-                        render={({ field }) => (
-                          <SelectField
-                            label="Отношение"
-                            placeholder="Выберите отношение"
-                            options={CONTACT_RELATION_OPTIONS}
-                            {...field}
-                          />
-                        )}
-                      />
-                    )}
-
-                    <FormField
-                      control={form.control}
-                      name={`contacts.${index}.primaryPhone`}
-                      render={({ field }) => (
-                        <PhoneField
-                          label="Основной телефон"
-                          placeholder="Введите телефон"
-                          {...field}
-                        />
-                      )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <PhoneField
+                      label="Основной телефон"
+                      placeholder="Введите телефон"
+                      {...field}
                     />
+                  )}
+                />
 
-                    <FormField
-                      control={form.control}
-                      name={`contacts.${index}.secondaryPhone`}
-                      render={({ field }) => (
-                        <PhoneField
-                          label="Дополнительный телефон"
-                          placeholder="Введите доп. телефон"
-                          {...field}
-                        />
-                      )}
+                <FormField
+                  control={form.control}
+                  name="secondaryPhone"
+                  render={({ field }) => (
+                    <PhoneField
+                      label="Дополнительный телефон"
+                      placeholder="Введите доп. телефон"
+                      {...field}
                     />
+                  )}
+                />
 
-                    <FormField
-                      control={form.control}
-                      name={`contacts.${index}.email`}
-                      render={({ field }) => (
-                        <TextField
-                          label="Email"
-                          placeholder="Введите email"
-                          type="email"
-                          {...field}
-                        />
-                      )}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <TextField
+                      label="Email"
+                      placeholder="Введите email"
+                      type="email"
+                      {...field}
                     />
-
-                    {/* Show first/last name only if relation is not SELF */}
-                    {contact.relation !== "SELF" && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name={`contacts.${index}.firstName`}
-                          render={({ field }) => (
-                            <TextField
-                              label="Имя контакта"
-                              placeholder="Введите имя"
-                              {...field}
-                            />
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`contacts.${index}.lastName`}
-                          render={({ field }) => (
-                            <TextField
-                              label="Фамилия контакта"
-                              placeholder="Введите фамилию"
-                              {...field}
-                            />
-                          )}
-                        />
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* Add contact buttons - one for each available type */}
-              {availableContactTypes.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Добавить контакт:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {availableContactTypes.map((type) => (
-                      <Button
-                        key={type.value}
-                        type="button"
-                        variant="outline"
-                        onClick={() => addContact(type.value)}
-                        className="flex-1 min-w-[150px]"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        {type.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                  )}
+                />
+              </div>
             </div>
           </FormSection>
 

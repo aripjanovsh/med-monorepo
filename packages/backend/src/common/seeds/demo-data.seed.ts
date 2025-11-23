@@ -1,4 +1,10 @@
-import { PrismaClient, Gender, EmployeeStatus, ServiceTypeEnum, UserRole } from "@prisma/client";
+import {
+  PrismaClient,
+  Gender,
+  EmployeeStatus,
+  ServiceTypeEnum,
+  UserRole,
+} from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -10,7 +16,7 @@ export class DemoDataSeed {
 
     // Create titles for doctors
     const titles = await this.createTitles(organizationId);
-    
+
     // Get departments
     const departments = await this.prisma.department.findMany({
       where: { organizationId },
@@ -21,7 +27,11 @@ export class DemoDataSeed {
     }
 
     // Create 20 doctors with user accounts
-    const doctors = await this.createDoctors(organizationId, departments, titles);
+    const doctors = await this.createDoctors(
+      organizationId,
+      departments,
+      titles
+    );
     console.log(`✅ Created ${doctors.length} doctors`);
 
     // Create 20 patients
@@ -78,7 +88,11 @@ export class DemoDataSeed {
     return titles;
   }
 
-  private async createDoctors(organizationId: string, departments: any[], titles: any[]) {
+  private async createDoctors(
+    organizationId: string,
+    departments: any[],
+    titles: any[]
+  ) {
     const doctors = [];
     const hashedPassword = await bcrypt.hash("doctor123", 10);
 
@@ -109,7 +123,7 @@ export class DemoDataSeed {
       const data = doctorData[i];
       const phone = `+99890${String(1000000 + i).padStart(7, "0")}`;
       const employeeId = `DOC-${String(i + 1).padStart(3, "0")}`;
-      
+
       // Check if employee already exists
       const existingEmployee = await this.prisma.employee.findFirst({
         where: {
@@ -123,7 +137,7 @@ export class DemoDataSeed {
         doctors.push(existingEmployee);
         continue;
       }
-      
+
       // Check if user already exists
       const existingUser = await this.prisma.user.findUnique({
         where: { phone },
@@ -153,13 +167,21 @@ export class DemoDataSeed {
           firstName: data.firstName,
           lastName: data.lastName,
           gender: data.gender,
-          dateOfBirth: new Date(1975 + Math.floor(Math.random() * 20), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
+          dateOfBirth: new Date(
+            1975 + Math.floor(Math.random() * 20),
+            Math.floor(Math.random() * 12),
+            Math.floor(Math.random() * 28) + 1
+          ),
           phone,
           email: `${data.firstName.toLowerCase()}.${data.lastName.toLowerCase()}@zdravye-clinic.uz`,
           titleId: titles[i % titles.length].id,
           departmentId: departments[i % departments.length].id,
           salary: new Decimal(5000000 + Math.floor(Math.random() * 5000000)), // 5-10 млн сум
-          hireDate: new Date(2020 + Math.floor(Math.random() * 4), Math.floor(Math.random() * 12), 1),
+          hireDate: new Date(
+            2020 + Math.floor(Math.random() * 4),
+            Math.floor(Math.random() * 12),
+            1
+          ),
           status: EmployeeStatus.ACTIVE,
           organizationId,
         },
@@ -175,32 +197,132 @@ export class DemoDataSeed {
     const patients = [];
 
     const patientData = [
-      { firstName: "Азиз", lastName: "Хамидов", middleName: "Рахматович", gender: Gender.MALE },
-      { firstName: "Барно", lastName: "Исмаилова", middleName: "Алишеровна", gender: Gender.FEMALE },
-      { firstName: "Вадим", lastName: "Петров", middleName: "Сергеевич", gender: Gender.MALE },
-      { firstName: "Гузал", lastName: "Каримова", middleName: "Бахтияровна", gender: Gender.FEMALE },
-      { firstName: "Давлат", lastName: "Усманов", middleName: "Шухратович", gender: Gender.MALE },
-      { firstName: "Елена", lastName: "Смирнова", middleName: "Владимировна", gender: Gender.FEMALE },
-      { firstName: "Жахонгир", lastName: "Абдуллаев", middleName: "Муродович", gender: Gender.MALE },
-      { firstName: "Зухра", lastName: "Мирзаева", middleName: "Отабековна", gender: Gender.FEMALE },
-      { firstName: "Искандар", lastName: "Нуриддинов", middleName: "Тимурович", gender: Gender.MALE },
-      { firstName: "Камола", lastName: "Саидова", middleName: "Фарходовна", gender: Gender.FEMALE },
-      { firstName: "Лазиз", lastName: "Махмудов", middleName: "Равшанович", gender: Gender.MALE },
-      { firstName: "Малика", lastName: "Шарипова", middleName: "Азизовна", gender: Gender.FEMALE },
-      { firstName: "Нодир", lastName: "Хамраев", middleName: "Джамшидович", gender: Gender.MALE },
-      { firstName: "Ойша", lastName: "Кадырова", middleName: "Умаровна", gender: Gender.FEMALE },
-      { firstName: "Равшан", lastName: "Юсупов", middleName: "Бахтиярович", gender: Gender.MALE },
-      { firstName: "Сарвиноз", lastName: "Ахмедова", middleName: "Алишеровна", gender: Gender.FEMALE },
-      { firstName: "Темур", lastName: "Джалилов", middleName: "Рустамович", gender: Gender.MALE },
-      { firstName: "Умида", lastName: "Назарова", middleName: "Икромовна", gender: Gender.FEMALE },
-      { firstName: "Фаррух", lastName: "Рустамов", middleName: "Шухратович", gender: Gender.MALE },
-      { firstName: "Хилола", lastName: "Каландарова", middleName: "Дилшодовна", gender: Gender.FEMALE },
+      {
+        firstName: "Азиз",
+        lastName: "Хамидов",
+        middleName: "Рахматович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Барно",
+        lastName: "Исмаилова",
+        middleName: "Алишеровна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Вадим",
+        lastName: "Петров",
+        middleName: "Сергеевич",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Гузал",
+        lastName: "Каримова",
+        middleName: "Бахтияровна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Давлат",
+        lastName: "Усманов",
+        middleName: "Шухратович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Елена",
+        lastName: "Смирнова",
+        middleName: "Владимировна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Жахонгир",
+        lastName: "Абдуллаев",
+        middleName: "Муродович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Зухра",
+        lastName: "Мирзаева",
+        middleName: "Отабековна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Искандар",
+        lastName: "Нуриддинов",
+        middleName: "Тимурович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Камола",
+        lastName: "Саидова",
+        middleName: "Фарходовна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Лазиз",
+        lastName: "Махмудов",
+        middleName: "Равшанович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Малика",
+        lastName: "Шарипова",
+        middleName: "Азизовна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Нодир",
+        lastName: "Хамраев",
+        middleName: "Джамшидович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Ойша",
+        lastName: "Кадырова",
+        middleName: "Умаровна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Равшан",
+        lastName: "Юсупов",
+        middleName: "Бахтиярович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Сарвиноз",
+        lastName: "Ахмедова",
+        middleName: "Алишеровна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Темур",
+        lastName: "Джалилов",
+        middleName: "Рустамович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Умида",
+        lastName: "Назарова",
+        middleName: "Икромовна",
+        gender: Gender.FEMALE,
+      },
+      {
+        firstName: "Фаррух",
+        lastName: "Рустамов",
+        middleName: "Шухратович",
+        gender: Gender.MALE,
+      },
+      {
+        firstName: "Хилола",
+        lastName: "Каландарова",
+        middleName: "Дилшодовна",
+        gender: Gender.FEMALE,
+      },
     ];
 
     for (let i = 0; i < patientData.length; i++) {
       const data = patientData[i];
       const patientId = `PAT-${String(i + 1).padStart(5, "0")}`;
-      
+
       // Check if patient already exists
       const existingPatient = await this.prisma.patient.findFirst({
         where: {
@@ -221,23 +343,16 @@ export class DemoDataSeed {
           middleName: data.middleName,
           lastName: data.lastName,
           gender: data.gender,
-          dateOfBirth: new Date(1950 + Math.floor(Math.random() * 60), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
+          dateOfBirth: new Date(
+            1950 + Math.floor(Math.random() * 60),
+            Math.floor(Math.random() * 12),
+            Math.floor(Math.random() * 28) + 1
+          ),
           passportSeries: `A${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
           passportNumber: String(1000000 + Math.floor(Math.random() * 9000000)),
+          phone: `+99891${String(1000000 + i).padStart(7, "0")}`,
+          email: `${data.firstName.toLowerCase()}.${data.lastName.toLowerCase()}@example.com`,
           organizationId,
-        },
-      });
-
-      // Create patient contact
-      await this.prisma.patientContact.create({
-        data: {
-          patientId: patient.id,
-          relation: "SELF",
-          type: "PRIMARY",
-          firstName: data.firstName,
-          lastName: data.lastName,
-          primaryPhone: `+99891${String(1000000 + i).padStart(7, "0")}`,
-          textNotificationsEnabled: true,
         },
       });
 
@@ -251,29 +366,149 @@ export class DemoDataSeed {
     const services = [];
 
     const serviceData = [
-      { code: "CONS-001", name: "Первичный прием терапевта", type: ServiceTypeEnum.CONSULTATION, price: 150000, durationMin: 30 },
-      { code: "CONS-002", name: "Повторный прием терапевта", type: ServiceTypeEnum.CONSULTATION, price: 100000, durationMin: 20 },
-      { code: "CONS-003", name: "Прием кардиолога", type: ServiceTypeEnum.CONSULTATION, price: 200000, durationMin: 40 },
-      { code: "CONS-004", name: "Прием невролога", type: ServiceTypeEnum.CONSULTATION, price: 200000, durationMin: 40 },
-      { code: "CONS-005", name: "Прием педиатра", type: ServiceTypeEnum.CONSULTATION, price: 150000, durationMin: 30 },
-      
-      { code: "LAB-001", name: "Общий анализ крови", type: ServiceTypeEnum.LAB, price: 50000, durationMin: 15 },
-      { code: "LAB-002", name: "Биохимический анализ крови", type: ServiceTypeEnum.LAB, price: 120000, durationMin: 20 },
-      { code: "LAB-003", name: "Общий анализ мочи", type: ServiceTypeEnum.LAB, price: 30000, durationMin: 10 },
-      { code: "LAB-004", name: "Анализ на сахар", type: ServiceTypeEnum.LAB, price: 25000, durationMin: 10 },
-      { code: "LAB-005", name: "Липидограмма", type: ServiceTypeEnum.LAB, price: 80000, durationMin: 15 },
-      
-      { code: "DIAG-001", name: "УЗИ органов брюшной полости", type: ServiceTypeEnum.DIAGNOSTIC, price: 180000, durationMin: 30 },
-      { code: "DIAG-002", name: "УЗИ сердца (ЭХО-КГ)", type: ServiceTypeEnum.DIAGNOSTIC, price: 250000, durationMin: 40 },
-      { code: "DIAG-003", name: "ЭКГ", type: ServiceTypeEnum.DIAGNOSTIC, price: 50000, durationMin: 15 },
-      { code: "DIAG-004", name: "Рентген грудной клетки", type: ServiceTypeEnum.DIAGNOSTIC, price: 100000, durationMin: 20 },
-      { code: "DIAG-005", name: "УЗИ щитовидной железы", type: ServiceTypeEnum.DIAGNOSTIC, price: 120000, durationMin: 25 },
-      
-      { code: "PROC-001", name: "Внутривенная инъекция", type: ServiceTypeEnum.PROCEDURE, price: 20000, durationMin: 10 },
-      { code: "PROC-002", name: "Внутримышечная инъекция", type: ServiceTypeEnum.PROCEDURE, price: 15000, durationMin: 5 },
-      { code: "PROC-003", name: "Капельница", type: ServiceTypeEnum.PROCEDURE, price: 80000, durationMin: 60 },
-      { code: "PROC-004", name: "Перевязка", type: ServiceTypeEnum.PROCEDURE, price: 30000, durationMin: 15 },
-      { code: "PROC-005", name: "Массаж (30 мин)", type: ServiceTypeEnum.PROCEDURE, price: 100000, durationMin: 30 },
+      {
+        code: "CONS-001",
+        name: "Первичный прием терапевта",
+        type: ServiceTypeEnum.CONSULTATION,
+        price: 150000,
+        durationMin: 30,
+      },
+      {
+        code: "CONS-002",
+        name: "Повторный прием терапевта",
+        type: ServiceTypeEnum.CONSULTATION,
+        price: 100000,
+        durationMin: 20,
+      },
+      {
+        code: "CONS-003",
+        name: "Прием кардиолога",
+        type: ServiceTypeEnum.CONSULTATION,
+        price: 200000,
+        durationMin: 40,
+      },
+      {
+        code: "CONS-004",
+        name: "Прием невролога",
+        type: ServiceTypeEnum.CONSULTATION,
+        price: 200000,
+        durationMin: 40,
+      },
+      {
+        code: "CONS-005",
+        name: "Прием педиатра",
+        type: ServiceTypeEnum.CONSULTATION,
+        price: 150000,
+        durationMin: 30,
+      },
+
+      {
+        code: "LAB-001",
+        name: "Общий анализ крови",
+        type: ServiceTypeEnum.LAB,
+        price: 50000,
+        durationMin: 15,
+      },
+      {
+        code: "LAB-002",
+        name: "Биохимический анализ крови",
+        type: ServiceTypeEnum.LAB,
+        price: 120000,
+        durationMin: 20,
+      },
+      {
+        code: "LAB-003",
+        name: "Общий анализ мочи",
+        type: ServiceTypeEnum.LAB,
+        price: 30000,
+        durationMin: 10,
+      },
+      {
+        code: "LAB-004",
+        name: "Анализ на сахар",
+        type: ServiceTypeEnum.LAB,
+        price: 25000,
+        durationMin: 10,
+      },
+      {
+        code: "LAB-005",
+        name: "Липидограмма",
+        type: ServiceTypeEnum.LAB,
+        price: 80000,
+        durationMin: 15,
+      },
+
+      {
+        code: "DIAG-001",
+        name: "УЗИ органов брюшной полости",
+        type: ServiceTypeEnum.DIAGNOSTIC,
+        price: 180000,
+        durationMin: 30,
+      },
+      {
+        code: "DIAG-002",
+        name: "УЗИ сердца (ЭХО-КГ)",
+        type: ServiceTypeEnum.DIAGNOSTIC,
+        price: 250000,
+        durationMin: 40,
+      },
+      {
+        code: "DIAG-003",
+        name: "ЭКГ",
+        type: ServiceTypeEnum.DIAGNOSTIC,
+        price: 50000,
+        durationMin: 15,
+      },
+      {
+        code: "DIAG-004",
+        name: "Рентген грудной клетки",
+        type: ServiceTypeEnum.DIAGNOSTIC,
+        price: 100000,
+        durationMin: 20,
+      },
+      {
+        code: "DIAG-005",
+        name: "УЗИ щитовидной железы",
+        type: ServiceTypeEnum.DIAGNOSTIC,
+        price: 120000,
+        durationMin: 25,
+      },
+
+      {
+        code: "PROC-001",
+        name: "Внутривенная инъекция",
+        type: ServiceTypeEnum.PROCEDURE,
+        price: 20000,
+        durationMin: 10,
+      },
+      {
+        code: "PROC-002",
+        name: "Внутримышечная инъекция",
+        type: ServiceTypeEnum.PROCEDURE,
+        price: 15000,
+        durationMin: 5,
+      },
+      {
+        code: "PROC-003",
+        name: "Капельница",
+        type: ServiceTypeEnum.PROCEDURE,
+        price: 80000,
+        durationMin: 60,
+      },
+      {
+        code: "PROC-004",
+        name: "Перевязка",
+        type: ServiceTypeEnum.PROCEDURE,
+        price: 30000,
+        durationMin: 15,
+      },
+      {
+        code: "PROC-005",
+        name: "Массаж (30 мин)",
+        type: ServiceTypeEnum.PROCEDURE,
+        price: 100000,
+        durationMin: 30,
+      },
     ];
 
     for (const data of serviceData) {

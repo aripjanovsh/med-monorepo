@@ -50,11 +50,9 @@
                 class="text-secondary"
               >{{serviceOrder.patient.dateOfBirthFormatted}}</span>
             {{/if}}
-            {{#if serviceOrder.patient.contacts.[0].phone}}
+            {{#if serviceOrder.patient.phone}}
               <span class="text-secondary">•</span>
-              <span
-                class="text-secondary"
-              >{{serviceOrder.patient.contacts.[0].phone}}</span>
+              <span class="text-secondary">{{serviceOrder.patient.phone}}</span>
             {{/if}}
           </div>
 

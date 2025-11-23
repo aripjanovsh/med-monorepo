@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
+import { useDialog } from "@/lib/dialog-manager";
 import {
   Edit,
   MoreHorizontal,
@@ -30,6 +31,7 @@ import {
   calculatePatientAge,
   getPatientDisplayStatus,
   getPatientPrimaryPhone,
+  PatientFormSheet,
 } from "@/features/patients";
 
 import { LayoutHeader } from "@/components/layouts/cabinet";
@@ -44,10 +46,12 @@ export default function PatientDetailLayout({
 }) {
   const router = useRouter();
   const { id } = use(params);
-  const { data: patient, isLoading } = useGetPatientQuery(
-    { id: id as string },
-    { skip: !id }
-  );
+  const patientFormSheet = useDialog(PatientFormSheet);
+  const {
+    data: patient,
+    isLoading,
+    refetch: refetchPatient,
+  } = useGetPatientQuery({ id: id as string }, { skip: !id });
 
   const navItems = [
     { label: "Обзор", href: `/cabinet/patients/${id}`, value: "overview" },
@@ -185,7 +189,21 @@ export default function PatientDetailLayout({
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (patient) {
+                patientFormSheet.open({
+                  mode: "edit",
+                  patientId: patient.id,
+                  onSuccess: () => {
+                    refetchPatient();
+                  },
+                });
+              }
+            }}
+          >
             <Edit className="h-4 w-4 mr-2" />
             Редактировать
           </Button>

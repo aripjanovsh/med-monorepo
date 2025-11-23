@@ -131,63 +131,21 @@ export const PatientProfile = ({ patient }: PatientProfileProps) => {
       </Card>
 
       {/* Contact Information */}
-      {patient.contacts && patient.contacts.length > 0 && (
+      {(patient.phone || patient.secondaryPhone || patient.email) && (
         <Card>
           <CardHeader>
             <CardTitle>Контактная информация</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {patient.contacts.map((contact, index) => (
-              <div key={contact.id || index}>
-                <h4 className="text-sm font-semibold mb-4">
-                  Контакт {index + 1} ({getContactTypeDisplay(contact.type)})
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {contact.firstName && (
-                    <>
-                      <ProfileField
-                        label="Имя контакта"
-                        value={[contact.firstName, contact.lastName]
-                          .filter(Boolean)
-                          .join(" ")}
-                      />
-                    </>
-                  )}
-                  <ProfileField
-                    label="Основной телефон"
-                    value={contact.primaryPhone}
-                  />
-                  <ProfileField
-                    label="Дополнительный телефон"
-                    value={contact.secondaryPhone}
-                  />
-
-                  {contact.address && (
-                    <>
-                      <ProfileField label="Адрес" value={contact.address} />
-                      <ProfileField label="Город" value={contact.city} />
-                      <ProfileField label="Страна" value={contact.country} />
-                    </>
-                  )}
-
-                  <ProfileField
-                    label="SMS-уведомления"
-                    value={getNotificationStatusDisplay(
-                      contact.textNotificationsEnabled,
-                    )}
-                  />
-                  <ProfileField
-                    label="Email-уведомления"
-                    value={getNotificationStatusDisplay(
-                      contact.emailNotificationsEnabled,
-                    )}
-                  />
-                </div>
-                {index < patient.contacts.length - 1 && (
-                  <hr className="my-6 border-border" />
-                )}
-              </div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ProfileField label="Основной телефон" value={patient.phone} />
+              <ProfileField
+                label="Дополнительный телефон"
+                value={patient.secondaryPhone}
+              />
+              <ProfileField label="Email" value={patient.email} />
+              <div className="hidden lg:block" />
+            </div>
           </CardContent>
         </Card>
       )}

@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsEnum,
   IsUUID,
+  IsEmail,
   IsArray,
   ValidateNested,
 } from "class-validator";
@@ -11,7 +12,6 @@ import { Gender, PatientStatus } from "@prisma/client";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
 import { IsUniquePatientId } from "../../../common/decorators/unique.decorator";
 import { Expose, Exclude, Type } from "class-transformer";
-import { CreatePatientContactDto } from "./create-patient-contact.dto";
 import {
   TransformEmpty,
   TransformDate,
@@ -220,16 +220,33 @@ export class CreatePatientDto {
 
   @Expose()
   @ApiProperty({
-    description: "Patient contacts",
+    description: "Patient primary phone number",
+    example: "+998901234567",
     required: false,
-    isArray: true,
-    type: CreatePatientContactDto,
   })
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePatientContactDto)
-  contacts?: CreatePatientContactDto[];
+  @IsString()
+  phone?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Patient secondary phone number",
+    example: "+998901234568",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  secondaryPhone?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Patient email address",
+    example: "patient@example.com",
+    required: false,
+  })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
   @Expose()
   @ApiProperty({

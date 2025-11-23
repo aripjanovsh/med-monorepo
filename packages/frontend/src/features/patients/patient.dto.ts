@@ -8,35 +8,6 @@ import { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
 // Base enums matching backend
 export type PatientStatusDto = "ACTIVE" | "INACTIVE" | "DECEASED";
 export type GenderDto = "MALE" | "FEMALE";
-export type ContactRelationDto =
-  | "SELF"
-  | "PARENT"
-  | "CHILD"
-  | "SPOUSE"
-  | "SIBLING"
-  | "FRIEND"
-  | "GUARDIAN"
-  | "OTHER";
-export type ContactTypeDto = "PRIMARY" | "EMERGENCY" | "WORK" | "SECONDARY";
-
-// Patient Contact DTO
-export interface PatientContactDto {
-  id?: string;
-  relation: ContactRelationDto;
-  type: ContactTypeDto;
-  firstName?: string;
-  lastName?: string;
-  primaryPhone: string;
-  secondaryPhone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  textNotificationsEnabled?: boolean;
-  emailNotificationsEnabled?: boolean;
-  createdAt?: string; // ISO string
-  updatedAt?: string; // ISO string
-}
 
 // Patient Doctor DTO
 export interface PatientDoctorDto {
@@ -75,6 +46,11 @@ export interface PatientResponseDto {
   cityId?: string;
   districtId?: string;
   address?: string; // Specific street address
+
+  // Simple contact fields
+  phone?: string;
+  secondaryPhone?: string;
+  email?: string;
 
   status: PatientStatusDto;
   lastVisitedAt?: string; // ISO string
@@ -121,24 +97,7 @@ export interface PatientResponseDto {
     type: string;
   };
 
-  contacts: PatientContactDto[];
   doctors: PatientDoctorDto[];
-}
-
-// Create Patient Contact Request DTO (matches CreatePatientContactDto from backend)
-export interface CreatePatientContactRequestDto {
-  relation: ContactRelationDto;
-  type: ContactTypeDto;
-  firstName?: string;
-  lastName?: string;
-  primaryPhone: string;
-  secondaryPhone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  textNotificationsEnabled?: boolean;
-  emailNotificationsEnabled?: boolean;
 }
 
 // Create Patient Request DTO (matches CreatePatientDto from backend)
@@ -168,10 +127,14 @@ export interface CreatePatientRequestDto {
   districtId?: string;
   address?: string; // Specific street address
 
+  // Simple contact fields
+  phone?: string;
+  secondaryPhone?: string;
+  email?: string;
+
   status?: PatientStatusDto;
 
   // Related data
-  contacts?: CreatePatientContactRequestDto[];
   doctorIds?: string[];
 }
 

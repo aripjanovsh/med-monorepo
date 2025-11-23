@@ -16,7 +16,7 @@ export class PatientService {
   async create(
     createPatientDto: CreatePatientDto
   ): Promise<PatientResponseDto> {
-    const { contacts, doctorIds, ...patientData } = createPatientDto;
+    const { doctorIds, ...patientData } = createPatientDto;
 
     return await this.prisma.$transaction(async (tx) => {
       // Auto-generate patientId if not provided
@@ -36,16 +36,6 @@ export class PatientService {
           status,
         },
       });
-
-      // Create contacts if provided
-      if (contacts && contacts.length > 0) {
-        await tx.patientContact.createMany({
-          data: contacts.map((contact) => ({
-            patientId: created.id,
-            ...contact,
-          })),
-        });
-      }
 
       // Assign doctors if provided
       if (doctorIds && doctorIds.length > 0) {
@@ -68,7 +58,6 @@ export class PatientService {
           region: true,
           city: true,
           district: true,
-          contacts: true,
           doctors: {
             include: {
               employee: {
@@ -147,13 +136,9 @@ export class PatientService {
         { firstName: { contains: search, mode: "insensitive" } },
         { lastName: { contains: search, mode: "insensitive" } },
         { patientId: { contains: search, mode: "insensitive" } },
-        {
-          contacts: {
-            some: {
-              primaryPhone: { contains: search, mode: "insensitive" },
-            },
-          },
-        },
+        { phone: { contains: search, mode: "insensitive" } },
+        { secondaryPhone: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -175,7 +160,6 @@ export class PatientService {
           region: true,
           city: true,
           district: true,
-          contacts: true,
         },
         orderBy,
         skip,
@@ -215,7 +199,6 @@ export class PatientService {
         region: true,
         city: true,
         district: true,
-        contacts: true,
         doctors: {
           include: {
             employee: {
@@ -257,7 +240,6 @@ export class PatientService {
     const existingPatient = await this.prisma.patient.findUnique({
       where: { id },
       include: {
-        contacts: true,
         doctors: true,
       },
     });
@@ -272,31 +254,13 @@ export class PatientService {
         where.organizationId = updatePatientDto.organizationId;
       }
 
-      const { contacts, doctorIds, excludePatientId, ...coreUpdate } =
-        updatePatientDto;
+      const { doctorIds, excludePatientId, ...coreUpdate } = updatePatientDto;
 
       // Update core patient data
       await tx.patient.update({
         where,
         data: coreUpdate,
       });
-
-      // Update contacts if provided
-      if (contacts) {
-        // Delete existing contacts and create new ones
-        await tx.patientContact.deleteMany({
-          where: { patientId: id },
-        });
-
-        if (contacts.length > 0) {
-          await tx.patientContact.createMany({
-            data: contacts.map((contact) => ({
-              patientId: id,
-              ...contact,
-            })),
-          });
-        }
-      }
 
       // Update doctor assignments if provided
       if (doctorIds) {
@@ -337,7 +301,6 @@ export class PatientService {
           region: true,
           city: true,
           district: true,
-          contacts: true,
           doctors: {
             include: {
               employee: {
@@ -393,7 +356,6 @@ export class PatientService {
           region: true,
           city: true,
           district: true,
-          contacts: true,
           doctors: {
             include: {
               employee: {

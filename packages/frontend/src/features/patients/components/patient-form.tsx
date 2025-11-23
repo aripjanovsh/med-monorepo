@@ -53,8 +53,6 @@ import {
 import {
   PATIENT_STATUS_OPTIONS,
   GENDER_OPTIONS,
-  CONTACT_RELATION_OPTIONS,
-  CONTACT_TYPE_OPTIONS,
   FORM_STEPS,
 } from "../patient.constants";
 import {
@@ -92,16 +90,9 @@ const DEFAULT_VALUES: Partial<PatientFormData> = {
   districtId: "",
   address: "",
   locationHierarchy: undefined as LocationHierarchyIds | undefined,
-  contacts: [
-    {
-      relation: "SELF" as const,
-      type: "PRIMARY" as const,
-      primaryPhone: "",
-      textNotificationsEnabled: false,
-      emailNotificationsEnabled: false,
-    },
-  ],
-  doctorIds: [] as string[],
+  phone: "",
+  secondaryPhone: "",
+  email: "",
 };
 
 export function PatientForm({
@@ -162,7 +153,7 @@ export function PatientForm({
       ]);
     }
     if (step === 1) {
-      return await form.trigger(["contacts"]);
+      return await form.trigger(["phone", "secondaryPhone", "email"]);
     }
     return true;
   }, [step, form]);
@@ -181,9 +172,9 @@ export function PatientForm({
         form.setValue("cityId", "");
         form.setValue("districtId", "");
       }
-      form.setValue("locationHierarchy", value);
+      form.setValue("locationHierarchy", value || {});
     },
-    [form],
+    [form]
   );
 
   const goNext = async () => {
@@ -195,32 +186,6 @@ export function PatientForm({
 
   const goBack = () => {
     setStep((s) => Math.max(s - 1, 0));
-  };
-
-  const contacts = form.watch("contacts");
-
-  const addContact = () => {
-    const currentContacts = form.getValues("contacts");
-    form.setValue("contacts", [
-      ...currentContacts,
-      {
-        relation: "OTHER",
-        type: "SECONDARY",
-        primaryPhone: "",
-        textNotificationsEnabled: false,
-        emailNotificationsEnabled: false,
-      },
-    ]);
-  };
-
-  const removeContact = (index: number) => {
-    const currentContacts = form.getValues("contacts");
-    if (currentContacts.length > 1) {
-      form.setValue(
-        "contacts",
-        currentContacts.filter((_, i) => i !== index),
-      );
-    }
   };
 
   const handleSubmit = async (data: PatientFormData) => {
@@ -364,11 +329,11 @@ export function PatientForm({
                                 if (value && value.length >= 2) {
                                   form.setValue(
                                     "passportSeries",
-                                    value.slice(0, 2),
+                                    value.slice(0, 2)
                                   );
                                   form.setValue(
                                     "passportNumber",
-                                    value.slice(2),
+                                    value.slice(2)
                                   );
                                 } else {
                                   form.setValue("passportSeries", "");
@@ -482,163 +447,46 @@ export function PatientForm({
 
                 {step === 1 && (
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-semibold font-gilroy">
-                        Контактная информация
-                      </h3>
-                      <Button
-                        type="button"
-                        onClick={addContact}
-                        size="sm"
-                        variant="outline"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Добавить контакт
-                      </Button>
-                    </div>
+                    <h3 className="font-semibold font-gilroy">
+                      Контактная информация
+                    </h3>
 
-                    <div className="space-y-6">
-                      {contacts?.map((contact, index) => (
-                        <div
-                          key={index}
-                          className="border rounded-lg p-4 space-y-4"
-                        >
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium">Контакт {index + 1}</h4>
-                            {contacts.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeContact(index)}
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <PhoneField
+                            label="Основной телефон"
+                            placeholder="Введите телефон"
+                            {...field}
+                          />
+                        )}
+                      />
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.relation`}
-                              render={({ field }) => (
-                                <SelectField
-                                  label="Отношение"
-                                  required
-                                  placeholder="Выберите отношение"
-                                  options={CONTACT_RELATION_OPTIONS}
-                                  {...field}
-                                />
-                              )}
-                            />
+                      <FormField
+                        control={form.control}
+                        name="secondaryPhone"
+                        render={({ field }) => (
+                          <PhoneField
+                            label="Дополнительный телефон"
+                            placeholder="Введите доп. телефон"
+                            {...field}
+                          />
+                        )}
+                      />
 
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.type`}
-                              render={({ field }) => (
-                                <SelectField
-                                  label="Тип контакта"
-                                  required
-                                  placeholder="Выберите тип"
-                                  options={CONTACT_TYPE_OPTIONS}
-                                  {...field}
-                                />
-                              )}
-                            />
-
-                            {contact.relation !== "SELF" && (
-                              <>
-                                <FormField
-                                  control={form.control}
-                                  name={`contacts.${index}.firstName`}
-                                  render={({ field }) => (
-                                    <TextField
-                                      label="Имя контакта"
-                                      placeholder="Введите имя"
-                                      {...field}
-                                    />
-                                  )}
-                                />
-
-                                <FormField
-                                  control={form.control}
-                                  name={`contacts.${index}.lastName`}
-                                  render={({ field }) => (
-                                    <TextField
-                                      label="Фамилия контакта"
-                                      placeholder="Введите фамилию"
-                                      {...field}
-                                    />
-                                  )}
-                                />
-                              </>
-                            )}
-
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.primaryPhone`}
-                              render={({ field }) => (
-                                <PhoneField
-                                  label="Основной телефон"
-                                  required
-                                  placeholder="Введите телефон"
-                                  {...field}
-                                />
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.secondaryPhone`}
-                              render={({ field }) => (
-                                <PhoneField
-                                  label="Дополнительный телефон"
-                                  placeholder="Введите доп. телефон"
-                                  {...field}
-                                />
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.address`}
-                              render={({ field }) => (
-                                <div className="md:col-span-2">
-                                  <TextField
-                                    label="Адрес"
-                                    placeholder="Введите адрес"
-                                    {...field}
-                                  />
-                                </div>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.city`}
-                              render={({ field }) => (
-                                <TextField
-                                  label="Город"
-                                  placeholder="Введите город"
-                                  {...field}
-                                />
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`contacts.${index}.country`}
-                              render={({ field }) => (
-                                <TextField
-                                  label="Страна"
-                                  placeholder="Введите страну"
-                                  {...field}
-                                />
-                              )}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <TextField
+                            label="Email"
+                            placeholder="Введите email"
+                            {...field}
+                          />
+                        )}
+                      />
                     </div>
                   </div>
                 )}

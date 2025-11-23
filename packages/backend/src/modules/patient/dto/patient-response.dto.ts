@@ -4,91 +4,6 @@ import { LanguageResponseDto } from "../../master-data/language/dto/language-res
 import { LocationResponseDto } from "../../master-data/location/dto/location-response.dto";
 
 @Exclude()
-export class PatientContactResponseDto {
-  @Expose()
-  @ApiProperty({ description: "Contact ID", example: "uuid-contact-id" })
-  id: string;
-
-  @Expose()
-  @ApiProperty({ description: "Contact relation type", example: "SELF" })
-  relation: string;
-
-  @Expose()
-  @ApiProperty({ description: "Contact type", example: "PRIMARY" })
-  type: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Contact first name",
-    example: "Jane",
-    required: false,
-  })
-  firstName?: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Contact last name",
-    example: "Smith",
-    required: false,
-  })
-  lastName?: string;
-
-  @Expose()
-  @ApiProperty({ description: "Primary phone number", example: "+1234567890" })
-  primaryPhone: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Secondary phone number",
-    example: "+1234567891",
-    required: false,
-  })
-  secondaryPhone?: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Address",
-    example: "123 Main St",
-    required: false,
-  })
-  address?: string;
-
-  @Expose()
-  @ApiProperty({ description: "City", example: "New York", required: false })
-  city?: string;
-
-  @Expose()
-  @ApiProperty({ description: "State", example: "NY", required: false })
-  state?: string;
-
-  @Expose()
-  @ApiProperty({ description: "Country", example: "USA", required: false })
-  country?: string;
-
-  @Expose()
-  @ApiProperty({ description: "Text notifications enabled", example: true })
-  textNotificationsEnabled: boolean;
-
-  @Expose()
-  @ApiProperty({ description: "Email notifications enabled", example: true })
-  emailNotificationsEnabled: boolean;
-
-  @Expose()
-  @ApiProperty({
-    description: "Contact creation date",
-    example: "2024-01-01T00:00:00.000Z",
-  })
-  createdAt: Date;
-
-  @Expose()
-  @ApiProperty({
-    description: "Contact last update date",
-    example: "2024-01-01T00:00:00.000Z",
-  })
-  updatedAt: Date;
-}
-
-@Exclude()
 export class PatientDoctorResponseDto {
   @Expose()
   @ApiProperty({
@@ -289,6 +204,30 @@ export class PatientResponseDto {
 
   @Expose()
   @ApiProperty({
+    description: "Patient primary phone number",
+    example: "+998901234567",
+    required: false,
+  })
+  phone?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Patient secondary phone number",
+    example: "+998901234568",
+    required: false,
+  })
+  secondaryPhone?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Patient email address",
+    example: "patient@example.com",
+    required: false,
+  })
+  email?: string;
+
+  @Expose()
+  @ApiProperty({
     description: "Patient creation date",
     example: "2024-01-01T00:00:00.000Z",
   })
@@ -300,14 +239,6 @@ export class PatientResponseDto {
     example: "2024-01-01T00:00:00.000Z",
   })
   updatedAt: Date;
-
-  @Expose()
-  @ApiProperty({
-    description: "Patient contacts",
-    type: [PatientContactResponseDto],
-  })
-  @Type(() => PatientContactResponseDto)
-  contacts: PatientContactResponseDto[];
 
   @Expose()
   @ApiProperty({
