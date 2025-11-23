@@ -16,7 +16,7 @@ export class PatientService {
   async create(
     createPatientDto: CreatePatientDto
   ): Promise<PatientResponseDto> {
-    const { doctorIds, ...patientData } = createPatientDto;
+    const { ...patientData } = createPatientDto;
 
     return await this.prisma.$transaction(async (tx) => {
       // Auto-generate patientId if not provided
@@ -36,17 +36,6 @@ export class PatientService {
           status,
         },
       });
-
-      // Assign doctors if provided
-      if (doctorIds && doctorIds.length > 0) {
-        await tx.patientDoctor.createMany({
-          data: doctorIds.map((employeeId) => ({
-            patientId: created.id,
-            employeeId,
-          })),
-          skipDuplicates: true,
-        });
-      }
 
       // Fetch the complete patient with relations
       const patientWithRelations = await tx.patient.findUnique({
@@ -254,43 +243,13 @@ export class PatientService {
         where.organizationId = updatePatientDto.organizationId;
       }
 
-      const { doctorIds, excludePatientId, ...coreUpdate } = updatePatientDto;
+      const { excludePatientId, ...coreUpdate } = updatePatientDto;
 
       // Update core patient data
       await tx.patient.update({
         where,
         data: coreUpdate,
       });
-
-      // Update doctor assignments if provided
-      if (doctorIds) {
-        const existing = await tx.patientDoctor.findMany({
-          where: { patientId: id },
-          select: { employeeId: true },
-        });
-        const existingIds = new Set(existing.map((e) => e.employeeId));
-        const incomingIds = new Set(doctorIds);
-
-        const toAdd = doctorIds.filter((sid) => !existingIds.has(sid));
-        const toRemove = [...existingIds].filter(
-          (sid) => !incomingIds.has(sid)
-        );
-
-        if (toAdd.length > 0) {
-          await tx.patientDoctor.createMany({
-            data: toAdd.map((employeeId) => ({
-              patientId: id,
-              employeeId,
-            })),
-            skipDuplicates: true,
-          });
-        }
-        if (toRemove.length > 0) {
-          await tx.patientDoctor.deleteMany({
-            where: { patientId: id, employeeId: { in: toRemove } },
-          });
-        }
-      }
 
       const updatedPatient = await tx.patient.findUnique({
         where: { id },

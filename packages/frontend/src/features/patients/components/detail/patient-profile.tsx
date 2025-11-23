@@ -11,8 +11,7 @@ import {
   getPassportSeriesNumber,
   hasPassportInfo,
   getPatientDisplayId,
-  getNotificationStatusDisplay,
-  getContactTypeDisplay,
+  formatPatientLanguage,
 } from "@/features/patients/patient.model";
 import { PatientResponseDto } from "@/features/patients/patient.dto";
 
@@ -70,11 +69,11 @@ export const PatientProfile = ({ patient }: PatientProfileProps) => {
 
             <ProfileField
               label="Основной язык"
-              value={patient.primaryLanguage?.name}
+              value={formatPatientLanguage(patient.primaryLanguage)}
             />
             <ProfileField
               label="Второй язык"
-              value={patient.secondaryLanguage?.name}
+              value={formatPatientLanguage(patient.secondaryLanguage)}
             />
             <ProfileField
               label="Назначенные врачи"
@@ -122,7 +121,9 @@ export const PatientProfile = ({ patient }: PatientProfileProps) => {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <ProfileField label="Страна" value={patient.country?.name} />
-            <ProfileField label="Регион" value={patient.region?.name} />
+            {patient.region && (
+              <ProfileField label="Регион" value={patient.region?.name} />
+            )}
             <ProfileField label="Город" value={patient.city?.name} />
             <ProfileField label="Район" value={patient.district?.name} />
             <ProfileField label="Адрес" value={patient.address} />

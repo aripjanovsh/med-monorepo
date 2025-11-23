@@ -36,6 +36,16 @@ export const getPatientInitials = (
     .join("");
 };
 
+export const formatPatientLanguage = (language?: {
+  name?: string;
+  nativeName?: string;
+}): string => {
+  if (!language) return "-";
+  return language.nativeName
+    ? `${language.name} (${language.nativeName})`
+    : language.name || "-";
+};
+
 export const isPatientActive = (patient: PatientResponseDto): boolean => {
   return patient.status === "ACTIVE";
 };

@@ -7,6 +7,7 @@ import {
   IsEmail,
   IsArray,
   ValidateNested,
+  ValidateIf,
 } from "class-validator";
 import { Gender, PatientStatus } from "@prisma/client";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
@@ -149,8 +150,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.primaryLanguageId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   primaryLanguageId?: string;
 
   @Expose()
@@ -160,8 +162,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.secondaryLanguageId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   secondaryLanguageId?: string;
 
   @Expose()
@@ -171,8 +174,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.countryId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   countryId?: string;
 
   @Expose()
@@ -182,8 +186,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.regionId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   regionId?: string;
 
   @Expose()
@@ -193,8 +198,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.cityId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   cityId?: string;
 
   @Expose()
@@ -204,8 +210,9 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.districtId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   districtId?: string;
 
   @Expose()
@@ -256,23 +263,7 @@ export class CreatePatientDto {
     required: false,
   })
   @IsOptional()
-  @TransformEmpty()
+  @TransformEmpty(null)
   @IsEmail()
   email?: string;
-
-  @Expose()
-  @ApiProperty({
-    description: "Doctor employee IDs assigned to patient",
-    required: false,
-    isArray: true,
-    type: String,
-    example: [
-      "2b1d2b6a-4a4f-4d9e-8c4b-1f2b3c4d5e6f",
-      "3c2d3e7b-5b6c-4a8d-9e1f-2a3b4c5d6e7f",
-    ],
-  })
-  @IsOptional()
-  @IsUUID("4", { each: true })
-  @TransformEmpty()
-  doctorIds?: string[];
 }
