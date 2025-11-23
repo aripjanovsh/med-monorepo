@@ -49,7 +49,7 @@ export const SelectField: FC<SelectFieldProps> = ({
         labelHintClassName,
       }}
     >
-      <Select onValueChange={onChange} defaultValue={value}>
+      <Select onValueChange={onChange} value={value}>
         <FormControl>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={placeholder} />
