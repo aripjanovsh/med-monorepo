@@ -43,13 +43,10 @@ export class EmployeeService {
         userId = user.id;
       }
 
-      const { serviceTypeIds, ...employeeCore } = employeeData;
+      const { ...employeeCore } = employeeData;
 
       // Auto-generate employeeId if not provided
-      let employeeId = employeeCore.employeeId;
-      if (!employeeId) {
-        employeeId = generateMemorableId("EMP");
-      }
+      let employeeId = generateMemorableId("E");
 
       const created = await tx.employee.create({
         data: {
@@ -59,42 +56,7 @@ export class EmployeeService {
         },
       });
 
-      if (serviceTypeIds && serviceTypeIds.length > 0) {
-        await tx.employeeServiceType.createMany({
-          data: serviceTypeIds.map((serviceTypeId) => ({
-            employeeId: created.id,
-            serviceTypeId,
-          })),
-          skipDuplicates: true,
-        });
-      }
-
-      const employeeWithRelations = await tx.employee.findUnique({
-        where: { id: created.id },
-        include: {
-          user: true,
-          organization: true,
-          title: true,
-          serviceTypes: { include: { serviceType: true } },
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-        },
-      });
-
-      const response = employeeWithRelations
-        ? {
-            ...employeeWithRelations,
-            serviceTypes: employeeWithRelations.serviceTypes.map(
-              (st) => st.serviceType
-            ),
-          }
-        : null;
-
-      return plainToInstance(EmployeeResponseDto, response);
+      return plainToInstance(EmployeeResponseDto, created);
     });
   }
 
@@ -171,7 +133,6 @@ export class EmployeeService {
           user: true,
           organization: true,
           title: true,
-          serviceTypes: { include: { serviceType: true } },
           primaryLanguage: true,
           secondaryLanguage: true,
           country: true,
@@ -186,13 +147,8 @@ export class EmployeeService {
       this.prisma.employee.count({ where }),
     ]);
 
-    const employees = employeesRaw.map((e) => ({
-      ...e,
-      serviceTypes: e.serviceTypes.map((st) => st.serviceType),
-    }));
-
     return {
-      data: plainToInstance(EmployeeResponseDto, employees),
+      data: plainToInstance(EmployeeResponseDto, employeesRaw),
       meta: {
         page,
         limit,
@@ -219,7 +175,6 @@ export class EmployeeService {
         user: true,
         organization: true,
         title: true,
-        serviceTypes: { include: { serviceType: true } },
         primaryLanguage: true,
         secondaryLanguage: true,
         country: true,
@@ -233,13 +188,7 @@ export class EmployeeService {
       throw new NotFoundException("Employee not found");
     }
 
-    const response = employee
-      ? {
-          ...employee,
-          serviceTypes: employee.serviceTypes.map((st) => st.serviceType),
-        }
-      : null;
-    return plainToInstance(EmployeeResponseDto, response);
+    return plainToInstance(EmployeeResponseDto, employee);
   }
 
   async update(
@@ -249,9 +198,6 @@ export class EmployeeService {
     // Check if employee exists
     const existingEmployee = await this.prisma.employee.findUnique({
       where: { id },
-      include: {
-        serviceTypes: true,
-      },
     });
 
     if (!existingEmployee) {
@@ -264,74 +210,19 @@ export class EmployeeService {
         where.organizationId = updateEmployeeDto.organizationId;
       }
 
-      const {
-        serviceTypeIds,
-        userAccountPhone,
-        userAccountRoleIds,
-        ...coreUpdate
-      } = updateEmployeeDto as UpdateEmployeeDto & {
-        serviceTypeIds?: string[];
-      };
+      const { userAccountPhone, userAccountRoleIds, ...coreUpdate } =
+        updateEmployeeDto;
 
       await tx.employee.update({
         where,
         data: coreUpdate as any,
       });
 
-      if (serviceTypeIds) {
-        const existing = await tx.employeeServiceType.findMany({
-          where: { employeeId: id },
-          select: { serviceTypeId: true },
-        });
-        const existingIds = new Set(existing.map((e) => e.serviceTypeId));
-        const incomingIds = new Set(serviceTypeIds);
-
-        const toAdd = serviceTypeIds.filter((sid) => !existingIds.has(sid));
-        const toRemove = [...existingIds].filter(
-          (sid) => !incomingIds.has(sid)
-        );
-
-        if (toAdd.length > 0) {
-          await tx.employeeServiceType.createMany({
-            data: toAdd.map((serviceTypeId) => ({
-              employeeId: id,
-              serviceTypeId,
-            })),
-            skipDuplicates: true,
-          });
-        }
-        if (toRemove.length > 0) {
-          await tx.employeeServiceType.deleteMany({
-            where: { employeeId: id, serviceTypeId: { in: toRemove } },
-          });
-        }
-      }
-
       const updatedEmployee = await tx.employee.findUnique({
         where: { id },
-        include: {
-          user: true,
-          organization: true,
-          title: true,
-          serviceTypes: { include: { serviceType: true } },
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-        },
       });
 
-      const response = updatedEmployee
-        ? {
-            ...updatedEmployee,
-            serviceTypes: updatedEmployee.serviceTypes.map(
-              (st) => st.serviceType
-            ),
-          }
-        : null;
-      return plainToInstance(EmployeeResponseDto, response);
+      return plainToInstance(EmployeeResponseDto, updatedEmployee);
     });
   }
 
@@ -351,27 +242,9 @@ export class EmployeeService {
       const employee = await this.prisma.employee.update({
         where,
         data: { status },
-        include: {
-          user: true,
-          organization: true,
-          title: true,
-          serviceTypes: { include: { serviceType: true } },
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-        },
       });
 
-      const response = employee
-        ? {
-            ...employee,
-            serviceTypes: employee.serviceTypes.map((st) => st.serviceType),
-          }
-        : null;
-      return plainToInstance(EmployeeResponseDto, response);
+      return plainToInstance(EmployeeResponseDto, employee);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

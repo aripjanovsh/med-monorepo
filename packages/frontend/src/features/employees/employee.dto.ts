@@ -15,8 +15,8 @@ export type GenderDto = "MALE" | "FEMALE";
 
 // WorkSchedule type for JSON object with weekly work schedule
 export interface WorkScheduleDay {
-  from: string; // HH:MM format
-  to: string; // HH:MM format
+  from?: string; // HH:MM format
+  to?: string; // HH:MM format
 }
 
 export interface WorkScheduleDto {

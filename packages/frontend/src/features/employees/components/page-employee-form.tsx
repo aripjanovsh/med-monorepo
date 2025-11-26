@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useForm } from "@/hooks/use-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   useCreateEmployeeMutation,
@@ -21,15 +20,18 @@ import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
 import { TitleSelectField } from "@/features/master-data/components/titles/title-select-field";
 import { WorkScheduleField } from "./work-schedule-field";
-import { map } from "lodash";
 import { TextField } from "@/components/fields/text-field";
 import { DatePickerField } from "@/components/fields/date-picker-field";
-import { PhoneField } from "@/components/fields/phone-field";
 import { PassportField } from "@/components/fields/passport-field";
+import { PhoneField } from "@/components/fields/phone-field";
 import { GENDER_OPTIONS } from "../employee.constants";
 import { employeeFormSchema, EmployeeFormData } from "../employee.schema";
 import { EmployeeResponseDto } from "../employee.dto";
-import { ServiceTypeListField } from "@/features/master-data/components/service-types/service-type-list-field";
+import {
+  mapEmployeeToFormData,
+  mapFormDataToCreateRequest,
+  mapFormDataToUpdateRequest,
+} from "../employee.model";
 import { LanguageSelectField } from "@/features/master-data/components/languages/language-select-field";
 import { SelectField } from "@/components/fields/select-field";
 import { RoleListField } from "@/features/roles/components/role-list-field";
@@ -51,13 +53,11 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   firstName: "",
   lastName: "",
   middleName: "",
-  employeeId: "",
   dateOfBirth: "",
   hireDate: "",
   gender: undefined,
 
   // Passport information
-  passport: "",
   passportSeries: "",
   passportNumber: "",
   passportIssuedBy: "",
@@ -74,7 +74,6 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   // Employment Details
   titleId: "",
   salary: 0,
-  terminationDate: "",
 
   // Work details
   workSchedule: {},
@@ -92,19 +91,12 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   cityId: "",
   districtId: "",
   address: "",
-  locationHierarchy: {
-    countryId: "",
-    regionId: "",
-    cityId: "",
-    districtId: "",
-    selectedId: "",
-  },
+  locationHierarchy: undefined,
 
   // Additional Info
   notes: "",
 
   // Form-specific fields
-  serviceTypeIds: [],
   createUserAccount: false,
   userAccountRoleIds: [],
 };
@@ -130,91 +122,19 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
     // Only reset form if employee ID changed (avoid unnecessary resets)
     if (employee?.id !== lastEmployeeId) {
       if (employee) {
-        // Build locationHierarchy from individual location IDs
-        const locationHierarchy: LocationHierarchyIds | undefined =
-          employee.countryId ||
-          employee.regionId ||
-          employee.cityId ||
-          employee.districtId
-            ? {
-                countryId: employee.countryId,
-                regionId: employee.regionId,
-                cityId: employee.cityId,
-                districtId: employee.districtId,
-                selectedId:
-                  employee.districtId ||
-                  employee.cityId ||
-                  employee.regionId ||
-                  employee.countryId,
-              }
-            : undefined;
-
-        // Ensure all fields have values (empty string instead of undefined)
-        // Объединяем серию и номер паспорта в одно поле
+        const formData = mapEmployeeToFormData(employee);
+        
+        // Combine passport series and number for the UI field
         const passport =
           employee.passportSeries && employee.passportNumber
             ? `${employee.passportSeries}${employee.passportNumber}`
             : "";
-
-        const formData: Partial<EmployeeFormData> = {
-          ...DEFAULT_VALUES,
-          // Core fields
-          firstName: employee.firstName || "",
-          lastName: employee.lastName || "",
-          middleName: employee.middleName || "",
-          employeeId: employee.employeeId || "",
-          dateOfBirth: employee.dateOfBirth || "",
-          hireDate: employee.hireDate || "",
-          gender: (employee.gender as "MALE" | "FEMALE") || undefined,
-
-          // Passport information
+            
+        form.reset({
+          ...formData,
           passport,
-          passportSeries: employee.passportSeries || "",
-          passportNumber: employee.passportNumber || "",
-          passportIssuedBy: employee.passportIssuedBy || "",
-          passportIssueDate: employee.passportIssueDate || "",
-          passportExpiryDate: employee.passportExpiryDate || "",
-
-          // Contact information
-          email: employee.email || "",
-          phone: employee.phone || "",
-          secondaryPhone: employee.secondaryPhone || "",
-          workPhone: employee.workPhone || "",
-          userAccountPhone: "",
-
-          // Employment Details
-          titleId: employee.titleId || "",
-          salary: employee.salary || 0,
-          terminationDate: employee.terminationDate || "",
-
-          // Work details
-          workSchedule: employee.workSchedule,
-
-          // Languages
-          primaryLanguageId: employee.primaryLanguageId || "",
-          secondaryLanguageId: employee.secondaryLanguageId || "",
-
-          // Notifications
-          textNotificationsEnabled: employee.textNotificationsEnabled || false,
-
-          // Address
-          countryId: employee.countryId || "",
-          regionId: employee.regionId || "",
-          cityId: employee.cityId || "",
-          districtId: employee.districtId || "",
-          address: employee.address || "",
-          locationHierarchy,
-
-          // Additional Info
-          notes: employee.notes || "",
-
-          // Form-specific fields
-          serviceTypeIds: map(employee?.serviceTypes, "id") || [],
-          createUserAccount: false,
-          userAccountRoleIds: [],
-        };
-
-        form.reset(formData as EmployeeFormData);
+        } as EmployeeFormData & { passport: string });
+        
         setLastEmployeeId(employee.id);
       } else {
         form.reset(DEFAULT_VALUES as EmployeeFormData);
@@ -225,26 +145,35 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
   const isLoading = isCreating || isUpdating;
 
+  const handleLocationChange = useCallback(
+    (value: LocationHierarchyIds | undefined) => {
+      if (value) {
+        form.setValue("countryId", value.countryId || "");
+        form.setValue("regionId", value.regionId || "");
+        form.setValue("cityId", value.cityId || "");
+        form.setValue("districtId", value.districtId || "");
+      } else {
+        form.setValue("countryId", "");
+        form.setValue("regionId", "");
+        form.setValue("cityId", "");
+        form.setValue("districtId", "");
+      }
+      form.setValue("locationHierarchy", value || undefined);
+    },
+    [form]
+  );
+
   const handleSubmit = async (data: EmployeeFormData) => {
     try {
-      // Omit virtual UI-only fields from payload
-      const { createUserAccount, locationHierarchy, ...rest } = data as any;
-      if (!createUserAccount) {
-        delete (rest as any).userAccountPhone;
-        delete (rest as any).userAccountRoleIds;
-      }
-
       if (employee) {
         // Update employee
-        const updateDto = {
-          ...rest,
-          id: employee.id,
-        };
+        const updateDto = mapFormDataToUpdateRequest(data, employee.id);
         await updateEmployee(updateDto).unwrap();
         toast.success("Сотрудник успешно обновлен!");
       } else {
         // Create employee
-        await createEmployee(rest as any).unwrap();
+        const createDto = mapFormDataToCreateRequest(data);
+        await createEmployee(createDto).unwrap();
         toast.success("Сотрудник успешно создан!");
       }
 
@@ -261,7 +190,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
   const createUserAccount = form.watch("createUserAccount");
 
-  console.log("form.errors", form.formState.errors);
+  console.log("errors", form.formState.errors);
 
   return (
     <div className="space-y-6">
@@ -269,20 +198,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <FormSection title="Основная информация" description="">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <TextField
-                      label="Имя"
-                      required
-                      placeholder="Введите имя"
-                      {...field}
-                    />
-                  )}
-                />
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormField
                   control={form.control}
                   name="lastName"
@@ -298,30 +214,12 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="titleId"
+                  name="firstName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Должность</FormLabel>
-                      <FormControl>
-                        <TitleSelectField
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Выберите должность"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <SelectField
-                      label="Пол"
-                      placeholder="Выберите пол"
-                      options={GENDER_OPTIONS}
+                    <TextField
+                      label="Имя"
+                      required
+                      placeholder="Введите имя"
                       {...field}
                     />
                   )}
@@ -329,11 +227,25 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="employeeId"
+                  name="middleName"
                   render={({ field }) => (
                     <TextField
-                      label="ID сотрудника"
-                      placeholder="Введите ID сотрудника"
+                      label="Отчество"
+                      required
+                      placeholder="Введите отчество"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="titleId"
+                  render={({ field }) => (
+                    <TitleSelectField
+                      required
+                      label="Должность"
+                      placeholder="Выберите должность"
                       {...field}
                     />
                   )}
@@ -354,12 +266,12 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="hireDate"
+                  name="gender"
                   render={({ field }) => (
-                    <DatePickerField
-                      label="Дата приёма"
-                      placeholder="Выберите дату приёма"
-                      valueFormat="yyyy-MM-dd"
+                    <SelectField
+                      label="Пол"
+                      placeholder="Выберите пол"
+                      options={GENDER_OPTIONS}
                       {...field}
                     />
                   )}
@@ -395,7 +307,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
           {/* Passport Information */}
           <FormSection title="Паспортные данные">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormField
                   control={form.control}
                   name="passport"
@@ -404,6 +316,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       label="Серия и номер паспорта"
                       placeholder="AA 1234567"
                       {...field}
+                      value={field.value as string}
                       onChange={(value: string) => {
                         field.onChange(value);
                         // Автоматически разделяем на серию и номер
@@ -414,6 +327,15 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                           form.setValue("passportSeries", "");
                           form.setValue("passportNumber", "");
                         }
+                        
+                        // Trigger validation for all passport fields
+                        form.trigger([
+                          "passportSeries",
+                          "passportNumber",
+                          "passportIssuedBy",
+                          "passportIssueDate",
+                          "passportExpiryDate",
+                        ]);
                       }}
                     />
                   )}
@@ -427,6 +349,17 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       label="Кем выдан"
                       placeholder="Введите название органа"
                       {...field}
+                      onChange={(value: string) => {
+                        field.onChange(value);
+                        // Trigger validation for all passport fields
+                        form.trigger([
+                          "passportSeries",
+                          "passportNumber",
+                          "passportIssuedBy",
+                          "passportIssueDate",
+                          "passportExpiryDate",
+                        ]);
+                      }}
                     />
                   )}
                 />
@@ -440,6 +373,17 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       placeholder="Выберите дату"
                       valueFormat="yyyy-MM-dd"
                       {...field}
+                      onChange={(value?: string) => {
+                        field.onChange(value || "");
+                        // Trigger validation for all passport fields
+                        form.trigger([
+                          "passportSeries",
+                          "passportNumber",
+                          "passportIssuedBy",
+                          "passportIssueDate",
+                          "passportExpiryDate",
+                        ]);
+                      }}
                     />
                   )}
                 />
@@ -453,6 +397,17 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       placeholder="Выберите дату"
                       valueFormat="yyyy-MM-dd"
                       {...field}
+                      onChange={(value?: string) => {
+                        field.onChange(value || "");
+                        // Trigger validation for all passport fields
+                        form.trigger([
+                          "passportSeries",
+                          "passportNumber",
+                          "passportIssuedBy",
+                          "passportIssueDate",
+                          "passportExpiryDate",
+                        ]);
+                      }}
                     />
                   )}
                 />
@@ -463,7 +418,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
           {/* Contact Information */}
           <FormSection title="Контактная информация">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormField
                   control={form.control}
                   name="email"
@@ -522,31 +477,12 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                 control={form.control}
                 name="locationHierarchy"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Местоположение</FormLabel>
-                    <FormControl>
-                      <LocationSelectField
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value);
-                          // Update individual location fields
-                          if (value) {
-                            form.setValue("countryId", value.countryId || "");
-                            form.setValue("regionId", value.regionId || "");
-                            form.setValue("cityId", value.cityId || "");
-                            form.setValue("districtId", value.districtId || "");
-                          } else {
-                            form.setValue("countryId", "");
-                            form.setValue("regionId", "");
-                            form.setValue("cityId", "");
-                            form.setValue("districtId", "");
-                          }
-                        }}
-                        placeholder="Выберите местоположение"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <LocationSelectField
+                    label="Местоположение"
+                    placeholder="Выберите страну, регион, город или район"
+                    value={field.value}
+                    onChange={handleLocationChange}
+                  />
                 )}
               />
 
@@ -555,27 +491,9 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                 name="address"
                 render={({ field }) => (
                   <TextField
-                    label="Адрес"
-                    placeholder="Введите точный адрес"
+                    label="Улица, дом, квартира"
+                    placeholder="Введите улицу, дом, квартиру"
                     {...field}
-                  />
-                )}
-              />
-            </div>
-          </FormSection>
-
-          {/* Services */}
-          <FormSection title="Услуги">
-            <div>
-              <FormField
-                control={form.control}
-                name="serviceTypeIds"
-                render={({ field }) => (
-                  <ServiceTypeListField
-                    label="Типы услуг"
-                    multiple
-                    value={field.value}
-                    onChange={field.onChange}
                   />
                 )}
               />

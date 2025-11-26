@@ -35,7 +35,7 @@ export class ConditionalValidationConstraint
 
 export function ConditionalValidation(
   options: ConditionalValidationOptions,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ) {
   return function (object: object, propertyName: string) {
     registerDecorator({
@@ -57,6 +57,34 @@ export function RequiredForUserAccount(validationOptions?: ValidationOptions) {
     {
       message: "This field is required when creating a user account",
       ...validationOptions,
+    }
+  );
+}
+
+// Specific decorator for passport fields - if any passport field is provided, all become required
+export function RequiredIfAnyPassportField(
+  validationOptions?: ValidationOptions
+) {
+  return ConditionalValidation(
+    {
+      condition: (object: any) => {
+        const passportFields = [
+          object.passportSeries,
+          object.passportNumber,
+          object.passportIssuedBy,
+          object.passportIssueDate,
+          object.passportExpiryDate,
+        ];
+        // If any passport field has a value, all fields become required
+        return passportFields.some(
+          (field) => field !== undefined && field !== null && field !== ""
+        );
+      },
     },
+    {
+      message:
+        "This field is required when any passport information is provided",
+      ...validationOptions,
+    }
   );
 }

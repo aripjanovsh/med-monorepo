@@ -239,3 +239,105 @@ export const getWorkScheduleForDay = (
 export const hasWorkSchedule = (employee: EmployeeResponseDto): boolean => {
   return !!employee.workSchedule;
 };
+
+// =============================================
+// Form Helper Functions (new)
+// =============================================
+
+export const mapEmployeeToFormData = (employee: EmployeeResponseDto) => {
+  // Build locationHierarchy from individual location IDs
+  const locationHierarchy =
+    employee.countryId ||
+    employee.regionId ||
+    employee.cityId ||
+    employee.districtId
+      ? {
+          countryId: employee.countryId || "",
+          regionId: employee.regionId || "",
+          cityId: employee.cityId || "",
+          districtId: employee.districtId || "",
+          selectedId:
+            employee.districtId ||
+            employee.cityId ||
+            employee.regionId ||
+            employee.countryId ||
+            "",
+        }
+      : undefined;
+
+  return {
+    // Core fields
+    firstName: employee.firstName || "",
+    lastName: employee.lastName || "",
+    middleName: employee.middleName || "",
+    dateOfBirth: employee.dateOfBirth || "",
+    hireDate: employee.hireDate || "",
+    gender: (employee.gender as "MALE" | "FEMALE") || undefined,
+
+    // Passport information
+    passportSeries: employee.passportSeries || "",
+    passportNumber: employee.passportNumber || "",
+    passportIssuedBy: employee.passportIssuedBy || "",
+    passportIssueDate: employee.passportIssueDate || "",
+    passportExpiryDate: employee.passportExpiryDate || "",
+
+    // Contact information
+    email: employee.email || "",
+    phone: employee.phone || "",
+    secondaryPhone: employee.secondaryPhone || "",
+    workPhone: employee.workPhone || "",
+    userAccountPhone: "",
+
+    // Employment Details
+    titleId: employee.titleId || "",
+    salary: employee.salary || 0,
+
+    // Work details
+    workSchedule: employee.workSchedule || {},
+
+    // Languages
+    primaryLanguageId: employee.primaryLanguageId || "",
+    secondaryLanguageId: employee.secondaryLanguageId || "",
+
+    // Notifications
+    textNotificationsEnabled: employee.textNotificationsEnabled || false,
+
+    // Address
+    countryId: employee.countryId || "",
+    regionId: employee.regionId || "",
+    cityId: employee.cityId || "",
+    districtId: employee.districtId || "",
+    address: employee.address || "",
+    locationHierarchy,
+
+    // Additional Info
+    notes: employee.notes || "",
+
+    // Form-specific fields
+    createUserAccount: false,
+    userAccountRoleIds: [],
+  };
+};
+
+export const mapFormDataToCreateRequest = (formData: any) => {
+  // Omit virtual UI-only fields from payload
+  const { createUserAccount, locationHierarchy, passport, ...rest } = formData;
+
+  if (!createUserAccount) {
+    delete rest.userAccountPhone;
+    delete rest.userAccountRoleIds;
+  }
+
+  return rest;
+};
+
+export const mapFormDataToUpdateRequest = (
+  formData: any,
+  employeeId: string,
+) => {
+  const createRequest = mapFormDataToCreateRequest(formData);
+  return {
+    ...createRequest,
+    id: employeeId,
+  };
+};

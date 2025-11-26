@@ -8,37 +8,74 @@ import { EMPLOYEE_STATUS, GENDER, WORKING_DAYS } from "./employee.constants";
 import { VALIDATION_MESSAGES } from "@/lib/validation-messages";
 import { WorkScheduleDto, WorkScheduleDay } from "./employee.dto";
 
-// WorkSchedule day schema
-export const workScheduleDaySchema: yup.ObjectSchema<WorkScheduleDay> =
-  yup.object({
-    from: yup
-      .string()
-      .matches(
-        /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Invalid time format (HH:MM)",
-      )
-      .required(),
-    to: yup
-      .string()
-      .matches(
-        /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Invalid time format (HH:MM)",
-      )
-      .required(),
-  });
+// WorkSchedule day schema - validates from/to only if any value is provided
+export const workScheduleDaySchema = yup
+  .object({
+    from: yup.string().optional(),
+    to: yup.string().optional(),
+  })
+  .test(
+    "work-schedule-day",
+    "Время работы должно быть заполнено полностью",
+    function (value) {
+      // If no value or null, validation passes (day is not active)
+      if (!value || value === null) {
+        return true;
+      }
+
+      const { from, to } = value;
+
+      // If both are empty, validation passes (day is not active)
+      if (!from && !to) {
+        return true;
+      }
+
+      // If one is filled but not the other, validation fails
+      if (from && !to) {
+        return this.createError({
+          path: `${this.path}.to`,
+          message: "Конец времени обязателен",
+        });
+      }
+
+      if (!from && to) {
+        return this.createError({
+          path: `${this.path}.from`,
+          message: "Начало времени обязательно",
+        });
+      }
+
+      // Validate time format
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+      if (from && !timeRegex.test(from)) {
+        return this.createError({
+          path: `${this.path}.from`,
+          message: "Неверный формат времени (ЧЧ:ММ)",
+        });
+      }
+
+      if (to && !timeRegex.test(to)) {
+        return this.createError({
+          path: `${this.path}.to`,
+          message: "Неверный формат времени (ЧЧ:ММ)",
+        });
+      }
+
+      return true;
+    }
+  );
 
 // WorkSchedule schema
-export const workScheduleSchema: yup.ObjectSchema<WorkScheduleDto> = yup.object(
-  {
-    monday: workScheduleDaySchema.nullable().optional(),
-    tuesday: workScheduleDaySchema.nullable().optional(),
-    wednesday: workScheduleDaySchema.nullable().optional(),
-    thursday: workScheduleDaySchema.nullable().optional(),
-    friday: workScheduleDaySchema.nullable().optional(),
-    saturday: workScheduleDaySchema.nullable().optional(),
-    sunday: workScheduleDaySchema.nullable().optional(),
-  },
-);
+export const workScheduleSchema = yup.object({
+  monday: workScheduleDaySchema.nullable().optional(),
+  tuesday: workScheduleDaySchema.nullable().optional(),
+  wednesday: workScheduleDaySchema.nullable().optional(),
+  thursday: workScheduleDaySchema.nullable().optional(),
+  friday: workScheduleDaySchema.nullable().optional(),
+  saturday: workScheduleDaySchema.nullable().optional(),
+  sunday: workScheduleDaySchema.nullable().optional(),
+});
 
 // Working day schema (legacy - keeping for backwards compatibility if needed)
 export const workingDaySchema = yup.object({
@@ -49,52 +86,184 @@ export const workingDaySchema = yup.object({
 // Base employee form schema
 export const employeeFormSchema = yup.object({
   // Core required fields
-  firstName: yup
-    .string()
-    .min(2, VALIDATION_MESSAGES.FIRST_NAME_MIN)
-    .required(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
-  lastName: yup
-    .string()
-    .min(2, VALIDATION_MESSAGES.LAST_NAME_MIN)
-    .required(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
-  middleName: yup.string(),
+  firstName: yup.string().required(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  lastName: yup.string().required(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  middleName: yup.string().required(VALIDATION_MESSAGES.REQUIRED),
   hireDate: yup.string(),
 
-  // Optional core fields
-  employeeId: yup.string(),
-  dateOfBirth: yup.string(),
-  gender: yup.string().oneOf(Object.values(GENDER)),
-
-  // Passport information (combined field for form UI)
-  passport: yup
+  dateOfBirth: yup
     .string()
-    .matches(
-      /^[A-Za-zА-Яа-я]{2}\d{7}$/,
-      "Паспорт должен быть в формате: 2 буквы и 7 цифр (например, AA1234567)",
+    .required(VALIDATION_MESSAGES.REQUIRED)
+    .test("age", VALIDATION_MESSAGES.DATE_OF_BIRTH_FUTURE, function (value) {
+      if (!value) return true;
+      const birthDate = new Date(value);
+      const today = new Date();
+      return birthDate <= today;
+    }),
+  gender: yup
+    .string()
+    .required(VALIDATION_MESSAGES.REQUIRED)
+    .oneOf(Object.values(GENDER)),
+
+  // Passport information - conditional validation
+  passport: yup.string().optional(),
+  passportSeries: yup
+    .string()
+    .test(
+      "passport-series-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
     ),
-  // Individual fields (populated from passport field)
-  passportSeries: yup.string(),
-  passportNumber: yup.string(),
-  passportIssuedBy: yup.string(),
-  passportIssueDate: yup.string(),
-  passportExpiryDate: yup.string(),
+  passportNumber: yup
+    .string()
+    .test(
+      "passport-number-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssuedBy: yup
+    .string()
+    .test(
+      "passport-issued-by-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssueDate,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportIssueDate: yup
+    .string()
+    .test(
+      "passport-issue-date-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportExpiryDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
+  passportExpiryDate: yup
+    .string()
+    .test(
+      "passport-expiry-date-required",
+      VALIDATION_MESSAGES.REQUIRED,
+      function (value) {
+        const parent = this.parent as any;
+        const passportFields = [
+          parent.passportSeries,
+          parent.passportNumber,
+          parent.passportIssuedBy,
+          parent.passportIssueDate,
+        ];
+
+        const hasAnyPassportData =
+          passportFields.some(
+            (field) => field && field.toString().trim() !== ""
+          ) ||
+          (value && value.toString().trim() !== "");
+
+        if (!hasAnyPassportData) {
+          return true; // No passport data, validation passes
+        }
+
+        return !!(value && value.toString().trim() !== "");
+      }
+    ),
 
   // Contact information
-  email: yup.string().email(VALIDATION_MESSAGES.EMAIL_INVALID),
-  phone: yup.string(),
+  email: yup.string().optional().email(VALIDATION_MESSAGES.EMAIL_INVALID),
+  phone: yup.string().required(VALIDATION_MESSAGES.REQUIRED),
   secondaryPhone: yup.string(),
   workPhone: yup.string(),
   userAccountPhone: yup.string().when("createUserAccount", {
     is: true,
     then: (schema) =>
-      schema.required("Телефон обязателен для создания аккаунта"),
+      schema
+        .required("Телефон обязателен для создания аккаунта")
+        .test(
+          "phone-format",
+          VALIDATION_MESSAGES.PHONE_MIN,
+          (value) => !value || value.length >= 10
+        ),
     otherwise: (schema) => schema.notRequired(),
   }),
 
   // Employment Details
-  titleId: yup.string(),
+  titleId: yup.string().required(VALIDATION_MESSAGES.REQUIRED),
   salary: yup.number().min(0, "Salary must be positive"),
-  terminationDate: yup.string(),
 
   // Work details
   workSchedule: workScheduleSchema.optional(),
@@ -118,8 +287,6 @@ export const employeeFormSchema = yup.object({
   // Additional Info
   notes: yup.string(),
 
-  // Form-specific fields for UI
-  serviceTypeIds: yup.array().of(yup.string().required()).default([]),
   createUserAccount: yup.boolean().default(false),
   userAccountRoleIds: yup
     .array()
@@ -159,7 +326,6 @@ export const createEmployeeRequestSchema = yup.object({
   workPhone: yup.string(),
   titleId: yup.string(),
   salary: yup.number().min(0, "Salary must be positive"),
-  terminationDate: yup.string(),
   workSchedule: workScheduleSchema.optional(),
   primaryLanguageId: yup.string(),
   secondaryLanguageId: yup.string(),

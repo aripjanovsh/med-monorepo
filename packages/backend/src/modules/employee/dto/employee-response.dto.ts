@@ -7,7 +7,6 @@ import { Type } from "class-transformer";
 import { SafeDecimal } from "../../../common/types";
 import { TransformDecimal } from "../../../common/decorators/transform-decimal.decorator";
 import { WorkScheduleDto } from "./work-schedule.dto";
-import { ServiceTypeResponseDto } from "@/modules/master-data/service-type/dto/service-type-response.dto";
 import { LanguageResponseDto } from "../../master-data/language/dto/language-response.dto";
 import { LocationResponseDto } from "../../master-data/location/dto/location-response.dto";
 
@@ -147,10 +146,6 @@ export class EmployeeResponseDto extends BaseResponseDto {
   @Expose()
   @Type(() => OrganizationResponseDto)
   organization?: OrganizationResponseDto;
-
-  @Expose()
-  @Type(() => ServiceTypeResponseDto)
-  serviceTypes?: ServiceTypeResponseDto[];
 
   @Expose()
   patients?: {

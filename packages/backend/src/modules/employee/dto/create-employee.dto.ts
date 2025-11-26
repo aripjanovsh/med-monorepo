@@ -8,6 +8,7 @@ import {
   IsUUID,
   IsBoolean,
   IsObject,
+  ValidateIf,
 } from "class-validator";
 import { EmployeeStatus, Gender } from "@prisma/client";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
@@ -18,7 +19,12 @@ import {
 import { RequiredForUserAccount } from "../../../common/decorators/conditional-validation.decorator";
 import { Expose, Exclude, Transform } from "class-transformer";
 import { Prisma } from "@prisma/client";
-import { TransformEmpty, TransformDate, IsDateOrDateTimeString } from "@/common/decorators";
+import {
+  TransformEmpty,
+  TransformDate,
+  IsDateOrDateTimeString,
+  ValidatePassportFields,
+} from "@/common/decorators";
 
 @Exclude()
 export class CreateEmployeeDto {
@@ -49,11 +55,9 @@ export class CreateEmployeeDto {
   @ApiProperty({
     description: "Employee middle name (отчество)",
     example: "Иванович",
-    required: false,
   })
-  @IsOptional()
   @IsString()
-  middleName?: string;
+  middleName: string;
 
   @Expose()
   @ApiProperty({
@@ -92,7 +96,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportSeries?: string;
 
   @Expose()
@@ -102,7 +108,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportNumber?: string;
 
   @Expose()
@@ -112,7 +120,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsString()
+  @ValidatePassportFields()
   passportIssuedBy?: string;
 
   @Expose()
@@ -122,8 +132,10 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsDateOrDateTimeString()
   @TransformDate()
+  @ValidatePassportFields()
   passportIssueDate?: Date;
 
   @Expose()
@@ -133,8 +145,10 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty()
   @IsDateOrDateTimeString()
   @TransformDate()
+  @ValidatePassportFields()
   passportExpiryDate?: Date;
 
   @Expose()
@@ -146,8 +160,8 @@ export class CreateEmployeeDto {
   @RequiredForUserAccount({
     message: "Email is required when creating user account",
   })
-  @TransformEmpty()
   @IsOptional()
+  @TransformEmpty(null)
   @IsEmail()
   @IsUniqueEmail()
   email?: string;
@@ -186,12 +200,10 @@ export class CreateEmployeeDto {
   @ApiProperty({
     description: "Title ID from Title dictionary",
     example: "uuid-title-id",
-    required: false,
   })
-  @IsOptional()
-  @IsUUID()
   @TransformEmpty()
-  titleId?: string;
+  @IsUUID()
+  titleId: string;
 
   @Expose()
   @ApiProperty({
@@ -209,6 +221,7 @@ export class CreateEmployeeDto {
     example: "2024-01-15",
   })
   @IsOptional()
+  @TransformEmpty(null)
   @IsDateOrDateTimeString()
   @TransformDate()
   hireDate?: Date;
@@ -231,28 +244,14 @@ export class CreateEmployeeDto {
 
   @Expose()
   @ApiProperty({
-    description: "List of service type IDs assigned to the employee",
-    required: false,
-    isArray: true,
-    type: String,
-    example: [
-      "2b1d2b6a-4a4f-4d9e-8c4b-1f2b3c4d5e6f",
-      "3c2d3e7b-5b6c-4a8d-9e1f-2a3b4c5d6e7f",
-    ],
-  })
-  @IsOptional()
-  @IsUUID("4", { each: true })
-  serviceTypeIds?: string[];
-
-  @Expose()
-  @ApiProperty({
     description: "Primary language ID from Language dictionary",
     example: "uuid-language-id",
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.primaryLanguageId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   primaryLanguageId?: string;
 
   @Expose()
@@ -262,8 +261,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.secondaryLanguageId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   secondaryLanguageId?: string;
 
   @Expose()
@@ -292,8 +292,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.countryId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   countryId?: string;
 
   @Expose()
@@ -303,8 +304,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.regionId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   regionId?: string;
 
   @Expose()
@@ -314,8 +316,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.cityId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   cityId?: string;
 
   @Expose()
@@ -325,8 +328,9 @@ export class CreateEmployeeDto {
     required: false,
   })
   @IsOptional()
+  @TransformEmpty(null)
+  @ValidateIf((o) => o.districtId !== undefined)
   @IsUUID()
-  @TransformEmpty()
   districtId?: string;
 
   @Expose()
