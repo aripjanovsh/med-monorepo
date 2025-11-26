@@ -102,6 +102,7 @@ export const employeeFormSchema = yup.object({
     }),
   gender: yup
     .string()
+    .transform((value) => (value === "" ? undefined : value))
     .required(VALIDATION_MESSAGES.REQUIRED)
     .oneOf(Object.values(GENDER)),
 

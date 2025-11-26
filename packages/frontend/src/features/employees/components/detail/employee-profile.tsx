@@ -65,23 +65,6 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
             />
 
             <ProfileField
-              label="Дата приёма"
-              value={formatEmployeeDate(employee.hireDate)}
-            />
-            <ProfileField
-              label="Дата увольнения"
-              value={formatEmployeeDate(employee.terminationDate)}
-            />
-            <ProfileField
-              label="Типы услуг"
-              value={getServiceTypesDisplay(employee)}
-            />
-            <ProfileField
-              label="Зарплата"
-              value={formatSalary(employee.salary)}
-            />
-
-            <ProfileField
               label="Статус"
               value={getEmployeeStatusDisplay(employee.status)}
             />
@@ -187,7 +170,7 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
               <ProfileField
                 label="SMS-уведомления"
                 value={getNotificationStatusDisplay(
-                  employee.textNotificationsEnabled,
+                  employee.textNotificationsEnabled
                 )}
               />
             </div>

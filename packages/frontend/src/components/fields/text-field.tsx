@@ -1,11 +1,14 @@
+import type { ChangeEvent, ComponentProps, FC } from "react";
 import { Field, FieldProps } from "@/components/fields/field";
 import { FormControl } from "@/components/ui/form";
-import { Input, InputProps } from "@/components/ui/input";
-import { FC } from "react";
+import { Input } from "@/components/ui/input";
 
-export interface TextFieldProps
-  extends FieldProps,
-    Omit<InputProps, "required" | "children" | "className"> {}
+type InputProps = Omit<ComponentProps<"input">, "onChange">;
+
+export type TextFieldProps = FieldProps &
+  InputProps & {
+    onChange?: (value: string) => void;
+  };
 
 export const TextField: FC<TextFieldProps> = ({
   className,
@@ -16,8 +19,13 @@ export const TextField: FC<TextFieldProps> = ({
   labelHint,
   labelHintClassName,
   required,
+  onChange,
   ...field
 }) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
+
   return (
     <Field
       {...{
@@ -32,7 +40,7 @@ export const TextField: FC<TextFieldProps> = ({
       }}
     >
       <FormControl>
-        <Input {...field} />
+        <Input {...field} onChange={handleChange} />
       </FormControl>
     </Field>
   );

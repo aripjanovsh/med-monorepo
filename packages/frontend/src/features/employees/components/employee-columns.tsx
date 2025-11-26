@@ -72,19 +72,29 @@ export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
       const workingDays = row.original.workSchedule;
       return (
         <div className="flex space-x-1">
-          {WEEK_DAYS.map((day) => (
-            <div
-              key={day}
-              className={cn(
-                "size-7 rounded-full flex items-center justify-center text-xs font-medium",
-                workingDays?.[day]
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-500",
-              )}
-            >
-              {WEEK_DAYS_SHORT?.[day]}
-            </div>
-          ))}
+          {WEEK_DAYS.map((day) => {
+            const schedule = workingDays?.[day];
+            const isWorkingDay =
+              schedule &&
+              schedule.from &&
+              schedule.to &&
+              schedule.from !== "" &&
+              schedule.to !== "";
+
+            return (
+              <div
+                key={day}
+                className={cn(
+                  "size-7 rounded-full flex items-center justify-center text-xs font-medium",
+                  isWorkingDay
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-500"
+                )}
+              >
+                {WEEK_DAYS_SHORT?.[day]}
+              </div>
+            );
+          })}
         </div>
       );
     },
@@ -130,7 +140,6 @@ export const patientDoctorColumns: ColumnDef<EmployeeResponseDto>[] = [
   {
     accessorKey: "status",
     header: "Статус",
-    width: 100,
     cell: ({ row }) => {
       const employee = row.original;
       return (

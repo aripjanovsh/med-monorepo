@@ -46,7 +46,7 @@ export default function EditEmployeePage() {
       <PageHeader
         title={`Редактирование: ${employee.firstName} ${employee.lastName}`}
       />
-      <PageEmployeeForm employee={employee} mode="edit" />
+      <PageEmployeeForm key={employee.id} employee={employee} mode="edit" />
     </div>
   );
 }

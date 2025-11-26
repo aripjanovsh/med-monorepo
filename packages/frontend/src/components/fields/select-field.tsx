@@ -36,6 +36,14 @@ export const SelectField: FC<SelectFieldProps> = ({
   onChange,
   value,
 }) => {
+  // Radix Select doesn't handle empty string well - use undefined for empty values
+  const normalizedValue = value || undefined;
+
+  const handleValueChange = (newValue: string) => {
+    // Prevent setting empty string - treat it as undefined
+    onChange?.(newValue || (undefined as unknown as string));
+  };
+
   return (
     <Field
       {...{
@@ -49,7 +57,7 @@ export const SelectField: FC<SelectFieldProps> = ({
         labelHintClassName,
       }}
     >
-      <Select onValueChange={onChange} value={value}>
+      <Select onValueChange={handleValueChange} value={normalizedValue}>
         <FormControl>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={placeholder} />

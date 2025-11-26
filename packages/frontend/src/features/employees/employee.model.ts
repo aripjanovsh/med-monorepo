@@ -6,13 +6,14 @@
 import { formatDate as formatDateUtil } from "@/lib/date.utils";
 import { EmployeeResponseDto } from "./employee.dto";
 import { SimpleEmployeeDto } from "../visit";
+import { GENDER } from "./employee.constants";
 
 // =============================================
 // Utility Functions
 // =============================================
 
 export const getEmployeeFullName = (
-  employee?: EmployeeResponseDto | SimpleEmployeeDto,
+  employee?: EmployeeResponseDto | SimpleEmployeeDto
 ): string => {
   if (!employee) {
     return "—";
@@ -26,7 +27,7 @@ export const getEmployeeShortName = (
   employee:
     | EmployeeResponseDto
     | SimpleEmployeeDto
-    | { firstName: string; lastName: string; middleName?: string },
+    | { firstName: string; lastName: string; middleName?: string }
 ): string => {
   return `${employee.firstName} ${employee.lastName}`;
 };
@@ -148,7 +149,7 @@ export const getNotificationStatusDisplay = (enabled?: boolean): string => {
  * Get passport series and number combined
  */
 export const getPassportSeriesNumber = (
-  employee: EmployeeResponseDto,
+  employee: EmployeeResponseDto
 ): string => {
   if (employee.passportSeries && employee.passportNumber) {
     return `${employee.passportSeries} ${employee.passportNumber}`;
@@ -186,7 +187,7 @@ export const getEmployeeDisplayId = (employee: EmployeeResponseDto): string => {
  * Get service types as comma-separated string
  */
 export const getServiceTypesDisplay = (
-  employee: EmployeeResponseDto,
+  employee: EmployeeResponseDto
 ): string => {
   if (!Array.isArray(employee.serviceTypes)) return "-";
 
@@ -219,7 +220,7 @@ export const formatSalary = (salary?: number): string => {
  */
 export const getWorkScheduleForDay = (
   employee: EmployeeResponseDto,
-  day: string,
+  day: string
 ): string => {
   if (!employee.workSchedule) {
     return "Не рабочий день";
@@ -227,6 +228,16 @@ export const getWorkScheduleForDay = (
 
   const schedule = (employee.workSchedule as any)?.[day];
   if (!schedule) {
+    return "Не рабочий день";
+  }
+
+  // Check if from and to values exist and are not empty
+  if (
+    !schedule.from ||
+    !schedule.to ||
+    schedule.from === "" ||
+    schedule.to === ""
+  ) {
     return "Не рабочий день";
   }
 
@@ -270,16 +281,20 @@ export const mapEmployeeToFormData = (employee: EmployeeResponseDto) => {
     firstName: employee.firstName || "",
     lastName: employee.lastName || "",
     middleName: employee.middleName || "",
-    dateOfBirth: employee.dateOfBirth || "",
+    dateOfBirth: employee.dateOfBirth ? employee.dateOfBirth.split("T")[0] : "",
     hireDate: employee.hireDate || "",
-    gender: (employee.gender as "MALE" | "FEMALE") || undefined,
+    gender: employee.gender as "MALE" | "FEMALE" | undefined,
 
     // Passport information
     passportSeries: employee.passportSeries || "",
     passportNumber: employee.passportNumber || "",
     passportIssuedBy: employee.passportIssuedBy || "",
-    passportIssueDate: employee.passportIssueDate || "",
-    passportExpiryDate: employee.passportExpiryDate || "",
+    passportIssueDate: employee.passportIssueDate
+      ? employee.passportIssueDate.split("T")[0]
+      : "",
+    passportExpiryDate: employee.passportExpiryDate
+      ? employee.passportExpiryDate.split("T")[0]
+      : "",
 
     // Contact information
     email: employee.email || "",
@@ -333,7 +348,7 @@ export const mapFormDataToCreateRequest = (formData: any) => {
 
 export const mapFormDataToUpdateRequest = (
   formData: any,
-  employeeId: string,
+  employeeId: string
 ) => {
   const createRequest = mapFormDataToCreateRequest(formData);
   return {

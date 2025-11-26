@@ -108,40 +108,16 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
   const [updateEmployee, { isLoading: isUpdating }] =
     useUpdateEmployeeMutation();
 
+  // Use employee data as default values directly to avoid reset issues
+  const initialValues = employee
+    ? mapEmployeeToFormData(employee)
+    : (DEFAULT_VALUES as EmployeeFormData);
+
   const form = useForm<EmployeeFormData>({
     schema: employeeFormSchema,
     mode: "onChange",
-    defaultValues: DEFAULT_VALUES as EmployeeFormData,
+    defaultValues: initialValues,
   });
-
-  const [lastEmployeeId, setLastEmployeeId] = React.useState<
-    string | undefined
-  >(undefined);
-
-  useEffect(() => {
-    // Only reset form if employee ID changed (avoid unnecessary resets)
-    if (employee?.id !== lastEmployeeId) {
-      if (employee) {
-        const formData = mapEmployeeToFormData(employee);
-
-        // Combine passport series and number for the UI field
-        const passport =
-          employee.passportSeries && employee.passportNumber
-            ? `${employee.passportSeries}${employee.passportNumber}`
-            : "";
-
-        form.reset({
-          ...formData,
-          passport,
-        } as EmployeeFormData & { passport: string });
-
-        setLastEmployeeId(employee.id);
-      } else {
-        form.reset(DEFAULT_VALUES as EmployeeFormData);
-        setLastEmployeeId(undefined);
-      }
-    }
-  }, [employee, form, lastEmployeeId]);
 
   const isLoading = isCreating || isUpdating;
 
@@ -189,8 +165,6 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
   };
 
   const createUserAccount = form.watch("createUserAccount");
-
-  console.log("errors", form.formState.errors);
 
   return (
     <div className="space-y-6">
@@ -310,38 +284,54 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
           <FormSection title="Паспортные данные">
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                <FormField
-                  control={form.control}
-                  name="passport"
-                  render={({ field }) => (
-                    <PassportField
-                      label="Серия и номер паспорта"
-                      placeholder="AA 1234567"
-                      {...field}
-                      value={field.value as string}
-                      onChange={(value: string) => {
-                        field.onChange(value);
-                        // Автоматически разделяем на серию и номер
-                        if (value && value.length >= 2) {
-                          form.setValue("passportSeries", value.slice(0, 2));
-                          form.setValue("passportNumber", value.slice(2));
-                        } else {
-                          form.setValue("passportSeries", "");
-                          form.setValue("passportNumber", "");
-                        }
-
-                        // Trigger validation for all passport fields
-                        form.trigger([
-                          "passportSeries",
-                          "passportNumber",
-                          "passportIssuedBy",
-                          "passportIssueDate",
-                          "passportExpiryDate",
-                        ]);
-                      }}
-                    />
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-2 items-start">
+                  <FormField
+                    control={form.control}
+                    name="passportSeries"
+                    render={({ field }) => (
+                      <TextField
+                        label="Серия паспорта"
+                        placeholder="AA"
+                        maxLength={2}
+                        {...field}
+                        onChange={(value: string) => {
+                          field.onChange(value.toUpperCase());
+                          // Trigger validation for all passport fields
+                          form.trigger([
+                            "passportSeries",
+                            "passportNumber",
+                            "passportIssuedBy",
+                            "passportIssueDate",
+                            "passportExpiryDate",
+                          ]);
+                        }}
+                      />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="passportNumber"
+                    render={({ field }) => (
+                      <TextField
+                        label="Номер паспорта"
+                        placeholder="1234567"
+                        maxLength={7}
+                        {...field}
+                        onChange={(value: string) => {
+                          field.onChange(value);
+                          // Trigger validation for all passport fields
+                          form.trigger([
+                            "passportSeries",
+                            "passportNumber",
+                            "passportIssuedBy",
+                            "passportIssueDate",
+                            "passportExpiryDate",
+                          ]);
+                        }}
+                      />
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -351,17 +341,6 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       label="Кем выдан"
                       placeholder="Введите название органа"
                       {...field}
-                      onChange={(value: string) => {
-                        field.onChange(value);
-                        // Trigger validation for all passport fields
-                        form.trigger([
-                          "passportSeries",
-                          "passportNumber",
-                          "passportIssuedBy",
-                          "passportIssueDate",
-                          "passportExpiryDate",
-                        ]);
-                      }}
                     />
                   )}
                 />
@@ -375,17 +354,6 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       placeholder="Выберите дату"
                       valueFormat="yyyy-MM-dd"
                       {...field}
-                      onChange={(value?: string) => {
-                        field.onChange(value || "");
-                        // Trigger validation for all passport fields
-                        form.trigger([
-                          "passportSeries",
-                          "passportNumber",
-                          "passportIssuedBy",
-                          "passportIssueDate",
-                          "passportExpiryDate",
-                        ]);
-                      }}
                     />
                   )}
                 />
@@ -399,17 +367,6 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       placeholder="Выберите дату"
                       valueFormat="yyyy-MM-dd"
                       {...field}
-                      onChange={(value?: string) => {
-                        field.onChange(value || "");
-                        // Trigger validation for all passport fields
-                        form.trigger([
-                          "passportSeries",
-                          "passportNumber",
-                          "passportIssuedBy",
-                          "passportIssueDate",
-                          "passportExpiryDate",
-                        ]);
-                      }}
                     />
                   )}
                 />
