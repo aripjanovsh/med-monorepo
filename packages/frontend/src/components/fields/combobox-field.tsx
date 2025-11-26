@@ -29,6 +29,7 @@ export interface BaseComboboxFieldProps extends FieldProps {
   placeholder?: string;
   empty?: string;
   options: Option[];
+  required?: boolean;
 }
 
 export interface SingleComboboxFieldProps extends BaseComboboxFieldProps {
@@ -55,6 +56,7 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
   hintClassName,
   labelHint,
   labelHintClassName,
+  required,
 
   placeholder = "Select",
   searchPlaceholder = "Search",
@@ -126,6 +128,7 @@ export const ComboboxField: FC<ComboboxFieldProps> = ({
         hintClassName,
         labelHint,
         labelHintClassName,
+        required,
       }}
     >
       <Popover open={open} onOpenChange={setOpen} modal>

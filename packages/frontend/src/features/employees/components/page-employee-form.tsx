@@ -123,18 +123,18 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
     if (employee?.id !== lastEmployeeId) {
       if (employee) {
         const formData = mapEmployeeToFormData(employee);
-        
+
         // Combine passport series and number for the UI field
         const passport =
           employee.passportSeries && employee.passportNumber
             ? `${employee.passportSeries}${employee.passportNumber}`
             : "";
-            
+
         form.reset({
           ...formData,
           passport,
         } as EmployeeFormData & { passport: string });
-        
+
         setLastEmployeeId(employee.id);
       } else {
         form.reset(DEFAULT_VALUES as EmployeeFormData);
@@ -256,6 +256,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                   name="dateOfBirth"
                   render={({ field }) => (
                     <DatePickerField
+                      required
                       label="Дата рождения"
                       placeholder="Выберите дату рождения"
                       valueFormat="yyyy-MM-dd"
@@ -269,6 +270,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                   name="gender"
                   render={({ field }) => (
                     <SelectField
+                      required
                       label="Пол"
                       placeholder="Выберите пол"
                       options={GENDER_OPTIONS}
@@ -327,7 +329,7 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                           form.setValue("passportSeries", "");
                           form.setValue("passportNumber", "");
                         }
-                        
+
                         // Trigger validation for all passport fields
                         form.trigger([
                           "passportSeries",
@@ -421,22 +423,11 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormField
                   control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <TextField
-                      label="Электронная почта"
-                      placeholder="Введите email"
-                      {...field}
-                    />
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="phone"
                   render={({ field }) => (
                     <PhoneField
                       label="Телефон"
+                      required
                       placeholder="Введите телефон"
                       {...field}
                     />
@@ -462,6 +453,18 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                     <PhoneField
                       label="Рабочий телефон"
                       placeholder="Введите рабочий телефон"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <TextField
+                      label="Электронная почта"
+                      placeholder="Введите email"
                       {...field}
                     />
                   )}

@@ -2,10 +2,17 @@
 
 import React from "react";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
+import { TimePickerField } from "@/components/fields/time-picker-field";
 import { Label } from "@/components/ui/label";
 import { WorkScheduleDto } from "../employee.dto";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Zap } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Shape that will be emitted as WorkScheduleDto object
 // { monday: { from: "08:00", to: "18:00" }, tuesday: null, ... }
@@ -95,7 +102,7 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
   className,
 }) => {
   const [state, setState] = React.useState<Record<DayKey, DayState>>(() =>
-    parseInitialState(value),
+    parseInitialState(value)
   );
 
   // Keep internal state in sync when value prop changes externally
@@ -112,7 +119,7 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
   const handleTimeChange = (
     key: DayKey,
     field: "from" | "to",
-    time: string,
+    time: string
   ) => {
     const next = { ...state, [key]: { ...state[key], [field]: time } };
     setState(next);
@@ -137,19 +144,15 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
     onChange(buildScheduleObject(next));
   };
 
-  const applyTimeToSelected = () => {
-    // Determine common time from first active day, else default 09-18
-    let from = "09:00";
-    let to = "18:00";
-    const firstActive = DAYS.find((d) => state[d.key].active);
-    if (firstActive) {
-      from = state[firstActive.key].from || from;
-      to = state[firstActive.key].to || to;
-    }
+  const copyToAll = (sourceKey: DayKey) => {
+    const sourceDay = state[sourceKey];
+    if (!sourceDay.active) return;
 
+    const { from, to } = sourceDay;
     const next = { ...state };
+
     for (const d of DAYS) {
-      if (next[d.key].active) {
+      if (d.key !== sourceKey && next[d.key].active) {
         next[d.key] = { ...next[d.key], from, to };
       }
     }
@@ -160,25 +163,19 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
   return (
     <div className={className}>
       <div className="mb-3 flex flex-wrap gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={selectAllWeekdays}
-        >
-          Выбрать Пн–Пт
-        </Button>
-        <Button type="button" size="sm" variant="outline" onClick={clearAll}>
-          Очистить
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={applyTimeToSelected}
-        >
-          Применить время ко всем выбранным
-        </Button>
+        <ButtonGroup>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={selectAllWeekdays}
+          >
+            Выбрать Пн–Пт
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={clearAll}>
+            Очистить
+          </Button>
+        </ButtonGroup>
       </div>
 
       <div className="space-y-2">
@@ -206,27 +203,43 @@ export const WorkScheduleField: React.FC<WorkScheduleFieldProps> = ({
               <div className="sm:col-span-8 flex items-center justify-center gap-3 min-h-9">
                 {day.active ? (
                   <>
-                    <Input
-                      id={`from-${d.key}`}
-                      type="time"
+                    <TimePickerField
                       value={day.from}
-                      onChange={(e) =>
-                        handleTimeChange(d.key, "from", e.target.value)
+                      onChange={(val) =>
+                        handleTimeChange(d.key, "from", val || "")
                       }
                       disabled={!day.active}
+                      className="w-full"
                     />
 
-                    <Label className="text-sm text-muted-foreground">до</Label>
+                    <div className="text-sm text-muted-foreground min-w-[50px] text-center">
+                      до
+                    </div>
 
-                    <Input
-                      id={`to-${d.key}`}
-                      type="time"
+                    <TimePickerField
                       value={day.to}
-                      onChange={(e) =>
-                        handleTimeChange(d.key, "to", e.target.value)
+                      onChange={(val) =>
+                        handleTimeChange(d.key, "to", val || "")
                       }
                       disabled={!day.active}
+                      className="w-full"
                     />
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => copyToAll(d.key)}
+                        >
+                          <Zap />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Применить ко всем</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </>
                 ) : (
                   <div className="text-sm text-muted-foreground text-center">

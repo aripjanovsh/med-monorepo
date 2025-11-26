@@ -44,7 +44,6 @@ export default function EmployeesPage() {
   // DataTable state management with built-in debounce
   const { queryParams, handlers, setters, values } = useDataTableState({
     defaultLimit: 10,
-    defaultSorting: [{ id: "firstName", desc: false }],
     sortFormat: "split",
     searchDebounceMs: 500,
   });
