@@ -42,6 +42,9 @@ import {
 import { toast } from "sonner";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 import { useConfirmDialog } from "@/components/dialogs";
+import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { PERMISSION_LABELS } from "@/constants/permissions.constants";
 
 export default function RolesPage() {
@@ -130,18 +133,23 @@ export default function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold font-gilroy">Роли</h1>
-          <p className="text-muted-foreground">
-            Управление ролями и правами доступа
-          </p>
-        </div>
-        <Button onClick={handleCreateRole}>
-          <Plus className="mr-2 h-4 w-4" />
-          Новая роль
-        </Button>
-      </div>
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
+      <PageHeader
+        title="Роли и права"
+        description="Управление ролями и правами доступа"
+        actions={
+          <Button onClick={handleCreateRole}>
+            <Plus className="mr-2 h-4 w-4" />
+            Новая роль
+          </Button>
+        }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Роли и права" },
+        ]}
+      />
 
       {roles.length === 0 ? (
         <Card>

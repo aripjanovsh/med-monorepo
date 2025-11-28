@@ -6,6 +6,8 @@ import { Edit } from "lucide-react";
 
 import { LoadingState, ErrorState } from "@/components/states";
 import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -68,7 +70,7 @@ export default function AnalysisTemplateDetailPage({
       }
       // New format with sections
       return (data as AnalysisTemplateContentDto).sections.flatMap(
-        (section) => section.parameters,
+        (section) => section.parameters
       );
     } catch {
       return [];
@@ -85,16 +87,27 @@ export default function AnalysisTemplateDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <LayoutHeader
-        title={template.name}
         backHref={ROUTES.ANALYSIS_TEMPLATES}
-        right={
+        backTitle="Шаблоны анализов"
+      />
+      <PageHeader
+        title={template.name}
+        description={template.description || "Просмотр шаблона анализа"}
+        actions={
           <Button onClick={handleEdit}>
             <Edit className="h-4 w-4 mr-2" />
             Редактировать
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Шаблоны анализов", href: ROUTES.ANALYSIS_TEMPLATES },
+          { label: template.name },
+        ]}
       />
 
       {/* Overview */}
@@ -223,7 +236,7 @@ const ParameterCard = ({ parameter }: { parameter: AnalysisParameterDto }) => {
                           {formatReferenceRange(
                             range.min,
                             range.max,
-                            parameter.unit,
+                            parameter.unit
                           )}
                         </p>
                       </div>

@@ -2,10 +2,21 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 
 export default function NotificationsSettingsPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
+      <PageHeader title="Уведомления" description="Управление уведомлениями" />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Уведомления" },
+        ]}
+      />
       <div className="space-y-8">
         <div className="grid gap-8 xl:grid-cols-2">
           {/* Email Notifications */}

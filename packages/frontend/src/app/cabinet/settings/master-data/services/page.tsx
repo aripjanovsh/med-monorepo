@@ -9,7 +9,9 @@ import {
 } from "@/features/master-data/master-data-services.api";
 import type { Service } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
   DataTable,
   DataTableToolbar,
@@ -65,7 +67,7 @@ export default function ServicesPage() {
         },
       });
     },
-    [serviceFormDialog, refetch],
+    [serviceFormDialog, refetch]
   );
 
   const handleDelete = useCallback(
@@ -91,11 +93,15 @@ export default function ServicesPage() {
         },
       });
     },
-    [confirm, deleteService, refetch],
+    [confirm, deleteService, refetch]
   );
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Услуги"
         description="Управление медицинскими услугами"
@@ -105,6 +111,13 @@ export default function ServicesPage() {
             Добавить услугу
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Услуги" },
+        ]}
       />
 
       <DataTable

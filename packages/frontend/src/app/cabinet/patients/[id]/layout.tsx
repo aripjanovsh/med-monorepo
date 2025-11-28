@@ -36,6 +36,15 @@ import {
 
 import { LayoutHeader } from "@/components/layouts/cabinet";
 import { DetailNavigation } from "@/components/detail-navigation";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 
 export default function PatientDetailLayout({
   children,
@@ -162,6 +171,27 @@ export default function PatientDetailLayout({
   return (
     <div className="space-y-6">
       <LayoutHeader backHref="/cabinet/patients" backTitle="Пациенты" />
+
+      {/* Breadcrumbs */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/cabinet">Главная</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/cabinet/patients">Пациенты</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{fullName}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex items-center justify-between">

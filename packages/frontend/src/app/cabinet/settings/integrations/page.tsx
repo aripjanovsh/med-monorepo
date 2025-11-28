@@ -4,10 +4,21 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Database, CreditCard, Globe, Bell, Zap, Shield } from "lucide-react";
+import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 
 export default function IntegrationsSettingsPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
+      <PageHeader title="Интеграции" description="Интеграции и API" />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Интеграции" },
+        ]}
+      />
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {[
           {
@@ -59,7 +70,7 @@ export default function IntegrationsSettingsPage() {
                     "w-12 h-12 rounded-xl flex items-center justify-center",
                     integration.status === "connected"
                       ? "bg-green-50 text-green-600"
-                      : "bg-gray-50 text-gray-400",
+                      : "bg-gray-50 text-gray-400"
                   )}
                 >
                   <Icon className="w-6 h-6" />
@@ -72,7 +83,7 @@ export default function IntegrationsSettingsPage() {
                     "text-xs font-medium",
                     integration.status === "connected"
                       ? "bg-green-50 text-green-700 border-green-200"
-                      : "bg-gray-50 text-gray-600 border-gray-200",
+                      : "bg-gray-50 text-gray-600 border-gray-200"
                   )}
                 >
                   {integration.status}

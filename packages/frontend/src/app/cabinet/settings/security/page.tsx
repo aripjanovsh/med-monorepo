@@ -9,10 +9,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 
 export default function SecuritySettingsPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
+      <PageHeader
+        title="Безопасность"
+        description="Безопасность и аутентификация"
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Безопасность" },
+        ]}
+      />
       <div className="space-y-8">
         <div className="grid gap-8 xl:grid-cols-2">
           {/* Authentication */}

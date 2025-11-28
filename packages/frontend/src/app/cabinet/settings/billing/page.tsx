@@ -4,10 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { LayoutHeader } from "@/components/layouts/cabinet";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 
 export default function BillingSettingsPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
+      <PageHeader
+        title="Платежи"
+        description="Управление подпиской и платежами"
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Платежи" },
+        ]}
+      />
       <div className="space-y-8">
         <div className="grid gap-8 xl:grid-cols-2">
           {/* Current Plan */}

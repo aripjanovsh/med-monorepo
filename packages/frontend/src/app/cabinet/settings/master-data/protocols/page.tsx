@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Pencil, Trash, Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
   DataTable,
   DataTableToolbar,
@@ -55,14 +57,14 @@ export default function ProtocolsPage() {
     (protocol: ProtocolTemplateResponseDto) => {
       router.push(url(ROUTES.PROTOCOL_TEMPLATE_EDIT, { id: protocol.id }));
     },
-    [router],
+    [router]
   );
 
   const handleDuplicate = useCallback(
     (protocol: ProtocolTemplateResponseDto) => {
       toast.info("Дублирование протоколов пока не реализовано");
     },
-    [],
+    []
   );
 
   const handleToggleActive = useCallback(
@@ -73,7 +75,7 @@ export default function ProtocolsPage() {
           data: { isActive: !protocol.isActive },
         }).unwrap();
         toast.success(
-          protocol.isActive ? "Протокол деактивирован" : "Протокол активирован",
+          protocol.isActive ? "Протокол деактивирован" : "Протокол активирован"
         );
         refetch();
       } catch (error: any) {
@@ -85,7 +87,7 @@ export default function ProtocolsPage() {
         toast.error(errorMessage);
       }
     },
-    [updateProtocol, refetch],
+    [updateProtocol, refetch]
   );
 
   const handleDelete = useCallback(
@@ -111,11 +113,15 @@ export default function ProtocolsPage() {
         },
       });
     },
-    [confirm, deleteProtocol, refetch],
+    [confirm, deleteProtocol, refetch]
   );
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Шаблоны протоколов"
         description="Управление шаблонами медицинских протоколов"
@@ -125,6 +131,13 @@ export default function ProtocolsPage() {
             Добавить протокол
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Шаблоны протоколов" },
+        ]}
       />
 
       <DataTable

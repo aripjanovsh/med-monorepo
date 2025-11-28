@@ -15,13 +15,6 @@ export const protocolTemplateColumns: ColumnDef<ProtocolTemplateResponseDto>[] =
       cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
     },
     {
-      accessorKey: "description",
-      header: "Описание",
-      cell: ({ row }) => (
-        <div className="max-w-[300px] truncate">{row.original.description}</div>
-      ),
-    },
-    {
       accessorKey: "isActive",
       header: "Статус",
       size: 140,
@@ -33,12 +26,6 @@ export const protocolTemplateColumns: ColumnDef<ProtocolTemplateResponseDto>[] =
           </Badge>
         );
       },
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Дата создания",
-      size: 140,
-      cell: ({ row }) => formatProtocolTemplateDate(row.original.createdAt),
     },
     {
       accessorKey: "updatedAt",

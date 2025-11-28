@@ -9,7 +9,9 @@ import {
 } from "@/features/master-data/master-data-titles.api";
 import type { Title } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
   DataTable,
   DataTableToolbar,
@@ -72,7 +74,7 @@ export default function TitlesPage() {
         },
       });
     },
-    [titleFormDialog, refetch],
+    [titleFormDialog, refetch]
   );
 
   const handleDelete = useCallback(
@@ -98,11 +100,15 @@ export default function TitlesPage() {
         },
       });
     },
-    [confirm, deleteTitle, refetch],
+    [confirm, deleteTitle, refetch]
   );
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Должности"
         description="Управление должностями сотрудников"
@@ -112,6 +118,13 @@ export default function TitlesPage() {
             Добавить должность
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Должности" },
+        ]}
       />
 
       <DataTable

@@ -17,7 +17,9 @@ import {
 } from "@/features/master-data/master-data-languages.api";
 import type { Language } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
   DataTable,
   DataTableToolbar,
@@ -75,7 +77,7 @@ export default function LanguagesPage() {
         },
       });
     },
-    [languageFormDialog, refetch],
+    [languageFormDialog, refetch]
   );
 
   const handleToggleStatus = useCallback(
@@ -93,7 +95,7 @@ export default function LanguagesPage() {
         toast.error(errorMessage);
       }
     },
-    [toggleLanguageStatus, refetch],
+    [toggleLanguageStatus, refetch]
   );
 
   const handleDelete = useCallback(
@@ -119,11 +121,15 @@ export default function LanguagesPage() {
         },
       });
     },
-    [confirm, deleteLanguage, refetch],
+    [confirm, deleteLanguage, refetch]
   );
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Языки"
         description="Управление языками системы"
@@ -133,6 +139,13 @@ export default function LanguagesPage() {
             Добавить язык
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Языки" },
+        ]}
       />
 
       <DataTable

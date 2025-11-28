@@ -36,7 +36,9 @@ import {
   type AnalysisTemplateResponseDto,
 } from "@/features/analysis-template";
 import { url, ROUTES } from "@/constants/route.constants";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 
@@ -83,7 +85,7 @@ export default function AnalysisTemplatesPage() {
     (template: AnalysisTemplateResponseDto) => {
       router.push(url(ROUTES.ANALYSIS_TEMPLATE_EDIT, { id: template.id }));
     },
-    [router],
+    [router]
   );
 
   const handleDelete = useCallback(
@@ -109,7 +111,7 @@ export default function AnalysisTemplatesPage() {
         },
       });
     },
-    [confirm, deleteTemplate, refetch],
+    [confirm, deleteTemplate, refetch]
   );
 
   const templates = templatesData?.data || [];
@@ -117,6 +119,10 @@ export default function AnalysisTemplatesPage() {
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Шаблоны анализов"
         description="Управление шаблонами лабораторных анализов"
@@ -128,6 +134,13 @@ export default function AnalysisTemplatesPage() {
             </Link>
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Шаблоны анализов" },
+        ]}
       />
 
       <DataTable
@@ -218,7 +231,7 @@ export default function AnalysisTemplatesPage() {
         }
         onRowClick={(row) => {
           router.push(
-            url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id }),
+            url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id })
           );
         }}
       />

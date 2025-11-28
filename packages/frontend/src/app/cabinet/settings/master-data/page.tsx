@@ -19,8 +19,10 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { ROUTES } from "@/constants/route.constants";
-import PageHeader from "@/components/layouts/page-header";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import { useRouter } from "next/navigation";
+import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 
 const masterDataModules = [
   {
@@ -43,13 +45,6 @@ const masterDataModules = [
     icon: Users,
     href: ROUTES.MASTER_DATA_TITLES,
     color: "text-blue-600",
-  },
-  {
-    title: "Типы услуг",
-    description: "Управление типами медицинских услуг",
-    icon: Wrench,
-    href: ROUTES.MASTER_DATA_SERVICE_TYPES,
-    color: "text-green-600",
   },
   {
     title: "Услуги",
@@ -79,9 +74,16 @@ export default function MasterDataPage() {
 
   return (
     <div className="space-y-6">
+      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
       <PageHeader
         title="Справочные данные"
-        description="Управление основными справочными данными системы"
+        description="Управление справочными данными"
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные" },
+        ]}
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -93,7 +95,7 @@ export default function MasterDataPage() {
               className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50 group"
               onClick={() => router.push(section.href)}
             >
-              <CardContent className="p-6">
+              <CardContent>
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <Icon className="size-6" />

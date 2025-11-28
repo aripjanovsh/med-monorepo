@@ -9,7 +9,9 @@ import {
 } from "@/features/master-data/master-data-departments.api";
 import type { Department } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
+import { LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
+import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
   DataTable,
   DataTableToolbar,
@@ -65,7 +67,7 @@ export default function DepartmentsPage() {
         },
       });
     },
-    [departmentFormDialog, refetch],
+    [departmentFormDialog, refetch]
   );
 
   const handleDelete = useCallback(
@@ -91,11 +93,15 @@ export default function DepartmentsPage() {
         },
       });
     },
-    [confirm, deleteDepartment, refetch],
+    [confirm, deleteDepartment, refetch]
   );
 
   return (
     <div className="space-y-6">
+      <LayoutHeader
+        backHref="/cabinet/settings/master-data"
+        backTitle="Справочные данные"
+      />
       <PageHeader
         title="Отделения"
         description="Управление отделениями медицинской организации"
@@ -105,6 +111,13 @@ export default function DepartmentsPage() {
             Добавить отделение
           </Button>
         }
+      />
+      <PageBreadcrumbs
+        items={[
+          { label: "Настройки", href: "/cabinet/settings" },
+          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
+          { label: "Отделения" },
+        ]}
       />
 
       <DataTable
