@@ -347,28 +347,13 @@ model Role {
   @@map("roles")
 }
 
-model Permission {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  resource        String
-  action          PermissionAction
-  description     String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  rolePermissions RolePermission[]
-
-  @@unique([resource, action])
-  @@map("permissions")
-}
-
 model RolePermission {
-  id           String     @id @default(uuid())
-  roleId       String
-  permissionId String
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  id         String @id @default(uuid())
+  roleId     String
+  permission String // Stores permission constant value like "manage_patients"
+  role       Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@unique([roleId, permissionId])
+  @@unique([roleId, permission])
   @@map("role_permissions")
 }
 
@@ -790,14 +775,6 @@ enum EmployeeStatus {
   INACTIVE
   ON_LEAVE
   TERMINATED
-}
-
-enum PermissionAction {
-  CREATE
-  READ
-  UPDATE
-  DELETE
-  MANAGE
 }
 
 enum ServiceTypeEnum {

@@ -1,23 +1,12 @@
 import { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
 
-export interface Permission {
-  id: string;
-  name: string;
-  resource: string;
-  action: "CREATE" | "READ" | "UPDATE" | "DELETE" | "MANAGE";
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface RolePermission {
+export type RolePermission = {
   id: string;
   roleId: string;
-  permissionId: string;
-  permission: Permission;
-}
+  permission: string;
+};
 
-export interface Role {
+export type Role = {
   id: string;
   name: string;
   description?: string;
@@ -27,49 +16,48 @@ export interface Role {
   permissions?: RolePermission[];
   createdAt: string;
   updatedAt: string;
-}
+  _count?: {
+    userAssignments: number;
+  };
+};
 
-export interface CreateRoleDto {
+export type CreateRoleDto = {
   name: string;
   description?: string;
   isActive?: boolean;
-  organizationId: string;
-  permissionIds?: string[];
-}
+  permissions?: string[];
+};
 
-export interface UpdateRoleDto {
+export type UpdateRoleDto = {
   name?: string;
   description?: string;
   isActive?: boolean;
-  permissionIds?: string[];
-}
+  permissions?: string[];
+};
 
-export interface AssignRoleDto {
+export type AssignRoleDto = {
   userId: string;
   roleId: string;
   assignedBy?: string;
   expiresAt?: string;
-}
+};
 
-export interface CreatePermissionDto {
+export type AvailablePermission = {
   name: string;
-  resource: string;
-  action: "CREATE" | "READ" | "UPDATE" | "DELETE" | "MANAGE";
-  description?: string;
-}
+  description: string;
+};
 
-export interface GroupedPermissions {
-  [resource: string]: Permission[];
-}
+export type DefaultRoleConfig = {
+  key: string;
+  name: string;
+  description: string;
+  isSystem: boolean;
+  permissions: string[];
+};
 
 export type PaginatedResponse<T> = PaginatedResponseDto<T>;
 
-export interface RoleFilters extends QueryParamsDto {
+export type RoleFilters = QueryParamsDto & {
   includeInactive?: boolean;
   isSystem?: boolean;
-}
-
-export interface PermissionFilters extends QueryParamsDto {
-  resource?: string;
-  action?: "CREATE" | "READ" | "UPDATE" | "DELETE" | "MANAGE";
-}
+};

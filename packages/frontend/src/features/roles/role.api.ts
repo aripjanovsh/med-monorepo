@@ -1,20 +1,15 @@
 import {
   Role,
-  Permission,
   CreateRoleDto,
   UpdateRoleDto,
   AssignRoleDto,
-  CreatePermissionDto,
   PaginatedResponse,
   RoleFilters,
-  PermissionFilters,
-  GroupedPermissions,
+  AvailablePermission,
+  DefaultRoleConfig,
 } from "@/features/roles/role.types";
 import { rootApi } from "@/store/api/root.api";
-import {
-  API_TAG_OPERATIONS_ROLES,
-  API_TAG_OPERATIONS_PERMISSIONS,
-} from "@/constants/api-tags.constants";
+import { API_TAG_OPERATIONS_ROLES } from "@/constants/api-tags.constants";
 
 export const roleApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -58,30 +53,6 @@ export const roleApi = rootApi.injectEndpoints({
       invalidatesTags: [API_TAG_OPERATIONS_ROLES],
     }),
 
-    assignPermissions: builder.mutation<
-      void,
-      { roleId: string; permissionIds: string[] }
-    >({
-      query: ({ roleId, permissionIds }) => ({
-        url: `/api/v1/roles/${roleId}/permissions`,
-        method: "POST",
-        body: { permissionIds },
-      }),
-      invalidatesTags: [API_TAG_OPERATIONS_ROLES],
-    }),
-
-    removePermissions: builder.mutation<
-      void,
-      { roleId: string; permissionIds: string[] }
-    >({
-      query: ({ roleId, permissionIds }) => ({
-        url: `/api/v1/roles/${roleId}/permissions`,
-        method: "DELETE",
-        body: { permissionIds },
-      }),
-      invalidatesTags: [API_TAG_OPERATIONS_ROLES],
-    }),
-
     assignRole: builder.mutation<void, AssignRoleDto>({
       query: (body) => ({
         url: "/api/v1/roles/assign",
@@ -104,102 +75,40 @@ export const roleApi = rootApi.injectEndpoints({
       providesTags: [API_TAG_OPERATIONS_ROLES],
     }),
 
-    getUserPermissions: builder.query<Permission[], string>({
+    getUserPermissions: builder.query<string[], string>({
       query: (userId) => `/api/v1/roles/users/${userId}/permissions`,
-      providesTags: [API_TAG_OPERATIONS_PERMISSIONS],
-    }),
-
-    checkUserPermission: builder.query<
-      { hasPermission: boolean },
-      { userId: string; resource: string; action: string }
-    >({
-      query: ({ userId, resource, action }) =>
-        `/api/v1/roles/users/${userId}/check/${resource}/${action}`,
     }),
 
     // Permissions endpoints
-    getPermissions: builder.query<
-      PaginatedResponse<Permission>,
-      PermissionFilters
-    >({
-      query: (params) => ({
-        url: "/api/v1/permissions",
-        params,
-      }),
-      providesTags: [API_TAG_OPERATIONS_PERMISSIONS],
+    getAvailablePermissions: builder.query<AvailablePermission[], void>({
+      query: () => "/api/v1/permissions/available",
     }),
 
-    getPermission: builder.query<Permission, string>({
-      query: (id) => `/api/v1/permissions/${id}`,
-      providesTags: [API_TAG_OPERATIONS_PERMISSIONS],
+    getDefaultRoles: builder.query<DefaultRoleConfig[], void>({
+      query: () => "/api/v1/permissions/default-roles",
     }),
 
-    createPermission: builder.mutation<Permission, CreatePermissionDto>({
-      query: (body) => ({
-        url: "/api/v1/permissions",
+    seedDefaultRoles: builder.mutation<void, void>({
+      query: () => ({
+        url: "/api/v1/permissions/seed-roles",
         method: "POST",
-        body,
       }),
-      invalidatesTags: [API_TAG_OPERATIONS_PERMISSIONS],
-    }),
-
-    updatePermission: builder.mutation<
-      Permission,
-      { id: string; data: Partial<CreatePermissionDto> }
-    >({
-      query: ({ id, data }) => ({
-        url: `/api/v1/permissions/${id}`,
-        method: "PATCH",
-        body: data,
-      }),
-      invalidatesTags: [API_TAG_OPERATIONS_PERMISSIONS],
-    }),
-
-    deletePermission: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/api/v1/permissions/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [API_TAG_OPERATIONS_PERMISSIONS],
-    }),
-
-    getResources: builder.query<string[], void>({
-      query: () => "/api/v1/permissions/resources",
-    }),
-
-    getGroupedPermissions: builder.query<GroupedPermissions, void>({
-      query: () => "/api/v1/permissions/grouped",
-      providesTags: [API_TAG_OPERATIONS_PERMISSIONS],
-    }),
-
-    seedDefaultPermissions: builder.query<void, void>({
-      query: () => "/api/v1/permissions/seed",
+      invalidatesTags: [API_TAG_OPERATIONS_ROLES],
     }),
   }),
 });
 
 export const {
-  // Roles
   useGetRolesQuery,
   useGetRoleQuery,
   useCreateRoleMutation,
   useUpdateRoleMutation,
   useDeleteRoleMutation,
-  useAssignPermissionsMutation,
-  useRemovePermissionsMutation,
   useAssignRoleMutation,
   useRemoveUserRoleMutation,
   useGetUserRolesQuery,
   useGetUserPermissionsQuery,
-  useCheckUserPermissionQuery,
-
-  // Permissions
-  useGetPermissionsQuery,
-  useGetPermissionQuery,
-  useCreatePermissionMutation,
-  useUpdatePermissionMutation,
-  useDeletePermissionMutation,
-  useGetResourcesQuery,
-  useGetGroupedPermissionsQuery,
-  useSeedDefaultPermissionsQuery,
+  useGetAvailablePermissionsQuery,
+  useGetDefaultRolesQuery,
+  useSeedDefaultRolesMutation,
 } = roleApi;

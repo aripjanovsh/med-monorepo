@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
@@ -11,33 +12,46 @@ import { UpdateRoleDto } from "./dto/update-role.dto";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { FindAllRoleDto } from "./dto/find-all-role.dto";
 import { PaginatedResponseDto } from "../../common/dto/pagination.dto";
-import {
-  transformToDto,
-  createPaginatedResponse,
-} from "../../common/utils/transform.util";
 import { CurrentUserData } from "../../common/decorators/current-user.decorator";
 import { plainToInstance } from "class-transformer";
 import { RoleResponseDto } from "./dto/role-response.dto";
+import { PERMISSIONS } from "../../common/constants/permissions.constants";
 
 @Injectable()
 export class RoleService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private validatePermissions(permissions: string[]): void {
+    const validPermissions = new Set(Object.values(PERMISSIONS));
+    const invalid = permissions.filter((p) => !validPermissions.has(p as any));
+    if (invalid.length > 0) {
+      throw new BadRequestException(`Invalid permissions: ${invalid.join(", ")}`);
+    }
+  }
+
   async create(createRoleDto: CreateRoleDto, currentUser: CurrentUserData) {
     try {
-      const { permissionIds, ...roleData } = createRoleDto;
+      const { permissions, ...roleData } = createRoleDto;
+
+      // Validate permissions if provided
+      if (permissions && permissions.length > 0) {
+        this.validatePermissions(permissions);
+      }
 
       const role = await this.prisma.role.create({
         data: {
           ...roleData,
           organizationId: currentUser.organizationId,
+          permissions: permissions && permissions.length > 0
+            ? {
+                create: permissions.map((permission) => ({
+                  permission,
+                })),
+              }
+            : undefined,
         },
         include: {
-          permissions: {
-            include: {
-              permission: true,
-            },
-          },
+          permissions: true,
           organization: {
             select: {
               id: true,
@@ -47,14 +61,6 @@ export class RoleService {
           },
         },
       });
-
-      // Assign permissions if provided
-      if (permissionIds && permissionIds.length > 0) {
-        await this.assignPermissions(role.id, permissionIds);
-
-        // Return role with permissions
-        return this.findById(role.id);
-      }
 
       return role;
     } catch (error) {
@@ -119,11 +125,7 @@ export class RoleService {
       this.prisma.role.findMany({
         where,
         include: {
-          permissions: {
-            include: {
-              permission: true,
-            },
-          },
+          permissions: true,
           organization: {
             select: {
               id: true,
@@ -159,11 +161,7 @@ export class RoleService {
     const role = await this.prisma.role.findUnique({
       where: { id },
       include: {
-        permissions: {
-          include: {
-            permission: true,
-          },
-        },
+        permissions: true,
         organization: {
           select: {
             id: true,
@@ -198,7 +196,7 @@ export class RoleService {
 
   async update(id: string, updateRoleDto: UpdateRoleDto) {
     try {
-      const { permissionIds, ...roleData } = updateRoleDto;
+      const { permissions, ...roleData } = updateRoleDto;
 
       // Check if role exists and is not system role if trying to modify system properties
       const existingRole = await this.prisma.role.findUnique({
@@ -216,21 +214,33 @@ export class RoleService {
         throw new ForbiddenException("Cannot modify system role properties");
       }
 
-      const role = await this.prisma.role.update({
+      // Validate permissions if provided
+      if (permissions !== undefined && permissions.length > 0) {
+        this.validatePermissions(permissions);
+      }
+
+      // Update role data
+      await this.prisma.role.update({
         where: { id },
         data: roleData,
       });
 
       // Update permissions if provided
-      if (permissionIds !== undefined) {
+      if (permissions !== undefined) {
         // Remove existing permissions
         await this.prisma.rolePermission.deleteMany({
           where: { roleId: id },
         });
 
         // Add new permissions
-        if (permissionIds.length > 0) {
-          await this.assignPermissions(id, permissionIds);
+        if (permissions.length > 0) {
+          await this.prisma.rolePermission.createMany({
+            data: permissions.map((permission) => ({
+              roleId: id,
+              permission,
+            })),
+            skipDuplicates: true,
+          });
         }
       }
 
@@ -277,33 +287,6 @@ export class RoleService {
       }
       throw error;
     }
-  }
-
-  async assignPermissions(roleId: string, permissionIds: string[]) {
-    const rolePermissions = permissionIds.map((permissionId) => ({
-      roleId,
-      permissionId,
-    }));
-
-    await this.prisma.rolePermission.createMany({
-      data: rolePermissions,
-      skipDuplicates: true,
-    });
-
-    return { message: "Permissions assigned successfully" };
-  }
-
-  async removePermissions(roleId: string, permissionIds: string[]) {
-    await this.prisma.rolePermission.deleteMany({
-      where: {
-        roleId,
-        permissionId: {
-          in: permissionIds,
-        },
-      },
-    });
-
-    return { message: "Permissions removed successfully" };
   }
 
   async assignUserRole(assignRoleDto: AssignRoleDto) {
@@ -376,45 +359,32 @@ export class RoleService {
       include: {
         role: {
           include: {
-            permissions: {
-              include: {
-                permission: true,
-              },
-            },
+            permissions: true,
           },
         },
       },
     });
   }
 
-  async getUserPermissions(userId: string) {
+  async getUserPermissions(userId: string): Promise<string[]> {
     const roleAssignments = await this.getUserRoles(userId);
 
-    const permissions = new Map();
+    const permissions = new Set<string>();
 
     roleAssignments.forEach((assignment) => {
       assignment.role.permissions.forEach((rolePermission) => {
-        const permission = rolePermission.permission;
-        const key = `${permission.resource}:${permission.action}`;
-        permissions.set(key, permission);
+        permissions.add(rolePermission.permission);
       });
     });
 
-    return Array.from(permissions.values());
+    return Array.from(permissions);
   }
 
   async checkUserPermission(
     userId: string,
-    resource: string,
-    action: string,
+    permission: string,
   ): Promise<boolean> {
     const permissions = await this.getUserPermissions(userId);
-
-    // Check for exact permission or MANAGE permission on the resource
-    return permissions.some(
-      (permission) =>
-        permission.resource === resource &&
-        (permission.action === action || permission.action === "MANAGE"),
-    );
+    return permissions.includes(permission);
   }
 }

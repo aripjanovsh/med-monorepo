@@ -85,7 +85,7 @@ export class AuthService {
   }
 
   async getProfile(user: CurrentUserData) {
-    // Get user with employee data including avatar
+    // Get user with employee data including avatar, roles and permissions
     const userData = await this.prisma.user.findUnique({
       where: { id: user.id },
       include: {
@@ -104,7 +104,13 @@ export class AuthService {
           },
         },
         roleAssignments: {
-          include: { role: true },
+          include: {
+            role: {
+              include: {
+                permissions: true,
+              },
+            },
+          },
         },
       },
     });
@@ -115,6 +121,24 @@ export class AuthService {
 
     const { password: _, ...result } = userData;
 
+    // Transform roles with their permissions
+    const userRoles =
+      userData.roleAssignments?.map((ra) => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        description: ra.role.description,
+        permissions: ra.role.permissions?.map((rp) => rp.permission) ?? [],
+      })) ?? [];
+
+    // Collect unique permission names
+    const permissionSet = new Set<string>();
+    userRoles.forEach((role) => {
+      role.permissions.forEach((permission) => {
+        permissionSet.add(permission);
+      });
+    });
+    const permissions = Array.from(permissionSet);
+
     return plainToInstance(MeResponseDto, {
       ...result,
       firstName: userData.employee?.firstName,
@@ -123,9 +147,9 @@ export class AuthService {
       email: userData.employee?.email,
       avatarId: userData.employee?.avatarId,
       avatar: userData.employee?.avatar,
-      roles:
-        userData.roleAssignments?.map((ra) => ra.role?.name).filter(Boolean) ??
-        [],
+      roles: userRoles.map((r) => r.name),
+      userRoles,
+      permissions,
     });
   }
 

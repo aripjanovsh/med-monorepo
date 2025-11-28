@@ -37,12 +37,12 @@ export class CreateRoleDto {
   isSystem?: boolean;
 
   @ApiProperty({
-    description: "Permission IDs to assign to this role",
-    example: ["permission-uuid-1", "permission-uuid-2"],
+    description: "Permission names to assign to this role",
+    example: ["manage_patients", "manage_visits"],
     required: false,
   })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  permissionIds?: string[];
+  permissions?: string[];
 }

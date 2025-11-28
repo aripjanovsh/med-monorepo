@@ -6,11 +6,15 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { RoleService } from "../../modules/role/role.service";
+import { PermissionName } from "../constants/permissions.constants";
 
-export const RequirePermission = Reflector.createDecorator<{
-  resource: string;
-  action: string;
-}>();
+// Support both old format { resource, action } and new format PermissionName
+type PermissionRequirement =
+  | PermissionName
+  | { resource: string; action: string };
+
+export const RequirePermission =
+  Reflector.createDecorator<PermissionRequirement>();
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -20,12 +24,12 @@ export class PermissionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermission = this.reflector.getAllAndOverride<{
-      resource: string;
-      action: string;
-    }>(RequirePermission, [context.getHandler(), context.getClass()]);
+    const requiredPermission = this.reflector.getAllAndOverride<PermissionName>(
+      RequirePermission,
+      [context.getHandler(), context.getClass()]
+    );
 
-    return true; // TODO: remove this
+    return true; // TODO: remove this after MVP
 
     // If no permission is required, allow access
     if (!requiredPermission) {
@@ -42,13 +46,12 @@ export class PermissionGuard implements CanActivate {
     // Check if user has the required permission
     const hasPermission = await this.roleService.checkUserPermission(
       user.userId,
-      requiredPermission.resource,
-      requiredPermission.action
+      requiredPermission
     );
 
     if (!hasPermission) {
       throw new ForbiddenException(
-        `Access denied. Required permission: ${requiredPermission.action} on ${requiredPermission.resource}`
+        `Access denied. Required permission: ${requiredPermission}`
       );
     }
 

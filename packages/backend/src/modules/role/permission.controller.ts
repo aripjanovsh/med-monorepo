@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {
   ApiTags,
@@ -16,10 +6,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { PermissionAction } from "@prisma/client";
 import { PermissionService } from "./permission.service";
-import { CreatePermissionDto } from "./dto/create-permission.dto";
-import { FindAllPermissionDto } from "./dto/find-all-permission.dto";
 import {
   CurrentUser,
   CurrentUserData,
@@ -32,83 +19,33 @@ import {
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
-  @Post()
-  @ApiOperation({ summary: "Create new permission" })
-  @ApiResponse({ status: 201, description: "Permission created successfully" })
-  @ApiResponse({ status: 400, description: "Bad request" })
-  @ApiResponse({ status: 409, description: "Permission already exists" })
-  create(@Body() createPermissionDto: CreatePermissionDto) {
-    return this.permissionService.create(createPermissionDto);
-  }
-
-  @Get()
-  @ApiOperation({ summary: "Get all permissions with pagination" })
+  @Get("available")
+  @ApiOperation({ summary: "Get list of all available permissions" })
   @ApiResponse({
     status: 200,
-    description: "Permissions retrieved successfully",
+    description: "Available permissions retrieved successfully",
   })
-  findAll(
-    @Query() query: FindAllPermissionDto,
-    @CurrentUser() currentUser: CurrentUserData,
-  ) {
-    return this.permissionService.findAll(query, currentUser);
+  getAvailablePermissions() {
+    return this.permissionService.getAvailablePermissions();
   }
 
-  @Get("resources")
-  @ApiOperation({ summary: "Get list of all resources" })
+  @Get("default-roles")
+  @ApiOperation({ summary: "Get default role configurations" })
   @ApiResponse({
     status: 200,
-    description: "Resource list retrieved successfully",
+    description: "Default roles retrieved successfully",
   })
-  getResources() {
-    return this.permissionService.getResourceList();
+  getDefaultRoles() {
+    return this.permissionService.getDefaultRoles();
   }
 
-  @Get("grouped")
-  @ApiOperation({ summary: "Get permissions grouped by resource" })
+  @Post("seed-roles")
+  @ApiOperation({ summary: "Seed default roles for organization" })
   @ApiResponse({
     status: 200,
-    description: "Grouped permissions retrieved successfully",
+    description: "Default roles seeded successfully",
   })
-  getGroupedPermissions() {
-    return this.permissionService.getPermissionsByResource();
-  }
-
-  @Get("seed")
-  @ApiOperation({ summary: "Seed default permissions" })
-  @ApiResponse({
-    status: 200,
-    description: "Default permissions seeded successfully",
-  })
-  seedDefaultPermissions() {
-    return this.permissionService.seedDefaultPermissions();
-  }
-
-  @Get(":id")
-  @ApiOperation({ summary: "Get permission by ID" })
-  @ApiResponse({ status: 200, description: "Permission found" })
-  @ApiResponse({ status: 404, description: "Permission not found" })
-  findOne(@Param("id") id: string) {
-    return this.permissionService.findById(id);
-  }
-
-  @Patch(":id")
-  @ApiOperation({ summary: "Update permission" })
-  @ApiResponse({ status: 200, description: "Permission updated successfully" })
-  @ApiResponse({ status: 404, description: "Permission not found" })
-  @ApiResponse({ status: 409, description: "Permission already exists" })
-  update(
-    @Param("id") id: string,
-    @Body() updateData: Partial<CreatePermissionDto>,
-  ) {
-    return this.permissionService.update(id, updateData);
-  }
-
-  @Delete(":id")
-  @ApiOperation({ summary: "Delete permission" })
-  @ApiResponse({ status: 200, description: "Permission deleted successfully" })
-  @ApiResponse({ status: 404, description: "Permission not found" })
-  remove(@Param("id") id: string) {
-    return this.permissionService.remove(id);
+  seedDefaultRoles(@CurrentUser() currentUser: CurrentUserData) {
+    return this.permissionService.seedDefaultRoles(currentUser.organizationId);
   }
 }

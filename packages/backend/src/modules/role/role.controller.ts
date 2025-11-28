@@ -85,31 +85,6 @@ export class RoleController {
     return this.roleService.remove(id);
   }
 
-  @Post(":id/permissions")
-  @ApiOperation({ summary: "Assign permissions to role" })
-  @ApiResponse({
-    status: 200,
-    description: "Permissions assigned successfully",
-  })
-  @ApiResponse({ status: 404, description: "Role not found" })
-  assignPermissions(
-    @Param("id") roleId: string,
-    @Body("permissionIds") permissionIds: string[],
-  ) {
-    return this.roleService.assignPermissions(roleId, permissionIds);
-  }
-
-  @Delete(":id/permissions")
-  @ApiOperation({ summary: "Remove permissions from role" })
-  @ApiResponse({ status: 200, description: "Permissions removed successfully" })
-  @ApiResponse({ status: 404, description: "Role not found" })
-  removePermissions(
-    @Param("id") roleId: string,
-    @Body("permissionIds") permissionIds: string[],
-  ) {
-    return this.roleService.removePermissions(roleId, permissionIds);
-  }
-
   @Post("assign")
   @ApiOperation({ summary: "Assign role to user" })
   @ApiResponse({ status: 201, description: "Role assigned successfully" })
@@ -149,14 +124,17 @@ export class RoleController {
     return this.roleService.getUserPermissions(userId);
   }
 
-  @Get("users/:userId/check/:resource/:action")
+  @Get("users/:userId/check/:permission")
   @ApiOperation({ summary: "Check user permission" })
   @ApiResponse({ status: 200, description: "Permission check result" })
-  checkUserPermission(
+  async checkUserPermission(
     @Param("userId") userId: string,
-    @Param("resource") resource: string,
-    @Param("action") action: string,
+    @Param("permission") permission: string,
   ) {
-    return this.roleService.checkUserPermission(userId, resource, action);
+    const hasPermission = await this.roleService.checkUserPermission(
+      userId,
+      permission,
+    );
+    return { hasPermission };
   }
 }

@@ -2,6 +2,51 @@ import { Exclude, Expose, Type } from "class-transformer";
 import { FileResponseDto } from "@/modules/file/dto/file-response.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
+// Permission DTO for the profile response
+@Exclude()
+export class PermissionDto {
+  @Expose()
+  @ApiProperty()
+  id: string;
+
+  @Expose()
+  @ApiProperty()
+  name: string;
+
+  @Expose()
+  @ApiProperty()
+  resource: string;
+
+  @Expose()
+  @ApiProperty()
+  action: string;
+
+  @Expose()
+  @ApiProperty({ required: false })
+  description?: string;
+}
+
+// Role DTO for the profile response
+@Exclude()
+export class UserRoleDto {
+  @Expose()
+  @ApiProperty()
+  id: string;
+
+  @Expose()
+  @ApiProperty()
+  name: string;
+
+  @Expose()
+  @ApiProperty({ required: false })
+  description?: string;
+
+  @Expose()
+  @Type(() => PermissionDto)
+  @ApiProperty({ type: [PermissionDto] })
+  permissions: PermissionDto[];
+}
+
 @Exclude()
 export class MeResponseDto {
   @Expose()
@@ -17,8 +62,23 @@ export class MeResponseDto {
   role: string;
 
   @Expose()
-  @ApiProperty()
+  @ApiProperty({ type: [String], description: "List of role names" })
   roles: string[];
+
+  @Expose()
+  @Type(() => UserRoleDto)
+  @ApiProperty({
+    type: [UserRoleDto],
+    description: "User roles with permissions",
+  })
+  userRoles: UserRoleDto[];
+
+  @Expose()
+  @ApiProperty({
+    type: [String],
+    description: "Flat list of unique permission names",
+  })
+  permissions: string[];
 
   @Expose()
   @ApiProperty()
