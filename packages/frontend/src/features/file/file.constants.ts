@@ -15,6 +15,7 @@ export const FILE_CATEGORY_LABELS: Record<FileCategory, string> = {
   [FileCategory.REFERRAL]: "Направление",
   [FileCategory.CONSENT_FORM]: "Согласие",
   [FileCategory.GENERAL]: "Общее",
+  [FileCategory.LOGO]: "Логотип",
 };
 
 // Категории файлов специфичные для пациентов

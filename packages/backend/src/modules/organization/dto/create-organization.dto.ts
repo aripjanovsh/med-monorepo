@@ -77,4 +77,13 @@ export class CreateOrganizationDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({
+    description: "Logo file ID",
+    example: "550e8400-e29b-41d4-a716-446655440000",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  logoId?: string;
 }

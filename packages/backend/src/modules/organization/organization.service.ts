@@ -22,7 +22,7 @@ export class OrganizationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    createOrganizationDto: CreateOrganizationDto,
+    createOrganizationDto: CreateOrganizationDto
   ): Promise<OrganizationResponseDto> {
     try {
       // Generate slug from name if not provided
@@ -38,6 +38,7 @@ export class OrganizationService {
       const organization = await this.prisma.organization.create({
         data: organizationData,
         include: {
+          logo: true,
           _count: {
             select: {
               users: true,
@@ -51,13 +52,13 @@ export class OrganizationService {
 
       return transformToDto(
         OrganizationResponseDto,
-        organization,
+        organization
       ) as OrganizationResponseDto;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Organization with this slug already exists",
+            "Organization with this slug already exists"
           );
         }
       }
@@ -67,7 +68,7 @@ export class OrganizationService {
 
   async findAll(
     query: FindAllOrganizationDto,
-    currentUser: CurrentUserData,
+    currentUser: CurrentUserData
   ): Promise<PaginatedResponseDto<OrganizationResponseDto>> {
     const { page, limit, search, sortBy, sortOrder, isActive } = query;
     const skip = (page - 1) * limit;
@@ -102,6 +103,7 @@ export class OrganizationService {
       this.prisma.organization.findMany({
         where,
         include: {
+          logo: true,
           _count: {
             select: {
               users: true,
@@ -129,10 +131,32 @@ export class OrganizationService {
     };
   }
 
+  async getMyOrganization(
+    currentUser: CurrentUserData
+  ): Promise<OrganizationResponseDto> {
+    if (!currentUser.organizationId) {
+      throw new NotFoundException("User has no organization");
+    }
+
+    return this.findById(currentUser.organizationId);
+  }
+
+  async updateMyOrganization(
+    currentUser: CurrentUserData,
+    updateOrganizationDto: UpdateOrganizationDto
+  ): Promise<OrganizationResponseDto> {
+    if (!currentUser.organizationId) {
+      throw new NotFoundException("User has no organization");
+    }
+
+    return this.update(currentUser.organizationId, updateOrganizationDto);
+  }
+
   async findById(id: string): Promise<OrganizationResponseDto> {
     const organization = await this.prisma.organization.findUnique({
       where: { id },
       include: {
+        logo: true,
         _count: {
           select: {
             users: true,
@@ -152,7 +176,7 @@ export class OrganizationService {
 
     return transformToDto(
       OrganizationResponseDto,
-      organization,
+      organization
     ) as OrganizationResponseDto;
   }
 
@@ -160,6 +184,7 @@ export class OrganizationService {
     const organization = await this.prisma.organization.findUnique({
       where: { slug },
       include: {
+        logo: true,
         _count: {
           select: {
             users: true,
@@ -176,19 +201,20 @@ export class OrganizationService {
 
     return transformToDto(
       OrganizationResponseDto,
-      organization,
+      organization
     ) as OrganizationResponseDto;
   }
 
   async update(
     id: string,
-    updateOrganizationDto: UpdateOrganizationDto,
+    updateOrganizationDto: UpdateOrganizationDto
   ): Promise<OrganizationResponseDto> {
     try {
       const organization = await this.prisma.organization.update({
         where: { id },
         data: updateOrganizationDto,
         include: {
+          logo: true,
           _count: {
             select: {
               users: true,
@@ -201,7 +227,7 @@ export class OrganizationService {
 
       return transformToDto(
         OrganizationResponseDto,
-        organization,
+        organization
       ) as OrganizationResponseDto;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -210,7 +236,7 @@ export class OrganizationService {
         }
         if (error.code === "P2002") {
           throw new ConflictException(
-            "Organization with this slug already exists",
+            "Organization with this slug already exists"
           );
         }
       }

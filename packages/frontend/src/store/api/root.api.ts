@@ -27,11 +27,12 @@ import {
   API_TAG_OPERATIONS_RECEPTION,
   API_TAG_OPERATIONS_FILES,
   API_TAG_OPERATIONS_STATS,
+  API_TAG_OPERATIONS_ORGANIZATION,
 } from "@/constants/api-tags.constants";
 
 const prepareHeaders = (
   headers: Headers,
-  { getState }: { getState: () => any },
+  { getState }: { getState: () => any }
 ) => {
   const state = getState();
   const token = state.auth?.token;
@@ -76,6 +77,7 @@ export const rootApi = createApi({
     API_TAG_OPERATIONS_RECEPTION,
     API_TAG_OPERATIONS_FILES,
     API_TAG_OPERATIONS_STATS,
+    API_TAG_OPERATIONS_ORGANIZATION,
   ],
   endpoints: () => ({}),
 });

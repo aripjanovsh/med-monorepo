@@ -60,6 +60,9 @@ export const API_TAG_OPERATIONS_FILES = "Files" as const;
 // Statistics API Tags
 export const API_TAG_OPERATIONS_STATS = "Stats" as const;
 
+// Organization API Tags
+export const API_TAG_OPERATIONS_ORGANIZATION = "Organization" as const;
+
 export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_TITLES
   | typeof API_TAG_OPERATIONS_SERVICE_TYPES
@@ -86,7 +89,8 @@ export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_INVOICES
   | typeof API_TAG_OPERATIONS_RECEPTION
   | typeof API_TAG_OPERATIONS_FILES
-  | typeof API_TAG_OPERATIONS_STATS;
+  | typeof API_TAG_OPERATIONS_STATS
+  | typeof API_TAG_OPERATIONS_ORGANIZATION;
 
 // Unified API Tags object for easier access
 export const API_TAGS = {
@@ -116,4 +120,5 @@ export const API_TAGS = {
   RECEPTION: API_TAG_OPERATIONS_RECEPTION,
   FILES: API_TAG_OPERATIONS_FILES,
   STATS: API_TAG_OPERATIONS_STATS,
+  ORGANIZATION: API_TAG_OPERATIONS_ORGANIZATION,
 } as const;

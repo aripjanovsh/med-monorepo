@@ -34,7 +34,7 @@ import {
 export class OrganizationController {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   @Post()
@@ -49,6 +49,34 @@ export class OrganizationController {
     return this.organizationService.create(createOrganizationDto);
   }
 
+  @Get("my")
+  @ApiOperation({ summary: "Get current user's organization" })
+  @ApiResponse({
+    status: 200,
+    description: "Organization found",
+  })
+  @ApiResponse({ status: 404, description: "Organization not found" })
+  getMyOrganization(@CurrentUser() currentUser: CurrentUserData) {
+    return this.organizationService.getMyOrganization(currentUser);
+  }
+
+  @Patch("my")
+  @ApiOperation({ summary: "Update current user's organization" })
+  @ApiResponse({
+    status: 200,
+    description: "Organization updated successfully",
+  })
+  @ApiResponse({ status: 404, description: "Organization not found" })
+  updateMyOrganization(
+    @CurrentUser() currentUser: CurrentUserData,
+    @Body() updateOrganizationDto: UpdateOrganizationDto
+  ) {
+    return this.organizationService.updateMyOrganization(
+      currentUser,
+      updateOrganizationDto
+    );
+  }
+
   @Get()
   @ApiOperation({ summary: "Get all organizations with pagination" })
   @ApiResponse({
@@ -57,7 +85,7 @@ export class OrganizationController {
   })
   findAll(
     @Query() query: FindAllOrganizationDto,
-    @CurrentUser() currentUser: CurrentUserData,
+    @CurrentUser() currentUser: CurrentUserData
   ) {
     return this.organizationService.findAll(query, currentUser);
   }
@@ -88,7 +116,7 @@ export class OrganizationController {
   @ApiResponse({ status: 409, description: "Slug already exists" })
   update(
     @Param("id") id: string,
-    @Body() updateOrganizationDto: UpdateOrganizationDto,
+    @Body() updateOrganizationDto: UpdateOrganizationDto
   ) {
     return this.organizationService.update(id, updateOrganizationDto);
   }

@@ -1,5 +1,20 @@
-import { Exclude, Expose } from "class-transformer";
+import { Exclude, Expose, Type } from "class-transformer";
 import { BaseResponseDto } from "../../../common/dto/response.dto";
+
+@Exclude()
+class FileResponseDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  filename: string;
+
+  @Expose()
+  mimeType: string;
+
+  @Expose()
+  path: string;
+}
 
 @Exclude()
 export class OrganizationResponseDto extends BaseResponseDto {
@@ -23,6 +38,13 @@ export class OrganizationResponseDto extends BaseResponseDto {
 
   @Expose()
   description?: string;
+
+  @Expose()
+  logoId?: string;
+
+  @Expose()
+  @Type(() => FileResponseDto)
+  logo?: FileResponseDto;
 
   @Expose()
   isActive: boolean;

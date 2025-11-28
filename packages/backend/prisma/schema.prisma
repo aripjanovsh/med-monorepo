@@ -16,9 +16,11 @@ model Organization {
   email                String?
   website              String?
   description          String?
+  logoId               String?               @unique
   isActive             Boolean               @default(true)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
+  logo                 File?                 @relation("OrganizationLogo", fields: [logoId], references: [id])
   analysisTemplates    AnalysisTemplate[]
   appointments         Appointment[]
   departments          Department[]
@@ -725,7 +727,8 @@ model File {
   deletedBy      Employee?       @relation("FileDeletedBy", fields: [deletedById], references: [id])
   uploadedBy     Employee        @relation("FileUploadedBy", fields: [uploadedById], references: [id])
   organization   Organization    @relation(fields: [organizationId], references: [id])
-  employeeAvatar Employee?       @relation("EmployeeAvatar")
+  employeeAvatar     Employee?     @relation("EmployeeAvatar")
+  organizationLogo   Organization? @relation("OrganizationLogo")
 
   @@index([organizationId])
   @@index([entityType, entityId])
@@ -884,6 +887,7 @@ enum PaymentMethod {
 
 enum FileCategory {
   AVATAR
+  LOGO
   DOCUMENT
   ANALYSIS_RESULT
   XRAY

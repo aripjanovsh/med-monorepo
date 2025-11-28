@@ -345,6 +345,13 @@ export class FileService {
       },
     });
 
+    await this.prisma.organization.update({
+      where: { logoId: id },
+      data: {
+        logoId: null,
+      },
+    });
+
     // Физическое удаление файла
     await this.fileStorage.deleteFile(file.path, file.storedName);
 

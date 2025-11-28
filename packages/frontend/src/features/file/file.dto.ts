@@ -1,5 +1,6 @@
 export enum FileCategory {
   AVATAR = "AVATAR",
+  LOGO = "LOGO",
   DOCUMENT = "DOCUMENT",
   ANALYSIS_RESULT = "ANALYSIS_RESULT",
   XRAY = "XRAY",

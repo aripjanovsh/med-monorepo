@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useConfirmDialog } from "@/components/dialogs";
 import {
@@ -12,19 +11,19 @@ import {
   fileHelpers,
 } from "@/features/file/file.api";
 import { FileCategory } from "@/features/file/file.dto";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { Building2, Camera, Loader2, Trash2 } from "lucide-react";
 
-type AvatarUploadProps = {
-  currentAvatarId?: string;
-  onAvatarChange: (fileId: string | undefined) => void;
-  userName?: string;
+type LogoUploadProps = {
+  currentLogoId?: string;
+  onLogoChange: (fileId: string | undefined) => void;
+  companyName?: string;
 };
 
-export function AvatarUpload({
-  currentAvatarId,
-  onAvatarChange,
-  userName = "",
-}: AvatarUploadProps) {
+export function LogoUpload({
+  currentLogoId,
+  onLogoChange,
+  companyName = "",
+}: LogoUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -34,19 +33,8 @@ export function AvatarUpload({
   const [deleteFile] = useDeleteFileMutation();
   const confirm = useConfirmDialog();
 
-  // Generate initials from user name
-  const initials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .filter(Boolean)
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
-  // Get avatar URL
-  const avatarUrl = currentAvatarId
-    ? fileHelpers.getImageUrl(currentAvatarId)
-    : null;
+  // Get logo URL
+  const logoUrl = currentLogoId ? fileHelpers.getImageUrl(currentLogoId) : null;
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,34 +63,33 @@ export function AvatarUpload({
         const result = await uploadFile({
           file,
           dto: {
-            category: FileCategory.AVATAR,
-            title: "Аватар профиля",
+            category: FileCategory.LOGO,
+            title: "Логотип компании",
           },
         }).unwrap();
 
-        onAvatarChange(result.id);
-        toast.success("Фото профиля обновлено");
+        onLogoChange(result.id);
+        toast.success("Логотип обновлен");
       } catch {
-        toast.error("Ошибка при загрузке фото");
+        toast.error("Ошибка при загрузке логотипа");
         setPreviewUrl(null);
       } finally {
         setIsUploading(false);
-        // Reset input to allow selecting the same file again
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
       }
     },
-    [uploadFile, onAvatarChange]
+    [uploadFile, onLogoChange]
   );
 
-  const handleRemoveAvatar = useCallback(async () => {
-    if (!currentAvatarId) return;
+  const handleRemoveLogo = useCallback(async () => {
+    if (!currentLogoId) return;
 
     confirm({
-      title: "Удалить фото профиля?",
+      title: "Удалить логотип?",
       description:
-        "Это действие удалит ваше фото профиля. Вы сможете загрузить новое фото в любое время.",
+        "Это действие удалит логотип компании. Вы сможете загрузить новый логотип в любое время.",
       variant: "destructive",
       confirmText: "Удалить",
       cancelText: "Отмена",
@@ -110,53 +97,50 @@ export function AvatarUpload({
         setIsDeleting(true);
 
         try {
-          // First, nullify the reference by updating the profile
-          onAvatarChange(undefined);
+          // First, nullify the reference by updating the organization
+          onLogoChange(undefined);
           setPreviewUrl(null);
 
           // Then soft delete the file
-          await deleteFile(currentAvatarId).unwrap();
+          await deleteFile(currentLogoId).unwrap();
 
-          toast.success("Фото профиля удалено");
+          toast.success("Логотип удален");
         } catch {
-          toast.error("Ошибка при удалении фото");
+          toast.error("Ошибка при удалении логотипа");
         } finally {
           setIsDeleting(false);
         }
       },
     });
-  }, [confirm, deleteFile, onAvatarChange, currentAvatarId]);
+  }, [confirm, deleteFile, onLogoChange, currentLogoId]);
 
   const handleButtonClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
 
   // Determine which image to show
-  const displayUrl = previewUrl ?? avatarUrl;
-  // Use unoptimized for blob URLs (preview), optimized for server URLs
+  const displayUrl = previewUrl ?? logoUrl;
   const isPreview = !!previewUrl;
 
   return (
     <div className="flex items-center gap-6">
       <div className="relative">
-        <Avatar className="h-24 w-24 rounded-full border-2 border-muted overflow-hidden">
+        <div className="h-24 w-24 rounded-2xl border-2 border-muted  flex items-center justify-center overflow-hidden">
           {displayUrl ? (
             <Image
               src={displayUrl}
-              alt={userName}
+              alt={companyName || "Логотип компании"}
               fill
               sizes="96px"
-              className="object-cover"
+              className="object-contain p-2"
               unoptimized={isPreview}
             />
           ) : (
-            <AvatarFallback className="text-2xl font-medium">
-              {initials || "?"}
-            </AvatarFallback>
+            <Building2 className="h-10 w-10 text-blue-600" />
           )}
-        </Avatar>
+        </div>
         {isUploading && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50">
             <Loader2 className="h-6 w-6 animate-spin text-white" />
           </div>
         )}
@@ -180,15 +164,15 @@ export function AvatarUpload({
             disabled={isUploading}
           >
             <Camera />
-            {currentAvatarId ? "Изменить фото" : "Загрузить фото"}
+            {currentLogoId ? "Изменить логотип" : "Загрузить логотип"}
           </Button>
 
-          {currentAvatarId && (
+          {currentLogoId && (
             <Button
               type="button"
               variant="destructive"
               size="sm"
-              onClick={handleRemoveAvatar}
+              onClick={handleRemoveLogo}
               disabled={isUploading || isDeleting}
             >
               <Trash2 />
@@ -198,7 +182,7 @@ export function AvatarUpload({
         </div>
 
         <p className="text-xs text-muted-foreground">
-          JPG, PNG или GIF. Максимум 5 МБ.
+          PNG, JPG или SVG. Максимум 5 МБ.
         </p>
       </div>
     </div>
