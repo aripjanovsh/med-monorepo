@@ -306,7 +306,28 @@ export class FileService {
     organizationId: string,
     deletedById: string
   ): Promise<void> {
-    const file = await this.getFileById(id, organizationId);
+    const file = await this.prisma.file.findFirst({
+      where: {
+        id,
+        organizationId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        uploadedById: true,
+        path: true,
+        storedName: true,
+      },
+    });
+
+    if (!file) {
+      throw new NotFoundException(`File not found: ${id}`);
+    }
+
+    // Check if user can delete this file (only uploader or admin can delete)
+    if (file.uploadedById !== deletedById) {
+      throw new BadRequestException(`You can only delete your own files`);
+    }
 
     // Мягкое удаление в БД
     await this.prisma.file.update({
@@ -314,6 +335,13 @@ export class FileService {
       data: {
         deletedAt: new Date(),
         deletedById,
+      },
+    });
+
+    await this.prisma.employee.update({
+      where: { avatarId: id },
+      data: {
+        avatarId: null,
       },
     });
 

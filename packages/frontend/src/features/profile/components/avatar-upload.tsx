@@ -5,7 +5,11 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useUploadFileMutation, fileHelpers } from "@/features/file/file.api";
+import {
+  useUploadFileMutation,
+  useDeleteFileMutation,
+  fileHelpers,
+} from "@/features/file/file.api";
 import { FileCategory } from "@/features/file/file.dto";
 import { Camera, Loader2, Trash2 } from "lucide-react";
 
@@ -25,6 +29,7 @@ export function AvatarUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadFile] = useUploadFileMutation();
+  const [deleteFile] = useDeleteFileMutation();
 
   // Generate initials from user name
   const initials = userName
@@ -88,11 +93,18 @@ export function AvatarUpload({
     [uploadFile, onAvatarChange]
   );
 
-  const handleRemoveAvatar = useCallback(() => {
-    onAvatarChange(undefined);
-    setPreviewUrl(null);
-    toast.success("Фото профиля удалено");
-  }, [onAvatarChange]);
+  const handleRemoveAvatar = useCallback(async () => {
+    if (!currentAvatarId) return;
+
+    try {
+      await deleteFile(currentAvatarId).unwrap();
+      onAvatarChange(undefined);
+      setPreviewUrl(null);
+      toast.success("Фото профиля удалено");
+    } catch {
+      toast.error("Ошибка при удалении фото");
+    }
+  }, [deleteFile, onAvatarChange, currentAvatarId]);
 
   const handleButtonClick = useCallback(() => {
     fileInputRef.current?.click();

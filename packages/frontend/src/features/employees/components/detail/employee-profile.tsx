@@ -26,23 +26,6 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
 
   return (
     <div className="space-y-4">
-      {/* Employee Header with Avatar */}
-      <div className="flex items-center gap-4 mb-6">
-        <UserAvatar
-          avatarId={employee.avatarId}
-          name={fullName}
-          className="h-20 w-20 rounded-full border-2 border-muted"
-          size={80}
-          fallbackClassName="text-xl font-medium"
-        />
-        <div>
-          <h2 className="text-2xl font-bold">{fullName}</h2>
-          {employee.title?.name && (
-            <p className="text-muted-foreground">{employee.title.name}</p>
-          )}
-        </div>
-      </div>
-
       {/* Meta info row (creation/update dates) */}
       <div className="text-xs text-muted-foreground">
         <span className="mr-4">

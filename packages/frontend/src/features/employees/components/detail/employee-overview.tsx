@@ -105,7 +105,10 @@ export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <ProfileField label="Должность" value={employee.title.name} />
+            <ProfileField
+              label="Должность"
+              value={employee.title?.name || "Не указан"}
+            />
             <ProfileField label="Отдел" value="Не указан" />
             <div>
               <p className="text-xs text-muted-foreground">Тип занятости</p>

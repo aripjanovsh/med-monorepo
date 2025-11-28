@@ -1,5 +1,8 @@
 import { rootApi } from "@/store/api/root.api";
-import { API_TAG_OPERATIONS_FILES } from "@/constants/api-tags.constants";
+import {
+  API_TAG_OPERATIONS_FILES,
+  API_TAG_OPERATIONS_PROFILE,
+} from "@/constants/api-tags.constants";
 import type {
   FileResponseDto,
   FileQueryDto,
@@ -97,7 +100,7 @@ export const fileApi = rootApi.injectEndpoints({
         url: `/api/v1/files/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [API_TAG_OPERATIONS_FILES],
+      invalidatesTags: [API_TAG_OPERATIONS_FILES, API_TAG_OPERATIONS_PROFILE],
     }),
   }),
 });
