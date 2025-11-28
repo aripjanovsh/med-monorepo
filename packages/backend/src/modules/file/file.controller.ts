@@ -125,7 +125,7 @@ export class FileController {
 
     res.set({
       "Content-Type": mimeType,
-      "Cache-Control": "public, max-age=31536000", // Кэш на год
+      "Cache-Control": "public, max-age=31536000",
     });
 
     return new StreamableFile(buffer);

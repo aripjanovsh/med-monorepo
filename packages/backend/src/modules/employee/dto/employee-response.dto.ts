@@ -9,11 +9,19 @@ import { TransformDecimal } from "../../../common/decorators/transform-decimal.d
 import { WorkScheduleDto } from "./work-schedule.dto";
 import { LanguageResponseDto } from "../../master-data/language/dto/language-response.dto";
 import { LocationResponseDto } from "../../master-data/location/dto/location-response.dto";
+import { FileResponseDto } from "../../file/dto/file-response.dto";
 
 @Exclude()
 export class EmployeeResponseDto extends BaseResponseDto {
   @Expose()
   userId?: string;
+
+  @Expose()
+  avatarId?: string;
+
+  @Expose()
+  @Type(() => FileResponseDto)
+  avatar?: FileResponseDto;
 
   @Expose()
   employeeId?: string;

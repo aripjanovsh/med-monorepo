@@ -28,6 +28,7 @@ export interface SimpleEmployeeDto {
   firstName: string;
   middleName?: string;
   lastName: string;
+  avatarId?: string;
 }
 
 export interface SimpleAppointmentDto {

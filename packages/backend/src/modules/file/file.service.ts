@@ -214,6 +214,35 @@ export class FileService {
   }
 
   /**
+   * Получает изображение по ID (публичный доступ для Next.js Image)
+   */
+  async getImageById(
+    id: string
+  ): Promise<{ buffer: Buffer; mimeType: string }> {
+    const file = await this.prisma.file.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+
+    if (!file) {
+      throw new NotFoundException(`Image not found: ${id}`);
+    }
+
+    if (!this.imageProcessor.isImage(file.mimeType)) {
+      throw new BadRequestException(`File is not an image: ${id}`);
+    }
+
+    const buffer = await this.fileStorage.readFile(file.path, file.storedName);
+
+    return {
+      buffer,
+      mimeType: file.mimeType,
+    };
+  }
+
+  /**
    * Получает изображение с трансформацией
    */
   async getImageWithTransform(

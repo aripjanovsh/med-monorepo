@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,15 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { useMe } from "@/features/auth/use-me";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { Bell, LogOut, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 
@@ -28,22 +21,19 @@ export function SidebarPanelUser() {
   const { user } = useMe();
 
   const fullName = [user?.lastName, user?.firstName].filter(Boolean).join(" ");
-  const initials = [user?.lastName?.slice(0, 1), user?.firstName?.slice(0, 1)]
-    .filter(Boolean)
-    .join(" ");
-
-  const avatar = "/avatars/shadcn.jpg";
+  const avatarId = user?.avatarId ?? user?.employee?.avatarId;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Avatar className="h-7 w-7 rounded-md">
-            <AvatarImage src={avatar} alt={fullName} />
-            <AvatarFallback className="rounded-md text-xs">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarId={avatarId}
+            name={fullName}
+            className="h-7 w-7 rounded-md"
+            size={28}
+            fallbackClassName="rounded-md text-xs"
+          />
           {/* <div className="hidden md:grid text-left text-sm leading-none">
             <span className="font-medium">{fullName}</span>
             <span className="text-xs text-muted-foreground">{user?.role}</span>
@@ -59,10 +49,13 @@ export function SidebarPanelUser() {
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-            <Avatar className="h-8 w-8 rounded-md">
-              <AvatarImage src={avatar} alt={fullName} />
-              <AvatarFallback className="rounded-md">{initials}</AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              avatarId={avatarId}
+              name={fullName}
+              className="h-8 w-8 rounded-md"
+              size={32}
+              fallbackClassName="rounded-md"
+            />
             <div className="grid flex-1 text-left text-sm leading-none">
               <span className="font-medium">{fullName}</span>
               <span className="text-xs text-muted-foreground">
@@ -73,24 +66,15 @@ export function SidebarPanelUser() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Sparkles className="mr-2 h-4 w-4" />
-            <span>Upgrade to Pro</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <BadgeCheck className="mr-2 h-4 w-4" />
-            <span>Account</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Billing</span>
+          <DropdownMenuItem asChild>
+            <Link href="/cabinet/profile" className="flex items-center">
+              <User className="mr-2 h-4 w-4" />
+              <span>{t("Профиль")}</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Bell className="mr-2 h-4 w-4" />
-            <span>Notifications</span>
+            <span>{t("Уведомления")}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

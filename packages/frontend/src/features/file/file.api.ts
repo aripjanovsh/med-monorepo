@@ -115,10 +115,17 @@ export const {
  */
 export const fileHelpers = {
   /**
-   * Получить URL для скачивания файла
+   * Получить URL изображения для Next.js Image (публичный доступ)
+   */
+  getImageUrl: (id: string): string => {
+    return `${API_ENDPOINT}/api/v1/files/image/${id}`;
+  },
+
+  /**
+   * Получить URL для скачивания файла (требует авторизации)
    */
   getDownloadUrl: (id: string): string => {
-    return API_ENDPOINT + `/api/v1/files/${id}/download`;
+    return `${API_ENDPOINT}/api/v1/files/${id}/download`;
   },
 
   /**
@@ -160,7 +167,7 @@ export const fileHelpers = {
   downloadFile: async (
     id: string,
     filename: string,
-    token: string,
+    token: string
   ): Promise<void> => {
     try {
       const blob = await fileHelpers.fetchFileBlob(id, token);

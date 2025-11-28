@@ -1,14 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmployeeResponseDto } from "../employee.dto";
 import { WEEK_DAYS, WEEK_DAYS_SHORT } from "../employee.constants";
 import {
-  getEmployeeAvatarUrl,
   getEmployeeFullName,
-  getEmployeeInitials,
   getEmployeePhone,
   getEmployeeTitle,
 } from "../employee.model";
@@ -22,17 +20,17 @@ export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const employee = row.original;
-      const avatarUrl = getEmployeeAvatarUrl(employee);
       const fullName = getEmployeeFullName(employee);
-      const initials = getEmployeeInitials(employee);
       const title = getEmployeeTitle(employee);
 
       return (
         <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={avatarUrl} alt={fullName} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarId={employee.avatarId}
+            name={fullName}
+            className="h-10 w-10"
+            size={40}
+          />
           <div>
             <div className="font-medium">{fullName}</div>
             <div className="text-sm text-muted-foreground">{title}</div>
@@ -110,17 +108,17 @@ export const patientDoctorColumns: ColumnDef<EmployeeResponseDto>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const employee = row.original;
-      const avatarUrl = getEmployeeAvatarUrl(employee);
       const fullName = getEmployeeFullName(employee);
-      const initials = getEmployeeInitials(employee);
       const title = getEmployeeTitle(employee);
 
       return (
         <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={avatarUrl} alt={fullName} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarId={employee.avatarId}
+            name={fullName}
+            className="h-10 w-10"
+            size={40}
+          />
           <div>
             <div className="font-medium">{fullName}</div>
             <div className="text-sm text-muted-foreground">{title}</div>

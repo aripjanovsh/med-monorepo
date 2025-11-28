@@ -7,6 +7,7 @@ import { formatDate as formatDateUtil } from "@/lib/date.utils";
 import { EmployeeResponseDto } from "./employee.dto";
 import { SimpleEmployeeDto } from "../visit";
 import { GENDER } from "./employee.constants";
+import { fileHelpers } from "@/features/file/file.api";
 
 // =============================================
 // Utility Functions
@@ -40,8 +41,15 @@ export const getEmployeeTitle = (employee: EmployeeResponseDto): string => {
   return employee.title?.name;
 };
 
-export const getEmployeeAvatarUrl = (employee: EmployeeResponseDto): string => {
-  return "";
+export const getEmployeeAvatarUrl = (
+  employee: EmployeeResponseDto | SimpleEmployeeDto | undefined
+): string | undefined => {
+  if (!employee) return undefined;
+
+  const avatarId = "avatarId" in employee ? employee.avatarId : undefined;
+  if (!avatarId) return undefined;
+
+  return fileHelpers.getImageUrl(avatarId);
 };
 
 export const getEmployeeId = (employee: EmployeeResponseDto): string => {

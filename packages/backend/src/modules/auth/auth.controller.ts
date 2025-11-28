@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Get,
+  Patch,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {
@@ -16,6 +17,7 @@ import {
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 import {
   CurrentUser,
   CurrentUserData,
@@ -42,6 +44,19 @@ export class AuthController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   getProfile(@CurrentUser() user: CurrentUserData) {
     return this.authService.getProfile(user);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Patch("profile")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Update user profile" })
+  @ApiResponse({ status: 200, description: "Profile updated successfully" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  updateProfile(
+    @CurrentUser() user: CurrentUserData,
+    @Body() updateProfileDto: UpdateProfileDto
+  ) {
+    return this.authService.updateProfile(user, updateProfileDto);
   }
 
   @UseGuards(AuthGuard("jwt"))

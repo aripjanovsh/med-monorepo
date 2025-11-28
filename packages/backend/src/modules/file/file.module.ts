@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { FileController } from "./file.controller";
+import { FilePublicController } from "./file-public.controller";
 import { FileService } from "./file.service";
 import { FileStorageService } from "./file-storage.service";
 import { ImageProcessorService } from "./image-processor.service";
@@ -8,7 +9,7 @@ import { PrismaModule } from "@/common/prisma/prisma.module";
 
 @Module({
   imports: [ConfigModule, PrismaModule],
-  controllers: [FileController],
+  controllers: [FileController, FilePublicController],
   providers: [FileService, FileStorageService, ImageProcessorService],
   exports: [FileService],
 })

@@ -4,6 +4,7 @@
  */
 
 import { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
+import type { FileResponseDto } from "@/features/file/file.dto";
 
 // Base enums matching backend
 export type EmployeeStatusDto =
@@ -70,6 +71,10 @@ export interface EmployeeResponseDto {
   organizationId: string;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
+
+  // Avatar
+  avatarId?: string;
+  avatar?: FileResponseDto;
 
   // Related entities (optional in response)
   title?: any; // TitleResponseDto

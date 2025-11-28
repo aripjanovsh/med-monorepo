@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Edit, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -17,7 +17,6 @@ import {
 import {
   useGetEmployeeQuery,
   getEmployeeFullName,
-  getEmployeeInitials,
   getEmployeeTitle,
 } from "@/features/employees";
 import { LoadingState, ErrorState } from "@/components/states";
@@ -102,12 +101,13 @@ export default function EmployeeDetailLayout({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Avatar className="size-10">
-            <AvatarImage alt={getEmployeeFullName(employee)} />
-            <AvatarFallback className="text-lg">
-              {getEmployeeInitials(employee)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            avatarId={employee.avatarId}
+            name={getEmployeeFullName(employee)}
+            className="size-10"
+            size={40}
+            fallbackClassName="text-lg"
+          />
 
           <div className="flex flex-col">
             <h2 className="text-xl font-gilroy font-bold leading-none">

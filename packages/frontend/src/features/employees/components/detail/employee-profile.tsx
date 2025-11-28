@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { ProfileField } from "@/components/ui/profile-field";
 import {
   formatEmployeeDateTime,
@@ -10,8 +11,6 @@ import {
   getPassportSeriesNumber,
   hasPassportInfo,
   getEmployeeDisplayId,
-  getServiceTypesDisplay,
-  formatSalary,
   getWorkScheduleForDay,
   getNotificationStatusDisplay,
 } from "@/features/employees/employee.model";
@@ -23,8 +22,27 @@ type EmployeeProfileProps = {
 };
 
 export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
+  const fullName = `${employee.lastName} ${employee.firstName}`;
+
   return (
     <div className="space-y-4">
+      {/* Employee Header with Avatar */}
+      <div className="flex items-center gap-4 mb-6">
+        <UserAvatar
+          avatarId={employee.avatarId}
+          name={fullName}
+          className="h-20 w-20 rounded-full border-2 border-muted"
+          size={80}
+          fallbackClassName="text-xl font-medium"
+        />
+        <div>
+          <h2 className="text-2xl font-bold">{fullName}</h2>
+          {employee.title?.name && (
+            <p className="text-muted-foreground">{employee.title.name}</p>
+          )}
+        </div>
+      </div>
+
       {/* Meta info row (creation/update dates) */}
       <div className="text-xs text-muted-foreground">
         <span className="mr-4">

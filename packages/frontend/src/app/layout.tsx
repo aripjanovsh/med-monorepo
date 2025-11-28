@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme.provider";
 import { ReduxProvider } from "@/components/providers/redux.provider";
 import { AuthInitializer } from "@/features/auth/components/auth-initializer";
 import { DialogManagerProvider } from "@/lib/dialog-manager/dialog-manager";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,7 +62,10 @@ export default function RootLayout({
             disableTransitionOnChange
             storageKey="theme"
           >
-            <DialogManagerProvider>{children}</DialogManagerProvider>
+            <DialogManagerProvider>
+              {children}
+              <Toaster />
+            </DialogManagerProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>

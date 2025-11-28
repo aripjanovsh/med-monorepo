@@ -5,7 +5,7 @@ import { ROUTES } from "@/constants/route.constants";
 
 export default function CreateEmployeePage() {
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
       <PageHeader title="Добавление сотрудника" />
       <PageEmployeeForm mode="create" />
