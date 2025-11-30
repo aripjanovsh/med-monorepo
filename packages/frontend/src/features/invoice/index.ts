@@ -78,6 +78,7 @@ export { MultiPaymentForm } from "./components/multi-payment-form";
 export { CreateInvoiceSheet } from "./components/create-invoice-sheet";
 export { CreateInvoiceWithPaymentSheet } from "./components/create-invoice-with-payment-sheet";
 export { InvoiceOverview } from "./components/invoice-overview";
+export { InvoicesQuickStats } from "./components/invoices-quick-stats";
 export { invoiceColumns } from "./components/invoice-columns";
 export { invoiceItemsColumns } from "./components/invoice-items-columns";
 export { invoicePaymentsColumns } from "./components/invoice-payments-columns";

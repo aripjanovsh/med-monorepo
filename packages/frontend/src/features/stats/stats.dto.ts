@@ -63,3 +63,47 @@ export interface PatientStatsResponseDto {
   returningPatientsPercent: number;
   monthlyTrends: MonthlyTrendDto[];
 }
+
+// Invoice Stats DTOs
+export interface InvoiceStatsQueryDto {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface PaymentStatusDistributionDto {
+  unpaid: number;
+  partiallyPaid: number;
+  paid: number;
+  unpaidPercent: number;
+  partiallyPaidPercent: number;
+  paidPercent: number;
+}
+
+export interface PaymentMethodDistributionDto {
+  method: string;
+  count: number;
+  amount: number;
+  percent: number;
+}
+
+export interface InvoiceMonthlyTrendDto {
+  month: string;
+  monthShort: string;
+  year: number;
+  invoicesCount: number;
+  revenue: number;
+}
+
+export interface InvoiceStatsResponseDto {
+  totalInvoices: number;
+  totalRevenue: number;
+  totalCollected: number;
+  totalOutstanding: number;
+  revenueThisMonth: number;
+  revenueLastMonth: number;
+  growthPercent: number;
+  averageInvoiceAmount: number;
+  statusDistribution: PaymentStatusDistributionDto;
+  paymentMethodDistribution: PaymentMethodDistributionDto[];
+  monthlyTrends: InvoiceMonthlyTrendDto[];
+}

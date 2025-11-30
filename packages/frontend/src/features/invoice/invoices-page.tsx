@@ -2,7 +2,15 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MoreHorizontal, Eye, Trash, CreditCard } from "lucide-react";
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  Trash,
+  CreditCard,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +33,7 @@ import {
   useDeleteInvoiceMutation,
   invoiceColumns,
   canAddPayment,
+  InvoicesQuickStats,
 } from "@/features/invoice";
 import type {
   InvoiceListItemDto,
@@ -36,12 +45,16 @@ import PageHeader from "@/components/layouts/page-header";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDialog } from "@/lib/dialog-manager";
 import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export const InvoicesPage = () => {
   const router = useRouter();
   const confirm = useConfirmDialog();
   const createInvoiceDialog = useDialog(CreateInvoiceWithPaymentSheet);
   const [activeTab, setActiveTab] = useState("all");
+  const [showStats, setShowStats] = useLocalStorage("invoice-show-stats", {
+    defaultValue: false,
+  });
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, setters, values } = useDataTableState({
@@ -140,12 +153,24 @@ export const InvoicesPage = () => {
       <PageHeader
         title="Счета"
         actions={
-          <Button onClick={handleCreateInvoice}>
-            <Plus />
-            Создать счет
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowStats(!showStats)}
+              variant="link"
+              className="cursor-pointer gap-1"
+            >
+              {showStats ? <ChevronUp /> : <ChevronDown />}
+              {showStats ? "Скрыть статистику" : "Показать статистику"}
+            </Button>
+            <Button onClick={handleCreateInvoice}>
+              <Plus />
+              Создать счет
+            </Button>
+          </div>
         }
       />
+
+      {showStats && <InvoicesQuickStats />}
 
       <ActionTabs
         value={activeTab}

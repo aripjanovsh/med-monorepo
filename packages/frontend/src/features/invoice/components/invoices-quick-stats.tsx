@@ -6,23 +6,35 @@ import {
 } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { CardOverview } from "@/components/card-overview";
-import { useGetPatientQuickStatsQuery } from "@/features/stats";
+import { useGetInvoiceQuickStatsQuery } from "@/features/stats";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, RefreshCw } from "lucide-react";
 
 const chartConfig = {
-  newPatients: {
-    label: "Новые пациенты",
+  invoicesCount: {
+    label: "Счета",
     color: "var(--chart-1)",
   },
-  visits: {
-    label: "Посещения",
+  revenue: {
+    label: "Выручка",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
-export const PatientsQuickStats = () => {
-  const { data: stats, isLoading } = useGetPatientQuickStatsQuery();
+const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "UZS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat("ru-RU").format(value);
+};
+
+export const InvoicesQuickStats = () => {
+  const { data: stats, isLoading } = useGetInvoiceQuickStatsQuery();
 
   if (isLoading) {
     return (
@@ -49,28 +61,25 @@ export const PatientsQuickStats = () => {
 
   const chartData = stats.monthlyTrends.map((trend) => ({
     month: trend.monthShort,
-    newPatients: trend.newPatients,
-    visits: trend.visits,
+    invoicesCount: trend.invoicesCount,
+    revenue: trend.revenue,
   }));
-
-  console.log(chartData);
 
   const growthColor =
     stats.growthPercent >= 0 ? "text-green-500" : "text-red-500";
-
   const growthPrefix = stats.growthPercent >= 0 ? "+" : "";
 
   return (
     <div className="grid grid-cols-5 border-t border-b bg-background -mx-6">
       <div className="flex justify-between border-r col-span-2 items-center">
         <CardOverview
-          title="Всего пациентов"
+          title="Общая выручка"
           className="bg-background border-transparent shadow-none rounded-none"
         >
           <div className="flex justify-between gap-4">
             <div className="flex flex-col">
               <div className="text-2xl font-bold">
-                {stats.totalPatients.toLocaleString("ru-RU")}
+                {formatCurrency(stats.totalRevenue)}
               </div>
               <p className="text-xs text-muted-foreground text-nowrap">
                 <span className={growthColor}>
@@ -102,7 +111,7 @@ export const PatientsQuickStats = () => {
                 content={<ChartTooltipContent indicator="line" />}
               />
               <defs>
-                <linearGradient id="fillPatients" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillInvoices" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor="var(--chart-1)"
@@ -115,7 +124,7 @@ export const PatientsQuickStats = () => {
                   />
                 </linearGradient>
 
-                <linearGradient id="fillVisits" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor="var(--chart-2)"
@@ -129,20 +138,20 @@ export const PatientsQuickStats = () => {
                 </linearGradient>
               </defs>
               <Area
-                dataKey="newPatients"
+                dataKey="invoicesCount"
                 type="natural"
-                fill="url(#fillPatients)"
+                fill="url(#fillInvoices)"
                 fillOpacity={0.4}
                 stroke="var(--chart-1)"
                 stackId="a"
               />
               <Area
-                dataKey="visits"
+                dataKey="revenue"
                 type="natural"
-                fill="url(#fillVisits)"
+                fill="url(#fillRevenue)"
                 fillOpacity={0.4}
                 stroke="var(--chart-2)"
-                stackId="a"
+                stackId="b"
               />
             </AreaChart>
           </ChartContainer>
@@ -150,59 +159,72 @@ export const PatientsQuickStats = () => {
       </div>
 
       <CardOverview
-        title="По полу"
+        title="По статусу"
         className="bg-background border-transparent shadow-none rounded-none border-r-border"
       >
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Мужчин:</span>
+            <span className="text-muted-foreground">Неоплаченные:</span>
             <span className="font-semibold">
-              {stats.genderDistribution.male.toLocaleString("ru-RU")} (
-              {stats.genderDistribution.malePercent}%)
+              {formatNumber(stats.statusDistribution.unpaid)} (
+              {stats.statusDistribution.unpaidPercent}%)
             </span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Женщин:</span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Частично:</span>
             <span className="font-semibold">
-              {stats.genderDistribution.female.toLocaleString("ru-RU")} (
-              {stats.genderDistribution.femalePercent}%)
+              {formatNumber(stats.statusDistribution.partiallyPaid)} (
+              {stats.statusDistribution.partiallyPaidPercent}%)
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Оплаченные:</span>
+            <span className="font-semibold">
+              {formatNumber(stats.statusDistribution.paid)} (
+              {stats.statusDistribution.paidPercent}%)
             </span>
           </div>
         </div>
       </CardOverview>
 
       <CardOverview
-        title="По возрасту"
+        title="Методы оплаты"
         className="bg-background border-transparent shadow-none rounded-none border-r-border"
       >
         <div className="flex flex-col gap-0.5">
-          {stats.ageDistribution.map((age) => (
-            <div
-              key={age.label}
-              className="flex items-center justify-between text-xs"
-            >
-              <span className="text-muted-foreground">{age.label}:</span>
-              <span className="font-medium">
-                {age.count.toLocaleString("ru-RU")} ({age.percent}%)
-              </span>
-            </div>
-          ))}
+          {stats.paymentMethodDistribution.length > 0 ? (
+            stats.paymentMethodDistribution.map((method) => (
+              <div
+                key={method.method}
+                className="flex items-center justify-between text-xs"
+              >
+                <span className="text-muted-foreground">{method.method}:</span>
+                <span className="font-medium">
+                  {formatNumber(method.count)} ({method.percent}%)
+                </span>
+              </div>
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Нет данных о платежах
+            </span>
+          )}
         </div>
       </CardOverview>
 
       <CardOverview
-        title="Повторные визиты"
+        title="К оплате"
         className="bg-background border-transparent shadow-none rounded-none"
       >
         <div className="flex flex-col">
-          <div className="text-2xl font-bold">
-            {stats.returningPatients.toLocaleString("ru-RU")}
+          <div className="text-2xl font-bold text-destructive">
+            {formatCurrency(stats.totalOutstanding)}
           </div>
           <p className="text-xs text-muted-foreground">
+            Собрано:{" "}
             <span className="text-green-500">
-              {stats.returningPatientsPercent}%
-            </span>{" "}
-            от всех пациентов
+              {formatCurrency(stats.totalCollected)}
+            </span>
           </p>
         </div>
       </CardOverview>
