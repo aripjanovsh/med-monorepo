@@ -3,7 +3,16 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDialog } from "@/lib/dialog-manager";
-import { Edit, Eye, MoreHorizontal, Plus, Trash, UserPlus } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  Trash,
+  UserPlus,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +34,7 @@ import {
 import PageHeader from "@/components/layouts/page-header";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDataTableState } from "@/hooks/use-data-table-state";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,12 +43,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { PatientsQuickStats } from "@/features/patients/components/patients-quick-stats";
 
 export default function PatientsPage() {
   const router = useRouter();
   const confirm = useConfirmDialog();
   const patientFormSheet = useDialog(PatientFormSheet);
   const [activeTab, setActiveTab] = useState("active");
+  const [showStats, setShowStats] = useLocalStorage("patients-show-stats", {
+    defaultValue: false,
+  });
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
@@ -138,12 +152,25 @@ export default function PatientsPage() {
       <PageHeader
         title="Пациенты"
         actions={
-          <Button onClick={handleCreatePatient}>
-            <Plus />
-            Добавить пациента
-          </Button>
+          <div className="flex flex-row gap-4">
+            <Button
+              onClick={() => setShowStats(!showStats)}
+              variant="link"
+              className="cursor-pointer gap-1"
+            >
+              {showStats ? <ChevronUp /> : <ChevronDown />}
+              {showStats ? "Скрыть статистику" : "Показать статистику"}
+            </Button>
+
+            <Button onClick={handleCreatePatient}>
+              <Plus />
+              Добавить пациента
+            </Button>
+          </div>
         }
       />
+
+      {showStats && <PatientsQuickStats />}
 
       <ActionTabs
         value={activeTab}

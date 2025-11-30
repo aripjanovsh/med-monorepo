@@ -1,6 +1,11 @@
 import { rootApi } from "@/store/api/root.api";
 import { API_TAG_OPERATIONS_STATS } from "@/constants/api-tags.constants";
-import type { StatsQueryDto, StatsResponseDto } from "./stats.dto";
+import type {
+  StatsQueryDto,
+  StatsResponseDto,
+  PatientStatsQueryDto,
+  PatientStatsResponseDto,
+} from "./stats.dto";
 
 export const STATS_API_TAG = API_TAG_OPERATIONS_STATS;
 
@@ -20,7 +25,17 @@ export const statsApi = rootApi.injectEndpoints({
       },
       providesTags: [STATS_API_TAG],
     }),
+    getPatientQuickStats: builder.query<
+      PatientStatsResponseDto,
+      PatientStatsQueryDto | void
+    >({
+      query: (params) => ({
+        url: "/api/v1/stats/patients",
+        params: params ?? undefined,
+      }),
+      providesTags: [STATS_API_TAG],
+    }),
   }),
 });
 
-export const { useGetStatsQuery } = statsApi;
+export const { useGetStatsQuery, useGetPatientQuickStatsQuery } = statsApi;

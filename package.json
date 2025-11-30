@@ -20,5 +20,10 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@10.21.0"
+  "packageManager": "pnpm@10.21.0",
+  "pnpm": {
+    "overrides": {
+      "react-is": "^19.0.0-rc-69d4b800-20241021"
+    }
+  }
 }

@@ -44,6 +44,50 @@ export class DoctorQueueVisitDto {
   appointmentId?: string;
 }
 
+export class CompletedVisitDto {
+  @Expose()
+  id!: string;
+
+  @Expose()
+  @Type(() => DoctorQueuePatientDto)
+  patient!: DoctorQueuePatientDto;
+
+  @Expose()
+  completedAt!: Date;
+
+  @Expose()
+  waitingTimeMinutes!: number;
+
+  @Expose()
+  serviceTimeMinutes!: number;
+
+  @Expose()
+  notes?: string;
+}
+
+export class DoctorQueueStatsDto {
+  @Expose()
+  waiting!: number;
+
+  @Expose()
+  inProgress!: number;
+
+  @Expose()
+  completed!: number;
+
+  @Expose()
+  canceled!: number;
+
+  @Expose()
+  totalPatients!: number;
+
+  @Expose()
+  avgWaitingTime!: number;
+
+  @Expose()
+  avgServiceTime!: number;
+}
+
 export class DoctorQueueResponseDto {
   @Expose()
   employeeId!: string;
@@ -60,10 +104,10 @@ export class DoctorQueueResponseDto {
   inProgress?: DoctorQueueVisitDto;
 
   @Expose()
-  stats!: {
-    waiting: number;
-    completed: number;
-    avgWaitingTime: number;
-    avgServiceTime: number;
-  };
+  @Type(() => CompletedVisitDto)
+  completed!: CompletedVisitDto[];
+
+  @Expose()
+  @Type(() => DoctorQueueStatsDto)
+  stats!: DoctorQueueStatsDto;
 }

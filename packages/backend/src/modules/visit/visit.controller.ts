@@ -23,6 +23,8 @@ import { StartVisitDto } from "./dto/start-visit.dto";
 import { CompleteVisitDto } from "./dto/complete-visit.dto";
 import { CancelVisitDto } from "./dto/cancel-visit.dto";
 import { FindAllVisitDto } from "./dto/find-all-visit.dto";
+import { DoctorQueueQueryDto } from "./dto/doctor-queue-query.dto";
+import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
 import {
   RequirePermission,
   PermissionGuard,
@@ -57,6 +59,28 @@ export class VisitController {
   @ApiResponse({ status: 200, description: "List of visits" })
   findAll(@Query() query: FindAllVisitDto) {
     return this.visitService.findAll(query);
+  }
+
+  @Get("doctor/:employeeId/queue")
+  @RequirePermission({ resource: "visits", action: "READ" })
+  @ApiOperation({
+    summary: "Get doctor's queue with waiting patients and stats",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Doctor queue data",
+    type: DoctorQueueResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Employee not found" })
+  getDoctorQueue(
+    @Param("employeeId") employeeId: string,
+    @Query() query: DoctorQueueQueryDto
+  ): Promise<DoctorQueueResponseDto> {
+    return this.visitService.getDoctorQueue(
+      employeeId,
+      query.organizationId,
+      query.date
+    );
   }
 
   @Get(":id")

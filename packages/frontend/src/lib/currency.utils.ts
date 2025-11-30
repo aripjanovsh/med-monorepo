@@ -18,11 +18,14 @@ export const formatCurrency = (amount: number): string => {
  * @returns Compact formatted string
  */
 export const formatCurrencyCompact = (amount: number): string => {
+  if (amount >= 1_000_000_000) {
+    return `${(amount / 1_000_000_000).toFixed(1)} млрд сум`;
+  }
   if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(1)}М сум`;
+    return `${(amount / 1_000_000).toFixed(1)} млн сум`;
   }
   if (amount >= 1_000) {
-    return `${(amount / 1_000).toFixed(1)}К сум`;
+    return `${(amount / 1_000).toFixed(1)} тыс сум`;
   }
   return formatCurrency(amount);
 };

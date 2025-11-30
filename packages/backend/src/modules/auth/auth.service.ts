@@ -148,6 +148,7 @@ export class AuthService {
       avatarId: userData.employee?.avatarId,
       avatar: userData.employee?.avatar,
       roles: userRoles.map((r) => r.name),
+      employeeId: userData.employee?.id,
       userRoles,
       permissions,
     });

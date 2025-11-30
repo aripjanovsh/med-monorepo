@@ -1,12 +1,16 @@
 "use client";
 
+import type { ReactElement } from "react";
+
 import type { PatientResponseDto } from "../../patient.dto";
 import { PatientDashboard } from "./patient-dashboard";
 
-interface PatientOverviewProps {
+type PatientOverviewProps = {
   patient: PatientResponseDto;
-}
+};
 
-export function PatientOverview({ patient }: PatientOverviewProps) {
-  return <PatientDashboard patient={patient} />;
-}
+export const PatientOverview = ({
+  patient,
+}: PatientOverviewProps): ReactElement => {
+  return <PatientDashboard patientId={patient.id} />;
+};

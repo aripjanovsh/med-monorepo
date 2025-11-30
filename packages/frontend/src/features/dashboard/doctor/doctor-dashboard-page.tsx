@@ -26,7 +26,7 @@ export const DoctorDashboardPage = () => {
     },
     {
       skip: !selectedEmployeeId,
-    },
+    }
   );
 
   const [startVisit, { isLoading: isStarting }] = useStartVisitMutation();
@@ -56,7 +56,7 @@ export const DoctorDashboardPage = () => {
         });
       }
     },
-    [startVisit, selectedEmployeeId, toast],
+    [startVisit, selectedEmployeeId, toast]
   );
 
   const handleCompleteVisit = useCallback(
@@ -78,7 +78,7 @@ export const DoctorDashboardPage = () => {
         });
       }
     },
-    [completeVisit, selectedEmployeeId, toast],
+    [completeVisit, selectedEmployeeId, toast]
   );
 
   return (
@@ -100,18 +100,20 @@ export const DoctorDashboardPage = () => {
         <>
           {/* Stats */}
           {isLoading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-32" />
               ))}
             </div>
           ) : data ? (
             <StatsWidget
               stats={{
-                totalPatients: data.stats.waiting + data.stats.completed,
+                totalPatients: data.stats.totalPatients,
                 patientsInQueue: data.stats.waiting,
                 completedToday: data.stats.completed,
-                canceledToday: 0,
+                canceledToday: data.stats.canceled,
+                avgWaitingTime: data.stats.avgWaitingTime,
+                avgServiceTime: data.stats.avgServiceTime,
               }}
             />
           ) : null}

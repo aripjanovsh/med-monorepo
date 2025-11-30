@@ -3,12 +3,13 @@
  */
 
 import {
+  differenceInDays,
   differenceInYears,
-  parseISO,
-  isValid,
-  format,
-  startOfDay,
   endOfDay,
+  format,
+  isValid,
+  parseISO,
+  startOfDay,
 } from "date-fns";
 
 /**
@@ -87,4 +88,63 @@ export const startOfToday = (): Date => {
 
 export const endOfToday = (): Date => {
   return endOfDay(new Date());
+};
+
+/**
+ * Format date relative to today (e.g., "2 дня назад", "сегодня")
+ * @param date - Date string or Date object
+ * @returns Relative date string
+ */
+export const formatRelativeDate = (date: string | Date): string => {
+  if (!date) return "";
+
+  try {
+    const dateObj = typeof date === "string" ? parseISO(date) : date;
+
+    if (!isValid(dateObj)) return "";
+
+    const today = new Date();
+    const days = differenceInDays(today, dateObj);
+
+    if (days === 0) return "сегодня";
+    if (days === 1) return "вчера";
+    if (days < 7) return `${days} ${getDaysWord(days)} назад`;
+    if (days < 30) {
+      const weeks = Math.floor(days / 7);
+      return `${weeks} ${getWeeksWord(weeks)} назад`;
+    }
+    if (days < 365) {
+      const months = Math.floor(days / 30);
+      return `${months} ${getMonthsWord(months)} назад`;
+    }
+
+    const years = Math.floor(days / 365);
+    return `${years} ${getYearsWord(years)} назад`;
+  } catch {
+    return "";
+  }
+};
+
+const getDaysWord = (count: number): string => {
+  if (count === 1) return "день";
+  if (count >= 2 && count <= 4) return "дня";
+  return "дней";
+};
+
+const getWeeksWord = (count: number): string => {
+  if (count === 1) return "неделю";
+  if (count >= 2 && count <= 4) return "недели";
+  return "недель";
+};
+
+const getMonthsWord = (count: number): string => {
+  if (count === 1) return "месяц";
+  if (count >= 2 && count <= 4) return "месяца";
+  return "месяцев";
+};
+
+const getYearsWord = (count: number): string => {
+  if (count === 1) return "год";
+  if (count >= 2 && count <= 4) return "года";
+  return "лет";
 };

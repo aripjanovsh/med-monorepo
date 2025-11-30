@@ -177,3 +177,64 @@ export interface PatientStatsDto {
     deceased: number;
   };
 }
+
+// ======================
+// Patient Dashboard Stats DTOs
+// ======================
+
+export interface KeyMetricsDto {
+  totalVisits: number;
+  visitsLastMonth: number;
+  activeOrders: number;
+  totalDoctors: number;
+  activeDoctors: number;
+  lastVisitDate?: string;
+}
+
+export interface VisitsByMonthDto {
+  month: string;
+  visits: number;
+}
+
+export interface OrdersByStatusDto {
+  status: string;
+  count: number;
+}
+
+export interface VisitsByDepartmentDto {
+  department: string;
+  visits: number;
+}
+
+export interface RecentVisitDto {
+  id: string;
+  date: string;
+  doctor: string;
+  department: string;
+  status: string;
+}
+
+export interface ActiveOrderDto {
+  id: string;
+  name: string;
+  department: string;
+  status: string;
+  date: string;
+}
+
+export interface TreatingDoctorDto {
+  id: string;
+  name: string;
+  specialty: string;
+  status: string;
+}
+
+export interface PatientDashboardStatsDto {
+  metrics: KeyMetricsDto;
+  visitsByMonth: VisitsByMonthDto[];
+  ordersByStatus: OrdersByStatusDto[];
+  visitsByDepartment: VisitsByDepartmentDto[];
+  recentVisits: RecentVisitDto[];
+  activeOrders: ActiveOrderDto[];
+  treatingDoctors: TreatingDoctorDto[];
+}

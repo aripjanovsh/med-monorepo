@@ -23,6 +23,10 @@ import { FindAllPatientDto } from "./dto/find-all-patient.dto";
 import { PatientByIdDto } from "./dto/patient-by-id.dto";
 import { UpdatePatientStatusDto } from "./dto/update-patient-status.dto";
 import {
+  PatientDashboardStatsQueryDto,
+  PatientDashboardStatsResponseDto,
+} from "./dto/patient-dashboard-stats.dto";
+import {
   RequirePermission,
   PermissionGuard,
 } from "../../common/guards/permission.guard";
@@ -64,6 +68,22 @@ export class PatientController {
     return this.patientService.getPatientStats(query.organizationId);
   }
 
+  @Get(":id/stats")
+  @RequirePermission({ resource: "patients", action: "READ" })
+  @ApiOperation({ summary: "Get patient dashboard statistics" })
+  @ApiResponse({
+    status: 200,
+    description: "Patient dashboard statistics retrieved successfully",
+    type: PatientDashboardStatsResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Patient not found" })
+  getDashboardStats(
+    @Param("id") id: string,
+    @Query() query: PatientDashboardStatsQueryDto
+  ): Promise<PatientDashboardStatsResponseDto> {
+    return this.patientService.getDashboardStats(id, query.organizationId);
+  }
+
   @Get(":id")
   @RequirePermission({ resource: "patients", action: "READ" })
   @ApiOperation({ summary: "Get patient by ID" })
@@ -95,12 +115,12 @@ export class PatientController {
   @ApiResponse({ status: 404, description: "Patient not found" })
   updateStatus(
     @Param("id") id: string,
-    @Body() updateStatusDto: UpdatePatientStatusDto,
+    @Body() updateStatusDto: UpdatePatientStatusDto
   ) {
     return this.patientService.updateStatus(
       id,
       updateStatusDto.status as any,
-      updateStatusDto.organizationId,
+      updateStatusDto.organizationId
     );
   }
 

@@ -162,3 +162,82 @@ export interface EmployeeStatsDto {
   doctorCount: number;
   generalStaffCount: number;
 }
+
+// Dashboard Stats Period Enum
+export type StatsPeriod = "week" | "month" | "3months" | "6months" | "year";
+
+// Dashboard Stats Query DTO
+export interface EmployeeDashboardStatsQueryDto {
+  period?: StatsPeriod;
+}
+
+// Visit stats
+export interface VisitStatsDto {
+  total: number;
+  completed: number;
+  canceled: number;
+  inProgress: number;
+  waiting: number;
+}
+
+// Time stats
+export interface TimeStatsDto {
+  avgServiceTimeMinutes: number;
+  avgWaitingTimeMinutes: number;
+}
+
+// Activity stats
+export interface ActivityStatsDto {
+  totalServiceOrders: number;
+  completedServiceOrders: number;
+  totalPrescriptions: number;
+  assignedPatients: number;
+  newPatientsThisPeriod: number;
+}
+
+// Financial stats
+export interface FinancialStatsDto {
+  totalRevenue: number;
+  avgRevenuePerVisit: number;
+}
+
+// Efficiency stats
+export interface EfficiencyStatsDto {
+  completionRate: number;
+}
+
+// Chart data point
+export interface ChartDataPointDto {
+  label: string;
+  completed: number;
+  canceled: number;
+}
+
+export interface RevenueChartDataPointDto {
+  label: string;
+  revenue: number;
+}
+
+export interface GenderChartDataPointDto {
+  label: string;
+  male: number;
+  female: number;
+}
+
+// Employee Dashboard Stats Response DTO
+export interface EmployeeDashboardStatsResponseDto {
+  period: StatsPeriod;
+  periodStart: string;
+  periodEnd: string;
+  visits: VisitStatsDto;
+  time: TimeStatsDto;
+  activity: ActivityStatsDto;
+  financial: FinancialStatsDto;
+  efficiency: EfficiencyStatsDto;
+  visitsChart: ChartDataPointDto[];
+  revenueChart: RevenueChartDataPointDto[];
+  genderChart: GenderChartDataPointDto[];
+  visitsTrend: number;
+  revenueTrend: number;
+  efficiencyTrend: number;
+}

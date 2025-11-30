@@ -21,3 +21,45 @@ export interface StatsResponseDto {
   endDate: string;
   stats: Record<StatsType, number>;
 }
+
+// Patient Stats DTOs
+export interface PatientStatsQueryDto {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface GenderDistributionDto {
+  male: number;
+  female: number;
+  malePercent: number;
+  femalePercent: number;
+}
+
+export interface AgeGroupDto {
+  label: string;
+  minAge: number;
+  maxAge: number | null;
+  count: number;
+  percent: number;
+}
+
+export interface MonthlyTrendDto {
+  month: string;
+  monthShort: string;
+  year: number;
+  newPatients: number;
+  visits: number;
+}
+
+export interface PatientStatsResponseDto {
+  totalPatients: number;
+  activePatients: number;
+  newPatientsThisMonth: number;
+  newPatientsLastMonth: number;
+  growthPercent: number;
+  genderDistribution: GenderDistributionDto;
+  ageDistribution: AgeGroupDto[];
+  returningPatients: number;
+  returningPatientsPercent: number;
+  monthlyTrends: MonthlyTrendDto[];
+}

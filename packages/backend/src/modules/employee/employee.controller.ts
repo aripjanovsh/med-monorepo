@@ -23,6 +23,10 @@ import { FindAllEmployeeDto } from "./dto/find-all-employee.dto";
 import { EmployeeByIdDto } from "./dto/employee-by-id.dto";
 import { UpdateEmployeeStatusDto } from "./dto/update-employee-status.dto";
 import {
+  EmployeeDashboardStatsQueryDto,
+  EmployeeDashboardStatsResponseDto,
+} from "./dto/employee-dashboard-stats.dto";
+import {
   RequirePermission,
   PermissionGuard,
 } from "../../common/guards/permission.guard";
@@ -64,6 +68,26 @@ export class EmployeeController {
     return this.employeeService.getEmployeeStats(query.organizationId);
   }
 
+  @Get(":id/dashboard-stats")
+  @RequirePermission({ resource: "employees", action: "READ" })
+  @ApiOperation({ summary: "Get employee dashboard statistics" })
+  @ApiResponse({
+    status: 200,
+    description: "Employee dashboard statistics retrieved successfully",
+    type: EmployeeDashboardStatsResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Employee not found" })
+  getDashboardStats(
+    @Param("id") id: string,
+    @Query() query: EmployeeDashboardStatsQueryDto
+  ): Promise<EmployeeDashboardStatsResponseDto> {
+    return this.employeeService.getDashboardStats(
+      id,
+      query.organizationId,
+      query.period
+    );
+  }
+
   @Get(":id")
   @RequirePermission({ resource: "employees", action: "READ" })
   @ApiOperation({ summary: "Get employee by ID" })
@@ -81,7 +105,7 @@ export class EmployeeController {
   @ApiResponse({ status: 409, description: "Employee ID already exists" })
   update(
     @Param("id") id: string,
-    @Body() updateEmployeeDto: UpdateEmployeeDto,
+    @Body() updateEmployeeDto: UpdateEmployeeDto
   ) {
     return this.employeeService.update(id, updateEmployeeDto);
   }
@@ -96,12 +120,12 @@ export class EmployeeController {
   @ApiResponse({ status: 404, description: "Employee not found" })
   updateStatus(
     @Param("id") id: string,
-    @Body() updateStatusDto: UpdateEmployeeStatusDto,
+    @Body() updateStatusDto: UpdateEmployeeStatusDto
   ) {
     return this.employeeService.updateStatus(
       id,
       updateStatusDto.status,
-      updateStatusDto.organizationId,
+      updateStatusDto.organizationId
     );
   }
 

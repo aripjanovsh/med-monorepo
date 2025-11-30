@@ -21,9 +21,21 @@ export type DoctorQueueVisit = {
 
 export type DoctorQueueStats = {
   waiting: number;
+  inProgress: number;
   completed: number;
+  canceled: number;
+  totalPatients: number;
   avgWaitingTime: number;
   avgServiceTime: number;
+};
+
+export type CompletedVisit = {
+  id: string;
+  patient: DoctorQueuePatient;
+  completedAt: string;
+  waitingTimeMinutes: number;
+  serviceTimeMinutes: number;
+  notes?: string;
 };
 
 export type DoctorQueueResponse = {
@@ -31,5 +43,6 @@ export type DoctorQueueResponse = {
   employeeName: string;
   waiting: DoctorQueueVisit[];
   inProgress?: DoctorQueueVisit;
+  completed: CompletedVisit[];
   stats: DoctorQueueStats;
 };

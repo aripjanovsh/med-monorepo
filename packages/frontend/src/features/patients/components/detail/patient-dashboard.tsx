@@ -1,223 +1,205 @@
 "use client";
 
+import type { ReactElement } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { LineChartComponent } from "@/components/charts/line-chart";
-import { PieChartComponent } from "@/components/charts/pie-chart";
-import { AreaChartComponent } from "@/components/charts/area-chart";
-import { BarChartComponent } from "@/components/charts/bar-chart";
 import {
+  BarChartComponent,
+  LineChartComponent,
+  PieChartComponent,
+} from "@/components/charts";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ArrowRight,
   Calendar,
   ClipboardList,
-  TrendingUp,
   Clock,
-  ArrowRight,
   Stethoscope,
-  Heart,
-  Users,
   Target,
+  TrendingUp,
+  Users,
   Zap,
-  Shield,
 } from "lucide-react";
 
-import type { PatientResponseDto } from "../../patient.dto";
-import { calculatePatientAge } from "../../patient.model";
-import { formatDate } from "@/lib/date.utils";
+import { useGetPatientDashboardStatsQuery } from "../../patient.api";
+import { formatDate, formatRelativeDate } from "@/lib/date.utils";
 
-interface PatientDashboardProps {
-  patient: PatientResponseDto;
-}
+// ======================
+// Types
+// ======================
 
-// Метки для графиков
-const visitsLabels = {
+type PatientDashboardProps = {
+  patientId: string;
+};
+
+// ======================
+// Constants
+// ======================
+
+const VISITS_LABELS = {
   visits: "Визиты",
 };
 
-const healthMetricsLabels = {
-  bloodPressure: "Давление",
-  heartRate: "Пульс",
-  temperature: "Температура",
-};
-
-const ordersStatusLabels = {
+const ORDERS_STATUS_LABELS: Record<string, string> = {
   ordered: "Назначено",
   inProgress: "В процессе",
   completed: "Завершено",
   cancelled: "Отменено",
 };
 
-const departmentLabels = {
-  cardiology: "Кардиология",
-  neurology: "Неврология",
-  therapy: "Терапия",
-  diagnostics: "Диагностика",
+const VISITS_LABELS_BY_DEPT = {
+  visits: "Визиты",
 };
 
-// Статичные данные для прототипа
-const mockVisitsData = [
-  { month: "Янв", visits: 2 },
-  { month: "Фев", visits: 3 },
-  { month: "Мар", visits: 1 },
-  { month: "Апр", visits: 4 },
-  { month: "Май", visits: 2 },
-  { month: "Июн", visits: 5 },
-];
+// ======================
+// Helper Components
+// ======================
 
-const mockHealthMetrics = [
-  { date: "01.06", bloodPressure: 120, heartRate: 72, temperature: 36.6 },
-  { date: "08.06", bloodPressure: 118, heartRate: 68, temperature: 36.5 },
-  { date: "15.06", bloodPressure: 125, heartRate: 75, temperature: 36.7 },
-  { date: "22.06", bloodPressure: 122, heartRate: 70, temperature: 36.6 },
-  { date: "29.06", bloodPressure: 119, heartRate: 69, temperature: 36.5 },
-];
+const MetricCardSkeleton = (): ReactElement => (
+  <Card className="hover:shadow-lg transition-shadow">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-12" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+        <Skeleton className="h-12 w-12 rounded-full" />
+      </div>
+    </CardContent>
+  </Card>
+);
 
-const mockOrdersStatus = [
-  { status: "ordered", count: 8 },
-  { status: "inProgress", count: 3 },
-  { status: "completed", count: 12 },
-  { status: "cancelled", count: 1 },
-];
+const ChartSkeleton = (): ReactElement => (
+  <Card>
+    <CardHeader>
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-4 w-60" />
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-[300px] w-full" />
+    </CardContent>
+  </Card>
+);
 
-const mockDepartmentVisits = [
-  { department: "cardiology", visits: 5 },
-  { department: "neurology", visits: 3 },
-  { department: "therapy", visits: 7 },
-  { department: "diagnostics", visits: 4 },
-];
+// ======================
+// Helper Functions
+// ======================
 
-const mockRecentVisits = [
-  {
-    id: "1",
-    date: "2024-06-28",
-    doctor: "Др. Иванов А.С.",
-    department: "Кардиология",
-    status: "completed",
-  },
-  {
-    id: "2",
-    date: "2024-06-15",
-    doctor: "Др. Петров М.И.",
-    department: "Терапия",
-    status: "completed",
-  },
-  {
-    id: "3",
-    date: "2024-06-01",
-    doctor: "Др. Сидорова Е.Н.",
-    department: "Неврология",
-    status: "completed",
-  },
-  {
-    id: "4",
-    date: "2024-05-20",
-    doctor: "Др. Козлов Д.В.",
-    department: "Диагностика",
-    status: "completed",
-  },
-  {
-    id: "5",
-    date: "2024-05-10",
-    doctor: "Др. Новикова Т.А.",
-    department: "Кардиология",
-    status: "completed",
-  },
-];
+const getStatusBadge = (status: string): ReactElement => {
+  switch (status) {
+    case "completed":
+      return <Badge variant="default">Завершен</Badge>;
+    case "inProgress":
+      return <Badge variant="secondary">В процессе</Badge>;
+    case "ordered":
+      return <Badge variant="outline">Назначен</Badge>;
+    case "cancelled":
+      return <Badge variant="destructive">Отменен</Badge>;
+    case "waiting":
+      return <Badge variant="outline">Ожидание</Badge>;
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
+};
 
-const mockActiveOrders = [
-  {
-    id: "1",
-    name: "ЭКГ",
-    department: "Кардиология",
-    status: "ordered",
-    date: "2024-06-30",
-  },
-  {
-    id: "2",
-    name: "Анализ крови",
-    department: "Лаборатория",
-    status: "inProgress",
-    date: "2024-06-29",
-  },
-  {
-    id: "3",
-    name: "УЗИ сердца",
-    department: "Диагностика",
-    status: "ordered",
-    date: "2024-06-28",
-  },
-];
+const getStatusDotColor = (status: string): string => {
+  switch (status) {
+    case "completed":
+      return "bg-green-500";
+    case "inProgress":
+      return "bg-blue-500";
+    case "ordered":
+      return "bg-orange-500";
+    case "cancelled":
+      return "bg-red-500";
+    case "waiting":
+      return "bg-yellow-500";
+    default:
+      return "bg-gray-500";
+  }
+};
 
-const mockDoctors = [
-  {
-    id: "1",
-    name: "Др. Иванов А.С.",
-    specialty: "Кардиолог",
-    status: "active",
-  },
-  { id: "2", name: "Др. Петров М.И.", specialty: "Терапевт", status: "active" },
-  {
-    id: "3",
-    name: "Др. Сидорова Е.Н.",
-    specialty: "Невролог",
-    status: "inactive",
-  },
-];
+const getDoctorInitials = (name: string): string => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2);
+};
 
-export function PatientDashboard({ patient }: PatientDashboardProps) {
-  const age = calculatePatientAge(patient.dateOfBirth);
-  const initials = `${patient.firstName[0]}${patient.lastName[0]}`;
+// ======================
+// Main Component
+// ======================
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "default";
-      case "INACTIVE":
-        return "secondary";
-      case "DECEASED":
-        return "destructive";
-      default:
-        return "outline";
-    }
-  };
+export const PatientDashboard = ({
+  patientId,
+}: PatientDashboardProps): ReactElement => {
+  const {
+    data: stats,
+    isLoading,
+    isError,
+  } = useGetPatientDashboardStatsQuery(patientId);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <Badge variant="default">Завершен</Badge>;
-      case "inProgress":
-        return <Badge variant="secondary">В процессе</Badge>;
-      case "ordered":
-        return <Badge variant="outline">Назначен</Badge>;
-      case "cancelled":
-        return <Badge variant="destructive">Отменен</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">
+          Не удалось загрузить статистику пациента
+        </p>
+      </div>
+    );
+  }
+
+  const {
+    metrics,
+    visitsByMonth,
+    ordersByStatus,
+    visitsByDepartment,
+    recentVisits,
+    activeOrders,
+    treatingDoctors,
+  } = stats;
 
   return (
     <div className="space-y-6">
-      {/* Ключевые метрики */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-muted-foreground">
                   Всего визитов
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  17
-                </p>
+                <p className="text-2xl font-bold">{metrics.totalVisits}</p>
                 <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                  +2 за последний месяц
+                  +{metrics.visitsLastMonth} за последний месяц
                 </p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
@@ -231,15 +213,15 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-muted-foreground">
                   Активные назначения
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  3
-                </p>
-                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                  Требуют внимания
-                </p>
+                <p className="text-2xl font-bold">{metrics.activeOrders}</p>
+                {metrics.activeOrders > 0 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                    Требуют внимания
+                  </p>
+                )}
               </div>
               <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
                 <ClipboardList className="h-6 w-6 text-orange-600 dark:text-orange-400" />
@@ -252,14 +234,12 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-muted-foreground">
                   Лечащие врачи
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  2
-                </p>
+                <p className="text-2xl font-bold">{metrics.totalDoctors}</p>
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  1 активный
+                  {metrics.activeDoctors} активных
                 </p>
               </div>
               <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
@@ -273,15 +253,21 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-muted-foreground">
                   Последний визит
                 </p>
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                  28 июня
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  2 дня назад
-                </p>
+                {metrics.lastVisitDate ? (
+                  <>
+                    <p className="text-lg font-bold">
+                      {formatDate(metrics.lastVisitDate, "d MMMM")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatRelativeDate(metrics.lastVisitDate)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-lg font-bold text-muted-foreground">—</p>
+                )}
               </div>
               <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
                 <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -291,9 +277,9 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
         </Card>
       </div>
 
-      {/* Графики */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Динамика визитов */}
+        {/* Visits Trend */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -305,23 +291,29 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <LineChartComponent
-              data={mockVisitsData}
-              xKey="month"
-              dataKeys={["visits"]}
-              labels={visitsLabels}
-              height={300}
-              showGrid={true}
-              showYAxis={true}
-              hideDots={false}
-              dotSize={6}
-              activeDotSize={8}
-              strokeWidth={3}
-            />
+            {visitsByMonth.length > 0 ? (
+              <LineChartComponent
+                data={visitsByMonth}
+                xKey="month"
+                dataKeys={["visits"]}
+                labels={VISITS_LABELS}
+                height={300}
+                showGrid
+                showYAxis
+                hideDots={false}
+                dotSize={6}
+                activeDotSize={8}
+                strokeWidth={3}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                Нет данных о визитах
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Статус назначений */}
+        {/* Orders Status */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -333,52 +325,33 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <PieChartComponent
-              data={mockOrdersStatus}
-              dataKey="count"
-              nameKey="status"
-              labels={ordersStatusLabels}
-              height={300}
-              innerRadius={60}
-              outerRadius={100}
-              showLegend={true}
-              showLabels={false}
-            />
+            {ordersByStatus.length > 0 ? (
+              <PieChartComponent
+                data={ordersByStatus}
+                dataKey="count"
+                nameKey="status"
+                labels={ORDERS_STATUS_LABELS}
+                height={300}
+                innerRadius={60}
+                outerRadius={100}
+                showLegend
+                showLabels={false}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                Нет данных о назначениях
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Дополнительные графики */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Показатели здоровья */}
+      {/* Department Visits */}
+      {visitsByDepartment.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-red-500" />
-              Показатели здоровья
-            </CardTitle>
-            <CardDescription>Динамика за последний месяц</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AreaChartComponent
-              data={mockHealthMetrics}
-              xKey="date"
-              dataKeys={["bloodPressure", "heartRate", "temperature"]}
-              labels={healthMetricsLabels}
-              height={300}
-              showGrid={true}
-              showYAxis={true}
-              showLegend={true}
-              fillOpacity={0.6}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Посещения по отделениям */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-green-500" />
+              <Users className="h-5 w-5 text-green-500" />
               Посещения по отделениям
             </CardTitle>
             <CardDescription>
@@ -387,22 +360,22 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           </CardHeader>
           <CardContent>
             <BarChartComponent
-              data={mockDepartmentVisits}
+              data={visitsByDepartment}
               xKey="department"
               dataKeys={["visits"]}
-              labels={departmentLabels}
+              labels={VISITS_LABELS_BY_DEPT}
               height={300}
-              showGrid={true}
-              showYAxis={true}
+              showGrid
+              showYAxis
               radius={[8, 8, 0, 0]}
             />
           </CardContent>
         </Card>
-      </div>
+      )}
 
-      {/* Таблицы с данными */}
+      {/* Lists */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Последние визиты */}
+        {/* Recent Visits */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -413,37 +386,47 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockRecentVisits.map((visit) => (
-                <div
-                  key={visit.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <div>
-                      <div className="font-medium">{visit.doctor}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {visit.department}
+              {recentVisits.length > 0 ? (
+                recentVisits.map((visit) => (
+                  <div
+                    key={visit.id}
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-2 h-2 rounded-full ${getStatusDotColor(visit.status)}`}
+                      />
+                      <div>
+                        <div className="font-medium">{visit.doctor}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {visit.department}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">
-                      {formatDate(visit.date)}
+                    <div className="text-right">
+                      <div className="text-sm font-medium">
+                        {formatDate(visit.date)}
+                      </div>
+                      {getStatusBadge(visit.status)}
                     </div>
-                    {getStatusBadge(visit.status)}
                   </div>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                Показать все визиты
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  Нет визитов
+                </p>
+              )}
+              {recentVisits.length > 0 && (
+                <Button variant="outline" className="w-full">
+                  Показать все визиты
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Активные назначения */}
+        {/* Active Orders */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -454,75 +437,86 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockActiveOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                    <div>
-                      <div className="font-medium">{order.name}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {order.department}
+              {activeOrders.length > 0 ? (
+                activeOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-2 h-2 rounded-full ${getStatusDotColor(order.status)}`}
+                      />
+                      <div>
+                        <div className="font-medium">{order.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {order.department}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">
-                      {formatDate(order.date)}
+                    <div className="text-right">
+                      <div className="text-sm font-medium">
+                        {formatDate(order.date)}
+                      </div>
+                      {getStatusBadge(order.status)}
                     </div>
-                    {getStatusBadge(order.status)}
                   </div>
-                </div>
-              ))}
-              <Button variant="outline" className="w-full">
-                Все назначения
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  Нет активных назначений
+                </p>
+              )}
+              {activeOrders.length > 0 && (
+                <Button variant="outline" className="w-full">
+                  Все назначения
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Лечащие врачи */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-green-500" />
-            Лечащие врачи
-          </CardTitle>
-          <CardDescription>Медицинские специалисты</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {mockDoctors.map((doctor) => (
-              <div
-                key={doctor.id}
-                className="flex items-center gap-3 p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
-                  {doctor.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium">{doctor.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {doctor.specialty}
-                  </div>
-                </div>
-                <Badge
-                  variant={doctor.status === "active" ? "default" : "secondary"}
+      {/* Treating Doctors */}
+      {treatingDoctors.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-green-500" />
+              Лечащие врачи
+            </CardTitle>
+            <CardDescription>Медицинские специалисты</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {treatingDoctors.map((doctor) => (
+                <div
+                  key={doctor.id}
+                  className="flex items-center gap-3 p-4 rounded-lg border hover:bg-accent/50 transition-colors"
                 >
-                  {doctor.status === "active" ? "Активен" : "Неактивен"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
+                    {getDoctorInitials(doctor.name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{doctor.name}</div>
+                    <div className="text-sm text-muted-foreground truncate">
+                      {doctor.specialty}
+                    </div>
+                  </div>
+                  <Badge
+                    variant={
+                      doctor.status === "active" ? "default" : "secondary"
+                    }
+                  >
+                    {doctor.status === "active" ? "Активен" : "Неактивен"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-}
+};

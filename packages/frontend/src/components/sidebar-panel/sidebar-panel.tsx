@@ -16,9 +16,16 @@ import {
 } from "@/components/ui/sidebar";
 import { SIDEBAR_PANEL_NAV_MENU } from "@/components/sidebar-panel/sidebar-panel.menu";
 import { ComponentProps } from "react";
-import { Bell, HelpCircle, Settings, Stethoscope } from "lucide-react";
+import {
+  Bell,
+  GalleryVerticalEnd,
+  HelpCircle,
+  Settings,
+  Stethoscope,
+} from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/route.constants";
+import { SidebarPanelUser } from "./sidebar-panel-user";
 
 export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
   const { state } = useSidebar();
@@ -26,9 +33,11 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader className="relative p-0 flex flex-row justify-between items-center">
         <Link href="/" className="flex items-center gap-2 px-3 py-2">
-          <Stethoscope className="size-5 text-primary" />
+          <div className="bg-black dark:bg-white text-white dark:text-black flex size-6 items-center justify-center rounded-md">
+            <GalleryVerticalEnd className="size-4" />
+          </div>
           {state !== "collapsed" && (
-            <span className="text-lg font-gilroy font-bold">MaxiMed</span>
+            <span className="text-2xl font-gilroy font-bold">datadoc.</span>
           )}
         </Link>
 
@@ -65,7 +74,7 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.NOTIFICATIONS}>
                     <Bell />
-                    Notifications
+                    Уведомления
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -73,19 +82,20 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.SETTINGS}>
                     <Settings />
-                    Settings
+                    Настройки
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem className="mb-2">
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link href={ROUTES.HELP}>
                     <HelpCircle />
-                    Help Center
+                    Помощь
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
+            <SidebarPanelUser />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>

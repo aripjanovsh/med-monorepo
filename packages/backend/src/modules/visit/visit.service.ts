@@ -21,8 +21,9 @@ import {
 } from "./dto/find-all-visit.dto";
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { VisitResponseDto } from "./dto/visit-response.dto";
+import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
 import { plainToInstance } from "class-transformer";
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
 
 const VISIT_INCLUDE_RELATIONS = {
   patient: {
@@ -543,5 +544,156 @@ export class VisitService {
     }
 
     return plainToInstance(VisitResponseDto, updatedVisit);
+  }
+
+  async getDoctorQueue(
+    employeeId: string,
+    organizationId: string,
+    date?: string
+  ): Promise<DoctorQueueResponseDto> {
+    // Validate employee exists
+    const employee = await this.prisma.employee.findFirst({
+      where: { id: employeeId, organizationId, status: "ACTIVE" },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        middleName: true,
+      },
+    });
+
+    if (!employee) {
+      throw new NotFoundException(
+        `Employee with ID ${employeeId} not found or inactive`
+      );
+    }
+
+    // Parse date or use today
+    const targetDate = date ? new Date(date) : new Date();
+    const dayStart = startOfDay(targetDate);
+    const dayEnd = endOfDay(targetDate);
+
+    // Fetch all visits for the day
+    const visits = await this.prisma.visit.findMany({
+      where: {
+        employeeId,
+        organizationId,
+        visitDate: {
+          gte: dayStart,
+          lte: dayEnd,
+        },
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+          },
+        },
+        appointment: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      orderBy: { queuedAt: "asc" },
+    });
+
+    const now = new Date();
+
+    // Separate visits by status
+    const waitingVisits = visits.filter(
+      (v) => v.status === VisitStatus.WAITING
+    );
+    const inProgressVisit = visits.find(
+      (v) => v.status === VisitStatus.IN_PROGRESS
+    );
+    const completedVisits = visits.filter(
+      (v) => v.status === VisitStatus.COMPLETED
+    );
+    const canceledVisits = visits.filter(
+      (v) => v.status === VisitStatus.CANCELED
+    );
+
+    // Calculate statistics
+    const completedWithTimes = completedVisits.filter(
+      (v) => v.waitingTimeMinutes !== null && v.serviceTimeMinutes !== null
+    );
+
+    const avgWaitingTime =
+      completedWithTimes.length > 0
+        ? Math.round(
+            completedWithTimes.reduce(
+              (sum, v) => sum + (v.waitingTimeMinutes ?? 0),
+              0
+            ) / completedWithTimes.length
+          )
+        : 0;
+
+    const avgServiceTime =
+      completedWithTimes.length > 0
+        ? Math.round(
+            completedWithTimes.reduce(
+              (sum, v) => sum + (v.serviceTimeMinutes ?? 0),
+              0
+            ) / completedWithTimes.length
+          )
+        : 0;
+
+    // Transform visits to DTOs
+    const mapVisit = (v: (typeof visits)[0], index: number) => ({
+      id: v.id,
+      queueNumber: index + 1,
+      queuedAt: v.queuedAt ?? v.createdAt,
+      status: v.status,
+      patient: {
+        id: v.patient.id,
+        firstName: v.patient.firstName,
+        lastName: v.patient.lastName,
+        middleName: v.patient.middleName ?? undefined,
+      },
+      waitingMinutes: v.queuedAt ? differenceInMinutes(now, v.queuedAt) : 0,
+      notes: v.notes ?? undefined,
+      appointmentType: v.type ?? undefined,
+      appointmentId: v.appointmentId ?? undefined,
+    });
+
+    // Transform completed visits
+    const mapCompletedVisit = (v: (typeof visits)[0]) => ({
+      id: v.id,
+      patient: {
+        id: v.patient.id,
+        firstName: v.patient.firstName,
+        lastName: v.patient.lastName,
+        middleName: v.patient.middleName ?? undefined,
+      },
+      completedAt: v.completedAt ?? v.updatedAt,
+      waitingTimeMinutes: v.waitingTimeMinutes ?? 0,
+      serviceTimeMinutes: v.serviceTimeMinutes ?? 0,
+      notes: v.notes ?? undefined,
+    });
+
+    const result = {
+      employeeId: employee.id,
+      employeeName: [employee.lastName, employee.firstName, employee.middleName]
+        .filter(Boolean)
+        .join(" "),
+      waiting: waitingVisits.map((v, i) => mapVisit(v, i)),
+      inProgress: inProgressVisit ? mapVisit(inProgressVisit, 0) : undefined,
+      completed: completedVisits.map(mapCompletedVisit),
+      stats: {
+        waiting: waitingVisits.length,
+        inProgress: inProgressVisit ? 1 : 0,
+        completed: completedVisits.length,
+        canceled: canceledVisits.length,
+        totalPatients: visits.length,
+        avgWaitingTime,
+        avgServiceTime,
+      },
+    };
+
+    return plainToInstance(DoctorQueueResponseDto, result);
   }
 }

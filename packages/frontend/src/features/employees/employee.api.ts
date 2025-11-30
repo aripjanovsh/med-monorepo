@@ -4,7 +4,7 @@ import {
   API_TAG_OPERATIONS_EMPLOYEE_STATS,
 } from "@/constants/api-tags.constants";
 
-import {
+import type {
   CreateEmployeeRequestDto,
   EmployeeResponseDto,
   UpdateEmployeeRequestDto,
@@ -12,6 +12,8 @@ import {
   EmployeesListResponseDto,
   EmployeeStatsDto,
   EmployeesQueryParamsDto,
+  EmployeeDashboardStatsQueryDto,
+  EmployeeDashboardStatsResponseDto,
 } from "./employee.dto";
 
 export const employeeApi = rootApi.injectEndpoints({
@@ -48,6 +50,21 @@ export const employeeApi = rootApi.injectEndpoints({
         params,
       }),
       providesTags: [API_TAG_OPERATIONS_EMPLOYEE_STATS],
+    }),
+
+    // Get employee dashboard statistics
+    getEmployeeDashboardStats: builder.query<
+      EmployeeDashboardStatsResponseDto,
+      { id: string } & EmployeeDashboardStatsQueryDto
+    >({
+      query: ({ id, ...params }) => ({
+        url: `/api/v1/employees/${id}/dashboard-stats`,
+        method: "GET",
+        params,
+      }),
+      providesTags: (result, error, { id }) => [
+        { type: API_TAG_OPERATIONS_EMPLOYEE_STATS, id },
+      ],
     }),
 
     // Create new employee
@@ -119,6 +136,7 @@ export const {
   useGetEmployeesQuery,
   useGetEmployeeQuery,
   useGetEmployeeStatsQuery,
+  useGetEmployeeDashboardStatsQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useUpdateEmployeeStatusMutation,
