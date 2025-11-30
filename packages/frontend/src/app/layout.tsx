@@ -37,7 +37,7 @@ const gilroy = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "MaxiMed - Medical Dashboard",
+  title: "datadoc. - Medical Dashboard",
   description: "Professional medical dashboard application",
 };
 
