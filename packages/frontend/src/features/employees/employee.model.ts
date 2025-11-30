@@ -30,7 +30,14 @@ export const getEmployeeShortName = (
     | SimpleEmployeeDto
     | { firstName: string; lastName: string; middleName?: string }
 ): string => {
-  return `${employee.firstName} ${employee.lastName}`;
+  return `${employee.lastName} ${employee.firstName}`;
+};
+
+export const getEmployeeLastNameInitial = (employee: {
+  firstName: string;
+  lastName: string;
+}): string => {
+  return `${employee.lastName || ""} ${employee.firstName?.[0] || ""}.`;
 };
 
 export const getEmployeeInitials = (employee: EmployeeResponseDto): string => {

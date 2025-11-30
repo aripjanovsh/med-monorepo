@@ -46,6 +46,10 @@ class ServiceOrderDoctorDto {
   @ApiProperty()
   @Expose()
   lastName: string;
+
+  @ApiPropertyOptional()
+  @Expose()
+  avatarId?: string;
 }
 
 class ServiceOrderServiceDto {

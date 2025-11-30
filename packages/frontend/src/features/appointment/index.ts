@@ -68,3 +68,4 @@ export { ListView } from "./components/list-view";
 export { ViewSwitcher } from "./components/view-switcher";
 export { AppointmentViewSheet } from "./components/appointment-view-sheet";
 export { AppointmentFormSheet } from "./components/appointment-form-sheet";
+export { AppointmentsPage } from "./appointments-page";

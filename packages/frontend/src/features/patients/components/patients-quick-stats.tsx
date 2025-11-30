@@ -86,16 +86,9 @@ export const PatientsQuickStats = () => {
         <div className="w-full pr-6">
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto h-[100px]"
+            className="aspect-auto h-[120px]"
           >
-            <AreaChart
-              accessibilityLayer
-              data={chartData}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
+            <AreaChart accessibilityLayer data={chartData}>
               <CartesianGrid horizontal={false} />
               <XAxis
                 dataKey="month"

@@ -94,6 +94,39 @@ function CabinetContent({ children }: { children: React.ReactNode }) {
       <SidebarPanel />
       <SidebarInset>
         <CabinetHeaderContext.Provider value={contextValue}>
+          {headerConfig && (
+            <header className="flex h-14 shrink-0 items-center gap-2 border-b px-2 md:gap-4 md:px-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  {headerConfig.showBack ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (headerConfig.onBack) headerConfig.onBack();
+                        else if (headerConfig.backHref)
+                          router.push(headerConfig.backHref);
+                        else router.back();
+                      }}
+                    >
+                      <ArrowLeft />
+                      {headerConfig.backTitle}
+                    </Button>
+                  ) : null}
+                  <h1 className="text-xl font-gilroy font-bold pl-2">
+                    {headerConfig.title}
+                  </h1>
+                  {/* <h1 className="truncate text-base font-semibold font-gilroy md:text-lg"></h1> */}
+                  {headerConfig.right ? (
+                    <div className="ml-2 flex items-center gap-2">
+                      {headerConfig.right}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </header>
+          )}
+
           <main className="flex-1 p-6 rounded-lg">{children}</main>
         </CabinetHeaderContext.Provider>
       </SidebarInset>

@@ -304,6 +304,7 @@ export class ServiceOrderService {
               firstName: true,
               middleName: true,
               lastName: true,
+              avatarId: true,
             },
           },
           service: {

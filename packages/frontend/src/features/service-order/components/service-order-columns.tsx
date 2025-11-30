@@ -4,8 +4,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-import { getPatientFullName } from "@/features/patients";
-import { getEmployeeFullName } from "@/features/employees";
+import { getPatientFullName, getPatientShortName } from "@/features/patients";
+import {
+  getEmployeeFullName,
+  getEmployeeShortName,
+} from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 import { SERVICE_TYPE_LABELS } from "../service-order.constants";
@@ -13,6 +16,8 @@ import {
   OrderStatusBadge,
   PaymentStatusBadge,
 } from "./service-order-status-badge";
+import { getEmployeeLastNameInitial } from "@/features/employees/employee.model";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
@@ -22,7 +27,7 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
       const date = new Date(row.original.createdAt);
       return (
         <div className="whitespace-nowrap text-sm">
-          {format(date, "dd.MM.yyyy", { locale: ru })}
+          {format(date, "dd.MM.yyyy HH:mm", { locale: ru })}
         </div>
       );
     },
@@ -31,7 +36,7 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     accessorKey: "patient",
     header: "ПАЦИЕНТ",
     cell: ({ row }) => {
-      const patientName = getPatientFullName(row.original.patient);
+      const patientName = getPatientShortName(row.original.patient);
       return <div className="font-medium">{patientName}</div>;
     },
   },
@@ -40,9 +45,15 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     header: "УСЛУГА",
     cell: ({ row }) => {
       const service = row.original.service;
+      const type = row.original.service.type;
       return (
         <div>
-          <div className="font-medium text-sm">{service.name}</div>
+          <div className="font-medium text-sm">
+            {service.name}{" "}
+            <span className="text-xs text-muted-foreground">
+              {type && `(${SERVICE_TYPE_LABELS[type]})`}
+            </span>
+          </div>
           {service.code && (
             <div className="text-xs text-muted-foreground">{service.code}</div>
           )}
@@ -51,31 +62,23 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     },
   },
   {
-    accessorKey: "service.type",
-    header: "ТИП",
-    cell: ({ row }) => {
-      const type = row.original.service.type;
-      return (
-        <div className="text-sm">
-          {type ? SERVICE_TYPE_LABELS[type] || type : "—"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "department",
-    header: "ОТДЕЛЕНИЕ",
-    cell: ({ row }) => {
-      const department = row.original.department;
-      return <div className="text-sm">{department?.name || "—"}</div>;
-    },
-  },
-  {
     accessorKey: "doctor",
     header: "НАЗНАЧИЛ",
     cell: ({ row }) => {
-      const doctorName = getEmployeeFullName(row.original.doctor);
-      return <div className="text-sm">{doctorName}</div>;
+      const doctorName = getEmployeeLastNameInitial(row.original.doctor);
+      const avatarId = row.original.doctor.avatarId;
+      return (
+        <div className="flex flex-row gap-1 items-center">
+          <UserAvatar
+            avatarId={avatarId}
+            name={doctorName}
+            className="size-5 rounded-full"
+            fallbackClassName="rounded-full text-xs"
+          />
+
+          <div className="text-sm">{doctorName}</div>
+        </div>
+      );
     },
   },
   {

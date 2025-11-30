@@ -116,7 +116,7 @@ export const CreateInvoiceWithPaymentSheet = ({
   const patientId = form.watch("patientId");
   const { data: patientVisits } = useGetVisitsQuery(
     patientId ? ({ patientId, limit: 100 } as any) : undefined,
-    { skip: !patientId },
+    { skip: !patientId }
   );
 
   // Calculate total immediately without useMemo
@@ -328,18 +328,18 @@ export const CreateInvoiceWithPaymentSheet = ({
                         <TableBody>
                           {fields.map((field, index) => {
                             const selectedService = selectedServices.get(
-                              items[index]?.serviceId,
+                              items[index]?.serviceId
                             );
                             const price = Number(
                               items[index]?.unitPrice ??
                                 selectedService?.price ??
-                                0,
+                                0
                             );
                             const quantity = Number(
-                              items[index]?.quantity ?? 1,
+                              items[index]?.quantity ?? 1
                             );
                             const discount = Number(
-                              items[index]?.discount ?? 0,
+                              items[index]?.discount ?? 0
                             );
                             const itemTotal = price * quantity - discount;
 
@@ -366,7 +366,7 @@ export const CreateInvoiceWithPaymentSheet = ({
                                               if (!items[index]?.unitPrice) {
                                                 form.setValue(
                                                   `items.${index}.unitPrice`,
-                                                  service.price,
+                                                  service.price
                                                 );
                                               }
                                             }}
