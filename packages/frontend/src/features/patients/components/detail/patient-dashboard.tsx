@@ -29,7 +29,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { useGetPatientDashboardStatsQuery } from "../../patient.api";
+import { useGetPatientDashboardStatsQuery } from "@/features/stats/stats.api";
 import { formatDate, formatRelativeDate } from "@/lib/date.utils";
 
 // ======================
@@ -147,7 +147,7 @@ export const PatientDashboard = ({
     data: stats,
     isLoading,
     isError,
-  } = useGetPatientDashboardStatsQuery(patientId);
+  } = useGetPatientDashboardStatsQuery({ patientId });
 
   if (isLoading) {
     return (

@@ -23,10 +23,6 @@ import { FindAllEmployeeDto } from "./dto/find-all-employee.dto";
 import { EmployeeByIdDto } from "./dto/employee-by-id.dto";
 import { UpdateEmployeeStatusDto } from "./dto/update-employee-status.dto";
 import {
-  EmployeeDashboardStatsQueryDto,
-  EmployeeDashboardStatsResponseDto,
-} from "./dto/employee-dashboard-stats.dto";
-import {
   RequirePermission,
   PermissionGuard,
 } from "../../common/guards/permission.guard";
@@ -66,26 +62,6 @@ export class EmployeeController {
   })
   getStats(@Query() query: FindAllEmployeeDto) {
     return this.employeeService.getEmployeeStats(query.organizationId);
-  }
-
-  @Get(":id/dashboard-stats")
-  @RequirePermission({ resource: "employees", action: "READ" })
-  @ApiOperation({ summary: "Get employee dashboard statistics" })
-  @ApiResponse({
-    status: 200,
-    description: "Employee dashboard statistics retrieved successfully",
-    type: EmployeeDashboardStatsResponseDto,
-  })
-  @ApiResponse({ status: 404, description: "Employee not found" })
-  getDashboardStats(
-    @Param("id") id: string,
-    @Query() query: EmployeeDashboardStatsQueryDto
-  ): Promise<EmployeeDashboardStatsResponseDto> {
-    return this.employeeService.getDashboardStats(
-      id,
-      query.organizationId,
-      query.period
-    );
   }
 
   @Get(":id")

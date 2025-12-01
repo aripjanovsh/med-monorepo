@@ -9,12 +9,18 @@ import {
 import { StatsService } from "./stats.service";
 import { PatientStatsService } from "./patient-stats.service";
 import { InvoiceStatsService } from "./invoice-stats.service";
+import { EmployeeStatsService } from "./employee-stats.service";
+import { PatientDashboardStatsService } from "./patient-dashboard-stats.service";
 import { StatsQueryDto } from "./dto/stats-query.dto";
 import { StatsResponseDto } from "./dto/stat-response.dto";
 import { PatientStatsQueryDto } from "./dto/patient-stats-query.dto";
 import { PatientStatsResponseDto } from "./dto/patient-stats-response.dto";
 import { InvoiceStatsQueryDto } from "./dto/invoice-stats-query.dto";
 import { InvoiceStatsResponseDto } from "./dto/invoice-stats-response.dto";
+import { EmployeeStatsQueryDto } from "./dto/employee-stats-query.dto";
+import { EmployeeStatsResponseDto } from "./dto/employee-stats-response.dto";
+import { PatientDashboardStatsQueryDto } from "./dto/patient-dashboard-stats-query.dto";
+import { PatientDashboardStatsResponseDto } from "./dto/patient-dashboard-stats-response.dto";
 import {
   RequirePermission,
   PermissionGuard,
@@ -28,7 +34,9 @@ export class StatsController {
   constructor(
     private readonly statsService: StatsService,
     private readonly patientStatsService: PatientStatsService,
-    private readonly invoiceStatsService: InvoiceStatsService
+    private readonly invoiceStatsService: InvoiceStatsService,
+    private readonly employeeStatsService: EmployeeStatsService,
+    private readonly patientDashboardStatsService: PatientDashboardStatsService
   ) {}
 
   @Get()
@@ -69,5 +77,35 @@ export class StatsController {
     @Query() query: InvoiceStatsQueryDto
   ): Promise<InvoiceStatsResponseDto> {
     return this.invoiceStatsService.getInvoiceStats(query);
+  }
+
+  @Get("employees")
+  @RequirePermission({ resource: "stats", action: "READ" })
+  @ApiOperation({ summary: "Get employee dashboard statistics" })
+  @ApiResponse({
+    status: 200,
+    description: "Employee dashboard statistics data",
+    type: EmployeeStatsResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Employee not found" })
+  getEmployeeStats(
+    @Query() query: EmployeeStatsQueryDto
+  ): Promise<EmployeeStatsResponseDto> {
+    return this.employeeStatsService.getDashboardStats(query);
+  }
+
+  @Get("patients/dashboard")
+  @RequirePermission({ resource: "stats", action: "READ" })
+  @ApiOperation({ summary: "Get patient dashboard statistics" })
+  @ApiResponse({
+    status: 200,
+    description: "Patient dashboard statistics data",
+    type: PatientDashboardStatsResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Patient not found" })
+  getPatientDashboardStats(
+    @Query() query: PatientDashboardStatsQueryDto
+  ): Promise<PatientDashboardStatsResponseDto> {
+    return this.patientDashboardStatsService.getDashboardStats(query);
   }
 }

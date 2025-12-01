@@ -13,7 +13,6 @@ import type {
   PatientStatsDto,
   PatientsQueryParamsDto,
   PatientByIdQueryDto,
-  PatientDashboardStatsDto,
 } from "./patient.dto";
 
 export const patientApi = rootApi.injectEndpoints({
@@ -54,17 +53,6 @@ export const patientApi = rootApi.injectEndpoints({
         params,
       }),
       providesTags: [API_TAG_OPERATIONS_PATIENT_STATS],
-    }),
-
-    // Get patient dashboard statistics
-    getPatientDashboardStats: builder.query<PatientDashboardStatsDto, string>({
-      query: (patientId) => ({
-        url: `/api/v1/patients/${patientId}/stats`,
-        method: "GET",
-      }),
-      providesTags: (result, error, patientId) => [
-        { type: API_TAG_OPERATIONS_PATIENTS, id: `${patientId}-stats` },
-      ],
     }),
 
     // Create new patient
@@ -140,7 +128,6 @@ export const {
   useGetPatientsQuery,
   useGetPatientQuery,
   useGetPatientStatsQuery,
-  useGetPatientDashboardStatsQuery,
   useCreatePatientMutation,
   useUpdatePatientMutation,
   useUpdatePatientStatusMutation,

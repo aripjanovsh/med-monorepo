@@ -1,5 +1,8 @@
 import { rootApi } from "@/store/api/root.api";
-import { API_TAG_OPERATIONS_STATS } from "@/constants/api-tags.constants";
+import {
+  API_TAG_OPERATIONS_STATS,
+  API_TAG_OPERATIONS_EMPLOYEE_STATS,
+} from "@/constants/api-tags.constants";
 import type {
   StatsQueryDto,
   StatsResponseDto,
@@ -7,6 +10,10 @@ import type {
   PatientStatsResponseDto,
   InvoiceStatsQueryDto,
   InvoiceStatsResponseDto,
+  EmployeeStatsQueryDto,
+  EmployeeStatsResponseDto,
+  PatientDashboardStatsQueryDto,
+  PatientDashboardStatsResponseDto,
 } from "./stats.dto";
 
 export const STATS_API_TAG = API_TAG_OPERATIONS_STATS;
@@ -47,6 +54,30 @@ export const statsApi = rootApi.injectEndpoints({
       }),
       providesTags: [STATS_API_TAG],
     }),
+    getEmployeeStats: builder.query<
+      EmployeeStatsResponseDto,
+      EmployeeStatsQueryDto
+    >({
+      query: (params) => ({
+        url: "/api/v1/stats/employees",
+        params,
+      }),
+      providesTags: (result, error, { employeeId }) => [
+        { type: API_TAG_OPERATIONS_EMPLOYEE_STATS, id: employeeId },
+      ],
+    }),
+    getPatientDashboardStats: builder.query<
+      PatientDashboardStatsResponseDto,
+      PatientDashboardStatsQueryDto
+    >({
+      query: (params) => ({
+        url: "/api/v1/stats/patients/dashboard",
+        params,
+      }),
+      providesTags: (result, error, { patientId }) => [
+        { type: STATS_API_TAG, id: `patient-${patientId}` },
+      ],
+    }),
   }),
 });
 
@@ -54,4 +85,6 @@ export const {
   useGetStatsQuery,
   useGetPatientQuickStatsQuery,
   useGetInvoiceQuickStatsQuery,
+  useGetEmployeeStatsQuery,
+  useGetPatientDashboardStatsQuery,
 } = statsApi;

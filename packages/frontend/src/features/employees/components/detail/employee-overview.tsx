@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  EmployeeResponseDto,
-  StatsPeriod,
-  EmployeeDashboardStatsResponseDto,
-} from "@/features/employees/employee.dto";
-import { useGetEmployeeDashboardStatsQuery } from "@/features/employees/employee.api";
+import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
+import type { StatsPeriod } from "@/features/stats/stats.dto";
+import { useGetEmployeeStatsQuery } from "@/features/stats/stats.api";
 import {
   Card,
   CardContent,
@@ -137,8 +134,8 @@ const formatPeriodLabel = (start: string, end: string): string => {
 export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
   const [period, setPeriod] = useState<StatsPeriod>("month");
 
-  const { data: stats, isLoading } = useGetEmployeeDashboardStatsQuery({
-    id: employee.id,
+  const { data: stats, isLoading } = useGetEmployeeStatsQuery({
+    employeeId: employee.id,
     period,
   });
 
