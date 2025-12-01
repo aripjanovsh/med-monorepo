@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import PageHeader from "@/components/layouts/page-header";
+import { CabinetContent } from "@/components/layouts/cabinet";
 
 export type SettingsSection = {
   id: string;
@@ -87,7 +88,7 @@ export default function SettingsPage() {
   const router = useRouter();
 
   return (
-    <div className="space-y-6">
+    <CabinetContent className="space-y-6 max-w-4xl mx-auto">
       <PageHeader
         title="Настройки"
         description="Управление настройками организации"
@@ -123,6 +124,6 @@ export default function SettingsPage() {
           );
         })}
       </div>
-    </div>
+    </CabinetContent>
   );
 }

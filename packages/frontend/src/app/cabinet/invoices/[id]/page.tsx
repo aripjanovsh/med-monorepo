@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { useGetInvoiceQuery, InvoiceOverview } from "@/features/invoice";
 import { ROUTES } from "@/constants/route.constants";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import { LoadingState, ErrorState } from "@/components/states";
 
 export default function InvoiceDetailPage({
@@ -34,9 +34,11 @@ export default function InvoiceDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader backHref="/cabinet/invoices" backTitle="Счета" />
-      <InvoiceOverview invoice={invoice} />
-    </div>
+      <CabinetContent className="space-y-6">
+        <InvoiceOverview invoice={invoice} />
+      </CabinetContent>
+    </>
   );
 }

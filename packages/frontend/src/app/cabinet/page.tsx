@@ -13,6 +13,7 @@ import { CompletedVisitsList } from "@/features/doctor/components/completed-visi
 import { StatsWidget } from "@/features/dashboard/doctor/widgets/stats-widget";
 import { QueueWidget } from "@/features/dashboard/doctor/widgets/queue-widget";
 import { CurrentPatientWidget } from "@/features/dashboard/doctor/widgets/current-patient-widget";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
 export default function DashboardPageClient() {
   const { toast } = useToast();
@@ -93,39 +94,47 @@ export default function DashboardPageClient() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats */}
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
+    <>
+      <LayoutHeader title="Обзор" />
+      <CabinetContent>
+        <div className="space-y-6">
+          {/* Stats */}
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))}
+            </div>
+          ) : data ? (
+            <StatsWidget
+              stats={{
+                totalPatients: data.stats.totalPatients,
+                patientsInQueue: data.stats.waiting,
+                completedToday: data.stats.completed,
+                canceledToday: data.stats.canceled,
+                avgWaitingTime: data.stats.avgWaitingTime,
+                avgServiceTime: data.stats.avgServiceTime,
+              }}
+            />
+          ) : null}
+
+          {/* Current Patient & Queue */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <CurrentPatientWidget
+              employeeId={employeeId}
+              onStartVisit={handleStartVisit}
+              onCompleteVisit={handleCompleteVisit}
+            />
+            <QueueWidget
+              employeeId={employeeId}
+              onStartVisit={handleStartVisit}
+            />
+          </div>
+
+          {/* Completed Visits */}
+          <CompletedVisitsList employeeId={employeeId} />
         </div>
-      ) : data ? (
-        <StatsWidget
-          stats={{
-            totalPatients: data.stats.totalPatients,
-            patientsInQueue: data.stats.waiting,
-            completedToday: data.stats.completed,
-            canceledToday: data.stats.canceled,
-            avgWaitingTime: data.stats.avgWaitingTime,
-            avgServiceTime: data.stats.avgServiceTime,
-          }}
-        />
-      ) : null}
-
-      {/* Current Patient & Queue */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <CurrentPatientWidget
-          employeeId={employeeId}
-          onStartVisit={handleStartVisit}
-          onCompleteVisit={handleCompleteVisit}
-        />
-        <QueueWidget employeeId={employeeId} onStartVisit={handleStartVisit} />
-      </div>
-
-      {/* Completed Visits */}
-      <CompletedVisitsList employeeId={employeeId} />
-    </div>
+      </CabinetContent>
+    </>
   );
 }

@@ -8,6 +8,7 @@ import type {
   VisitResponseDto,
   VisitsListResponseDto,
   VisitsQueryParamsDto,
+  ActiveVisitResponseDto,
 } from "./visit.dto";
 import { VisitIncludeRelation } from "./visit.dto";
 import type { DoctorQueueResponse } from "../doctor/types/doctor-queue";
@@ -47,7 +48,10 @@ export const visitApi = rootApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: [API_TAG_OPERATIONS_VISITS],
+      invalidatesTags: (result, error, { patientId }) => [
+        API_TAG_OPERATIONS_VISITS,
+        { type: API_TAG_OPERATIONS_VISITS, id: `patient-active-${patientId}` },
+      ],
     }),
 
     updateVisit: builder.mutation<VisitResponseDto, UpdateVisitRequestDto>({
@@ -64,14 +68,18 @@ export const visitApi = rootApi.injectEndpoints({
 
     startVisit: builder.mutation<
       VisitResponseDto,
-      { id: string; employeeId?: string } & StartVisitRequestDto
+      {
+        id: string;
+        employeeId?: string;
+        patientId?: string;
+      } & StartVisitRequestDto
     >({
-      query: ({ id, employeeId, ...data }) => ({
+      query: ({ id, employeeId, patientId, ...data }) => ({
         url: `/api/v1/visits/${id}/start`,
         method: "POST",
         body: data,
       }),
-      invalidatesTags: (result, error, { id, employeeId }) => {
+      invalidatesTags: (result, error, { id, employeeId, patientId }) => {
         const tags: Array<
           | { type: typeof API_TAG_OPERATIONS_VISITS; id?: string }
           | typeof API_TAG_OPERATIONS_VISITS
@@ -83,6 +91,12 @@ export const visitApi = rootApi.injectEndpoints({
           tags.push({
             type: API_TAG_OPERATIONS_VISITS,
             id: `doctor-queue-${employeeId}`,
+          });
+        }
+        if (patientId) {
+          tags.push({
+            type: API_TAG_OPERATIONS_VISITS,
+            id: `patient-active-${patientId}`,
           });
         }
         return tags;
@@ -91,14 +105,18 @@ export const visitApi = rootApi.injectEndpoints({
 
     completeVisit: builder.mutation<
       VisitResponseDto,
-      { id: string; employeeId?: string } & CompleteVisitRequestDto
+      {
+        id: string;
+        employeeId?: string;
+        patientId?: string;
+      } & CompleteVisitRequestDto
     >({
-      query: ({ id, employeeId, ...data }) => ({
+      query: ({ id, employeeId, patientId, ...data }) => ({
         url: `/api/v1/visits/${id}/complete`,
         method: "POST",
         body: data,
       }),
-      invalidatesTags: (result, error, { id, employeeId }) => {
+      invalidatesTags: (result, error, { id, employeeId, patientId }) => {
         const tags: Array<
           | { type: typeof API_TAG_OPERATIONS_VISITS; id?: string }
           | typeof API_TAG_OPERATIONS_VISITS
@@ -112,23 +130,41 @@ export const visitApi = rootApi.injectEndpoints({
             id: `doctor-queue-${employeeId}`,
           });
         }
+        if (patientId) {
+          tags.push({
+            type: API_TAG_OPERATIONS_VISITS,
+            id: `patient-active-${patientId}`,
+          });
+        }
         return tags;
       },
     }),
 
     cancelVisit: builder.mutation<
       VisitResponseDto,
-      { id: string; cancelReason?: string }
+      { id: string; cancelReason?: string; patientId?: string }
     >({
       query: ({ id, cancelReason }) => ({
         url: `/api/v1/visits/${id}/cancel`,
         method: "POST",
         body: { cancelReason },
       }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: API_TAG_OPERATIONS_VISITS, id },
-        API_TAG_OPERATIONS_VISITS,
-      ],
+      invalidatesTags: (result, error, { id, patientId }) => {
+        const tags: Array<
+          | { type: typeof API_TAG_OPERATIONS_VISITS; id?: string }
+          | typeof API_TAG_OPERATIONS_VISITS
+        > = [
+          { type: API_TAG_OPERATIONS_VISITS, id },
+          API_TAG_OPERATIONS_VISITS,
+        ];
+        if (patientId) {
+          tags.push({
+            type: API_TAG_OPERATIONS_VISITS,
+            id: `patient-active-${patientId}`,
+          });
+        }
+        return tags;
+      },
     }),
 
     deleteVisit: builder.mutation<void, string>({
@@ -156,6 +192,21 @@ export const visitApi = rootApi.injectEndpoints({
         { type: API_TAG_OPERATIONS_VISITS, id: `doctor-queue-${employeeId}` },
       ],
     }),
+
+    // Get active visit for patient
+    getPatientActiveVisit: builder.query<
+      ActiveVisitResponseDto | null,
+      { patientId: string }
+    >({
+      query: ({ patientId }) => ({
+        url: "/api/v1/visits/patient/active",
+        method: "GET",
+        params: { patientId },
+      }),
+      providesTags: (result, error, { patientId }) => [
+        { type: API_TAG_OPERATIONS_VISITS, id: `patient-active-${patientId}` },
+      ],
+    }),
   }),
 });
 
@@ -169,4 +220,5 @@ export const {
   useCancelVisitMutation,
   useDeleteVisitMutation,
   useGetDoctorQueueQuery,
+  useGetPatientActiveVisitQuery,
 } = visitApi;

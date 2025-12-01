@@ -46,6 +46,7 @@ import { useConfirmDialog } from "@/components/dialogs";
 import { useDialog } from "@/lib/dialog-manager";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
 export const InvoicesPage = () => {
   const router = useRouter();
@@ -149,10 +150,10 @@ export const InvoicesPage = () => {
   const totalInvoices = invoicesData?.meta?.total || 0;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
+    <>
+      <LayoutHeader
         title="Счета"
-        actions={
+        right={
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setShowStats(!showStats)}
@@ -169,102 +170,103 @@ export const InvoicesPage = () => {
           </div>
         }
       />
+      <CabinetContent className="space-y-6">
+        {showStats && <InvoicesQuickStats />}
 
-      {showStats && <InvoicesQuickStats />}
+        <ActionTabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          items={[
+            { value: "all", label: "Все счета" },
+            { value: "unpaid", label: "Неоплаченные" },
+            { value: "partially_paid", label: "Частично оплаченные" },
+            { value: "paid", label: "Оплаченные" },
+          ]}
+        />
 
-      <ActionTabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        items={[
-          { value: "all", label: "Все счета" },
-          { value: "unpaid", label: "Неоплаченные" },
-          { value: "partially_paid", label: "Частично оплаченные" },
-          { value: "paid", label: "Оплаченные" },
-        ]}
-      />
+        <DataTable
+          columns={[
+            ...invoiceColumns,
+            {
+              id: "actions",
+              cell: ({ row }) => {
+                const invoice = row.original;
 
-      <DataTable
-        columns={[
-          ...invoiceColumns,
-          {
-            id: "actions",
-            cell: ({ row }) => {
-              const invoice = row.original;
-
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Открыть меню</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        router.push(
-                          url(ROUTES.INVOICE_DETAIL, { id: invoice.id })
-                        )
-                      }
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      Просмотр
-                    </DropdownMenuItem>
-                    {canAddPayment(invoice) && (
+                return (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Открыть меню</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => handleAddPayment(invoice)}
+                        onClick={() =>
+                          router.push(
+                            url(ROUTES.INVOICE_DETAIL, { id: invoice.id })
+                          )
+                        }
                       >
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Добавить платеж
+                        <Eye className="mr-2 h-4 w-4" />
+                        Просмотр
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteInvoice(invoice)}
-                      className="text-destructive"
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Удалить
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
+                      {canAddPayment(invoice) && (
+                        <DropdownMenuItem
+                          onClick={() => handleAddPayment(invoice)}
+                        >
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Добавить платеж
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteInvoice(invoice)}
+                        className="text-destructive"
+                      >
+                        <Trash className="mr-2 h-4 w-4" />
+                        Удалить
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              },
             },
-          },
-        ]}
-        data={invoices}
-        isLoading={isLoadingInvoices}
-        pagination={{
-          ...handlers.pagination,
-          total: totalInvoices,
-        }}
-        toolbar={(table) => (
-          <DataTableToolbar
-            table={table}
-            searchKey="invoiceNumber"
-            searchPlaceholder="Поиск по номеру счета или имени пациента..."
-            searchValue={values.searchImmediate}
-            onSearchChange={handlers.search.onChange}
-          />
-        )}
-        emptyState={
-          invoicesError ? (
-            <DataTableErrorState
-              title="Ошибка при загрузке счетов"
-              error={invoicesError}
-              onRetry={refetchInvoices}
+          ]}
+          data={invoices}
+          isLoading={isLoadingInvoices}
+          pagination={{
+            ...handlers.pagination,
+            total: totalInvoices,
+          }}
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              searchKey="invoiceNumber"
+              searchPlaceholder="Поиск по номеру счета или имени пациента..."
+              searchValue={values.searchImmediate}
+              onSearchChange={handlers.search.onChange}
             />
-          ) : (
-            <DataTableEmptyState
-              title="Счета не найдены"
-              description="Попробуйте изменить параметры поиска или фильтры"
-            />
-          )
-        }
-        onRowClick={(row) => {
-          router.push(url(ROUTES.INVOICE_DETAIL, { id: row.original.id }));
-        }}
-      />
-    </div>
+          )}
+          emptyState={
+            invoicesError ? (
+              <DataTableErrorState
+                title="Ошибка при загрузке счетов"
+                error={invoicesError}
+                onRetry={refetchInvoices}
+              />
+            ) : (
+              <DataTableEmptyState
+                title="Счета не найдены"
+                description="Попробуйте изменить параметры поиска или фильтры"
+              />
+            )
+          }
+          onRowClick={(row) => {
+            router.push(url(ROUTES.INVOICE_DETAIL, { id: row.original.id }));
+          }}
+        />
+      </CabinetContent>
+    </>
   );
 };

@@ -2,138 +2,121 @@
 
 import type { ReactNode } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-// import { SidebarPanel } from "@/components/sidebar-panel/sidebar-panel";
-// import { SidebarPanelUser } from "@/components/sidebar-panel/sidebar-panel-user";
-import { ThemeToggle } from "../theme-toggle";
-import { ArrowLeft, Bell } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "../ui/button";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
 import { useRouter } from "next/navigation";
 import { SidebarPanel } from "@/components/sidebar-panel/sidebar-panel";
+import { cn } from "@/lib/utils";
 
-// Context and helper to allow pages to configure the header (title, back button, etc.)
-type HeaderConfig = {
+type LayoutHeaderProps = {
   title?: ReactNode;
-  showBack?: boolean;
   backHref?: string;
   backTitle?: string;
   onBack?: () => void;
+  left?: ReactNode;
   right?: ReactNode;
+  border?: boolean;
 };
 
-const CabinetHeaderContext = createContext<{
-  setHeader: (config: HeaderConfig | null) => void;
-  clearHeader: () => void;
-}>({
-  setHeader: () => {},
-  clearHeader: () => {},
-});
+export const LayoutHeader = ({
+  title,
+  backHref,
+  backTitle,
+  onBack,
+  left,
+  right,
+  border = true,
+}: LayoutHeaderProps) => {
+  const router = useRouter();
+  const showBack = Boolean(backHref || onBack);
 
-export function useCabinetHeader() {
-  const ctx = useContext(CabinetHeaderContext);
-  return {
-    setHeader: ctx.setHeader,
-    clearHeader: ctx.clearHeader,
-  };
-}
+  return (
+    <header
+      className={cn(
+        "flex h-14 shrink-0 items-center gap-2 px-4 md:gap-4 md:px-6",
+        {
+          "md:px-4": showBack,
+          "border-b": border || showBack,
+        }
+      )}
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          {left ? <div>{left}</div> : null}
+          {showBack ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (onBack) onBack();
+                else if (backHref) router.push(backHref);
+                else router.back();
+              }}
+            >
+              <ArrowLeft />
+              {backTitle}
+            </Button>
+          ) : null}
+          <h1 className="text-lg font-gilroy font-bold">{title}</h1>
+          {right ? (
+            <div className="ml-auto flex items-center gap-2">{right}</div>
+          ) : null}
+        </div>
+      </div>
+    </header>
+  );
+};
 
-interface LayoutHeaderProps {
-  title?: ReactNode;
-  backHref?: string;
-  backTitle?: string;
-  onBack?: () => void;
-  right?: ReactNode;
-}
+export const CabinetContent = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <>
+      <main className={cn("flex-1 p-6 rounded-lg", className)}>{children}</main>
+    </>
+  );
+};
 
-export function LayoutHeader({
+export const CabinetLayout = ({
+  children,
+  className,
   title,
   backHref,
   backTitle,
   onBack,
   right,
-}: LayoutHeaderProps) {
-  const { setHeader, clearHeader } = useCabinetHeader();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    setHeader({
-      title,
-      showBack: Boolean(backHref || onBack),
-      backHref,
-      backTitle,
-      onBack,
-      right,
-    });
-    return () => {
-      clearHeader();
-    };
-    // We intentionally run this only on mount/unmount to avoid infinite loops
-    // when unstable ReactNode props (like `right`) change identity each render.
-    // For dynamic updates, call `useCabinetHeader().setHeader(...)` from the page.
-  }, []);
-  return null;
-}
-
-function CabinetContent({ children }: { children: React.ReactNode }) {
-  const [headerConfig, setHeaderConfig] = useState<HeaderConfig | null>(null);
-  const router = useRouter();
-  const clearHeader = useCallback(() => setHeaderConfig(null), []);
-  const contextValue = useMemo(
-    () => ({ setHeader: setHeaderConfig, clearHeader }),
-    [clearHeader]
+}: {
+  children: React.ReactNode;
+  className?: string;
+  title?: ReactNode;
+  backHref?: string;
+  backTitle?: string;
+  onBack?: () => void;
+  right?: ReactNode;
+}) => {
+  return (
+    <>
+      <LayoutHeader
+        title={title}
+        backHref={backHref}
+        backTitle={backTitle}
+        onBack={onBack}
+        right={right}
+      />
+      <main className={cn("flex-1 p-6 rounded-lg", className)}>{children}</main>
+    </>
   );
+};
 
+export const Cabinet = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       <SidebarPanel />
-      <SidebarInset>
-        <CabinetHeaderContext.Provider value={contextValue}>
-          {headerConfig && (
-            <header className="flex h-14 shrink-0 items-center gap-2 border-b px-2 md:gap-4 md:px-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  {headerConfig.showBack ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (headerConfig.onBack) headerConfig.onBack();
-                        else if (headerConfig.backHref)
-                          router.push(headerConfig.backHref);
-                        else router.back();
-                      }}
-                    >
-                      <ArrowLeft />
-                      {headerConfig.backTitle}
-                    </Button>
-                  ) : null}
-                  <h1 className="text-xl font-gilroy font-bold pl-2">
-                    {headerConfig.title}
-                  </h1>
-                  {/* <h1 className="truncate text-base font-semibold font-gilroy md:text-lg"></h1> */}
-                  {headerConfig.right ? (
-                    <div className="ml-2 flex items-center gap-2">
-                      {headerConfig.right}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </header>
-          )}
-
-          <main className="flex-1 p-6 rounded-lg">{children}</main>
-        </CabinetHeaderContext.Provider>
-      </SidebarInset>
+      <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
-}
-
-export function Cabinet({ children }: { children: React.ReactNode }) {
-  return <CabinetContent>{children}</CabinetContent>;
-}
+};

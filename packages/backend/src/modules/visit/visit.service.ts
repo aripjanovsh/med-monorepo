@@ -22,6 +22,7 @@ import {
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { VisitResponseDto } from "./dto/visit-response.dto";
 import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
+import { ActiveVisitResponseDto } from "./dto/active-visit-response.dto";
 import { plainToInstance } from "class-transformer";
 import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
 
@@ -695,5 +696,54 @@ export class VisitService {
     };
 
     return plainToInstance(DoctorQueueResponseDto, result);
+  }
+
+  async findActiveVisitByPatient(
+    patientId: string,
+    organizationId?: string
+  ): Promise<ActiveVisitResponseDto | null> {
+    const where: Prisma.VisitWhereInput = {
+      patientId,
+      status: {
+        in: [VisitStatus.WAITING, VisitStatus.IN_PROGRESS],
+      },
+    };
+
+    if (organizationId) {
+      where.organizationId = organizationId;
+    }
+
+    const visit = await this.prisma.visit.findFirst({
+      where,
+      orderBy: { visitDate: "desc" },
+      include: {
+        employee: {
+          select: {
+            id: true,
+            firstName: true,
+            middleName: true,
+            lastName: true,
+            department: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            title: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!visit) {
+      return null;
+    }
+
+    return plainToInstance(ActiveVisitResponseDto, visit);
   }
 }

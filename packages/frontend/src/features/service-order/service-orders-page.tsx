@@ -31,6 +31,7 @@ import { StatusFacetedSelectField } from "@/features/service-order/components/st
 import { PaymentStatusFacetedSelectField } from "@/features/service-order/components/payment-status-faceted-select-field";
 import { ServiceTypeFacetedSelectField } from "@/features/service-order/components/service-type-faceted-select-field";
 import { useGetDepartmentsQuery } from "@/features/master-data/master-data-departments.api";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
 export const ServiceOrdersPage = () => {
   const router = useRouter();
@@ -183,101 +184,101 @@ export const ServiceOrdersPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Назначения"
-        description="Просмотр и управление назначениями услуг"
-      />
+    <>
+      <LayoutHeader title="Назначения" />
+      <CabinetContent className="space-y-6">
+        <ActionTabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          items={tabItems}
+        />
 
-      <ActionTabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        items={tabItems}
-      />
+        <DataTable
+          columns={[
+            ...serviceOrderColumns,
+            {
+              id: "actions",
+              header: "ДЕЙСТВИЯ",
+              cell: ({ row }) => {
+                const order = row.original;
+                const canCancel = canCancelOrder(order);
+                const canExecute =
+                  order.status === "ORDERED" || order.status === "IN_PROGRESS";
 
-      <DataTable
-        columns={[
-          ...serviceOrderColumns,
-          {
-            id: "actions",
-            header: "ДЕЙСТВИЯ",
-            cell: ({ row }) => {
-              const order = row.original;
-              const canCancel = canCancelOrder(order);
-              const canExecute =
-                order.status === "ORDERED" || order.status === "IN_PROGRESS";
-
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Открыть меню</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        router.push(url(ROUTES.ORDER_DETAIL, { id: order.id }))
-                      }
-                    >
-                      <Eye />
-                      Просмотр
-                    </DropdownMenuItem>
-                    {canExecute && (
-                      <DropdownMenuItem onClick={() => handleExecute(order)}>
-                        <Play />
-                        Выполнить
-                      </DropdownMenuItem>
-                    )}
-                    {canCancel && (
+                return (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Открыть меню</span>
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => handleCancel(order)}
-                        className="text-destructive"
+                        onClick={() =>
+                          router.push(
+                            url(ROUTES.ORDER_DETAIL, { id: order.id })
+                          )
+                        }
                       >
-                        <XCircle />
-                        Отменить
+                        <Eye />
+                        Просмотр
                       </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
+                      {canExecute && (
+                        <DropdownMenuItem onClick={() => handleExecute(order)}>
+                          <Play />
+                          Выполнить
+                        </DropdownMenuItem>
+                      )}
+                      {canCancel && (
+                        <DropdownMenuItem
+                          onClick={() => handleCancel(order)}
+                          className="text-destructive"
+                        >
+                          <XCircle />
+                          Отменить
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              },
             },
-          },
-        ]}
-        data={data?.data || []}
-        isLoading={isLoading}
-        pagination={{
-          ...handlers.pagination,
-          total: data?.meta?.total || 0,
-        }}
-        sort={handlers.sorting}
-        toolbar={(table) => (
-          <DataTableToolbar
-            table={table}
-            searchKey="search"
-            searchPlaceholder="Поиск по услуге или пациенту..."
-            searchValue={values.searchImmediate}
-            onSearchChange={handlers.search.onChange}
-          >
-            <StatusFacetedSelectField
-              value={selectedStatuses}
-              onChange={handleStatusChange}
-            />
-            <PaymentStatusFacetedSelectField
-              value={selectedPaymentStatuses}
-              onChange={handlePaymentStatusChange}
-            />
-            <ServiceTypeFacetedSelectField
-              value={selectedServiceTypes}
-              onChange={handleServiceTypeChange}
-            />
-          </DataTableToolbar>
-        )}
-        onRowClick={(row) => {
-          router.push(url(ROUTES.ORDER_DETAIL, { id: row.original.id }));
-        }}
-      />
-    </div>
+          ]}
+          data={data?.data || []}
+          isLoading={isLoading}
+          pagination={{
+            ...handlers.pagination,
+            total: data?.meta?.total || 0,
+          }}
+          sort={handlers.sorting}
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              searchKey="search"
+              searchPlaceholder="Поиск по услуге или пациенту..."
+              searchValue={values.searchImmediate}
+              onSearchChange={handlers.search.onChange}
+            >
+              <StatusFacetedSelectField
+                value={selectedStatuses}
+                onChange={handleStatusChange}
+              />
+              <PaymentStatusFacetedSelectField
+                value={selectedPaymentStatuses}
+                onChange={handlePaymentStatusChange}
+              />
+              <ServiceTypeFacetedSelectField
+                value={selectedServiceTypes}
+                onChange={handleServiceTypeChange}
+              />
+            </DataTableToolbar>
+          )}
+          onRowClick={(row) => {
+            router.push(url(ROUTES.ORDER_DETAIL, { id: row.original.id }));
+          }}
+        />
+      </CabinetContent>
+    </>
   );
 };

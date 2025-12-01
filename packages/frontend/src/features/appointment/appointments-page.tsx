@@ -25,6 +25,7 @@ import {
   createAppointmentColumns,
 } from "./index";
 import PageHeader from "@/components/layouts/page-header";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
 type ViewMode = "calendar" | "list";
 
@@ -168,58 +169,58 @@ export const AppointmentsPage = () => {
   const appointments = useMemo(() => data?.data || [], [data?.data]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
+    <>
+      <LayoutHeader
         title="Записи на прием"
-        description="Управление записями пациентов на прием к врачам"
-        actions={
+        right={
           <Button onClick={handleCreate}>
             <Plus />
             Создать запись
           </Button>
         }
       />
+      <CabinetContent className="space-y-6">
+        {/* Single Row: Add new + Filters + Navigation */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <ViewSwitcher
+              view={viewMode}
+              onViewChange={setViewMode}
+              selectedStatus={selectedStatus}
+              onStatusChange={setSelectedStatus}
+            />
+          </div>
 
-      {/* Single Row: Add new + Filters + Navigation */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <ViewSwitcher
-            view={viewMode}
-            onViewChange={setViewMode}
-            selectedStatus={selectedStatus}
-            onStatusChange={setSelectedStatus}
-          />
+          {viewMode === "calendar" && (
+            <Navigation
+              currentWeekStart={currentWeekStart}
+              onWeekChange={setCurrentWeekStart}
+              onGoToToday={handleGoToToday}
+            />
+          )}
         </div>
 
-        {viewMode === "calendar" && (
-          <Navigation
+        {viewMode === "calendar" ? (
+          <CalendarView
+            appointments={appointments}
             currentWeekStart={currentWeekStart}
-            onWeekChange={setCurrentWeekStart}
-            onGoToToday={handleGoToToday}
+            onAppointmentClick={handleView}
+          />
+        ) : (
+          <ListView
+            columns={columns}
+            appointments={appointments}
+            isLoading={isLoading}
+            pagination={{
+              page,
+              limit: pageSize,
+              total: data?.meta?.total || 0,
+              onChangePage: setPage,
+              onChangeLimit: setPageSize,
+            }}
           />
         )}
-      </div>
-
-      {viewMode === "calendar" ? (
-        <CalendarView
-          appointments={appointments}
-          currentWeekStart={currentWeekStart}
-          onAppointmentClick={handleView}
-        />
-      ) : (
-        <ListView
-          columns={columns}
-          appointments={appointments}
-          isLoading={isLoading}
-          pagination={{
-            page,
-            limit: pageSize,
-            total: data?.meta?.total || 0,
-            onChangePage: setPage,
-            onChangeLimit: setPageSize,
-          }}
-        />
-      )}
-    </div>
+      </CabinetContent>
+    </>
   );
 };

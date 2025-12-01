@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,21 +29,15 @@ import {
   getPatientFullName,
   calculatePatientAge,
   getPatientDisplayStatus,
-  getPatientPrimaryPhone,
   PatientFormSheet,
 } from "@/features/patients";
-
-import { LayoutHeader } from "@/components/layouts/cabinet";
-import { DetailNavigation } from "@/components/detail-navigation";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import Link from "next/link";
+  useGetPatientActiveVisitQuery,
+  type ActiveVisitResponseDto,
+} from "@/features/visit";
+
+import { LayoutHeader, CabinetContent } from "@/components/layouts/cabinet";
+import { DetailNavigation } from "@/components/detail-navigation";
 
 export default function PatientDetailLayout({
   children,
@@ -61,6 +54,11 @@ export default function PatientDetailLayout({
     isLoading,
     refetch: refetchPatient,
   } = useGetPatientQuery({ id: id as string }, { skip: !id });
+
+  const { data: activeVisit } = useGetPatientActiveVisitQuery(
+    { patientId: id as string },
+    { skip: !id }
+  );
 
   const navItems = [
     { label: "Обзор", href: `/cabinet/patients/${id}`, value: "overview" },
@@ -138,22 +136,9 @@ export default function PatientDetailLayout({
   const age = calculatePatientAge(patient.dateOfBirth);
   const statusDisplay = getPatientDisplayStatus(patient.status);
 
-  // Mock данные активного визита - в реальном приложении загружать через API
-  const activeVisit = {
-    id: "visit-123",
-    status: "IN_PROGRESS",
-    startTime: "2024-06-30T10:30:00",
-    doctor: {
-      firstName: "Иван",
-      lastName: "Петров",
-      specialty: "Кардиолог",
-    },
-    department: "Кардиология",
-    room: "205",
-  };
-
   // Функция для форматирования времени визита
-  const getVisitDuration = (startTime: string) => {
+  const getVisitDuration = (startTime: string | undefined): string => {
+    if (!startTime) return "—";
     const start = new Date(startTime);
     const now = new Date();
     const diffMinutes = Math.floor(
@@ -168,57 +153,21 @@ export default function PatientDetailLayout({
     return `${hours}ч ${minutes}м`;
   };
 
+  // Получаем время начала визита (startedAt или visitDate)
+  const getVisitStartTime = (visit: ActiveVisitResponseDto): string => {
+    const startTime = visit.startedAt ?? visit.visitDate;
+    return new Date(startTime).toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
-    <div className="space-y-6">
-      <LayoutHeader backHref="/cabinet/patients" backTitle="Пациенты" />
-
-      {/* Breadcrumbs */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/cabinet">Главная</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/cabinet/patients">Пациенты</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{fullName}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Avatar className="size-10">
-            <AvatarImage alt={fullName} />
-            <AvatarFallback className="text-lg">
-              {fullName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="flex flex-col">
-            <h2 className="text-xl font-gilroy font-bold leading-none">
-              {fullName}
-            </h2>
-            <p className="text-xs text-muted-foreground leading-none">
-              {age} лет • {patient.gender === "MALE" ? "Мужской" : "Женский"} •{" "}
-              {statusDisplay} • {patient.patientId}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
+    <>
+      <LayoutHeader
+        backHref="/cabinet/patients"
+        backTitle="Пациенты"
+        right={
           <Button
             variant="outline"
             size="sm"
@@ -234,117 +183,122 @@ export default function PatientDetailLayout({
               }
             }}
           >
-            <Edit className="h-4 w-4 mr-2" />
+            <Edit />
             Редактировать
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Печать карточки пациента</DropdownMenuItem>
-              <DropdownMenuItem>Экспорт данных</DropdownMenuItem>
-              <DropdownMenuItem>Запланировать встречу</DropdownMenuItem>
-              <Separator className="my-1" />
-              <DropdownMenuItem className="text-red-600">
-                Деактивировать пациента
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Активный визит */}
-      {activeVisit && (
-        <Card className="border-green-200 dark:border-green-800 p-2 px-4">
-          <CardContent className="px-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 flex-1">
-                {/* Статус индикатор */}
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
-                  </div>
-                  <Badge
-                    variant="default"
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <Activity className="h-3 w-3 mr-1" />
-                    Активный визит
-                  </Badge>
-                </div>
-
-                {/* Информация о визите */}
-                <div className="flex items-center gap-6 flex-1">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {new Date(activeVisit.startTime).toLocaleTimeString(
-                        "ru-RU",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
-                    </span>
-                    <span className="text-muted-foreground">
-                      ({getVisitDuration(activeVisit.startTime)})
-                    </span>
-                  </div>
-
-                  <Separator orientation="vertical" className="h-6" />
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {activeVisit.doctor.firstName}{" "}
-                      {activeVisit.doctor.lastName}
-                    </span>
-                    <span className="text-muted-foreground">
-                      • {activeVisit.doctor.specialty}
-                    </span>
-                  </div>
-
-                  <Separator orientation="vertical" className="h-6" />
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {activeVisit.department}
-                    </span>
-                    <span className="text-muted-foreground">
-                      • Кабинет {activeVisit.room}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Кнопка перехода */}
-              <Button
-                size="sm"
-                onClick={() =>
-                  router.push(
-                    `/cabinet/patients/${id}/visits/${activeVisit.id}`
-                  )
-                }
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Открыть визит
-                <ArrowRight />
-              </Button>
+      <CabinetContent className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-gilroy font-bold leading-none">
+                {fullName}
+              </h2>
+              <p className="text-xs text-muted-foreground leading-none">
+                {age} лет • {patient.gender === "MALE" ? "Мужской" : "Женский"}{" "}
+                • {statusDisplay} • {patient.patientId}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
 
-      {/* Navigation */}
-      <DetailNavigation items={navItems} baseHref={`/cabinet/patients/${id}`} />
+        {/* Активный визит */}
+        {activeVisit && (
+          <Card className="border-green-200 dark:border-green-800 p-2 px-4">
+            <CardContent className="px-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 flex-1">
+                  {/* Статус индикатор */}
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
+                    </div>
+                    <Badge
+                      variant="default"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Activity className="h-3 w-3 mr-1" />
+                      Активный визит
+                    </Badge>
+                  </div>
 
-      {/* Content */}
-      <div>{children}</div>
-    </div>
+                  {/* Информация о визите */}
+                  <div className="flex items-center gap-6 flex-1">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        {getVisitStartTime(activeVisit)}
+                      </span>
+                      <span className="text-muted-foreground">
+                        (
+                        {getVisitDuration(
+                          activeVisit.startedAt ?? activeVisit.visitDate
+                        )}
+                        )
+                      </span>
+                    </div>
+
+                    <Separator orientation="vertical" className="h-6" />
+
+                    <div className="flex items-center gap-2 text-sm">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        {activeVisit.employee.firstName}{" "}
+                        {activeVisit.employee.lastName}
+                      </span>
+                      {activeVisit.employee.title && (
+                        <span className="text-muted-foreground">
+                          • {activeVisit.employee.title.name}
+                        </span>
+                      )}
+                    </div>
+
+                    {activeVisit.employee.department && (
+                      <>
+                        <Separator orientation="vertical" className="h-6" />
+
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {activeVisit.employee.department.name}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Кнопка перехода */}
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    router.push(
+                      `/cabinet/patients/${id}/visits/${activeVisit.id}`
+                    )
+                  }
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Открыть визит
+                  <ArrowRight />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Navigation */}
+        <DetailNavigation
+          items={navItems}
+          baseHref={`/cabinet/patients/${id}`}
+        />
+
+        {/* Content */}
+        <div>{children}</div>
+      </CabinetContent>
+    </>
   );
 }

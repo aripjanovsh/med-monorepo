@@ -132,3 +132,29 @@ export interface VisitsQueryParamsDto extends QueryParamsDto {
 }
 
 export type VisitsListResponseDto = PaginatedResponseDto<VisitResponseDto>;
+
+// Active Visit DTOs
+export interface ActiveVisitEmployeeDto {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  department?: {
+    id: string;
+    name: string;
+  };
+  title?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface ActiveVisitResponseDto {
+  id: string;
+  status: VisitStatus;
+  visitDate: string; // ISO string
+  startedAt?: string; // ISO string
+  queuedAt?: string; // ISO string
+  notes?: string;
+  employee: ActiveVisitEmployeeDto;
+}

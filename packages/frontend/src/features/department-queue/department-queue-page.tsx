@@ -9,6 +9,7 @@ import { DepartmentSelectField } from "@/features/master-data";
 import { DepartmentQueuePanel } from "@/features/department-queue";
 import { useGetDepartmentsQuery } from "@/features/master-data";
 import PageHeader from "@/components/layouts/page-header";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
 export const DepartmentQueuePage = () => {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>("");
@@ -48,41 +49,54 @@ export const DepartmentQueuePage = () => {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <PageHeader
+    <>
+      <LayoutHeader
         title="Очередь отделений"
-        description="Управление очередью пациентов по отделениям"
-        actions={
+        right={
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCw />
             Обновить
           </Button>
         }
       />
+      <CabinetContent>
+        <div className="space-y-4">
+          {/* Header */}
+          {/* <PageHeader
+            title="Очередь отделений"
+            description="Управление очередью пациентов по отделениям"
+            actions={
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
+                <RefreshCw />
+                Обновить
+              </Button>
+            }
+          /> */}
 
-      {/* Department Select */}
-      <div className="max-w-md">
-        <DepartmentSelectField
-          value={selectedDepartmentId}
-          onValueChange={(value) => setSelectedDepartmentId(value)}
-        />
-      </div>
+          {/* Department Select */}
+          <div className="max-w-md">
+            <DepartmentSelectField
+              value={selectedDepartmentId}
+              onValueChange={(value) => setSelectedDepartmentId(value)}
+            />
+          </div>
 
-      {/* Queue Panel */}
-      {selectedDepartmentId && selectedDepartment ? (
-        <DepartmentQueuePanel
-          departmentId={selectedDepartmentId}
-          departmentName={selectedDepartment.name}
-          organizationId={currentUser.organizationId}
-        />
-      ) : (
-        <div className="rounded-lg border border-dashed p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Выберите отделение для просмотра очереди
-          </p>
+          {/* Queue Panel */}
+          {selectedDepartmentId && selectedDepartment ? (
+            <DepartmentQueuePanel
+              departmentId={selectedDepartmentId}
+              departmentName={selectedDepartment.name}
+              organizationId={currentUser.organizationId}
+            />
+          ) : (
+            <div className="rounded-lg border border-dashed p-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                Выберите отделение для просмотра очереди
+              </p>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </CabinetContent>
+    </>
   );
 };

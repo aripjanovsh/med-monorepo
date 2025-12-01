@@ -9,6 +9,8 @@ export type {
   VisitsListResponseDto,
   SimplePatientDto,
   SimpleEmployeeDto,
+  ActiveVisitResponseDto,
+  ActiveVisitEmployeeDto,
 } from "./visit.dto";
 export { VisitIncludeRelation } from "./visit.dto";
 export type { VisitStatus, VisitType } from "./visit.constants";
@@ -58,6 +60,7 @@ export {
   useCompleteVisitMutation,
   useCancelVisitMutation,
   useDeleteVisitMutation,
+  useGetPatientActiveVisitQuery,
 } from "./visit.api";
 
 // Components

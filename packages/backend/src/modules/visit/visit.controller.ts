@@ -26,6 +26,10 @@ import { FindAllVisitDto } from "./dto/find-all-visit.dto";
 import { DoctorQueueQueryDto } from "./dto/doctor-queue-query.dto";
 import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
 import {
+  FindActiveVisitDto,
+  ActiveVisitResponseDto,
+} from "./dto/active-visit-response.dto";
+import {
   RequirePermission,
   PermissionGuard,
 } from "@/common/guards/permission.guard";
@@ -80,6 +84,24 @@ export class VisitController {
       employeeId,
       query.organizationId,
       query.date
+    );
+  }
+
+  @Get("patient/active")
+  @RequirePermission({ resource: "visits", action: "READ" })
+  @ApiOperation({ summary: "Get active visit for patient" })
+  @ApiResponse({
+    status: 200,
+    description: "Active visit found",
+    type: ActiveVisitResponseDto,
+  })
+  @ApiResponse({ status: 200, description: "No active visit (returns null)" })
+  findActiveVisit(
+    @Query() query: FindActiveVisitDto
+  ): Promise<ActiveVisitResponseDto | null> {
+    return this.visitService.findActiveVisitByPatient(
+      query.patientId,
+      query.organizationId
     );
   }
 

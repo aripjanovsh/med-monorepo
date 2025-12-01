@@ -12,7 +12,7 @@ import {
   PaymentStatusBadge,
 } from "@/features/service-order";
 import PageHeader from "@/components/layouts/page-header";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { LayoutHeader, CabinetContent } from "@/components/layouts/cabinet";
 import { Button } from "@/components/ui/button";
 
 export default function ServiceOrderDetailLayout({
@@ -57,19 +57,11 @@ export default function ServiceOrderDetailLayout({
   }
 
   return (
-    <div className="space-y-6">
-      <LayoutHeader backHref="/cabinet/orders" backTitle="Назначения" />
-
-      <PageHeader
-        title={order.service.name}
-        titleSuffix={
-          <div className="flex gap-2">
-            <OrderStatusBadge status={order.status} />
-            <PaymentStatusBadge status={order.paymentStatus} />
-          </div>
-        }
-        description={`Назначение #${order.id.slice(0, 8)}`}
-        actions={
+    <>
+      <LayoutHeader
+        backHref="/cabinet/orders"
+        backTitle="Назначения"
+        right={
           <div className="flex gap-2">
             <div className="flex justify-end gap-2">
               {(order.status === "ORDERED" ||
@@ -96,11 +88,24 @@ export default function ServiceOrderDetailLayout({
         }
       />
 
-      {/* Navigation */}
-      <DetailNavigation items={navItems} baseHref={`/cabinet/orders/${id}`} />
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title={order.service.name}
+          titleSuffix={
+            <div className="flex gap-2">
+              <OrderStatusBadge status={order.status} />
+              <PaymentStatusBadge status={order.paymentStatus} />
+            </div>
+          }
+          description={`Назначение #${order.id.slice(0, 8)}`}
+        />
 
-      {/* Content */}
-      <div>{children}</div>
-    </div>
+        {/* Navigation */}
+        <DetailNavigation items={navItems} baseHref={`/cabinet/orders/${id}`} />
+
+        {/* Content */}
+        <div>{children}</div>
+      </CabinetContent>
+    </>
   );
 }
