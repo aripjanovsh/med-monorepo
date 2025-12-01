@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
 import type { StatsPeriod } from "@/features/stats/stats.dto";
-import { useGetEmployeeStatsQuery } from "@/features/stats/stats.api";
+import { useGetEmployeeDashboardStatsQuery } from "@/features/stats/stats.api";
 import {
   Card,
   CardContent,
@@ -134,7 +134,7 @@ const formatPeriodLabel = (start: string, end: string): string => {
 export function EmployeeOverview({ employee }: EmployeeOverviewProps) {
   const [period, setPeriod] = useState<StatsPeriod>("month");
 
-  const { data: stats, isLoading } = useGetEmployeeStatsQuery({
+  const { data: stats, isLoading } = useGetEmployeeDashboardStatsQuery({
     employeeId: employee.id,
     period,
   });

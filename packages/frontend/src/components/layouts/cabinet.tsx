@@ -25,7 +25,7 @@ export const LayoutHeader = ({
   onBack,
   left,
   right,
-  border = true,
+  border = false,
 }: LayoutHeaderProps) => {
   const router = useRouter();
   const showBack = Boolean(backHref || onBack);

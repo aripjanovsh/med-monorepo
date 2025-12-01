@@ -108,7 +108,44 @@ export interface InvoiceStatsResponseDto {
   monthlyTrends: InvoiceMonthlyTrendDto[];
 }
 
-// Employee Stats DTOs
+// Employee Quick Stats DTOs (for list page)
+export interface EmployeeQuickStatsQueryDto {
+  departmentId?: string;
+}
+
+export interface EmployeeStatusDistributionDto {
+  active: number;
+  inactive: number;
+  onLeave: number;
+  terminated: number;
+}
+
+export interface EmployeeDepartmentStatsDto {
+  departmentId: string;
+  departmentName: string;
+  count: number;
+}
+
+export interface EmployeeMonthlyTrendDto {
+  month: string;
+  monthShort: string;
+  year: number;
+  newEmployees: number;
+  terminatedEmployees: number;
+}
+
+export interface EmployeeQuickStatsResponseDto {
+  total: number;
+  activeCount: number;
+  newEmployeesThisMonth: number;
+  newEmployeesLastMonth: number;
+  growthPercent: number;
+  statusDistribution: EmployeeStatusDistributionDto;
+  byDepartment: EmployeeDepartmentStatsDto[];
+  monthlyTrends: EmployeeMonthlyTrendDto[];
+}
+
+// Employee Dashboard Stats DTOs (for detail page)
 export type StatsPeriod = "week" | "month" | "3months" | "6months" | "year";
 
 export interface EmployeeStatsQueryDto {

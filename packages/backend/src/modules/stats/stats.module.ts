@@ -3,6 +3,7 @@ import { StatsService } from "./stats.service";
 import { PatientStatsService } from "./patient-stats.service";
 import { InvoiceStatsService } from "./invoice-stats.service";
 import { EmployeeStatsService } from "./employee-stats.service";
+import { EmployeeQuickStatsService } from "./employee-quick-stats.service";
 import { PatientDashboardStatsService } from "./patient-dashboard-stats.service";
 import { StatsController } from "./stats.controller";
 import { PrismaModule } from "@/common/prisma/prisma.module";
@@ -15,6 +16,7 @@ import { PrismaModule } from "@/common/prisma/prisma.module";
     PatientStatsService,
     InvoiceStatsService,
     EmployeeStatsService,
+    EmployeeQuickStatsService,
     PatientDashboardStatsService,
   ],
   exports: [
@@ -22,6 +24,7 @@ import { PrismaModule } from "@/common/prisma/prisma.module";
     PatientStatsService,
     InvoiceStatsService,
     EmployeeStatsService,
+    EmployeeQuickStatsService,
     PatientDashboardStatsService,
   ],
 })

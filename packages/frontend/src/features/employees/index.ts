@@ -73,7 +73,7 @@ export {
   employeeApi,
   useGetEmployeesQuery,
   useGetEmployeeQuery,
-  useGetEmployeeStatsQuery,
+  useGetEmployeeListStatsQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useUpdateEmployeeStatusMutation,

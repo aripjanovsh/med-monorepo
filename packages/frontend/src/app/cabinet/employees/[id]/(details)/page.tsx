@@ -39,9 +39,5 @@ export default function EmployeeDetailPage({
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <EmployeeOverview employee={employee} />
-    </div>
-  );
+  return <EmployeeOverview employee={employee} />;
 }

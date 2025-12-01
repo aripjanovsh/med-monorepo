@@ -40,8 +40,11 @@ export const employeeApi = rootApi.injectEndpoints({
       ],
     }),
 
-    // Get employee statistics
-    getEmployeeStats: builder.query<EmployeeStatsDto, EmployeesQueryParamsDto>({
+    // Get employee basic stats (legacy endpoint)
+    getEmployeeListStats: builder.query<
+      EmployeeStatsDto,
+      EmployeesQueryParamsDto
+    >({
       query: (params) => ({
         url: "/api/v1/employees/stats",
         method: "GET",
@@ -118,7 +121,7 @@ export const employeeApi = rootApi.injectEndpoints({
 export const {
   useGetEmployeesQuery,
   useGetEmployeeQuery,
-  useGetEmployeeStatsQuery,
+  useGetEmployeeListStatsQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useUpdateEmployeeStatusMutation,

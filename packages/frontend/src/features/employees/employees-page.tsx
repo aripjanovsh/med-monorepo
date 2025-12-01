@@ -15,7 +15,7 @@ import {
 } from "@/components/data-table";
 import { employeeColumns } from "@/features/employees/components/employee-columns";
 import {
-  type Employee,
+  type EmployeeResponseDto,
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
 } from "@/features/employees";
@@ -31,66 +31,66 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  DepartmentFacetedSelectField,
-  TitleFacetedSelectField,
-} from "@/features/master-data/components";
+import { TitleFacetedSelectField } from "@/features/master-data/components";
+import { useGetDepartmentsQuery } from "@/features/master-data/master-data-departments.api";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
+
+const ALL_TAB_VALUE = "all";
 
 export const EmployeesPage = () => {
   const router = useRouter();
   const confirm = useConfirmDialog();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState(ALL_TAB_VALUE);
+
+  // Fetch departments for tabs
+  const { data: departmentsData } = useGetDepartmentsQuery({
+    limit: 100,
+    isActive: true,
+  });
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, setters, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     sortFormat: "split",
     searchDebounceMs: 500,
   });
 
-  // Map activeTab to role filter
-  const getRoleFilter = (tab: string) => {
-    switch (tab) {
-      case "doctors":
-        return "DOCTOR";
-      case "nurses":
-        return "NURSE";
-      case "other":
-        return "OTHER";
-      default:
-        return undefined;
-    }
+  // Get department filter from active tab
+  const getDepartmentFilter = (tab: string): string | undefined => {
+    if (tab === ALL_TAB_VALUE) return undefined;
+    return tab;
   };
 
   // Get filter values from columnFilters
-  const departmentFilter = values.columnFilters.find(
-    (f) => f.id === "departmentId"
-  );
   const titleFilter = values.columnFilters.find((f) => f.id === "titleId");
-
-  const selectedDepartments = (departmentFilter?.value as string[]) || [];
   const selectedTitles = (titleFilter?.value as string[]) || [];
+
+  // Build department tabs
+  const departments = departmentsData?.data ?? [];
+  const departmentTabs = [
+    { value: ALL_TAB_VALUE, label: "Все сотрудники" },
+    ...departments.map((dept) => ({
+      value: dept.id,
+      label: dept.name,
+    })),
+  ];
 
   // Reset to first page when activeTab changes
   useEffect(() => {
     setters.setPage(1);
   }, [activeTab, setters]);
 
-  // Add role, department and title filters to query params
+  // Add department and title filters to query params
   const finalQueryParams = useMemo(() => {
-    const role = getRoleFilter(activeTab);
+    const departmentId = getDepartmentFilter(activeTab);
     return {
       ...queryParams,
-      ...(role && { role }),
-      ...(selectedDepartments.length > 0 && {
-        departmentId: selectedDepartments.join(","),
-      }),
+      ...(departmentId && { departmentId }),
       ...(selectedTitles.length > 0 && {
         titleId: selectedTitles.join(","),
       }),
     };
-  }, [queryParams, activeTab, selectedDepartments, selectedTitles]);
+  }, [queryParams, activeTab, selectedTitles]);
 
   // Fetch employees with managed state
   const {
@@ -103,21 +103,21 @@ export const EmployeesPage = () => {
   const [deleteEmployee] = useDeleteEmployeeMutation();
 
   const handleEditEmployee = useCallback(
-    (employee: Employee) => {
+    (employee: EmployeeResponseDto) => {
       router.push(url(ROUTES.EMPLOYEE_EDIT, { id: employee.id }));
     },
     [router]
   );
 
   const handleViewEmployee = useCallback(
-    (employee: Employee) => {
+    (employee: EmployeeResponseDto) => {
       router.push(url(ROUTES.EMPLOYEE_DETAIL, { id: employee.id }));
     },
     [router]
   );
 
   const handleDeleteEmployee = useCallback(
-    async (employee: Employee) => {
+    async (employee: EmployeeResponseDto) => {
       confirm({
         title: "Удалить сотрудника?",
         description: `Вы уверены, что хотите удалить сотрудника ${
@@ -148,19 +148,6 @@ export const EmployeesPage = () => {
   const totalEmployees = employeesData?.meta?.total || 0;
 
   // Handlers for filters
-  const handleDepartmentChange = useCallback(
-    (value: string[]) => {
-      const newFilters = values.columnFilters.filter(
-        (f) => f.id !== "departmentId"
-      );
-      if (value.length > 0) {
-        newFilters.push({ id: "departmentId", value });
-      }
-      handlers.filters.onChange(newFilters);
-    },
-    [values.columnFilters, handlers.filters]
-  );
-
   const handleTitleChange = useCallback(
     (value: string[]) => {
       const newFilters = values.columnFilters.filter((f) => f.id !== "titleId");
@@ -185,16 +172,13 @@ export const EmployeesPage = () => {
           </Button>
         }
       />
-      <CabinetContent>
+      <CabinetContent className="space-y-6">
+        {/* <EmployeesQuickStats /> */}
+
         <ActionTabs
           value={activeTab}
           onValueChange={setActiveTab}
-          items={[
-            { value: "all", label: "Все сотрудники" },
-            { value: "doctors", label: "Врачи" },
-            { value: "nurses", label: "Медсестры" },
-            { value: "other", label: "Прочие" },
-          ]}
+          items={departmentTabs}
         />
 
         <DataTable
@@ -252,10 +236,6 @@ export const EmployeesPage = () => {
               searchValue={values.searchImmediate}
               onSearchChange={handlers.search.onChange}
             >
-              <DepartmentFacetedSelectField
-                value={selectedDepartments}
-                onChange={handleDepartmentChange}
-              />
               <TitleFacetedSelectField
                 value={selectedTitles}
                 onChange={handleTitleChange}

@@ -10,6 +10,8 @@ import type {
   PatientStatsResponseDto,
   InvoiceStatsQueryDto,
   InvoiceStatsResponseDto,
+  EmployeeQuickStatsQueryDto,
+  EmployeeQuickStatsResponseDto,
   EmployeeStatsQueryDto,
   EmployeeStatsResponseDto,
   PatientDashboardStatsQueryDto,
@@ -54,7 +56,17 @@ export const statsApi = rootApi.injectEndpoints({
       }),
       providesTags: [STATS_API_TAG],
     }),
-    getEmployeeStats: builder.query<
+    getEmployeeQuickStats: builder.query<
+      EmployeeQuickStatsResponseDto,
+      EmployeeQuickStatsQueryDto | void
+    >({
+      query: (params) => ({
+        url: "/api/v1/stats/employees/quick",
+        params: params ?? undefined,
+      }),
+      providesTags: [API_TAG_OPERATIONS_EMPLOYEE_STATS],
+    }),
+    getEmployeeDashboardStats: builder.query<
       EmployeeStatsResponseDto,
       EmployeeStatsQueryDto
     >({
@@ -85,6 +97,7 @@ export const {
   useGetStatsQuery,
   useGetPatientQuickStatsQuery,
   useGetInvoiceQuickStatsQuery,
-  useGetEmployeeStatsQuery,
+  useGetEmployeeQuickStatsQuery,
+  useGetEmployeeDashboardStatsQuery,
   useGetPatientDashboardStatsQuery,
 } = statsApi;
