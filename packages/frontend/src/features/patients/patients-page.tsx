@@ -57,7 +57,7 @@ export const PatientsPage = () => {
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     searchDebounceMs: 500,
   });
 
