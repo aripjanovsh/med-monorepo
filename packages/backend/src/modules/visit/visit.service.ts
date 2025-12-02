@@ -25,6 +25,7 @@ import { DoctorQueueResponseDto } from "./dto/doctor-queue-response.dto";
 import { ActiveVisitResponseDto } from "./dto/active-visit-response.dto";
 import { plainToInstance } from "class-transformer";
 import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
+import { VisitAiService } from "./visit-ai.service";
 
 const VISIT_INCLUDE_RELATIONS = {
   patient: {
@@ -136,7 +137,10 @@ function buildIncludeObject(
 
 @Injectable()
 export class VisitService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly visitAiService: VisitAiService
+  ) {}
 
   async create(createVisitDto: CreateVisitDto): Promise<VisitResponseDto> {
     const {
@@ -499,6 +503,11 @@ export class VisitService {
         data: { status: AppointmentStatus.COMPLETED },
       });
     }
+
+    // Generate AI summary asynchronously (fire and forget)
+    this.visitAiService.generateVisitSummary(id).catch(() => {
+      // Error is already logged in the service
+    });
 
     return plainToInstance(VisitResponseDto, updatedVisit);
   }

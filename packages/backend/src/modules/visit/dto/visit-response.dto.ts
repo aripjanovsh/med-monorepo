@@ -321,4 +321,18 @@ export class VisitResponseDto extends BaseResponseDto {
     example: "2024-01-15T11:00:00.000Z",
   })
   finishedAt?: Date;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "AI-generated summary of the visit",
+    example: "Пациент обратился с жалобами на головную боль...",
+  })
+  aiSummary?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Time when AI summary was generated",
+    example: "2024-01-15T11:00:00.000Z",
+  })
+  aiSummaryGeneratedAt?: Date;
 }

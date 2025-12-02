@@ -220,6 +220,8 @@ model Visit {
   completedAt        DateTime?
   waitingTimeMinutes Int?
   serviceTimeMinutes Int?
+  aiSummary          String?            @db.Text
+  aiSummaryGeneratedAt DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   organizationId     String
@@ -911,4 +913,31 @@ enum AuditAction {
   DELETE
   LOGIN
   LOGOUT
+}
+
+// ===============================
+// AI PROMPTS
+// ===============================
+model AiPrompt {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  template    String   @db.Text
+  category    String?
+  model       String?  // preferred AI model for this prompt
+  temperature Float?   @default(0.7)
+  maxTokens   Int?     @default(1000)
+  likeCount   Int      @default(0)
+  dislikeCount Int     @default(0)
+  usedCount   Int      @default(0)
+  metadata    Json?    // additional configuration
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+  @@index([isActive])
+  @@map("ai_prompts")
 }
