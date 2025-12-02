@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Edit } from "lucide-react";
 
 import { LoadingState, ErrorState } from "@/components/states";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -86,103 +86,111 @@ export default function AnalysisTemplateDetailPage({
   const optionalCount = getOptionalParametersCount(template);
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref={ROUTES.ANALYSIS_TEMPLATES}
-        backTitle="Шаблоны анализов"
-      />
-      <PageHeader
-        title={template.name}
-        description={template.description || "Просмотр шаблона анализа"}
-        actions={
-          <Button onClick={handleEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Редактировать
-          </Button>
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Шаблоны анализов", href: ROUTES.ANALYSIS_TEMPLATES },
+              { label: template.name },
+            ]}
+          />
         }
       />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Шаблоны анализов", href: ROUTES.ANALYSIS_TEMPLATES },
-          { label: template.name },
-        ]}
-      />
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title={template.name}
+          description={template.description || "Просмотр шаблона анализа"}
+          actions={
+            <Button onClick={handleEdit}>
+              <Edit className="h-4 w-4 mr-2" />
+              Редактировать
+            </Button>
+          }
+        />
 
-      {/* Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Основная информация</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Код</p>
-            <Badge variant="outline" className="mt-1">
-              {template.code}
-            </Badge>
-          </div>
-          {template.description && (
+        {/* Overview */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Основная информация</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">Описание</p>
-              <p className="mt-1">{template.description}</p>
+              <p className="text-sm text-muted-foreground">Код</p>
+              <Badge variant="outline" className="mt-1">
+                {template.code}
+              </Badge>
             </div>
-          )}
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-            <div>
-              <p className="text-sm text-muted-foreground">Всего параметров</p>
-              <p className="text-2xl font-bold mt-1">{totalCount}</p>
+            {template.description && (
+              <div>
+                <p className="text-sm text-muted-foreground">Описание</p>
+                <p className="mt-1">{template.description}</p>
+              </div>
+            )}
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Всего параметров
+                </p>
+                <p className="text-2xl font-bold mt-1">{totalCount}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Обязательных</p>
+                <p className="text-2xl font-bold mt-1">{requiredCount}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Опциональных</p>
+                <p className="text-2xl font-bold mt-1">{optionalCount}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Обязательных</p>
-              <p className="text-2xl font-bold mt-1">{requiredCount}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Опциональных</p>
-              <p className="text-2xl font-bold mt-1">{optionalCount}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Parameters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Показатели анализа</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="all">
-            <TabsList>
-              <TabsTrigger value="all">Все ({totalCount})</TabsTrigger>
-              <TabsTrigger value="required">
-                Обязательные ({requiredCount})
-              </TabsTrigger>
-              <TabsTrigger value="optional">
-                Опциональные ({optionalCount})
-              </TabsTrigger>
-            </TabsList>
+        {/* Parameters */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Показатели анализа</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="all">
+              <TabsList>
+                <TabsTrigger value="all">Все ({totalCount})</TabsTrigger>
+                <TabsTrigger value="required">
+                  Обязательные ({requiredCount})
+                </TabsTrigger>
+                <TabsTrigger value="optional">
+                  Опциональные ({optionalCount})
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="all" className="space-y-4 mt-4">
-              {allParameters.map((param) => (
-                <ParameterCard key={param.id} parameter={param} />
-              ))}
-            </TabsContent>
+              <TabsContent value="all" className="space-y-4 mt-4">
+                {allParameters.map((param) => (
+                  <ParameterCard key={param.id} parameter={param} />
+                ))}
+              </TabsContent>
 
-            <TabsContent value="required" className="space-y-4 mt-4">
-              {requiredParams.map((param) => (
-                <ParameterCard key={param.id} parameter={param} />
-              ))}
-            </TabsContent>
+              <TabsContent value="required" className="space-y-4 mt-4">
+                {requiredParams.map((param) => (
+                  <ParameterCard key={param.id} parameter={param} />
+                ))}
+              </TabsContent>
 
-            <TabsContent value="optional" className="space-y-4 mt-4">
-              {optionalParams.map((param) => (
-                <ParameterCard key={param.id} parameter={param} />
-              ))}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+              <TabsContent value="optional" className="space-y-4 mt-4">
+                {optionalParams.map((param) => (
+                  <ParameterCard key={param.id} parameter={param} />
+                ))}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </CabinetContent>
+    </>
   );
 }
 

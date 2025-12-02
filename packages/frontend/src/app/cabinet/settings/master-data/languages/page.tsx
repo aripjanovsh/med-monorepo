@@ -17,7 +17,7 @@ import {
 } from "@/features/master-data/master-data-languages.api";
 import type { Language } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
@@ -38,7 +38,7 @@ export default function LanguagesPage() {
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     defaultSorting: [{ id: "createdAt", desc: true }],
     sortFormat: "split",
     searchDebounceMs: 500,
@@ -125,113 +125,119 @@ export default function LanguagesPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref="/cabinet/settings/master-data"
-        backTitle="Справочные данные"
-      />
-      <PageHeader
-        title="Языки"
-        description="Управление языками системы"
-        actions={
-          <Button onClick={handleCreate}>
-            <Plus />
-            Добавить язык
-          </Button>
-        }
-      />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Языки" },
-        ]}
-      />
-
-      <DataTable
-        columns={[
-          ...languageColumns,
-          {
-            id: "actions",
-            size: 140,
-            cell: ({ row }) => {
-              const language = row.original;
-
-              return (
-                <div className="flex gap-1 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(language)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleToggleStatus(language)}
-                    disabled={isToggling}
-                    title={
-                      language.isActive ? "Деактивировать" : "Активировать"
-                    }
-                  >
-                    {language.isActive ? (
-                      <ToggleRight className="text-green-600" />
-                    ) : (
-                      <ToggleLeft className="text-gray-400" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-600"
-                    onClick={() => handleDelete(language)}
-                  >
-                    <Trash />
-                  </Button>
-                </div>
-              );
-            },
-          },
-        ]}
-        data={languages}
-        isLoading={isLoading}
-        pagination={{
-          ...handlers.pagination,
-          total: totalLanguages,
-        }}
-        sort={handlers.sorting}
-        toolbar={(table) => (
-          <DataTableToolbar
-            table={table}
-            searchKey="name"
-            searchPlaceholder="Поиск языков..."
-            searchValue={values.searchImmediate}
-            onSearchChange={handlers.search.onChange}
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Языки" },
+            ]}
           />
-        )}
-        emptyState={
-          error ? (
-            <DataTableErrorState
-              title="Ошибка при загрузке языков"
-              error={error}
-              onRetry={refetch}
-            />
-          ) : (
-            <DataTableEmptyState
-              title="Языков пока нет"
-              description="Добавьте первый язык для начала работы"
-              icon={Languages}
-              action={
-                <Button onClick={handleCreate}>
-                  <Plus />
-                  Добавить язык
-                </Button>
-              }
-            />
-          )
         }
       />
-    </div>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Языки"
+          description="Управление языками системы"
+          actions={
+            <Button onClick={handleCreate}>
+              <Plus />
+              Добавить язык
+            </Button>
+          }
+        />
+
+        <DataTable
+          columns={[
+            ...languageColumns,
+            {
+              id: "actions",
+              size: 140,
+              cell: ({ row }) => {
+                const language = row.original;
+
+                return (
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(language)}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleStatus(language)}
+                      disabled={isToggling}
+                      title={
+                        language.isActive ? "Деактивировать" : "Активировать"
+                      }
+                    >
+                      {language.isActive ? (
+                        <ToggleRight className="text-green-600" />
+                      ) : (
+                        <ToggleLeft className="text-gray-400" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-600"
+                      onClick={() => handleDelete(language)}
+                    >
+                      <Trash />
+                    </Button>
+                  </div>
+                );
+              },
+            },
+          ]}
+          data={languages}
+          isLoading={isLoading}
+          pagination={{
+            ...handlers.pagination,
+            total: totalLanguages,
+          }}
+          sort={handlers.sorting}
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              searchKey="name"
+              searchPlaceholder="Поиск языков..."
+              searchValue={values.searchImmediate}
+              onSearchChange={handlers.search.onChange}
+            />
+          )}
+          emptyState={
+            error ? (
+              <DataTableErrorState
+                title="Ошибка при загрузке языков"
+                error={error}
+                onRetry={refetch}
+              />
+            ) : (
+              <DataTableEmptyState
+                title="Языков пока нет"
+                description="Добавьте первый язык для начала работы"
+                icon={Languages}
+                action={
+                  <Button onClick={handleCreate}>
+                    <Plus />
+                    Добавить язык
+                  </Button>
+                }
+              />
+            )
+          }
+        />
+      </CabinetContent>
+    </>
   );
 }

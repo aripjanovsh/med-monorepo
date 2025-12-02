@@ -9,7 +9,7 @@ import {
 } from "@/features/master-data/master-data-departments.api";
 import type { Department } from "@/features/master-data/master-data.types";
 import { toast } from "sonner";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
@@ -30,7 +30,7 @@ export default function DepartmentsPage() {
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     defaultSorting: [{ id: "createdAt", desc: true }],
     sortFormat: "split",
     searchDebounceMs: 500,
@@ -97,97 +97,103 @@ export default function DepartmentsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref="/cabinet/settings/master-data"
-        backTitle="Справочные данные"
-      />
-      <PageHeader
-        title="Отделения"
-        description="Управление отделениями медицинской организации"
-        actions={
-          <Button onClick={handleCreate}>
-            <Plus />
-            Добавить отделение
-          </Button>
-        }
-      />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Отделения" },
-        ]}
-      />
-
-      <DataTable
-        columns={[
-          ...departmentColumns,
-          {
-            id: "actions",
-            size: 100,
-            cell: ({ row }) => {
-              const department = row.original;
-
-              return (
-                <div className="flex gap-1 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(department)}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(department)}
-                  >
-                    <Trash />
-                  </Button>
-                </div>
-              );
-            },
-          },
-        ]}
-        data={departments}
-        isLoading={isLoading}
-        pagination={{
-          ...handlers.pagination,
-          total: totalDepartments,
-        }}
-        sort={handlers.sorting}
-        toolbar={(table) => (
-          <DataTableToolbar
-            table={table}
-            searchKey="name"
-            searchPlaceholder="Поиск отделений..."
-            searchValue={values.searchImmediate}
-            onSearchChange={handlers.search.onChange}
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Отделения" },
+            ]}
           />
-        )}
-        emptyState={
-          error ? (
-            <DataTableErrorState
-              title="Ошибка при загрузке отделений"
-              error={error}
-              onRetry={refetch}
-            />
-          ) : (
-            <DataTableEmptyState
-              title="Отделений пока нет"
-              description="Добавьте первое отделение для начала работы"
-              icon={Building2}
-              action={
-                <Button onClick={handleCreate}>
-                  <Plus />
-                  Добавить отделение
-                </Button>
-              }
-            />
-          )
         }
       />
-    </div>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Отделения"
+          description="Управление отделениями медицинской организации"
+          actions={
+            <Button onClick={handleCreate}>
+              <Plus />
+              Добавить отделение
+            </Button>
+          }
+        />
+
+        <DataTable
+          columns={[
+            ...departmentColumns,
+            {
+              id: "actions",
+              size: 100,
+              cell: ({ row }) => {
+                const department = row.original;
+
+                return (
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(department)}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(department)}
+                    >
+                      <Trash />
+                    </Button>
+                  </div>
+                );
+              },
+            },
+          ]}
+          data={departments}
+          isLoading={isLoading}
+          pagination={{
+            ...handlers.pagination,
+            total: totalDepartments,
+          }}
+          sort={handlers.sorting}
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              searchKey="name"
+              searchPlaceholder="Поиск отделений..."
+              searchValue={values.searchImmediate}
+              onSearchChange={handlers.search.onChange}
+            />
+          )}
+          emptyState={
+            error ? (
+              <DataTableErrorState
+                title="Ошибка при загрузке отделений"
+                error={error}
+                onRetry={refetch}
+              />
+            ) : (
+              <DataTableEmptyState
+                title="Отделений пока нет"
+                description="Добавьте первое отделение для начала работы"
+                icon={Building2}
+                action={
+                  <Button onClick={handleCreate}>
+                    <Plus />
+                    Добавить отделение
+                  </Button>
+                }
+              />
+            )
+          }
+        />
+      </CabinetContent>
+    </>
   );
 }

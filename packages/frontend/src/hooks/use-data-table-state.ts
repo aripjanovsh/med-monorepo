@@ -48,7 +48,7 @@ export interface DataTableStateConfigExtended extends DataTableStateConfig {
 export function useDataTableState(config: DataTableStateConfigExtended = {}) {
   const {
     defaultPage = 1,
-    defaultLimit = 10,
+    defaultLimit = 20,
     defaultSorting = [],
     defaultFilters = [],
     sortFormat = "split",
@@ -170,7 +170,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       setSearchImmediate,
       setDebouncedValue,
     }),
-    [setDebouncedValue],
+    [setDebouncedValue]
   );
 
   // Memoize values object
@@ -183,7 +183,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       search,
       searchImmediate,
     }),
-    [page, limit, sorting, columnFilters, search, searchImmediate],
+    [page, limit, sorting, columnFilters, search, searchImmediate]
   );
 
   // Memoize handlers object
@@ -227,7 +227,7 @@ export function useDataTableState(config: DataTableStateConfigExtended = {}) {
       handleSearchChange,
       handleFiltersChange,
       handleReset,
-    ],
+    ]
   );
 
   // Return structured data

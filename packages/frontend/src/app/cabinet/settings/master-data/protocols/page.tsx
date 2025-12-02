@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Pencil, Trash, Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import {
@@ -31,7 +31,7 @@ export default function ProtocolsPage() {
 
   // DataTable state management with built-in debounce
   const { queryParams, handlers, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     defaultSorting: [{ id: "updatedAt", desc: true }],
     sortFormat: "split",
     searchDebounceMs: 500,
@@ -117,124 +117,130 @@ export default function ProtocolsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref="/cabinet/settings/master-data"
-        backTitle="Справочные данные"
-      />
-      <PageHeader
-        title="Шаблоны протоколов"
-        description="Управление шаблонами медицинских протоколов"
-        actions={
-          <Button onClick={handleCreate}>
-            <Plus />
-            Добавить протокол
-          </Button>
-        }
-      />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Шаблоны протоколов" },
-        ]}
-      />
-
-      <DataTable
-        columns={[
-          ...protocolTemplateColumns,
-          {
-            id: "actions",
-            size: 180,
-            cell: ({ row }) => {
-              const protocol = row.original;
-
-              return (
-                <div className="flex gap-1 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(protocol)}
-                    title="Редактировать"
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDuplicate(protocol)}
-                    title="Дублировать"
-                  >
-                    <Copy />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleToggleActive(protocol)}
-                    disabled={isToggling}
-                    title={
-                      protocol.isActive ? "Деактивировать" : "Активировать"
-                    }
-                  >
-                    {protocol.isActive ? (
-                      <EyeOff className="text-gray-400" />
-                    ) : (
-                      <Eye className="text-green-600" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-600"
-                    onClick={() => handleDelete(protocol)}
-                    title="Удалить"
-                  >
-                    <Trash />
-                  </Button>
-                </div>
-              );
-            },
-          },
-        ]}
-        data={protocols}
-        isLoading={isLoading}
-        pagination={{
-          ...handlers.pagination,
-          total: totalProtocols,
-        }}
-        sort={handlers.sorting}
-        toolbar={(table) => (
-          <DataTableToolbar
-            table={table}
-            searchKey="name"
-            searchPlaceholder="Поиск протоколов..."
-            searchValue={values.searchImmediate}
-            onSearchChange={handlers.search.onChange}
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Шаблоны протоколов" },
+            ]}
           />
-        )}
-        emptyState={
-          error ? (
-            <DataTableErrorState
-              title="Ошибка при загрузке протоколов"
-              error={error}
-              onRetry={refetch}
-            />
-          ) : (
-            <DataTableEmptyState
-              title="Протоколов пока нет"
-              description="Создайте первый шаблон протокола для начала работы"
-              icon={FileText}
-              action={
-                <Button onClick={handleCreate}>
-                  <Plus />
-                  Создать протокол
-                </Button>
-              }
-            />
-          )
         }
-        onRowClick={(row) => handleEdit(row.original)}
       />
-    </div>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Шаблоны протоколов"
+          description="Управление шаблонами медицинских протоколов"
+          actions={
+            <Button onClick={handleCreate}>
+              <Plus />
+              Добавить протокол
+            </Button>
+          }
+        />
+
+        <DataTable
+          columns={[
+            ...protocolTemplateColumns,
+            {
+              id: "actions",
+              size: 180,
+              cell: ({ row }) => {
+                const protocol = row.original;
+
+                return (
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(protocol)}
+                      title="Редактировать"
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDuplicate(protocol)}
+                      title="Дублировать"
+                    >
+                      <Copy />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleActive(protocol)}
+                      disabled={isToggling}
+                      title={
+                        protocol.isActive ? "Деактивировать" : "Активировать"
+                      }
+                    >
+                      {protocol.isActive ? (
+                        <EyeOff className="text-gray-400" />
+                      ) : (
+                        <Eye className="text-green-600" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-600"
+                      onClick={() => handleDelete(protocol)}
+                      title="Удалить"
+                    >
+                      <Trash />
+                    </Button>
+                  </div>
+                );
+              },
+            },
+          ]}
+          data={protocols}
+          isLoading={isLoading}
+          pagination={{
+            ...handlers.pagination,
+            total: totalProtocols,
+          }}
+          sort={handlers.sorting}
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              searchKey="name"
+              searchPlaceholder="Поиск протоколов..."
+              searchValue={values.searchImmediate}
+              onSearchChange={handlers.search.onChange}
+            />
+          )}
+          emptyState={
+            error ? (
+              <DataTableErrorState
+                title="Ошибка при загрузке протоколов"
+                error={error}
+                onRetry={refetch}
+              />
+            ) : (
+              <DataTableEmptyState
+                title="Протоколов пока нет"
+                description="Создайте первый шаблон протокола для начала работы"
+                icon={FileText}
+                action={
+                  <Button onClick={handleCreate}>
+                    <Plus />
+                    Создать протокол
+                  </Button>
+                }
+              />
+            )
+          }
+          onRowClick={(row) => handleEdit(row.original)}
+        />
+      </CabinetContent>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { PageProtocolTemplateForm } from "@/features/protocol-template";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { ROUTES } from "@/constants/route.constants";
@@ -14,24 +14,30 @@ export default function EditProtocolPage({
 }) {
   const { id } = use(params);
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref={ROUTES.PROTOCOL_TEMPLATES}
-        backTitle="Шаблоны протоколов"
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Шаблоны протоколов", href: ROUTES.PROTOCOL_TEMPLATES },
+              { label: "Редактировать" },
+            ]}
+          />
+        }
       />
-      <PageHeader
-        title="Редактировать шаблон протокола"
-        description="Редактирование шаблона медицинского протокола"
-      />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Шаблоны протоколов", href: ROUTES.PROTOCOL_TEMPLATES },
-          { label: "Редактировать" },
-        ]}
-      />
-      <PageProtocolTemplateForm mode="edit" protocolTemplateId={id} />
-    </div>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Редактировать шаблон протокола"
+          description="Редактирование шаблона медицинского протокола"
+        />
+        <PageProtocolTemplateForm mode="edit" protocolTemplateId={id} />
+      </CabinetContent>
+    </>
   );
 }

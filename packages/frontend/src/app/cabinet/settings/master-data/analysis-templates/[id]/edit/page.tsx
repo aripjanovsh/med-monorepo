@@ -2,7 +2,7 @@
 
 import { use } from "react";
 
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { PageAnalysisTemplateForm } from "@/features/analysis-template";
@@ -16,24 +16,30 @@ export default function EditAnalysisTemplatePage({
   const { id } = use(params);
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref={url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id })}
-        backTitle="Назад"
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Шаблоны анализов", href: ROUTES.ANALYSIS_TEMPLATES },
+              { label: "Редактировать" },
+            ]}
+          />
+        }
       />
-      <PageHeader
-        title="Редактировать шаблон анализа"
-        description="Редактирование шаблона лабораторного анализа"
-      />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Шаблоны анализов", href: ROUTES.ANALYSIS_TEMPLATES },
-          { label: "Редактировать" },
-        ]}
-      />
-      <PageAnalysisTemplateForm mode="edit" templateId={id} />
-    </div>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Редактировать шаблон анализа"
+          description="Редактирование шаблона лабораторного анализа"
+        />
+        <PageAnalysisTemplateForm mode="edit" templateId={id} />
+      </CabinetContent>
+    </>
   );
 }

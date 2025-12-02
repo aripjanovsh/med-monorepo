@@ -36,7 +36,7 @@ import {
   type AnalysisTemplateResponseDto,
 } from "@/features/analysis-template";
 import { url, ROUTES } from "@/constants/route.constants";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { useConfirmDialog } from "@/components/dialogs";
@@ -53,7 +53,7 @@ export default function AnalysisTemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
   const { queryParams, handlers, setters, values } = useDataTableState({
-    defaultLimit: 50,
+    defaultLimit: 20,
     defaultSorting: [{ id: "name", desc: false }],
     searchDebounceMs: 300,
   });
@@ -118,123 +118,129 @@ export default function AnalysisTemplatesPage() {
   const totalTemplates = templatesData?.meta?.total || 0;
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader
-        backHref="/cabinet/settings/master-data"
-        backTitle="Справочные данные"
-      />
-      <PageHeader
-        title="Шаблоны анализов"
-        description="Управление шаблонами лабораторных анализов"
-        actions={
-          <Button asChild>
-            <Link href={ROUTES.ANALYSIS_TEMPLATE_CREATE}>
-              <Plus />
-              Создать шаблон
-            </Link>
-          </Button>
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              {
+                label: "Справочные данные",
+                href: "/cabinet/settings/master-data",
+              },
+              { label: "Шаблоны анализов" },
+            ]}
+          />
         }
       />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные", href: "/cabinet/settings/master-data" },
-          { label: "Шаблоны анализов" },
-        ]}
-      />
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Шаблоны анализов"
+          description="Управление шаблонами лабораторных анализов"
+          actions={
+            <Button asChild>
+              <Link href={ROUTES.ANALYSIS_TEMPLATE_CREATE}>
+                <Plus />
+                Создать шаблон
+              </Link>
+            </Button>
+          }
+        />
 
-      <DataTable
-        columns={[
-          ...analysisTemplateColumns,
-          {
-            id: "actions",
-            cell: ({ row }) => {
-              const template = row.original;
+        <DataTable
+          columns={[
+            ...analysisTemplateColumns,
+            {
+              id: "actions",
+              cell: ({ row }) => {
+                const template = row.original;
 
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Открыть меню</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleEdit(template)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Редактировать
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => handleDelete(template)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Удалить
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
+                return (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Открыть меню</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleEdit(template)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Редактировать
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDelete(template)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Удалить
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              },
             },
-          },
-        ]}
-        data={templates}
-        isLoading={isLoading}
-        pagination={{
-          ...handlers.pagination,
-          total: totalTemplates,
-        }}
-        sort={handlers.sorting}
-        toolbar={(table) => (
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <DataTableToolbar
-                table={table}
-                searchKey="name"
-                searchPlaceholder="Поиск по названию, коду или описанию..."
-                searchValue={values.searchImmediate}
-                onSearchChange={handlers.search.onChange}
+          ]}
+          data={templates}
+          isLoading={isLoading}
+          pagination={{
+            ...handlers.pagination,
+            total: totalTemplates,
+          }}
+          sort={handlers.sorting}
+          toolbar={(table) => (
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <DataTableToolbar
+                  table={table}
+                  searchKey="name"
+                  searchPlaceholder="Поиск по названию, коду или описанию..."
+                  searchValue={values.searchImmediate}
+                  onSearchChange={handlers.search.onChange}
+                />
+              </div>
+              <div className="w-48">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_FILTER_OPTIONS.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          emptyState={
+            error ? (
+              <DataTableErrorState
+                title="Ошибка при загрузке шаблонов"
+                error={error}
+                onRetry={refetch}
               />
-            </div>
-            <div className="w-48">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORY_FILTER_OPTIONS.map((category) => (
-                    <SelectItem key={category.value} value={category.value}>
-                      {category.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-        emptyState={
-          error ? (
-            <DataTableErrorState
-              title="Ошибка при загрузке шаблонов"
-              error={error}
-              onRetry={refetch}
-            />
-          ) : (
-            <DataTableEmptyState
-              title="Шаблоны не найдены"
-              description="Попробуйте изменить параметры поиска или создайте первый шаблон анализа"
-            />
-          )
-        }
-        onRowClick={(row) => {
-          router.push(
-            url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id })
-          );
-        }}
-      />
-    </div>
+            ) : (
+              <DataTableEmptyState
+                title="Шаблоны не найдены"
+                description="Попробуйте изменить параметры поиска или создайте первый шаблон анализа"
+              />
+            )
+          }
+          onRowClick={(row) => {
+            router.push(
+              url(ROUTES.ANALYSIS_TEMPLATE_DETAIL, { id: row.original.id })
+            );
+          }}
+        />
+      </CabinetContent>
+    </>
   );
 }

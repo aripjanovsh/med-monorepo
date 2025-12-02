@@ -19,7 +19,7 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { ROUTES } from "@/constants/route.constants";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
@@ -73,48 +73,53 @@ export default function MasterDataPage() {
   const router = useRouter();
 
   return (
-    <div className="space-y-6">
-      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
-      <PageHeader
-        title="Справочные данные"
-        description="Управление справочными данными"
+    <>
+      <LayoutHeader
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              { label: "Справочные данные" },
+            ]}
+          />
+        }
       />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Справочные данные" },
-        ]}
-      />
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {masterDataModules.map((section) => {
-          const Icon = section.icon;
-          return (
-            <Card
-              key={section.href}
-              className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50 group"
-              onClick={() => router.push(section.href)}
-            >
-              <CardContent>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Icon className="size-6" />
+      <CabinetContent className="space-y-6 max-w-4xl mx-auto">
+        <PageHeader
+          title="Справочные данные"
+          description="Управление справочными данными"
+        />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {masterDataModules.map((section) => {
+            const Icon = section.icon;
+            return (
+              <Card
+                key={section.href}
+                className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50 group"
+                onClick={() => router.push(section.href)}
+              >
+                <CardContent>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <Icon className="size-6" />
+                    </div>
+                    <ArrowRight className="size-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <ArrowRight className="size-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
 
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  {section.title}
-                </h3>
+                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                    {section.title}
+                  </h3>
 
-                <p className="text-sm text-muted-foreground">
-                  {section.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+                  <p className="text-sm text-muted-foreground">
+                    {section.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </CabinetContent>
+    </>
   );
 }

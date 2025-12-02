@@ -42,7 +42,7 @@ import {
 import { toast } from "sonner";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 import { useConfirmDialog } from "@/components/dialogs";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageBreadcrumbs } from "@/components/layouts/page-breadcrumbs";
 import { PERMISSION_LABELS } from "@/constants/permissions.constants";
@@ -132,130 +132,140 @@ export default function RolesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <LayoutHeader backHref="/cabinet/settings" backTitle="Настройки" />
-      <PageHeader
-        title="Роли и права"
-        description="Управление ролями и правами доступа"
-        actions={
-          <Button onClick={handleCreateRole}>
-            <Plus className="mr-2 h-4 w-4" />
-            Новая роль
-          </Button>
+    <>
+      <LayoutHeader
+        border
+        left={
+          <PageBreadcrumbs
+            items={[
+              { label: "Настройки", href: "/cabinet/settings" },
+              { label: "Роли и права" },
+            ]}
+          />
         }
       />
-      <PageBreadcrumbs
-        items={[
-          { label: "Настройки", href: "/cabinet/settings" },
-          { label: "Роли и права" },
-        ]}
-      />
-
-      {roles.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium">Нет ролей</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Создайте первую роль для управления доступом
-            </p>
+      <CabinetContent className="space-y-6">
+        <PageHeader
+          title="Роли и права"
+          description="Управление ролями и правами доступа"
+          actions={
             <Button onClick={handleCreateRole}>
               <Plus className="mr-2 h-4 w-4" />
-              Создать роль
+              Новая роль
             </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {roles.map((role) => (
-            <Card
-              key={role.id}
-              className={!role.isActive ? "opacity-60" : undefined}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="flex items-center gap-2">
-                      {role.name}
-                      {role.isSystem && (
-                        <Badge variant="secondary" className="text-xs">
-                          Системная
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {role.description || "Без описания"}
-                    </CardDescription>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditRole(role)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Редактировать
-                      </DropdownMenuItem>
-                      {!role.isSystem && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDeleteRole(role)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Удалить
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span>
-                      {role._count?.userAssignments ?? 0} пользователей
-                    </span>
-                  </div>
+          }
+        />
 
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="h-4 w-4" />
-                    <span>{role.permissions?.length ?? 0} прав доступа</span>
-                  </div>
-
-                  {role.permissions && role.permissions.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-2">
-                      {role.permissions.slice(0, 3).map((p) => (
-                        <Badge key={p.id} variant="outline" className="text-xs">
-                          {PERMISSION_LABELS[
-                            p.permission as keyof typeof PERMISSION_LABELS
-                          ] ?? p.permission}
-                        </Badge>
-                      ))}
-                      {role.permissions.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{role.permissions.length - 3}
-                        </Badge>
-                      )}
+        {roles.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Shield className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">Нет ролей</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Создайте первую роль для управления доступом
+              </p>
+              <Button onClick={handleCreateRole}>
+                <Plus className="mr-2 h-4 w-4" />
+                Создать роль
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {roles.map((role) => (
+              <Card
+                key={role.id}
+                className={!role.isActive ? "opacity-60" : undefined}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle className="flex items-center gap-2">
+                        {role.name}
+                        {role.isSystem && (
+                          <Badge variant="secondary" className="text-xs">
+                            Системная
+                          </Badge>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        {role.description || "Без описания"}
+                      </CardDescription>
                     </div>
-                  )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditRole(role)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Редактировать
+                        </DropdownMenuItem>
+                        {!role.isSystem && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDeleteRole(role)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Удалить
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span>
+                        {role._count?.userAssignments ?? 0} пользователей
+                      </span>
+                    </div>
 
-                  {!role.isActive && (
-                    <Badge variant="secondary" className="mt-2">
-                      Неактивна
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Shield className="h-4 w-4" />
+                      <span>{role.permissions?.length ?? 0} прав доступа</span>
+                    </div>
+
+                    {role.permissions && role.permissions.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-2">
+                        {role.permissions.slice(0, 3).map((p) => (
+                          <Badge
+                            key={p.id}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {PERMISSION_LABELS[
+                              p.permission as keyof typeof PERMISSION_LABELS
+                            ] ?? p.permission}
+                          </Badge>
+                        ))}
+                        {role.permissions.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{role.permissions.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {!role.isActive && (
+                      <Badge variant="secondary" className="mt-2">
+                        Неактивна
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CabinetContent>
+    </>
   );
 }
