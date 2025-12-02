@@ -276,9 +276,7 @@ export default function PatientDetailLayout({
                 <Button
                   size="sm"
                   onClick={() =>
-                    router.push(
-                      `/cabinet/patients/${id}/visits/${activeVisit.id}`
-                    )
+                    router.push(`/cabinet/visits/${activeVisit.id}`)
                   }
                   className="bg-green-600 hover:bg-green-700"
                 >

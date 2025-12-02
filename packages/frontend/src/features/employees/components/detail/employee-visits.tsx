@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
 
+import { ROUTES, url } from "@/constants/route.constants";
+
 import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
 import { useGetVisitsQuery } from "@/features/visit";
 import { employeeVisitColumns } from "@/features/visit/components/visit-columns";
@@ -36,11 +38,7 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
           return (
             <div className="text-right">
               <Button variant="outline" size="sm" asChild>
-                <a
-                  href={`/cabinet/patients/${visit.patient?.id}/visits/${visit.id}`}
-                >
-                  Открыть
-                </a>
+                <a href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}>Открыть</a>
               </Button>
             </div>
           );
@@ -66,9 +64,7 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
           />
         }
         onRowClick={(row) => {
-          router.push(
-            `/cabinet/patients/${row.original.patient?.id}/visits/${row.original.id}`
-          );
+          router.push(url(ROUTES.VISIT_DETAIL, { id: row.original.id }));
         }}
       />
     </>

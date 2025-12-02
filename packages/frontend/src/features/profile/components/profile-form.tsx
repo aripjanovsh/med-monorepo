@@ -14,6 +14,15 @@ import { AvatarUpload } from "./avatar-upload";
 import * as yup from "yup";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const profileFormSchema = yup.object({
   firstName: yup.string().required("Имя обязательно"),
@@ -91,152 +100,176 @@ export function ProfileForm() {
   const currentAvatarId = user?.avatarId ?? user?.employee?.avatarId;
 
   return (
-    <div className="space-y-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          {/* Avatar Section */}
-          <FormSection title="Фото профиля">
-            <AvatarUpload
-              currentAvatarId={currentAvatarId}
-              onAvatarChange={handleAvatarChange}
-              userName={`${user?.lastName ?? ""} ${user?.firstName ?? ""}`}
-            />
-          </FormSection>
-
-          {/* Personal Information */}
-          <FormSection title="Личная информация">
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <TextField
-                    label="Фамилия"
-                    required
-                    placeholder="Введите фамилию"
-                    {...field}
-                  />
-                )}
+    <Card>
+      <CardHeader>
+        <CardTitle>Ваш профиль</CardTitle>
+        <CardDescription>Настройте информацию о себе</CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            {/* Avatar Section */}
+            <FormSection title="Фото профиля" className="p-6" withCard={false}>
+              <AvatarUpload
+                currentAvatarId={currentAvatarId}
+                onAvatarChange={handleAvatarChange}
+                userName={`${user?.lastName ?? ""} ${user?.firstName ?? ""}`}
               />
+            </FormSection>
 
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <TextField
-                    label="Имя"
-                    required
-                    placeholder="Введите имя"
-                    {...field}
-                  />
-                )}
-              />
+            <Separator />
 
-              <FormField
-                control={form.control}
-                name="middleName"
-                render={({ field }) => (
-                  <TextField
-                    label="Отчество"
-                    placeholder="Введите отчество"
-                    {...field}
-                  />
-                )}
-              />
-            </div>
-          </FormSection>
+            {/* Personal Information */}
+            <FormSection
+              title="Личная информация"
+              className="p-6"
+              withCard={false}
+            >
+              <div className="grid grid-cols-1 gap-4">
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <TextField
+                      label="Фамилия"
+                      required
+                      placeholder="Введите фамилию"
+                      {...field}
+                    />
+                  )}
+                />
 
-          {/* Contact Information */}
-          <FormSection title="Контактная информация">
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <TextField
-                    label="Email"
-                    placeholder="example@email.com"
-                    type="email"
-                    {...field}
-                  />
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <TextField
+                      label="Имя"
+                      required
+                      placeholder="Введите имя"
+                      {...field}
+                    />
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <PhoneField
-                    label="Телефон"
-                    placeholder="Введите телефон"
-                    {...field}
-                  />
-                )}
-              />
-            </div>
-          </FormSection>
-
-          {/* Account Information (Read-only) */}
-          <FormSection title="Информация об аккаунте">
-            <div className="grid grid-cols-1  gap-4">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Телефон для входа
-                </p>
-                <p className="text-sm">{user?.phone ?? "—"}</p>
+                <FormField
+                  control={form.control}
+                  name="middleName"
+                  render={({ field }) => (
+                    <TextField
+                      label="Отчество"
+                      placeholder="Введите отчество"
+                      {...field}
+                    />
+                  )}
+                />
               </div>
+            </FormSection>
 
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Роль
-                </p>
-                <p className="text-sm">{user?.role ?? "—"}</p>
+            <Separator />
+
+            {/* Contact Information */}
+            <FormSection
+              title="Контактная информация"
+              className="p-6"
+              withCard={false}
+            >
+              <div className="grid grid-cols-1 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <TextField
+                      label="Email"
+                      placeholder="example@email.com"
+                      type="email"
+                      {...field}
+                    />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <PhoneField
+                      label="Телефон"
+                      placeholder="Введите телефон"
+                      {...field}
+                    />
+                  )}
+                />
               </div>
+            </FormSection>
 
-              {user?.organization && (
+            <Separator />
+
+            {/* Account Information (Read-only) */}
+            <FormSection
+              title="Информация об аккаунте"
+              className="p-6"
+              withCard={false}
+            >
+              <div className="grid grid-cols-1  gap-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
-                    Организация
+                    Телефон для входа
                   </p>
-                  <p className="text-sm">{user.organization.name}</p>
+                  <p className="text-sm">{user?.phone ?? "—"}</p>
                 </div>
-              )}
 
-              {user?.employee?.department && (
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
-                    Отдел
+                    Роль
                   </p>
-                  <p className="text-sm">{user.employee.department.name}</p>
+                  <p className="text-sm">{user?.role ?? "—"}</p>
                 </div>
-              )}
 
-              {user?.employee?.title && (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Должность
-                  </p>
-                  <p className="text-sm">{user.employee.title.name}</p>
-                </div>
-              )}
-            </div>
-          </FormSection>
+                {user?.organization && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Организация
+                    </p>
+                    <p className="text-sm">{user.organization.name}</p>
+                  </div>
+                )}
 
-          {/* Form Actions */}
-          <div className="flex items-center justify-end gap-4">
-            <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Сохранение...
-                </>
-              ) : (
-                "Сохранить изменения"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+                {user?.employee?.department && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Отдел
+                    </p>
+                    <p className="text-sm">{user.employee.department.name}</p>
+                  </div>
+                )}
+
+                {user?.employee?.title && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Должность
+                    </p>
+                    <p className="text-sm">{user.employee.title.name}</p>
+                  </div>
+                )}
+              </div>
+            </FormSection>
+
+            {/* Form Actions */}
+            <CardFooter className="flex items-center justify-end gap-4">
+              <Button type="submit" disabled={isUpdating}>
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Сохранение...
+                  </>
+                ) : (
+                  "Сохранить изменения"
+                )}
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

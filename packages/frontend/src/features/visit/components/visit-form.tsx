@@ -64,7 +64,7 @@ export const VisitForm = ({
             month - 1,
             day,
             now.getHours(),
-            now.getMinutes(),
+            now.getMinutes()
           );
           visitDate = dateWithTime.toISOString();
         } else {
@@ -92,14 +92,8 @@ export const VisitForm = ({
         const visit = await createVisit(payload).unwrap();
         toast.success("Визит создан");
 
-        // Если создаем из карточки пациента, редиректим туда
-        if (prefilledPatientId) {
-          router.push(
-            `/cabinet/patients/${prefilledPatientId}/visits/${visit.id}`,
-          );
-        } else {
-          router.push(`/cabinet/visits/${visit.id}`);
-        }
+        // Всегда редиректим на страницу визита
+        router.push(`/cabinet/visits/${visit.id}`);
       }
 
       onSuccess?.();

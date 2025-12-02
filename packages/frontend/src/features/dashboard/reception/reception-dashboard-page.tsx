@@ -1,22 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
 import { useGetMeQuery } from "@/features/auth";
 import { CompletedVisitsPanel } from "@/features/dashboard/reception";
 import { CreateInvoiceWithPaymentSheet } from "@/features/invoice/components/create-invoice-with-payment-sheet";
-import { StatsWidget } from "@/features/dashboard/reception/widgets/stats-widget";
 import { QueueWidget } from "@/features/dashboard/reception/widgets/queue-widget";
 import { InProgressWidget } from "@/features/dashboard/reception/widgets/in-progress-widget";
 import { QuickActionsWidget } from "@/features/dashboard/reception/widgets/quick-actions-widget";
 import { QuickCreateVisitModal } from "@/features/visit/components/quick-create-visit-modal";
 
 export const ReceptionDashboardPage = () => {
-  const [selectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
   const router = useRouter();
 
   const createVisitDialog = useDialog(QuickCreateVisitModal);
@@ -71,9 +67,6 @@ export const ReceptionDashboardPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      {/* <StatsWidget date={selectedDate} /> */}
-
       {/* Quick Actions Panel */}
       <QuickActionsWidget
         onCreateVisit={handleCreateVisit}

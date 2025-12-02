@@ -2,8 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Plus, Eye, Edit, Trash } from "lucide-react";
-import Link from "next/link";
+import { MoreHorizontal, Plus, Eye, Trash } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,8 +24,9 @@ import {
   visitColumns,
   useGetVisitsQuery,
   useDeleteVisitMutation,
-  isVisitEditable,
+  VisitFormDialog,
 } from "@/features/visit";
+import { useDialog } from "@/lib/dialog-manager";
 import { ROUTES, url } from "@/constants/route.constants";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDataTableState } from "@/hooks/use-data-table-state";
@@ -35,9 +35,10 @@ import { LayoutHeader, CabinetContent } from "@/components/layouts/cabinet";
 export const VisitsPage = () => {
   const router = useRouter();
   const confirm = useConfirmDialog();
+  const visitDialog = useDialog(VisitFormDialog);
 
   const { queryParams, handlers, values } = useDataTableState({
-    defaultLimit: 10,
+    defaultLimit: 20,
     defaultSorting: [{ id: "visitDate", desc: true }],
     sortFormat: "split",
   });
@@ -79,11 +80,16 @@ export const VisitsPage = () => {
       <LayoutHeader
         title="Визиты"
         right={
-          <Button asChild>
-            <Link href={ROUTES.VISIT_CREATE}>
-              <Plus />
-              Начать прием
-            </Link>
+          <Button
+            onClick={() =>
+              visitDialog.open({
+                mode: "create",
+                onSuccess: refetch,
+              })
+            }
+          >
+            <Plus />
+            Начать прием
           </Button>
         }
       />
@@ -95,7 +101,6 @@ export const VisitsPage = () => {
               id: "actions",
               cell: ({ row }) => {
                 const visit = row.original;
-                const editable = isVisitEditable(visit);
 
                 return (
                   <DropdownMenu>
@@ -117,18 +122,6 @@ export const VisitsPage = () => {
                         <Eye className="mr-2 h-4 w-4" />
                         Просмотр
                       </DropdownMenuItem>
-                      {editable && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(
-                              url(ROUTES.VISIT_EDIT, { id: visit.id })
-                            )
-                          }
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Редактировать
-                        </DropdownMenuItem>
-                      )}
                       <DropdownMenuItem
                         className="text-red-600"
                         onClick={() => handleDeleteVisit(visit)}

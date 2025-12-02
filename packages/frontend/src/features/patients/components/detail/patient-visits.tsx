@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Calendar } from "lucide-react";
 
+import { ROUTES, url } from "@/constants/route.constants";
+
 import { Button } from "@/components/ui/button";
 import { DataTable, DataTableEmptyState } from "@/components/data-table";
 import PageHeader from "@/components/layouts/page-header";
@@ -47,16 +49,14 @@ export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
           return (
             <div className="text-right">
               <Button variant="outline" size="sm" asChild>
-                <a href={`/cabinet/patients/${patientId}/visits/${visit.id}`}>
-                  Открыть
-                </a>
+                <a href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}>Открыть</a>
               </Button>
             </div>
           );
         },
       },
     ],
-    [patientId],
+    [patientId]
   );
 
   return (
@@ -89,9 +89,7 @@ export const PatientVisits = ({ patientId }: PatientVisitsProps) => {
           />
         }
         onRowClick={(row) => {
-          router.push(
-            `/cabinet/patients/${patientId}/visits/${row.original.id}`,
-          );
+          router.push(url(ROUTES.VISIT_DETAIL, { id: row.original.id }));
         }}
       />
     </>

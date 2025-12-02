@@ -24,8 +24,6 @@ export const ROUTES = {
   // Visit routes
   VISITS: "/cabinet/visits",
   VISIT_DETAIL: "/cabinet/visits/[id]",
-  VISIT_CREATE: "/cabinet/visits/create",
-  VISIT_EDIT: "/cabinet/visits/[id]/edit",
 
   // Invoice routes
   INVOICES: "/cabinet/invoices",
