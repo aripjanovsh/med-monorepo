@@ -19,7 +19,6 @@ import { visitFormSchema, type VisitFormData } from "../visit.schema";
 import { useCreateVisitMutation, useUpdateVisitMutation } from "../visit.api";
 import { PatientSelectField } from "@/features/patients/components/patient-select-field";
 import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
-import { DatePickerField } from "@/components/fields/date-picker-field";
 
 type VisitFormProps = {
   mode: "create" | "edit";
@@ -43,42 +42,15 @@ export const VisitForm = ({
     defaultValues: initialData || {
       patientId: prefilledPatientId || "",
       employeeId: "",
-      visitDate: new Date().toISOString().split("T")[0], // yyyy-MM-dd format for DatePickerField
       notes: "",
     },
   });
 
   const onSubmit = async (data: VisitFormData) => {
     try {
-      // DatePickerField returns date in "yyyy-MM-dd" format
-      // Convert to full ISO 8601 format with current time
-      let visitDate: string;
-      if (data.visitDate) {
-        // If date is in yyyy-MM-dd format, add time
-        if (data.visitDate.length === 10) {
-          // Add current time to the date
-          const [year, month, day] = data.visitDate.split("-").map(Number);
-          const now = new Date();
-          const dateWithTime = new Date(
-            year,
-            month - 1,
-            day,
-            now.getHours(),
-            now.getMinutes()
-          );
-          visitDate = dateWithTime.toISOString();
-        } else {
-          // Try to parse as is
-          visitDate = new Date(data.visitDate).toISOString();
-        }
-      } else {
-        visitDate = new Date().toISOString();
-      }
-
       const payload = {
         patientId: data.patientId,
         employeeId: data.employeeId,
-        visitDate,
         notes: data.notes,
       };
 
@@ -132,20 +104,6 @@ export const VisitForm = ({
               <FormLabel>Врач *</FormLabel>
               <FormControl>
                 <EmployeeSelectField {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="visitDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Дата визита</FormLabel>
-              <FormControl>
-                <DatePickerField {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

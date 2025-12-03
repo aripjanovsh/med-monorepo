@@ -186,7 +186,8 @@ export class VisitService {
         }
       }
 
-      tx.patientDoctor.upsert({
+      // Create patient-doctor relationship when creating a visit
+      await tx.patientDoctor.upsert({
         where: {
           patientId_employeeId: {
             patientId: visitData.patientId,

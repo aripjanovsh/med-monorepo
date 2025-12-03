@@ -3,6 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { PatientResponseDto } from "../patient.dto";
 import {
   getPatientFullName,
@@ -16,6 +21,7 @@ import Link from "next/link";
 import { ROUTES, url } from "@/constants/route.constants";
 import { Calendar, ExternalLink } from "lucide-react";
 import { formatDate } from "@/lib/date.utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export const patientColumns: ColumnDef<PatientResponseDto>[] = [
   {
@@ -79,24 +85,94 @@ export const patientColumns: ColumnDef<PatientResponseDto>[] = [
     cell: ({ row }) => {
       const patient = row.original;
       const activeDoctors = patient.doctors?.filter((d) => d.isActive) || [];
+      const sortedDoctors = [...activeDoctors].sort((a, b) => {
+        const dateA = new Date(a.assignedAt).getTime();
+        const dateB = new Date(b.assignedAt).getTime();
+        return dateB - dateA;
+      });
 
-      if (activeDoctors.length === 0) {
+      if (sortedDoctors.length === 0) {
         return (
           <div className="text-sm text-muted-foreground">Не назначены</div>
         );
       }
 
+      // Если один врач - показываем аватар + имя + должность как в списке сотрудников
+      if (sortedDoctors.length === 1) {
+        const doctor = sortedDoctors[0];
+        const doctorName = `${doctor.firstName} ${doctor.lastName}`.trim();
+        const doctorTitle = doctor.title?.name;
+
+        return (
+          <div className="flex items-center space-x-1">
+            <UserAvatar
+              name={doctorName}
+              avatarId={doctor.avatarId}
+              className="h-8 w-8 border-2 border-card cursor-pointer"
+              fallbackClassName="bg-blue-100 text-blue-700 font-medium"
+              size={32}
+            />
+            <div>
+              <div className="font-medium text-xs">{doctorName}</div>
+              {doctorTitle && (
+                <div className="text-xs text-muted-foreground">
+                  {doctorTitle}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // Если несколько врачей - показываем аватарки с тултипами
       return (
-        <div className="text-sm">
-          {activeDoctors.slice(0, 2).map((doctor, index) => (
-            <div key={doctor.id}>
-              {doctor.firstName} {doctor.lastName}
-            </div>
-          ))}
-          {activeDoctors.length > 2 && (
-            <div className="text-muted-foreground">
-              +{activeDoctors.length - 2} еще
-            </div>
+        <div className="flex -space-x-2">
+          {sortedDoctors.slice(0, 3).map((doctor) => {
+            const doctorName = `${doctor.firstName} ${doctor.lastName}`.trim();
+            const doctorTitle = doctor.title?.name;
+            const tooltipContent = doctorTitle
+              ? `${doctorName}, ${doctorTitle}`
+              : doctorName;
+
+            return (
+              <Tooltip key={doctor.id}>
+                <TooltipTrigger asChild>
+                  <UserAvatar
+                    name={doctorName}
+                    avatarId={doctor.avatarId}
+                    className="h-8 w-8 border-2 border-card cursor-pointer"
+                    fallbackClassName="bg-blue-100 text-blue-700 text-xs font-medium"
+                    size={32}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>{tooltipContent}</TooltipContent>
+              </Tooltip>
+            );
+          })}
+          {sortedDoctors.length > 3 && (
+            <Tooltip key="more-doctors">
+              <TooltipTrigger asChild>
+                <Avatar className="h-8 w-8 border-2 border-background cursor-pointer">
+                  <AvatarFallback className="bg-gray-100 text-gray-600 text-xs font-medium">
+                    +{sortedDoctors.length - 3}
+                  </AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="flex flex-col gap-1">
+                  {sortedDoctors.slice(3).map((doctor) => {
+                    const doctorName =
+                      `${doctor.firstName} ${doctor.lastName}`.trim();
+                    const doctorTitle = doctor.title?.name;
+                    const tooltipContent = doctorTitle
+                      ? `${doctorName}, ${doctorTitle}`
+                      : doctorName;
+
+                    return <span key={doctor.id}>{tooltipContent}</span>;
+                  })}
+                </div>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       );

@@ -38,45 +38,11 @@ export class PatientService {
       });
 
       // Fetch the complete patient with relations
-      const patientWithRelations = await tx.patient.findUnique({
+      const patient = await tx.patient.findUnique({
         where: { id: created.id },
-        include: {
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-          doctors: {
-            include: {
-              employee: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
       });
 
-      // Transform the response
-      const response = patientWithRelations
-        ? {
-            ...patientWithRelations,
-            doctors: patientWithRelations.doctors.map((pd) => ({
-              id: pd.id,
-              employeeId: pd.employeeId,
-              firstName: pd.employee.firstName,
-              lastName: pd.employee.lastName,
-              assignedAt: pd.assignedAt,
-              isActive: pd.isActive,
-            })),
-          }
-        : null;
-
-      return plainToInstance(PatientResponseDto, response);
+      return plainToInstance(PatientResponseDto, patient);
     });
   }
 
@@ -149,6 +115,25 @@ export class PatientService {
           region: true,
           city: true,
           district: true,
+          doctors: {
+            where: { isActive: true },
+            include: {
+              employee: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  avatarId: true,
+                  title: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         orderBy,
         skip,
@@ -157,8 +142,28 @@ export class PatientService {
       this.prisma.patient.count({ where }),
     ]);
 
+    // Transform doctors to match DTO format
+    const transformedPatients = patients.map((patient) => ({
+      ...patient,
+      doctors: patient.doctors.map((pd) => ({
+        id: pd.id,
+        employeeId: pd.employeeId,
+        firstName: pd.employee.firstName,
+        lastName: pd.employee.lastName,
+        avatarId: pd.employee.avatarId,
+        title: pd.employee.title
+          ? {
+              id: pd.employee.title.id,
+              name: pd.employee.title.name,
+            }
+          : undefined,
+        assignedAt: pd.assignedAt,
+        isActive: pd.isActive,
+      })),
+    }));
+
     return {
-      data: plainToInstance(PatientResponseDto, patients),
+      data: plainToInstance(PatientResponseDto, transformedPatients),
       meta: {
         page,
         limit,
@@ -195,6 +200,7 @@ export class PatientService {
                 id: true,
                 firstName: true,
                 lastName: true,
+                avatarId: true,
               },
             },
           },
@@ -213,6 +219,7 @@ export class PatientService {
         employeeId: pd.employeeId,
         firstName: pd.employee.firstName,
         lastName: pd.employee.lastName,
+        avatarId: pd.employee.avatarId,
         assignedAt: pd.assignedAt,
         isActive: pd.isActive,
       })),
@@ -253,42 +260,9 @@ export class PatientService {
 
       const updatedPatient = await tx.patient.findUnique({
         where: { id },
-        include: {
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-          doctors: {
-            include: {
-              employee: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
       });
 
-      const response = updatedPatient
-        ? {
-            ...updatedPatient,
-            doctors: updatedPatient.doctors.map((pd) => ({
-              id: pd.id,
-              employeeId: pd.employeeId,
-              firstName: pd.employee.firstName,
-              lastName: pd.employee.lastName,
-              assignedAt: pd.assignedAt,
-              isActive: pd.isActive,
-            })),
-          }
-        : null;
-
-      return plainToInstance(PatientResponseDto, response);
+      return plainToInstance(PatientResponseDto, updatedPatient);
     });
   }
 
@@ -308,40 +282,9 @@ export class PatientService {
       const patient = await this.prisma.patient.update({
         where,
         data: { status },
-        include: {
-          primaryLanguage: true,
-          secondaryLanguage: true,
-          country: true,
-          region: true,
-          city: true,
-          district: true,
-          doctors: {
-            include: {
-              employee: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
       });
 
-      const response = {
-        ...patient,
-        doctors: patient.doctors.map((pd) => ({
-          id: pd.id,
-          employeeId: pd.employeeId,
-          firstName: pd.employee.firstName,
-          lastName: pd.employee.lastName,
-          assignedAt: pd.assignedAt,
-          isActive: pd.isActive,
-        })),
-      };
-
-      return plainToInstance(PatientResponseDto, response);
+      return plainToInstance(PatientResponseDto, patient);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

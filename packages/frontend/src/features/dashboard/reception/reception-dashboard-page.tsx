@@ -10,17 +10,18 @@ import { CreateInvoiceWithPaymentSheet } from "@/features/invoice/components/cre
 import { QueueWidget } from "@/features/dashboard/reception/widgets/queue-widget";
 import { InProgressWidget } from "@/features/dashboard/reception/widgets/in-progress-widget";
 import { QuickActionsWidget } from "@/features/dashboard/reception/widgets/quick-actions-widget";
-import { QuickCreateVisitModal } from "@/features/visit/components/quick-create-visit-modal";
+import { VisitFormDialog } from "@/features/visit";
 
 export const ReceptionDashboardPage = () => {
   const router = useRouter();
 
-  const createVisitDialog = useDialog(QuickCreateVisitModal);
+  const createVisitDialog = useDialog(VisitFormDialog);
   const invoiceDialog = useDialog(CreateInvoiceWithPaymentSheet);
   const { data: currentUser, isLoading: isLoadingUser } = useGetMeQuery();
 
   const handleCreateVisit = useCallback(() => {
     createVisitDialog.open({
+      mode: "create",
       onSuccess: () => {
         console.log("✅ Visit created successfully");
       },

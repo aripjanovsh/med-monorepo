@@ -4,6 +4,17 @@ import { LanguageResponseDto } from "../../master-data/language/dto/language-res
 import { LocationResponseDto } from "../../master-data/location/dto/location-response.dto";
 
 @Exclude()
+class SimpleTitleResponseDto {
+  @Expose()
+  @ApiProperty({ description: "Title ID", example: "uuid-title-id" })
+  id: string;
+
+  @Expose()
+  @ApiProperty({ description: "Title name", example: "Врач-терапевт" })
+  name: string;
+}
+
+@Exclude()
 export class PatientDoctorResponseDto {
   @Expose()
   @ApiProperty({
@@ -15,6 +26,23 @@ export class PatientDoctorResponseDto {
   @Expose()
   @ApiProperty({ description: "Employee ID", example: "uuid-employee-id" })
   employeeId: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Employee avatar file ID",
+    example: "uuid-avatar-id",
+    required: false,
+  })
+  avatarId?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Doctor title",
+    type: SimpleTitleResponseDto,
+    required: false,
+  })
+  @Type(() => SimpleTitleResponseDto)
+  title?: SimpleTitleResponseDto;
 
   @Expose()
   @ApiProperty({ description: "Doctor first name", example: "John" })

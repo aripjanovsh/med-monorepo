@@ -13,6 +13,11 @@ export type GenderDto = "MALE" | "FEMALE";
 export interface PatientDoctorDto {
   id: string;
   employeeId: string;
+  avatarId?: string;
+  title?: {
+    id: string;
+    name: string;
+  };
   firstName: string;
   lastName: string;
   assignedAt: string; // ISO string
