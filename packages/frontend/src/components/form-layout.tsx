@@ -18,7 +18,7 @@ export const FormSection: FC<FormSectionProps> = ({
   className,
 }: FormSectionProps) => {
   const content = (
-    <div className={cn("grid lg:grid-cols-10 gap-8", className)}>
+    <>
       <div className="space-y-0.5 lg:col-span-3">
         <h3 className="leading-none  font-semibold tracking-tight">{title}</h3>
         {description && (
@@ -28,16 +28,16 @@ export const FormSection: FC<FormSectionProps> = ({
         )}
       </div>
       <div className="space-y-4 lg:col-span-7">{children}</div>
-    </div>
+    </>
   );
 
   return withCard ? (
-    <Card className={className}>
+    <Card className={cn("", className)}>
       <CardContent className="grid lg:grid-cols-10 gap-8">
         {content}
       </CardContent>
     </Card>
   ) : (
-    content
+    <div className={cn("grid lg:grid-cols-10 gap-8", className)}>{content}</div>
   );
 };

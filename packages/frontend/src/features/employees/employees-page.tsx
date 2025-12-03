@@ -51,6 +51,12 @@ export const EmployeesPage = () => {
   // DataTable state management with built-in debounce
   const { queryParams, handlers, setters, values } = useDataTableState({
     defaultLimit: 20,
+    defaultSorting: [
+      {
+        desc: true,
+        id: "createdAt",
+      },
+    ],
     sortFormat: "split",
     searchDebounceMs: 500,
   });
@@ -200,18 +206,30 @@ export const EmployeesPage = () => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Действия</DropdownMenuLabel>
                       <DropdownMenuItem
-                        onClick={() => handleViewEmployee(employee)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleViewEmployee(employee);
+                        }}
                       >
                         Просмотр профиля
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleEditEmployee(employee)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleEditEmployee(employee);
+                        }}
                       >
                         Редактировать сотрудника
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600"
-                        onClick={() => handleDeleteEmployee(employee)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteEmployee(employee);
+                        }}
                       >
                         Удалить сотрудника
                       </DropdownMenuItem>

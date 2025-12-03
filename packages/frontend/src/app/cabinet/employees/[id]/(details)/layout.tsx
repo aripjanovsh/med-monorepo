@@ -99,52 +99,34 @@ export default function EmployeeDetailLayout({
       <LayoutHeader
         backHref={ROUTES.EMPLOYEES}
         backTitle="Сотрудники"
-        left={
-          <div className="flex items-center gap-3">
-            <UserAvatar
-              avatarId={employee.avatarId}
-              name={getEmployeeFullName(employee)}
-              className="size-10"
-              size={40}
-              fallbackClassName="text-lg"
-            />
-            <div className="flex flex-col">
-              <h2 className="text-lg font-gilroy font-bold leading-tight">
-                {getEmployeeFullName(employee)}
-              </h2>
-              <p className="text-xs text-muted-foreground leading-tight">
-                {getEmployeeTitle(employee)}
-              </p>
-            </div>
-          </div>
-        }
         right={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleEdit}>
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit />
               Редактировать
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Печать карточки сотрудника</DropdownMenuItem>
-                <DropdownMenuItem>Экспорт данных</DropdownMenuItem>
-                <DropdownMenuItem>Запланировать встречу</DropdownMenuItem>
-                <DropdownMenuItem>Оценка эффективности</DropdownMenuItem>
-                <Separator className="my-1" />
-                <DropdownMenuItem className="text-red-600">
-                  Деактивировать сотрудника
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         }
       />
-      <CabinetContent>
+      <CabinetContent className="space-y-6">
+        <div className="flex items-center gap-3">
+          <UserAvatar
+            avatarId={employee.avatarId}
+            name={getEmployeeFullName(employee)}
+            className="size-10"
+            size={40}
+            fallbackClassName="text-lg"
+          />
+          <div className="flex flex-col">
+            <h2 className="text-lg font-gilroy font-bold leading-tight">
+              {getEmployeeFullName(employee)}
+            </h2>
+            <p className="text-xs text-muted-foreground leading-tight">
+              {getEmployeeTitle(employee)}
+            </p>
+          </div>
+        </div>
+
         <DetailNavigation
           items={navItems}
           baseHref={url(ROUTES.EMPLOYEE_DETAIL, { id })}

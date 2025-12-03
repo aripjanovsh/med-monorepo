@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { LayoutHeader } from "@/components/layouts/cabinet";
+import { LayoutHeader, CabinetContent } from "@/components/layouts/cabinet";
 import PageHeader from "@/components/layouts/page-header";
 import { PageEmployeeForm } from "@/features/employees/components/page-employee-form";
 import { useGetEmployeeQuery } from "@/features/employees";
@@ -41,12 +41,14 @@ export default function EditEmployeePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <>
       <LayoutHeader backHref={ROUTES.EMPLOYEES} backTitle="Сотрудники" />
-      <PageHeader
-        title={`Редактирование: ${employee.firstName} ${employee.lastName}`}
-      />
-      <PageEmployeeForm key={employee.id} employee={employee} mode="edit" />
-    </div>
+      <CabinetContent className="max-w-4xl mx-auto space-y-6">
+        <PageHeader
+          title={`Редактирование: ${employee.firstName} ${employee.lastName}`}
+        />
+        <PageEmployeeForm key={employee.id} employee={employee} mode="edit" />
+      </CabinetContent>
+    </>
   );
 }
