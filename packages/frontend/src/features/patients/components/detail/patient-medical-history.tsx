@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,739 +10,761 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 import {
   FileText,
-  Plus,
   Calendar,
   User,
   AlertTriangle,
-  Heart,
   Pill,
   Activity,
-  Clock,
   TrendingUp,
-  Shield,
   Stethoscope,
-  Filter,
-  Download,
-  Eye,
+  ChevronDown,
+  ChevronUp,
+  Bot,
+  ClipboardList,
 } from "lucide-react";
 import { formatDate } from "@/lib/date.utils";
+import { useGetPatientHistoryQuery } from "../../patient.api";
+import type {
+  HistoryVisitDto,
+  PatientParameterHistoryDto,
+  VisitStatusDto,
+} from "../../patient.dto";
 
-interface PatientMedicalHistoryProps {
+type PatientMedicalHistoryProps = {
   patientId: string;
-}
+};
 
-// Расширенные mock данные для демонстрации
-const mockMedicalHistory: any[] = [
-  {
-    id: "1",
-    date: "2024-06-28",
-    type: "DIAGNOSIS",
-    title: "Гипертония I степени",
-    description:
-      "Артериальное давление 150/90 мм рт.ст. Рекомендованы регулярные измерения и коррекция образа жизни. Назначена диета с ограничением соли.",
-    doctor: {
-      firstName: "Иван",
-      lastName: "Петров",
-      specialty: "Кардиолог",
-    },
-    severity: "MEDIUM",
-    status: "ACTIVE",
-    attachments: 2,
+// Helper functions
+const getVisitStatusVariant = (status: VisitStatusDto) => {
+  switch (status) {
+    case "COMPLETED":
+      return "secondary" as const;
+    case "IN_PROGRESS":
+      return "default" as const;
+    case "WAITING":
+      return "outline" as const;
+    case "CANCELED":
+      return "destructive" as const;
+    default:
+      return "outline" as const;
+  }
+};
+
+const getVisitStatusLabel = (status: VisitStatusDto) => {
+  switch (status) {
+    case "COMPLETED":
+      return "Завершён";
+    case "IN_PROGRESS":
+      return "В процессе";
+    case "WAITING":
+      return "Ожидание";
+    case "CANCELED":
+      return "Отменён";
+    default:
+      return status;
+  }
+};
+
+const getSeverityVariant = (severity?: string) => {
+  switch (severity) {
+    case "HIGH":
+    case "SEVERE":
+      return "destructive" as const;
+    case "MEDIUM":
+    case "MODERATE":
+      return "default" as const;
+    case "LOW":
+    case "MILD":
+      return "secondary" as const;
+    default:
+      return "outline" as const;
+  }
+};
+
+const getSeverityLabel = (severity?: string) => {
+  switch (severity) {
+    case "HIGH":
+    case "SEVERE":
+      return "Тяжёлая";
+    case "MEDIUM":
+    case "MODERATE":
+      return "Умеренная";
+    case "LOW":
+    case "MILD":
+      return "Лёгкая";
+    default:
+      return severity;
+  }
+};
+
+// Parameter labels and colors
+const PARAMETER_CONFIG: Record<
+  string,
+  { label: string; color: string; unit?: string }
+> = {
+  BP_SYS: {
+    label: "АД (сист.)",
+    color: "var(--chart-1)",
+    unit: "мм рт.ст.",
   },
-  {
-    id: "2",
-    date: "2024-06-28",
-    type: "MEDICATION",
-    title: "Эналаприл 10 мг",
-    description:
-      "По 1 таблетке 2 раза в день утром и вечером. Контроль АД через 2 недели. Избегать одновременного приема с калийсберегающими диуретиками.",
-    doctor: {
-      firstName: "Иван",
-      lastName: "Петров",
-      specialty: "Кардиолог",
-    },
-    status: "ACTIVE",
-    attachments: 1,
+  BP_DIA: {
+    label: "АД (диаст.)",
+    color: "var(--chart-2)",
+    unit: "мм рт.ст.",
   },
-  {
-    id: "3",
-    date: "2024-06-15",
-    type: "ALLERGY",
-    title: "Аллергия на пенициллин",
-    description:
-      "Кожная сыпь, зуд. Избегать препаратов пенициллинового ряда. В медицинской карте отмечена красным цветом.",
-    doctor: {
-      firstName: "Мария",
-      lastName: "Сидорова",
-      specialty: "Аллерголог",
-    },
-    severity: "HIGH",
-    status: "ACTIVE",
-    attachments: 1,
-  },
-  {
-    id: "4",
-    date: "2024-06-15",
-    type: "TEST",
-    title: "ЭКГ обследование",
-    description:
-      "ЭКГ в норме. Ритм синусовый, ЧСС 72 уд/мин. Патологических изменений не выявлено. Сегмент ST без изменений.",
-    doctor: {
-      firstName: "Мария",
-      lastName: "Сидорова",
-      specialty: "Кардиолог",
-    },
-    status: "COMPLETED",
-    attachments: 3,
-  },
-  {
-    id: "5",
-    date: "2024-06-10",
-    type: "TREATMENT",
-    title: "Физиотерапия: магнитотерапия",
-    description:
-      "Курс 10 процедур. Назначено для улучшения кровообращения и снижения давления. Процедуры проводятся 2 раза в неделю.",
-    doctor: {
-      firstName: "Елена",
-      lastName: "Козлова",
-      specialty: "Физиотерапевт",
-    },
-    status: "COMPLETED",
-    attachments: 0,
-  },
-  {
-    id: "6",
-    date: "2024-06-01",
-    type: "VACCINATION",
-    title: "Гриппол Quadrivalent",
-    description:
-      "Вакцинация против гриппа. Переносимость хорошая, побочных реакций нет. Следующая вакцинация через 12 месяцев.",
-    doctor: {
-      firstName: "Анна",
-      lastName: "Новикова",
-      specialty: "Терапевт",
-    },
-    status: "COMPLETED",
-    attachments: 1,
-  },
-  {
-    id: "7",
-    date: "2024-05-20",
-    type: "NOTE",
-    title: "Профилактический осмотр",
-    description:
-      "Общее состояние удовлетворительное. Жалоб нет. Рекомендован контроль через 6 месяцев. Продолжать прием эналаприла.",
-    doctor: {
-      firstName: "Иван",
-      lastName: "Петров",
-      specialty: "Кардиолог",
-    },
-    attachments: 0,
-  },
-  {
-    id: "8",
-    date: "2024-05-15",
-    type: "TEST",
-    title: "Общий анализ крови",
-    description:
-      "Гемоглобин 145 г/л, эритроциты 4.5 млн/мкл, лейкоциты 6.2 тыс/мкл. Показатели в пределах нормы.",
-    doctor: {
-      firstName: "Ольга",
-      lastName: "Морозова",
-      specialty: "Лаборант",
-    },
-    status: "COMPLETED",
-    attachments: 2,
-  },
-];
+  PULSE: { label: "Пульс", color: "var(--chart-3)", unit: "уд/мин" },
+  TEMP: { label: "Температура", color: "var(--chart-4)", unit: "°C" },
+  WEIGHT: { label: "Вес", color: "var(--chart-5)", unit: "кг" },
+  HEIGHT: { label: "Рост", color: "hsl(200, 70%, 50%)", unit: "см" },
+  HGB: { label: "Гемоглобин", color: "hsl(0, 70%, 50%)", unit: "г/л" },
+  RBC: { label: "Эритроциты", color: "hsl(30, 70%, 50%)", unit: "x10^12/л" },
+  WBC: { label: "Лейкоциты", color: "hsl(60, 70%, 50%)", unit: "x10^9/л" },
+  PLT: { label: "Тромбоциты", color: "hsl(270, 70%, 50%)", unit: "x10^9/л" },
+  ESR: { label: "СОЭ", color: "hsl(300, 70%, 50%)", unit: "мм/ч" },
+};
+
+const getChartConfig = (visibleParams: string[]): ChartConfig => {
+  const config: ChartConfig = {};
+  for (const code of visibleParams) {
+    const paramConfig = PARAMETER_CONFIG[code];
+    if (paramConfig) {
+      config[code] = {
+        label: paramConfig.label,
+        color: paramConfig.color,
+      };
+    }
+  }
+  return config;
+};
+
+// Group parameters by code for charting
+const groupParametersByCode = (parameters: PatientParameterHistoryDto[]) => {
+  const grouped: Record<string, PatientParameterHistoryDto[]> = {};
+
+  for (const param of parameters) {
+    if (!grouped[param.parameterCode]) {
+      grouped[param.parameterCode] = [];
+    }
+    grouped[param.parameterCode].push(param);
+  }
+
+  // Sort each group by date (oldest first for chart)
+  for (const code of Object.keys(grouped)) {
+    grouped[code].sort(
+      (a, b) =>
+        new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime()
+    );
+  }
+
+  return grouped;
+};
+
+// Visit Card Component
+const VisitCard = ({ visit }: { visit: HistoryVisitDto }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const doctorName = [
+    visit.doctor.lastName,
+    visit.doctor.firstName,
+    visit.doctor.middleName,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="border rounded-lg overflow-hidden">
+        <CollapsibleTrigger asChild>
+          <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant={getVisitStatusVariant(visit.status)}>
+                    {getVisitStatusLabel(visit.status)}
+                  </Badge>
+                  {visit.diagnosis && (
+                    <Badge variant="outline" className="text-xs">
+                      {visit.diagnosis}
+                    </Badge>
+                  )}
+                </div>
+
+                {visit.complaint && (
+                  <p className="text-sm mb-2">
+                    <span className="font-medium">Жалобы:</span>{" "}
+                    {visit.complaint}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(visit.visitDate)}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Stethoscope className="h-3 w-3" />
+                    {doctorName}
+                    {visit.doctor.specialty && ` (${visit.doctor.specialty})`}
+                  </div>
+                </div>
+              </div>
+
+              <Button variant="ghost" size="sm">
+                {isOpen ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="border-t p-4 space-y-4 bg-muted/30">
+            {/* Anamnesis */}
+            {visit.anamnesis && (
+              <div>
+                <h5 className="text-sm font-medium mb-1">Анамнез</h5>
+                <p className="text-sm text-muted-foreground">
+                  {visit.anamnesis}
+                </p>
+              </div>
+            )}
+
+            {/* Diagnosis */}
+            {visit.diagnosis && (
+              <div>
+                <h5 className="text-sm font-medium mb-1">Диагноз</h5>
+                <p className="text-sm">{visit.diagnosis}</p>
+              </div>
+            )}
+
+            {/* Conclusion */}
+            {visit.conclusion && (
+              <div>
+                <h5 className="text-sm font-medium mb-1">Заключение</h5>
+                <p className="text-sm text-muted-foreground">
+                  {visit.conclusion}
+                </p>
+              </div>
+            )}
+
+            {/* AI Summary */}
+            {visit.aiSummary && (
+              <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
+                <h5 className="text-sm font-medium mb-1 flex items-center gap-2">
+                  <Bot className="h-4 w-4 text-blue-600" />
+                  AI Резюме
+                </h5>
+                <p className="text-sm text-muted-foreground">
+                  {visit.aiSummary}
+                </p>
+              </div>
+            )}
+
+            {/* Prescriptions */}
+            {visit.prescriptions.length > 0 && (
+              <div>
+                <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <Pill className="h-4 w-4" />
+                  Назначения ({visit.prescriptions.length})
+                </h5>
+                <div className="space-y-2">
+                  {visit.prescriptions.map((p) => (
+                    <div
+                      key={p.id}
+                      className="text-sm p-2 bg-background rounded border"
+                    >
+                      <span className="font-medium">{p.name}</span>
+                      {p.dosage && <span className="ml-2">{p.dosage}</span>}
+                      {p.frequency && (
+                        <span className="ml-2 text-muted-foreground">
+                          — {p.frequency}
+                        </span>
+                      )}
+                      {p.duration && (
+                        <span className="ml-2 text-muted-foreground">
+                          ({p.duration})
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Service Orders */}
+            {visit.serviceOrders.length > 0 && (
+              <div>
+                <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4" />
+                  Направления ({visit.serviceOrders.length})
+                </h5>
+                <div className="space-y-2">
+                  {visit.serviceOrders.map((so) => (
+                    <div
+                      key={so.id}
+                      className="text-sm p-2 bg-background rounded border flex justify-between"
+                    >
+                      <span>{so.serviceName}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {so.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {visit.notes && (
+              <div>
+                <h5 className="text-sm font-medium mb-1">Заметки</h5>
+                <p className="text-sm text-muted-foreground">{visit.notes}</p>
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
+  );
+};
+
+// Combined Parameters Chart Component
+const CombinedParametersChart = ({
+  groupedParameters,
+}: {
+  groupedParameters: Record<string, PatientParameterHistoryDto[]>;
+}) => {
+  const availableParams = Object.keys(groupedParameters);
+  const [visibleParams, setVisibleParams] = useState<string[]>(availableParams);
+
+  // Merge all data into a single dataset by date
+  const chartData = useMemo(() => {
+    const dataByDate: Record<string, Record<string, number | string>> = {};
+
+    for (const [code, params] of Object.entries(groupedParameters)) {
+      for (const param of params) {
+        const dateKey = formatDate(param.measuredAt, "dd.MM.yy");
+        if (!dataByDate[dateKey]) {
+          dataByDate[dateKey] = {
+            date: dateKey,
+            fullDate: formatDate(param.measuredAt),
+          };
+        }
+        if (param.valueNumeric !== undefined) {
+          dataByDate[dateKey][code] = param.valueNumeric;
+        }
+      }
+    }
+
+    return Object.values(dataByDate).sort((a, b) => {
+      const dateA = a.fullDate as string;
+      const dateB = b.fullDate as string;
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
+    });
+  }, [groupedParameters]);
+
+  const toggleParam = (code: string) => {
+    setVisibleParams((prev) =>
+      prev.includes(code) ? prev.filter((p) => p !== code) : [...prev, code]
+    );
+  };
+
+  const chartConfig = useMemo(
+    () => getChartConfig(visibleParams),
+    [visibleParams]
+  );
+
+  if (availableParams.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base flex items-center gap-2">
+          <TrendingUp className="h-5 w-5" />
+          Динамика показателей
+        </CardTitle>
+        <CardDescription>
+          Нажмите на показатель чтобы скрыть/показать
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Toggle buttons */}
+        <div className="flex flex-wrap gap-2">
+          {availableParams.map((code) => {
+            const config = PARAMETER_CONFIG[code];
+            const isVisible = visibleParams.includes(code);
+            return (
+              <Button
+                key={code}
+                variant={isVisible ? "default" : "outline"}
+                size="sm"
+                className="text-xs h-7"
+                style={{
+                  backgroundColor: isVisible ? config?.color : undefined,
+                  borderColor: config?.color,
+                }}
+                onClick={() => toggleParam(code)}
+              >
+                {config?.label ?? code}
+                {config?.unit && (
+                  <span className="ml-1 opacity-70">({config.unit})</span>
+                )}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Chart */}
+        {visibleParams.length > 0 && (
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                width={50}
+              />
+              <ChartTooltip
+                content={<ChartTooltipContent />}
+                labelFormatter={(value, payload) => {
+                  return payload?.[0]?.payload?.fullDate ?? value;
+                }}
+              />
+              {visibleParams.map((code) => {
+                const config = PARAMETER_CONFIG[code];
+                return (
+                  <Line
+                    key={code}
+                    type="monotone"
+                    dataKey={code}
+                    name={config?.label ?? code}
+                    stroke={config?.color ?? "hsl(var(--chart-1))"}
+                    strokeWidth={2}
+                    dot={{ r: 2 }}
+                    activeDot={{ r: 4 }}
+                    connectNulls
+                  />
+                );
+              })}
+            </LineChart>
+          </ChartContainer>
+        )}
+
+        {visibleParams.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <TrendingUp className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>Выберите показатели для отображения</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 export function PatientMedicalHistory({
   patientId,
 }: PatientMedicalHistoryProps) {
-  const getRecordTypeIcon = (type: string) => {
-    switch (type) {
-      case "DIAGNOSIS":
-        return <Activity className="h-4 w-4" />;
-      case "TREATMENT":
-        return <Heart className="h-4 w-4" />;
-      case "ALLERGY":
-        return <AlertTriangle className="h-4 w-4" />;
-      case "MEDICATION":
-        return <Pill className="h-4 w-4" />;
-      case "NOTE":
-        return <FileText className="h-4 w-4" />;
-      case "TEST":
-        return <Shield className="h-4 w-4" />;
-      case "VACCINATION":
-        return <Shield className="h-4 w-4" />;
-      default:
-        return <FileText className="h-4 w-4" />;
-    }
-  };
+  const { data, isLoading, error } = useGetPatientHistoryQuery({
+    id: patientId,
+  });
+  const [showAllVisits, setShowAllVisits] = useState(false);
 
-  const getRecordTypeLabel = (type: string) => {
-    switch (type) {
-      case "DIAGNOSIS":
-        return "Диагноз";
-      case "TREATMENT":
-        return "Лечение";
-      case "ALLERGY":
-        return "Аллергия";
-      case "MEDICATION":
-        return "Препарат";
-      case "NOTE":
-        return "Заметка";
-      case "TEST":
-        return "Анализ";
-      case "VACCINATION":
-        return "Вакцина";
-      default:
-        return type;
-    }
-  };
-
-  const getRecordTypeVariant = (type: string) => {
-    switch (type) {
-      case "DIAGNOSIS":
-        return "default" as const;
-      case "TREATMENT":
-        return "secondary" as const;
-      case "ALLERGY":
-        return "destructive" as const;
-      case "MEDICATION":
-        return "outline" as const;
-      case "NOTE":
-        return "outline" as const;
-      case "TEST":
-        return "secondary" as const;
-      case "VACCINATION":
-        return "default" as const;
-      default:
-        return "outline" as const;
-    }
-  };
-
-  const getSeverityVariant = (severity?: string) => {
-    switch (severity) {
-      case "HIGH":
-        return "destructive" as const;
-      case "MEDIUM":
-        return "default" as const;
-      case "LOW":
-        return "secondary" as const;
-      default:
-        return undefined;
-    }
-  };
-
-  const getSeverityLabel = (severity?: string) => {
-    switch (severity) {
-      case "HIGH":
-        return "Высокая";
-      case "MEDIUM":
-        return "Средняя";
-      case "LOW":
-        return "Низкая";
-      default:
-        return undefined;
-    }
-  };
-
-  const getStatusVariant = (status?: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "default" as const;
-      case "COMPLETED":
-        return "secondary" as const;
-      case "CANCELLED":
-        return "destructive" as const;
-      default:
-        return "outline" as const;
-    }
-  };
-
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "Активно";
-      case "COMPLETED":
-        return "Завершено";
-      case "CANCELLED":
-        return "Отменено";
-      default:
-        return status;
-    }
-  };
-
-  // Группируем записи по типу для быстрого доступа
-  const allergies = mockMedicalHistory.filter(
-    (record) => record.type === "ALLERGY",
-  );
-  const medications = mockMedicalHistory.filter(
-    (record) => record.type === "MEDICATION" && record.status === "ACTIVE",
-  );
-  const diagnoses = mockMedicalHistory.filter(
-    (record) => record.type === "DIAGNOSIS" && record.status === "ACTIVE",
-  );
-  const recentTests = mockMedicalHistory
-    .filter((record) => record.type === "TEST")
-    .slice(0, 3);
-
-  // Сортируем по дате (новые сверху)
-  const sortedHistory = [...mockMedicalHistory].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-
-  // Статистика
-  const stats = {
-    total: mockMedicalHistory.length,
-    active: mockMedicalHistory.filter((r) => r.status === "ACTIVE").length,
-    highSeverity: mockMedicalHistory.filter((r) => r.severity === "HIGH")
-      .length,
-    lastUpdate: sortedHistory[0]?.date || null,
-    attachments: mockMedicalHistory.reduce(
-      (sum, r) => sum + (r.attachments || 0),
-      0,
-    ),
-  };
-
-  const getDaysSinceLastUpdate = () => {
-    if (!stats.lastUpdate) return null;
-    const days = Math.floor(
-      (Date.now() - new Date(stats.lastUpdate).getTime()) /
-        (1000 * 60 * 60 * 24),
+  // Group parameters for charts
+  const groupedParameters = useMemo(() => {
+    if (!data?.parameters) return {};
+    return groupParametersByCode(
+      data.parameters.filter((p) => p.valueNumeric !== undefined)
     );
-    return days;
-  };
+  }, [data?.parameters]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <p>Не удалось загрузить историю пациента</p>
+      </div>
+    );
+  }
+
+  const { visits, allergies, diagnoses, activeMedications, stats } = data;
+  const visitsToShow = showAllVisits ? visits : visits.slice(0, 5);
 
   return (
     <div className="space-y-6">
-      {/* Заголовок и действия */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-semibold">Медицинская карта</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Последнее обновление:{" "}
-            {stats.lastUpdate ? formatDate(stats.lastUpdate) : "Нет данных"}
-            {getDaysSinceLastUpdate() !== null && (
-              <span className="ml-2">
-                ({getDaysSinceLastUpdate()}{" "}
-                {getDaysSinceLastUpdate() === 1
-                  ? "день"
-                  : getDaysSinceLastUpdate()! < 5
-                    ? "дня"
-                    : "дней"}{" "}
-                назад)
-              </span>
-            )}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Экспорт
-          </Button>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Фильтр
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Добавить запись
-          </Button>
-        </div>
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-semibold">Медицинская карта</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          {stats.lastVisitDate
+            ? `Последний визит: ${formatDate(stats.lastVisitDate)}`
+            : "Нет визитов"}
+        </p>
       </div>
 
-      {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Всего записей
-                </p>
-                <p className="text-2xl font-bold">{stats.total}</p>
-                <p className="text-xs text-green-600 mt-1">
-                  {stats.active} активных
+                <p className="text-sm text-muted-foreground">Визитов</p>
+                <p className="text-2xl font-bold">{stats.totalVisits}</p>
+                <p className="text-xs text-green-600">
+                  {stats.completedVisits} завершено
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
+              <FileText className="h-8 w-8 text-blue-500 opacity-50" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Активные диагнозы
-                </p>
-                <p className="text-2xl font-bold">{diagnoses.length}</p>
-                <p className="text-xs text-orange-600 mt-1">
-                  {stats.highSeverity} высокой важности
-                </p>
+                <p className="text-sm text-muted-foreground">Диагнозов</p>
+                <p className="text-2xl font-bold">{stats.totalDiagnoses}</p>
               </div>
-              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-                <Activity className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              </div>
+              <Activity className="h-8 w-8 text-orange-500 opacity-50" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Текущие препараты
-                </p>
-                <p className="text-2xl font-bold">{medications.length}</p>
-                <p className="text-xs text-blue-600 mt-1">
-                  {allergies.length} аллергий
-                </p>
+                <p className="text-sm text-muted-foreground">Препаратов</p>
+                <p className="text-2xl font-bold">{stats.activeMedications}</p>
+                <p className="text-xs text-muted-foreground">активных</p>
               </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-                <Pill className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
+              <Pill className="h-8 w-8 text-green-500 opacity-50" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Вложения
-                </p>
-                <p className="text-2xl font-bold">{stats.attachments}</p>
-                <p className="text-xs text-purple-600 mt-1">
-                  Документы и анализы
-                </p>
+                <p className="text-sm text-muted-foreground">Аллергий</p>
+                <p className="text-2xl font-bold">{stats.totalAllergies}</p>
               </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-                <Eye className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
+              <AlertTriangle className="h-8 w-8 text-red-500 opacity-50" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Критически важная информация */}
+      {/* Critical Info: Allergies, Medications, Diagnoses */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Аллергии - всегда на первом месте */}
+        {/* Allergies */}
         <Card className="border-red-200 dark:border-red-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2 text-red-700 dark:text-red-400">
-              <AlertTriangle className="h-5 w-5" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-red-700 dark:text-red-400">
+              <AlertTriangle className="h-4 w-4" />
               Аллергии
               <Badge variant="destructive" className="ml-auto">
                 {allergies.length}
               </Badge>
             </CardTitle>
-            <CardDescription className="text-xs">
-              Критически важная информация
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {allergies.length > 0 ? (
               allergies.map((allergy) => (
                 <div
                   key={allergy.id}
-                  className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border-l-4 border-red-500"
+                  className="p-2 bg-red-50 dark:bg-red-950/20 rounded border-l-4 border-red-500"
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-medium text-sm">{allergy.title}</div>
-                    {allergy.attachments && (
-                      <Badge variant="outline" className="text-xs">
-                        {allergy.attachments} файл
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-sm">
+                      {allergy.substance}
+                    </span>
+                    {allergy.severity && (
+                      <Badge
+                        variant={getSeverityVariant(allergy.severity)}
+                        className="text-xs"
+                      >
+                        {getSeverityLabel(allergy.severity)}
                       </Badge>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {allergy.description}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <User className="h-3 w-3" />
-                    {allergy.doctor.firstName} {allergy.doctor.lastName}
-                    <span>•</span>
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(allergy.date)}
-                  </div>
+                  {allergy.reaction && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {allergy.reaction}
+                    </p>
+                  )}
                 </div>
               ))
             ) : (
-              <div className="text-sm text-muted-foreground text-center py-4">
-                <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm text-muted-foreground text-center py-4">
                 Нет известных аллергий
-              </div>
+              </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Текущие препараты */}
+        {/* Active Medications */}
         <Card className="border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2 text-blue-700 dark:text-blue-400">
-              <Pill className="h-5 w-5" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              <Pill className="h-4 w-4" />
               Препараты
               <Badge variant="outline" className="ml-auto">
-                {medications.length}
+                {activeMedications.length}
               </Badge>
             </CardTitle>
             <CardDescription className="text-xs">
-              Активные назначения
+              За последние 30 дней
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {medications.length > 0 ? (
-              medications.map((medication) => (
+            {activeMedications.length > 0 ? (
+              activeMedications.slice(0, 5).map((med) => (
                 <div
-                  key={medication.id}
-                  className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border-l-4 border-blue-500"
+                  key={med.id}
+                  className="p-2 bg-blue-50 dark:bg-blue-950/20 rounded border-l-4 border-blue-500"
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-medium text-sm">
-                      {medication.title}
-                    </div>
-                    {medication.attachments && (
-                      <Badge variant="outline" className="text-xs">
-                        {medication.attachments} файл
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {medication.description}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <User className="h-3 w-3" />
-                    {medication.doctor.firstName} {medication.doctor.lastName}
-                    <span>•</span>
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(medication.date)}
-                  </div>
+                  <div className="font-medium text-sm">{med.name}</div>
+                  {med.dosage && (
+                    <p className="text-xs text-muted-foreground">
+                      {med.dosage} {med.frequency && `— ${med.frequency}`}
+                    </p>
+                  )}
                 </div>
               ))
             ) : (
-              <div className="text-sm text-muted-foreground text-center py-4">
-                <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                Нет назначенных препаратов
-              </div>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Нет активных назначений
+              </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Активные диагнозы */}
+        {/* Diagnoses */}
         <Card className="border-green-200 dark:border-green-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2 text-green-700 dark:text-green-400">
-              <Activity className="h-5 w-5" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-green-700 dark:text-green-400">
+              <Activity className="h-4 w-4" />
               Диагнозы
               <Badge variant="secondary" className="ml-auto">
                 {diagnoses.length}
               </Badge>
             </CardTitle>
-            <CardDescription className="text-xs">
-              Текущие состояния
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {diagnoses.length > 0 ? (
-              diagnoses.map((diagnosis) => (
+              diagnoses.slice(0, 5).map((d, i) => (
                 <div
-                  key={diagnosis.id}
-                  className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500"
+                  key={`${d.visitId}-${i}`}
+                  className="p-2 bg-green-50 dark:bg-green-950/20 rounded border-l-4 border-green-500"
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-medium text-sm">{diagnosis.title}</div>
-                    <div className="flex gap-1">
-                      {diagnosis.severity && (
-                        <Badge
-                          variant={getSeverityVariant(diagnosis.severity)}
-                          className="text-xs"
-                        >
-                          {getSeverityLabel(diagnosis.severity)}
-                        </Badge>
-                      )}
-                      {diagnosis.attachments && (
-                        <Badge variant="outline" className="text-xs">
-                          {diagnosis.attachments}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {diagnosis.description}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Stethoscope className="h-3 w-3" />
-                    {diagnosis.doctor.specialty}
-                    <span>•</span>
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(diagnosis.date)}
-                  </div>
+                  <div className="font-medium text-sm">{d.diagnosis}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(d.visitDate)} — {d.doctorName}
+                  </p>
                 </div>
               ))
             ) : (
-              <div className="text-sm text-muted-foreground text-center py-4">
-                <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                Нет установленных диагнозов
-              </div>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Нет диагнозов
+              </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Последние анализы и исследования */}
-      {recentTests.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-purple-500" />
-              Последние анализы и исследования
-            </CardTitle>
-            <CardDescription>
-              Результаты обследований за последний месяц
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recentTests.map((test) => (
-                <div
-                  key={test.id}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="font-medium text-sm">{test.title}</div>
-                    <Badge
-                      variant={getStatusVariant(test.status)}
-                      className="text-xs"
-                    >
-                      {getStatusLabel(test.status)}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {test.description}
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {test.doctor.firstName} {test.doctor.lastName}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(test.date)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Parameter Charts */}
+      {Object.keys(groupedParameters).length > 0 && (
+        <CombinedParametersChart groupedParameters={groupedParameters} />
       )}
 
-      {/* Полная история */}
+      {/* Visit History */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Хронология записей ({sortedHistory.length})
-            </CardTitle>
-            <Button variant="outline" size="sm">
-              <Eye className="h-4 w-4 mr-2" />
-              Показать все
-            </Button>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            История визитов ({visits.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          {sortedHistory.length > 0 ? (
-            <div className="space-y-4">
-              {sortedHistory.slice(0, 10).map((record) => (
-                <div
-                  key={record.id}
-                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="mt-1">
-                        {getRecordTypeIcon(record.type)}
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={getRecordTypeVariant(record.type)}>
-                            {getRecordTypeLabel(record.type)}
-                          </Badge>
-                          {record.severity && (
-                            <Badge
-                              variant={getSeverityVariant(record.severity)}
-                              className="text-xs"
-                            >
-                              {getSeverityLabel(record.severity)}
-                            </Badge>
-                          )}
-                          {record.status && (
-                            <Badge
-                              variant={getStatusVariant(record.status)}
-                              className="text-xs"
-                            >
-                              {getStatusLabel(record.status)}
-                            </Badge>
-                          )}
-                          {record.attachments && record.attachments > 0 && (
-                            <Badge variant="outline" className="text-xs">
-                              📎 {record.attachments}
-                            </Badge>
-                          )}
-                        </div>
-
-                        <h4 className="font-medium mb-1">{record.title}</h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {record.description}
-                        </p>
-
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(record.date)}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {record.doctor.firstName} {record.doctor.lastName}
-                          </div>
-                          {record.doctor.specialty && (
-                            <div className="flex items-center gap-1">
-                              <Stethoscope className="h-3 w-3" />
-                              {record.doctor.specialty}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <CardContent className="space-y-3">
+          {visitsToShow.length > 0 ? (
+            <>
+              {visitsToShow.map((visit) => (
+                <VisitCard key={visit.id} visit={visit} />
               ))}
 
-              {sortedHistory.length > 10 && (
-                <div className="text-center">
-                  <Button variant="outline" className="w-full">
-                    Показать еще {sortedHistory.length - 10} записей
-                    <TrendingUp className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
+              {visits.length > 5 && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowAllVisits(!showAllVisits)}
+                >
+                  {showAllVisits
+                    ? "Скрыть"
+                    : `Показать ещё ${visits.length - 5} визитов`}
+                  {showAllVisits ? (
+                    <ChevronUp className="h-4 w-4 ml-2" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  )}
+                </Button>
               )}
-            </div>
+            </>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Нет медицинских записей</p>
+              <p>Нет визитов</p>
             </div>
           )}
         </CardContent>

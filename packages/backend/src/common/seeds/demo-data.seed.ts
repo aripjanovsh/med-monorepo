@@ -42,6 +42,7 @@ type DemoDataResult = {
   invoices: number;
   payments: number;
   prescriptions: number;
+  patientDoctors: number;
   allergies: number;
   parameters: number;
 };
@@ -103,6 +104,26 @@ export class DemoDataSeed {
     const visits = await this.createVisits(organizationId, doctors, patients);
     console.log(`✅ Created ${visits.length} visits`);
 
+    // 9.1 Create extensive visit history for Хилола
+    const hilolaVisits = await this.createExtensiveVisitHistoryForHilola(
+      organizationId,
+      patients,
+      doctors
+    );
+    if (hilolaVisits > 0) {
+      visits.push(
+        ...(await this.prisma.visit.findMany({
+          where: {
+            patientId: patients.find(
+              (p) => p.firstName === "Хилола" && p.lastName === "Каландарова"
+            )?.id,
+          },
+          orderBy: { visitDate: "desc" },
+          take: hilolaVisits,
+        }))
+      );
+    }
+
     // 10. Create appointments (today and future)
     const appointments = await this.createAppointments(
       organizationId,
@@ -140,6 +161,10 @@ export class DemoDataSeed {
     const prescriptions = await this.createPrescriptions(visits, doctors);
     console.log(`✅ Created ${prescriptions} prescriptions`);
 
+    // 13.1. Create patient-doctor relationships based on visits
+    const patientDoctors = await this.createPatientDoctorRelationships(visits);
+    console.log(`✅ Created ${patientDoctors} patient-doctor relationships`);
+
     // 14. Create patient allergies
     const allergies = await this.createPatientAllergies(
       organizationId,
@@ -173,6 +198,7 @@ export class DemoDataSeed {
       invoices,
       payments,
       prescriptions,
+      patientDoctors,
       allergies,
       parameters,
     };
@@ -2290,6 +2316,17 @@ export class DemoDataSeed {
             visitTime
           );
 
+          // Get medical data for completed visits
+          const medicalData =
+            status === VisitStatus.COMPLETED
+              ? this.getRandomMedicalData()
+              : {
+                  complaint: null,
+                  anamnesis: null,
+                  diagnosis: null,
+                  conclusion: null,
+                };
+
           const visit = await this.prisma.visit.create({
             data: {
               visitId,
@@ -2298,6 +2335,10 @@ export class DemoDataSeed {
               type:
                 Math.random() > 0.9 ? VisitType.EMERGENCY : VisitType.STANDARD,
               notes: this.getRandomVisitNotes(),
+              complaint: medicalData.complaint,
+              anamnesis: medicalData.anamnesis,
+              diagnosis: medicalData.diagnosis,
+              conclusion: medicalData.conclusion,
               queuedAt,
               startedAt,
               completedAt,
@@ -2327,6 +2368,108 @@ export class DemoDataSeed {
       null,
     ];
     return notes[Math.floor(Math.random() * notes.length)];
+  }
+
+  private getRandomMedicalData(): {
+    complaint: string | null;
+    anamnesis: string | null;
+    diagnosis: string | null;
+    conclusion: string | null;
+  } {
+    const medicalCases = [
+      {
+        complaint:
+          "Головная боль, головокружение, повышенное артериальное давление",
+        anamnesis:
+          "Болеет около 3 лет. Периодически принимает гипотензивные препараты. Последнее ухудшение 2 дня назад.",
+        diagnosis: "I10 Эссенциальная (первичная) гипертензия",
+        conclusion:
+          "Рекомендовано: соблюдение диеты с ограничением соли, ежедневный контроль АД, приём эналаприла 10мг 2р/д. Повторный осмотр через 2 недели.",
+      },
+      {
+        complaint: "Боли в горле, кашель, повышение температуры до 38.2°C",
+        anamnesis:
+          "Заболел 3 дня назад после переохлаждения. Принимал парацетамол с временным эффектом.",
+        diagnosis: "J06.9 Острая инфекция верхних дыхательных путей",
+        conclusion:
+          "Назначено: постельный режим, обильное тёплое питьё, парацетамол 500мг при t>38.5°C, полоскание горла. Больничный лист на 5 дней.",
+      },
+      {
+        complaint: "Боли в эпигастральной области, изжога после еды",
+        anamnesis:
+          "Жалобы беспокоят около 2 месяцев. Связывает с нерегулярным питанием. Антациды принимал без эффекта.",
+        diagnosis: "K29.7 Гастрит неуточненный",
+        conclusion:
+          "Рекомендовано: ЭФГДС, диета стол №1, омепразол 20мг 2р/д за 30 мин до еды. Контроль через 2 недели.",
+      },
+      {
+        complaint: "Боли в пояснице с иррадиацией в левую ногу, онемение",
+        anamnesis:
+          "Боли беспокоят около недели после подъёма тяжести. Применял мази местно без эффекта.",
+        diagnosis: "M54.5 Боль внизу спины (люмбалгия)",
+        conclusion:
+          "Назначено: МРТ поясничного отдела, диклофенак 75мг в/м №5, мидокалм 150мг 2р/д, ограничение физических нагрузок.",
+      },
+      {
+        complaint: "Слабость, сухость во рту, частое мочеиспускание, жажда",
+        anamnesis:
+          "Жалобы появились около месяца назад. Отмечает похудание на 3 кг. Семейный анамнез: мать болеет СД 2 типа.",
+        diagnosis: "E11.9 Сахарный диабет 2 типа без осложнений",
+        conclusion:
+          "Контроль гликемии натощак, HbA1c. Диета с ограничением углеводов, метформин 500мг 2р/д с едой. Повторный осмотр через 1 месяц с результатами анализов.",
+      },
+      {
+        complaint: "Одышка при физической нагрузке, отёки на ногах к вечеру",
+        anamnesis:
+          "Страдает гипертонической болезнью 10 лет. Лечение нерегулярное. Ухудшение состояния последнюю неделю.",
+        diagnosis: "I50.9 Сердечная недостаточность неуточненная",
+        conclusion:
+          "ЭхоКГ, ЭКГ, БАК. Фуросемид 40мг утром, эналаприл 10мг 2р/д, ограничение жидкости до 1.5л/сут. Контроль веса ежедневно.",
+      },
+      {
+        complaint: "Насморк, заложенность носа, чихание, слезотечение",
+        anamnesis:
+          "Симптомы появляются ежегодно весной. Ранее не обследовался.",
+        diagnosis: "J30.1 Аллергический ринит, вызванный пыльцой растений",
+        conclusion:
+          "Аллергопробы, риноскопия. Цетиризин 10мг 1р/д, назонекс 2 впрыска 2р/д. Избегать контакта с аллергенами.",
+      },
+      {
+        complaint: "Боли в правом подреберье после приёма жирной пищи, тошнота",
+        anamnesis:
+          "Боли беспокоят периодически около года. Диету не соблюдает.",
+        diagnosis: "K80.2 Камни желчного пузыря без холецистита",
+        conclusion:
+          "УЗИ ОБП, БАК. Диета стол №5, урсосан 250мг 2р/д. Консультация хирурга при ухудшении.",
+      },
+      {
+        complaint: "Общая слабость, утомляемость, сонливость, выпадение волос",
+        anamnesis: "Жалобы около 3 месяцев. Связывает со стрессом на работе.",
+        diagnosis: "E03.9 Гипотиреоз неуточненный",
+        conclusion:
+          "ТТГ, Т4 свободный, УЗИ щитовидной железы. Левотироксин 50мкг утром натощак после получения результатов. Контроль ТТГ через 6 недель.",
+      },
+      {
+        complaint: "Боли в коленных суставах, утренняя скованность",
+        anamnesis:
+          "Боли беспокоят несколько лет, постепенно нарастают. Хуже в холодную погоду.",
+        diagnosis: "M17.9 Гонартроз неуточненный",
+        conclusion:
+          "Рентген коленных суставов. Хондропротекторы, НПВС местно, ЛФК, снижение веса. Консультация ортопеда.",
+      },
+    ];
+
+    // 80% chance to have medical data for completed visits
+    if (Math.random() > 0.8) {
+      return {
+        complaint: null,
+        anamnesis: null,
+        diagnosis: null,
+        conclusion: null,
+      };
+    }
+
+    return medicalCases[Math.floor(Math.random() * medicalCases.length)];
   }
 
   // =====================================
@@ -2535,7 +2678,7 @@ export class DemoDataSeed {
             paymentStatus: PaymentStatus.UNPAID,
             queueNumber: Math.floor(Math.random() * 10) + 1,
             queueStatus: QueueStatus.WAITING,
-            queuedAt: new Date(),
+            queuedAt: new Date(Date.now() - 2 * 60 * 60000), // 2 hours ago
             organizationId,
           },
         });
@@ -3006,6 +3149,338 @@ export class DemoDataSeed {
       }
     }
 
+    // Add extensive history for Каландарова Хилола Дилшодовна
+    count += await this.createExtensiveParameterHistoryForHilola(
+      organizationId,
+      patients,
+      doctors
+    );
+
+    return count;
+  }
+
+  // =====================================
+  // PATIENT-DOCTOR RELATIONSHIPS
+  // =====================================
+  private async createPatientDoctorRelationships(
+    visits: Visit[]
+  ): Promise<number> {
+    // Get unique patient-doctor pairs from visits
+    const pairs = new Map<string, { patientId: string; employeeId: string }>();
+
+    for (const visit of visits) {
+      const key = `${visit.patientId}-${visit.employeeId}`;
+      if (!pairs.has(key)) {
+        pairs.set(key, {
+          patientId: visit.patientId,
+          employeeId: visit.employeeId,
+        });
+      }
+    }
+
+    let count = 0;
+    for (const pair of pairs.values()) {
+      // Check if relationship already exists
+      const existing = await this.prisma.patientDoctor.findUnique({
+        where: {
+          patientId_employeeId: {
+            patientId: pair.patientId,
+            employeeId: pair.employeeId,
+          },
+        },
+      });
+
+      if (!existing) {
+        await this.prisma.patientDoctor.create({
+          data: {
+            patientId: pair.patientId,
+            employeeId: pair.employeeId,
+            isActive: true,
+          },
+        });
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  // Create extensive visit history for Хилола Каландарова
+  async createExtensiveVisitHistoryForHilola(
+    organizationId: string,
+    patients: Patient[],
+    doctors: Employee[]
+  ): Promise<number> {
+    // Find Хилола Каландарова
+    const hilola = patients.find(
+      (p) => p.firstName === "Хилола" && p.lastName === "Каландарова"
+    );
+    if (!hilola) {
+      console.log("⚠️  Patient Хилола Каландарова not found");
+      return 0;
+    }
+
+    // Check existing visits
+    const existingCount = await this.prisma.visit.count({
+      where: { patientId: hilola.id },
+    });
+    if (existingCount >= 10) {
+      console.log("⏭️  Хилола already has enough visits");
+      return 0;
+    }
+
+    const doctor = doctors[0];
+    if (!doctor) return 0;
+
+    let count = 0;
+    const now = new Date();
+
+    // Create visits for the last 12 months (monthly checkups for hypertension patient)
+    const hilolaVisits = [
+      {
+        monthsAgo: 11,
+        complaint:
+          "Головные боли, повышение артериального давления до 160/100 мм рт.ст.",
+        anamnesis:
+          "Обратилась впервые. Головные боли беспокоят около 2 месяцев. Ранее АД не контролировала.",
+        diagnosis: "I10 Эссенциальная (первичная) гипертензия",
+        conclusion:
+          "Назначено: эналаприл 10мг 2р/д, диета с ограничением соли, дневник АД. Контроль через 2 недели.",
+      },
+      {
+        monthsAgo: 10,
+        complaint:
+          "Контрольный визит. АД 150/95 мм рт.ст. Головные боли уменьшились.",
+        anamnesis: "Принимает эналаприл регулярно. Диету соблюдает частично.",
+        diagnosis: "I10 Эссенциальная (первичная) гипертензия",
+        conclusion:
+          "Увеличить дозу эналаприла до 20мг/д. Рекомендовано снижение веса. Повторный осмотр через месяц.",
+      },
+      {
+        monthsAgo: 8,
+        complaint:
+          "АД 145/90 мм рт.ст. Головных болей нет. Начала заниматься ходьбой.",
+        anamnesis: "Лечение принимает регулярно. Похудела на 1.5 кг.",
+        diagnosis: "I10 Эссенциальная (первичная) гипертензия, контролируемая",
+        conclusion: "Продолжить терапию. ОАК, БАК, ЭКГ. Осмотр через 2 месяца.",
+      },
+      {
+        monthsAgo: 6,
+        complaint: "Периодические головокружения, АД 140/88 мм рт.ст.",
+        anamnesis: "Терапию принимает. Похудела ещё на 1 кг. Анализы в норме.",
+        diagnosis: "I10 Эссенциальная (первичная) гипертензия",
+        conclusion:
+          "Добавить амлодипин 5мг утром. Контроль головокружений. Осмотр через месяц.",
+      },
+      {
+        monthsAgo: 5,
+        complaint:
+          "Головокружений нет. АД 135/85 мм рт.ст. Самочувствие хорошее.",
+        anamnesis:
+          "Принимает эналаприл 20мг + амлодипин 5мг. Активно занимается ходьбой.",
+        diagnosis: "I10 Эссенциальная гипертензия, хороший контроль",
+        conclusion: "Продолжить текущую терапию. Контроль через 2 месяца.",
+      },
+      {
+        monthsAgo: 3,
+        complaint: "Плановый осмотр. АД 130/82 мм рт.ст. Жалоб нет.",
+        anamnesis: "Стабильное состояние. Вес снизился на 3 кг за полгода.",
+        diagnosis: "I10 Эссенциальная гипертензия, целевое АД достигнуто",
+        conclusion:
+          "Продолжить терапию. Липидограмма, глюкоза крови. Осмотр через 3 месяца.",
+      },
+      {
+        monthsAgo: 1,
+        complaint:
+          "Контрольный визит. АД 128/80 мм рт.ст. Активный образ жизни.",
+        anamnesis: "Лечение продолжает. Вес стабильный. Анализы в норме.",
+        diagnosis: "I10 Эссенциальная гипертензия, компенсация",
+        conclusion:
+          "Терапию продолжить. Рекомендовано продолжать физическую активность. Следующий осмотр через 3 месяца.",
+      },
+    ];
+
+    for (const visitData of hilolaVisits) {
+      const visitDate = new Date(now);
+      visitDate.setMonth(visitDate.getMonth() - visitData.monthsAgo);
+      visitDate.setHours(10, 30, 0, 0);
+
+      const visitId = generateEntityIdSync(
+        ENTITY_PREFIXES.VISIT,
+        1000 + count,
+        visitDate
+      );
+
+      await this.prisma.visit.create({
+        data: {
+          visitId,
+          visitDate,
+          status: VisitStatus.COMPLETED,
+          type: VisitType.STANDARD,
+          complaint: visitData.complaint,
+          anamnesis: visitData.anamnesis,
+          diagnosis: visitData.diagnosis,
+          conclusion: visitData.conclusion,
+          queuedAt: visitDate,
+          startedAt: new Date(visitDate.getTime() + 10 * 60000),
+          completedAt: new Date(visitDate.getTime() + 35 * 60000),
+          waitingTimeMinutes: 10,
+          serviceTimeMinutes: 25,
+          organizationId,
+          patientId: hilola.id,
+          employeeId: doctor.id,
+        },
+      });
+      count++;
+    }
+
+    console.log(`✅ Created ${count} visits for Хилола Каландарова`);
+    return count;
+  }
+
+  // Create extensive parameter history for Хилола Каландарова
+  private async createExtensiveParameterHistoryForHilola(
+    organizationId: string,
+    patients: Patient[],
+    doctors: Employee[]
+  ): Promise<number> {
+    // Find Хилола Каландарова
+    const hilola = patients.find(
+      (p) => p.firstName === "Хилола" && p.lastName === "Каландарова"
+    );
+    if (!hilola) {
+      console.log(
+        "⚠️  Patient Хилола Каландарова not found, skipping extensive history"
+      );
+      return 0;
+    }
+
+    const doctor = doctors[0];
+    if (!doctor) return 0;
+
+    // Check if already has extensive data
+    const existingCount = await this.prisma.patientParameter.count({
+      where: { patientId: hilola.id },
+    });
+    if (existingCount > 30) {
+      console.log("⏭️  Хилола already has extensive parameter history");
+      return 0;
+    }
+
+    let count = 0;
+    const now = new Date();
+
+    // Generate 12 months of historical data (one measurement every 2 weeks)
+    for (let monthsAgo = 11; monthsAgo >= 0; monthsAgo--) {
+      for (const week of [0, 2]) {
+        const measureDate = new Date(now);
+        measureDate.setMonth(measureDate.getMonth() - monthsAgo);
+        measureDate.setDate(measureDate.getDate() - week * 7);
+
+        // Simulate a patient with mild hypertension improving over time
+        const progressFactor = (12 - monthsAgo) / 12; // 0 to 1 over the year
+
+        // Blood pressure gradually improving
+        const bpSys = Math.round(
+          145 - progressFactor * 15 + (Math.random() - 0.5) * 10
+        );
+        const bpDia = Math.round(
+          92 - progressFactor * 10 + (Math.random() - 0.5) * 6
+        );
+
+        // Pulse relatively stable
+        const pulse = Math.round(78 + (Math.random() - 0.5) * 12);
+
+        // Weight gradually decreasing (healthy lifestyle)
+        const weight =
+          Math.round(
+            (72 - progressFactor * 4 + (Math.random() - 0.5) * 1) * 10
+          ) / 10;
+
+        // Temperature normal
+        const temp = Math.round((36.5 + (Math.random() - 0.5) * 0.4) * 10) / 10;
+
+        const vitals = [
+          { code: "BP_SYS", value: bpSys, unit: "мм рт.ст." },
+          { code: "BP_DIA", value: bpDia, unit: "мм рт.ст." },
+          { code: "PULSE", value: pulse, unit: "уд/мин" },
+          { code: "WEIGHT", value: weight, unit: "кг" },
+          { code: "TEMP", value: temp, unit: "°C" },
+        ];
+
+        for (const vital of vitals) {
+          await this.prisma.patientParameter.create({
+            data: {
+              patientId: hilola.id,
+              parameterCode: vital.code,
+              valueNumeric: new Decimal(vital.value),
+              unit: vital.unit,
+              measuredAt: measureDate,
+              recordedById: doctor.id,
+              source: "MANUAL",
+              organizationId,
+            },
+          });
+          count++;
+        }
+
+        // Add lab results every 2 months
+        if (monthsAgo % 2 === 0 && week === 0) {
+          const labParams = [
+            {
+              code: "HGB",
+              value: Math.round(
+                125 + progressFactor * 10 + (Math.random() - 0.5) * 8
+              ),
+              unit: "г/л",
+            },
+            {
+              code: "RBC",
+              value:
+                Math.round((4.3 + (Math.random() - 0.5) * 0.4) * 100) / 100,
+              unit: "x10^12/л",
+            },
+            {
+              code: "WBC",
+              value: Math.round((6 + (Math.random() - 0.5) * 2) * 10) / 10,
+              unit: "x10^9/л",
+            },
+            {
+              code: "PLT",
+              value: Math.round(220 + (Math.random() - 0.5) * 40),
+              unit: "x10^9/л",
+            },
+            {
+              code: "ESR",
+              value: Math.round(
+                8 - progressFactor * 3 + (Math.random() - 0.5) * 4
+              ),
+              unit: "мм/ч",
+            },
+          ];
+
+          for (const param of labParams) {
+            await this.prisma.patientParameter.create({
+              data: {
+                patientId: hilola.id,
+                parameterCode: param.code,
+                valueNumeric: new Decimal(param.value),
+                unit: param.unit,
+                measuredAt: measureDate,
+                recordedById: doctor.id,
+                source: "LAB",
+                organizationId,
+              },
+            });
+            count++;
+          }
+        }
+      }
+    }
+
+    console.log(
+      `✅ Created ${count} extensive parameters for Хилола Каландарова`
+    );
     return count;
   }
 }

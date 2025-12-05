@@ -23,6 +23,10 @@ import { FindAllPatientDto } from "./dto/find-all-patient.dto";
 import { PatientByIdDto } from "./dto/patient-by-id.dto";
 import { UpdatePatientStatusDto } from "./dto/update-patient-status.dto";
 import {
+  PatientHistoryQueryDto,
+  PatientHistoryResponseDto,
+} from "./dto/patient-history.dto";
+import {
   RequirePermission,
   PermissionGuard,
 } from "../../common/guards/permission.guard";
@@ -62,6 +66,22 @@ export class PatientController {
   })
   getStats(@Query() query: FindAllPatientDto) {
     return this.patientService.getPatientStats(query.organizationId);
+  }
+
+  @Get(":id/history")
+  @RequirePermission({ resource: "patients", action: "READ" })
+  @ApiOperation({ summary: "Get patient medical history" })
+  @ApiResponse({
+    status: 200,
+    description: "Patient history retrieved successfully",
+    type: PatientHistoryResponseDto,
+  })
+  @ApiResponse({ status: 404, description: "Patient not found" })
+  getHistory(
+    @Param("id") id: string,
+    @Query() query: PatientHistoryQueryDto
+  ): Promise<PatientHistoryResponseDto> {
+    return this.patientService.getPatientHistory(id, query.organizationId);
   }
 
   @Get(":id")

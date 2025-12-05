@@ -182,3 +182,108 @@ export interface PatientStatsDto {
     deceased: number;
   };
 }
+
+// =============================================
+// Patient History DTOs
+// =============================================
+
+export type VisitStatusDto =
+  | "WAITING"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELED";
+
+export interface HistoryDoctorDto {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  specialty?: string;
+}
+
+export interface HistoryPrescriptionDto {
+  id: string;
+  name: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface HistoryServiceOrderDto {
+  id: string;
+  serviceName: string;
+  serviceType: string;
+  status: string;
+  resultText?: string;
+  createdAt: string;
+}
+
+export interface HistoryVisitDto {
+  id: string;
+  visitDate: string;
+  status: VisitStatusDto;
+  complaint?: string;
+  anamnesis?: string;
+  diagnosis?: string;
+  conclusion?: string;
+  notes?: string;
+  aiSummary?: string;
+  doctor: HistoryDoctorDto;
+  prescriptions: HistoryPrescriptionDto[];
+  serviceOrders: HistoryServiceOrderDto[];
+}
+
+export interface PatientAllergyHistoryDto {
+  id: string;
+  substance: string;
+  reaction?: string;
+  severity?: string;
+  note?: string;
+  createdAt: string;
+}
+
+export interface PatientParameterHistoryDto {
+  id: string;
+  parameterCode: string;
+  valueNumeric?: number;
+  valueText?: string;
+  unit?: string;
+  measuredAt: string;
+}
+
+export interface PatientDiagnosisHistoryDto {
+  diagnosis: string;
+  visitDate: string;
+  doctorName: string;
+  visitId: string;
+}
+
+export interface ActiveMedicationDto {
+  id: string;
+  name: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  prescribedAt: string;
+  doctorName: string;
+}
+
+export interface PatientHistoryStatsDto {
+  totalVisits: number;
+  completedVisits: number;
+  totalAllergies: number;
+  totalDiagnoses: number;
+  activeMedications: number;
+  lastVisitDate?: string;
+}
+
+export interface PatientHistoryResponseDto {
+  visits: HistoryVisitDto[];
+  allergies: PatientAllergyHistoryDto[];
+  parameters: PatientParameterHistoryDto[];
+  diagnoses: PatientDiagnosisHistoryDto[];
+  activeMedications: ActiveMedicationDto[];
+  stats: PatientHistoryStatsDto;
+}

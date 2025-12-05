@@ -13,6 +13,7 @@ import type {
   PatientStatsDto,
   PatientsQueryParamsDto,
   PatientByIdQueryDto,
+  PatientHistoryResponseDto,
 } from "./patient.dto";
 
 export const patientApi = rootApi.injectEndpoints({
@@ -121,6 +122,19 @@ export const patientApi = rootApi.injectEndpoints({
         API_TAG_OPERATIONS_PATIENT_STATS,
       ],
     }),
+
+    // Get patient medical history
+    getPatientHistory: builder.query<PatientHistoryResponseDto, { id: string }>(
+      {
+        query: ({ id }) => ({
+          url: `/api/v1/patients/${id}/history`,
+          method: "GET",
+        }),
+        providesTags: (result, error, { id }) => [
+          { type: API_TAG_OPERATIONS_PATIENTS, id: `history-${id}` },
+        ],
+      }
+    ),
   }),
 });
 
@@ -128,6 +142,7 @@ export const {
   useGetPatientsQuery,
   useGetPatientQuery,
   useGetPatientStatsQuery,
+  useGetPatientHistoryQuery,
   useCreatePatientMutation,
   useUpdatePatientMutation,
   useUpdatePatientStatusMutation,

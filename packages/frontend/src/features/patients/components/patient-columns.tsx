@@ -90,33 +90,6 @@ export const patientColumns: ColumnDef<PatientResponseDto>[] = [
         );
       }
 
-      // Если один врач - показываем аватар + имя + должность как в списке сотрудников
-      if (sortedDoctors.length === 1) {
-        const doctor = sortedDoctors[0];
-        const doctorName = `${doctor.firstName} ${doctor.lastName}`.trim();
-        const doctorTitle = doctor.title?.name;
-
-        return (
-          <div className="flex items-center space-x-1">
-            <UserAvatar
-              name={doctorName}
-              avatarId={doctor.avatarId}
-              className="h-8 w-8 border-2 border-card cursor-pointer"
-              fallbackClassName="bg-blue-100 text-blue-700 font-medium"
-              size={32}
-            />
-            <div>
-              <div className="font-medium text-xs">{doctorName}</div>
-              {doctorTitle && (
-                <div className="text-xs text-muted-foreground">
-                  {doctorTitle}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      }
-
       // Если несколько врачей - показываем аватарки с тултипами
       return (
         <div className="flex -space-x-2">

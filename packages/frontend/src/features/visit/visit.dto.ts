@@ -1,5 +1,5 @@
 import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
-import type { VisitStatus } from "./visit.constants";
+import type { VisitStatus, VisitType } from "./visit.constants";
 
 export enum VisitIncludeRelation {
   PATIENT = "patient",
@@ -77,8 +77,12 @@ export interface VisitResponseDto {
   id: string;
   visitDate: string; // ISO
   status: VisitStatus;
+  type?: VisitType;
   notes?: string;
-  diagnosis?: string;
+  complaint?: string; // Жалобы пациента
+  anamnesis?: string; // Анамнез
+  diagnosis?: string; // Диагноз
+  conclusion?: string; // Заключение и рекомендации
   queueNumber?: number;
   queuedAt?: string; // ISO - when visit was added to queue
   startedAt?: string; // ISO - when visit status changed to IN_PROGRESS
@@ -86,6 +90,8 @@ export interface VisitResponseDto {
   finishedAt?: string; // ISO - deprecated, use completedAt
   waitingTimeMinutes?: number; // Time spent waiting
   serviceTimeMinutes?: number; // Time spent in service
+  aiSummary?: string; // AI-сгенерированное резюме визита
+  aiSummaryGeneratedAt?: string; // ISO
   patient?: SimplePatientDto;
   employee?: SimpleEmployeeDto;
   appointment?: SimpleAppointmentDto;
@@ -110,6 +116,10 @@ export interface CreateVisitRequestDto {
 export interface UpdateVisitRequestDto extends Partial<CreateVisitRequestDto> {
   id: string;
   protocolData?: string; // JSON string of FilledFormData
+  complaint?: string;
+  anamnesis?: string;
+  diagnosis?: string;
+  conclusion?: string;
 }
 
 export interface StartVisitRequestDto {

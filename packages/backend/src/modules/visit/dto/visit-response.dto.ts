@@ -310,10 +310,31 @@ export class VisitResponseDto extends BaseResponseDto {
 
   @Expose()
   @ApiPropertyOptional({
+    description: "Patient complaint",
+    example: "Головная боль, повышение температуры",
+  })
+  complaint?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Anamnesis (medical history)",
+    example: "Болеет 3 дня, принимал парацетамол",
+  })
+  anamnesis?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
     description: "Diagnosis",
     example: "ОРВИ",
   })
   diagnosis?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Conclusion and recommendations",
+    example: "Рекомендовано: постельный режим, обильное питье",
+  })
+  conclusion?: string;
 
   @Expose()
   @ApiPropertyOptional({

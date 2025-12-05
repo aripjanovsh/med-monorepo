@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Save, FileText, Loader2, History, FileInput } from "lucide-react";
+import { Save, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ProtocolTemplateAutocompleteField } from "@/features/protocol-template";
 import {
@@ -16,11 +15,7 @@ import {
 } from "@/features/form-builder";
 import { useUpdateVisitMutation } from "../visit.api";
 import type { VisitStatus } from "../visit.constants";
-import type {
-  SavedProtocolData,
-  FilledProtocolOption,
-} from "../visit-protocol.types";
-import { PatientFilledProtocolAutocompleteField } from "./patient-filled-protocol-autocomplete";
+import type { SavedProtocolData } from "../visit-protocol.types";
 import type { ProtocolTemplateResponseDto } from "@/features/protocol-template/protocol-template.dto";
 
 type VisitProtocolProps = {
@@ -29,6 +24,9 @@ type VisitProtocolProps = {
   initialProtocolId?: string;
   initialProtocolData?: SavedProtocolData | null;
   status: VisitStatus;
+  // External protocol data (e.g., copied from history)
+  externalProtocolData?: SavedProtocolData | null;
+  onExternalProtocolApplied?: () => void;
 };
 
 export const VisitProtocol = ({
@@ -37,18 +35,18 @@ export const VisitProtocol = ({
   initialProtocolId,
   initialProtocolData,
   status,
+  externalProtocolData,
+  onExternalProtocolApplied,
 }: VisitProtocolProps) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    initialProtocolId ?? "",
+    initialProtocolId ?? ""
   );
   const [selectedTemplate, setSelectedTemplate] =
     useState<ProtocolTemplateResponseDto | null>(null);
-  const [selectedFilledProtocol, setSelectedFilledProtocol] =
-    useState<string>("");
   const formDataRef = useRef<FilledFormData>(
-    initialProtocolData?.filledData ?? {},
+    initialProtocolData?.filledData ?? {}
   );
-  const [activeTab, setActiveTab] = useState<string>("new");
+  const [formKey, setFormKey] = useState(0); // Force re-render when data changes
 
   const [updateVisit, { isLoading: isSaving }] = useUpdateVisitMutation();
 
@@ -74,33 +72,14 @@ export const VisitProtocol = ({
     }
   }, [initialProtocolData]);
 
-  const handleNewTemplateSelect = useCallback(
-    (
-      templateId: string | undefined,
-      template?: ProtocolTemplateResponseDto,
-    ) => {
-      if (!isEditable || !templateId) return;
-
-      setSelectedTemplateId(templateId);
-      if (template) {
-        setSelectedTemplate(template);
-      }
-      formDataRef.current = {};
-      setActiveTab("new");
-    },
-    [isEditable],
-  );
-
-  const handleFilledProtocolSelect = useCallback(
-    (option: FilledProtocolOption) => {
-      if (!isEditable) return;
-
-      const { protocolData } = option;
-      setSelectedTemplateId(protocolData.templateId);
+  // Handle external protocol data (copied from history)
+  useEffect(() => {
+    if (externalProtocolData && isEditable) {
+      setSelectedTemplateId(externalProtocolData.templateId);
       setSelectedTemplate({
-        id: protocolData.templateId,
-        name: protocolData.templateName,
-        content: protocolData.templateContent,
+        id: externalProtocolData.templateId,
+        name: externalProtocolData.templateName,
+        content: externalProtocolData.templateContent,
         description: "",
         templateType: "formbuilder",
         isActive: true,
@@ -109,10 +88,27 @@ export const VisitProtocol = ({
         updatedAt: "",
         createdBy: "",
       });
-      formDataRef.current = protocolData.filledData;
-      setActiveTab("new");
+      formDataRef.current = externalProtocolData.filledData;
+      setFormKey((prev) => prev + 1); // Force re-render
+      onExternalProtocolApplied?.();
+    }
+  }, [externalProtocolData, isEditable, onExternalProtocolApplied]);
+
+  const handleNewTemplateSelect = useCallback(
+    (
+      templateId: string | undefined,
+      template?: ProtocolTemplateResponseDto
+    ) => {
+      if (!isEditable || !templateId) return;
+
+      setSelectedTemplateId(templateId);
+      if (template) {
+        setSelectedTemplate(template);
+      }
+      formDataRef.current = {};
+      setFormKey((prev) => prev + 1);
     },
-    [isEditable],
+    [isEditable]
   );
 
   const handleDataChange = useCallback((data: FilledFormData) => {
@@ -167,80 +163,44 @@ export const VisitProtocol = ({
       {/* Template Selection - Only show for editable visits */}
       {isEditable && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Выбор протокола
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <FileText className="h-4 w-4" />
+              Шаблон протокола
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="new" className="gap-2">
-                  <FileInput className="h-4 w-4" />
-                  Новый шаблон
-                </TabsTrigger>
-                <TabsTrigger value="previous" className="gap-2">
-                  <History className="h-4 w-4" />
-                  Ранее заполненные
-                </TabsTrigger>
-              </TabsList>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-sm">Выберите шаблон</Label>
+                <ProtocolTemplateAutocompleteField
+                  value={selectedTemplateId}
+                  onChange={(templateId) => handleNewTemplateSelect(templateId)}
+                  onTemplateSelected={(template) =>
+                    handleNewTemplateSelect(template.id, template)
+                  }
+                  placeholder="Выберите шаблон протокола..."
+                  searchPlaceholder="Поиск шаблона..."
+                  empty="Шаблоны не найдены"
+                  disabled={!isEditable}
+                />
+              </div>
 
-              <TabsContent value="new" className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Выберите шаблон протокола</Label>
-                  <ProtocolTemplateAutocompleteField
-                    value={selectedTemplateId}
-                    onChange={(templateId) =>
-                      handleNewTemplateSelect(templateId)
-                    }
-                    onTemplateSelected={(template) =>
-                      handleNewTemplateSelect(template.id, template)
-                    }
-                    placeholder="Выберите шаблон протокола..."
-                    searchPlaceholder="Поиск шаблона..."
-                    empty="Шаблоны не найдены"
-                    disabled={!isEditable}
-                  />
+              {selectedTemplateId && selectedTemplate && (
+                <div className="rounded-md bg-muted/50 p-2.5 text-sm">
+                  <p className="font-medium">{selectedTemplate.name}</p>
+                  {selectedTemplate.description && (
+                    <p className="mt-1 text-muted-foreground text-xs">
+                      {selectedTemplate.description}
+                    </p>
+                  )}
                 </div>
+              )}
 
-                {selectedTemplateId && selectedTemplate && (
-                  <div className="rounded-md bg-muted/50 p-3 text-sm">
-                    <p className="font-medium">{selectedTemplate.name}</p>
-                    {selectedTemplate.description && (
-                      <p className="mt-1 text-muted-foreground">
-                        {selectedTemplate.description}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="previous" className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Выберите ранее заполненный протокол</Label>
-                  <PatientFilledProtocolAutocompleteField
-                    patientId={patientId}
-                    value={selectedFilledProtocol}
-                    onChange={(value) => setSelectedFilledProtocol(value ?? "")}
-                    onProtocolSelected={handleFilledProtocolSelect}
-                    placeholder="Выберите ранее заполненный протокол..."
-                    searchPlaceholder="Поиск протокола..."
-                    empty="Заполненные протоколы не найдены"
-                    disabled={!isEditable}
-                  />
-                </div>
-
-                <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 p-3 text-sm text-blue-900 dark:text-blue-100">
-                  <p className="font-medium">💡 Подсказка</p>
-                  <p className="mt-1 text-blue-700 dark:text-blue-300">
-                    Выберите ранее заполненный протокол чтобы скопировать его
-                    данные в текущий визит. Вы сможете отредактировать
-                    скопированные данные.
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
+              <p className="text-xs text-muted-foreground">
+                💡 Вы можете скопировать протокол из истории визитов слева
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -251,7 +211,7 @@ export const VisitProtocol = ({
           {isEditable ? (
             <>
               <FormBuilderInteractive
-                key={selectedTemplateId}
+                key={`${selectedTemplateId}-${formKey}`}
                 templateJson={selectedTemplate.content}
                 initialData={formDataRef.current}
                 onChange={handleDataChange}

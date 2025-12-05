@@ -38,21 +38,31 @@ const STATUS_CONFIG: Record<VisitStatus, StatusConfig> = {
 
 type VisitStatusBadgeProps = {
   status: VisitStatus;
+  size?: "sm" | "default";
 };
 
-export const VisitStatusBadge = ({ status }: VisitStatusBadgeProps) => {
+export const VisitStatusBadge = ({
+  status,
+  size = "default",
+}: VisitStatusBadgeProps) => {
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
   const label = VISIT_STATUS_LABELS[status] ?? status;
 
+  const isSmall = size === "sm";
+
   return (
     <Badge
       variant={config.variant}
-      className={cn("gap-1.5 rounded-full", config.className)}
+      className={cn(
+        "gap-1 rounded-full",
+        config.className,
+        isSmall && "text-xs px-2 py-0.5"
+      )}
     >
       <Icon
         className={cn(
-          "h-3.5 w-3.5",
+          isSmall ? "h-3 w-3" : "h-3.5 w-3.5",
           status === "IN_PROGRESS" && "animate-spin"
         )}
       />

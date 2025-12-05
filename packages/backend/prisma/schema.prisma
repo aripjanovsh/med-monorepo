@@ -216,6 +216,10 @@ model Visit {
   status             VisitStatus        @default(WAITING)
   type               VisitType          @default(STANDARD)
   notes              String?
+  complaint          String?            @db.Text
+  anamnesis          String?            @db.Text
+  diagnosis          String?
+  conclusion         String?            @db.Text
   queuedAt           DateTime?
   startedAt          DateTime?
   completedAt        DateTime?

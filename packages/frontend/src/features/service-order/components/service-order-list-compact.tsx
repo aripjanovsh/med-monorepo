@@ -111,18 +111,16 @@ export const ServiceOrderListCompact = ({
               </div>
 
               <div className="flex items-center gap-1 flex-shrink-0">
-                {order.status === "COMPLETED" &&
-                  (order.resultText || order.resultData) && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => handleViewResult(order)}
-                      title="Просмотреть результат"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
+                {/* Кнопка просмотра всегда видна */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => handleViewResult(order)}
+                  title="Просмотреть"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </Button>
                 {canCancelOrder(order) && isEditable && (
                   <Button
                     variant="ghost"

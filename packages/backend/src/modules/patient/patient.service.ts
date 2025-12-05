@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Prisma, PatientStatus } from "@prisma/client";
+import { Prisma, PatientStatus, VisitStatus } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreatePatientDto } from "./dto/create-patient.dto";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { FindAllPatientDto } from "./dto/find-all-patient.dto";
 import { PaginatedResponseDto } from "../../common/dto/pagination.dto";
 import { PatientResponseDto } from "./dto/patient-response.dto";
+import { PatientHistoryResponseDto } from "./dto/patient-history.dto";
 import { plainToInstance } from "class-transformer";
 import {
   generateEntityId,
@@ -353,5 +354,185 @@ export class PatientService {
         deceased,
       },
     };
+  }
+
+  async getPatientHistory(
+    patientId: string,
+    organizationId: string
+  ): Promise<PatientHistoryResponseDto> {
+    // Check if patient exists
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, organizationId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException("Patient not found");
+    }
+
+    // Fetch all related data in parallel
+    const [visits, allergies, parameters] = await Promise.all([
+      // Visits with all related data
+      this.prisma.visit.findMany({
+        where: { patientId, organizationId },
+        orderBy: { visitDate: "desc" },
+        include: {
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              middleName: true,
+              lastName: true,
+              title: { select: { name: true } },
+            },
+          },
+          prescriptions: {
+            orderBy: { createdAt: "desc" },
+          },
+          serviceOrders: {
+            include: {
+              service: {
+                select: { name: true, type: true },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      }),
+
+      // All allergies
+      this.prisma.patientAllergy.findMany({
+        where: { patientId, organizationId },
+        orderBy: { createdAt: "desc" },
+      }),
+
+      // All patient parameters for charts
+      this.prisma.patientParameter.findMany({
+        where: { patientId, organizationId },
+        orderBy: { measuredAt: "desc" },
+      }),
+    ]);
+
+    // Transform visits
+    const transformedVisits = visits.map((visit) => ({
+      id: visit.id,
+      visitDate: visit.visitDate,
+      status: visit.status,
+      complaint: visit.complaint,
+      anamnesis: visit.anamnesis,
+      diagnosis: visit.diagnosis,
+      conclusion: visit.conclusion,
+      notes: visit.notes,
+      aiSummary: visit.aiSummary,
+      doctor: {
+        id: visit.employee.id,
+        firstName: visit.employee.firstName,
+        middleName: visit.employee.middleName ?? undefined,
+        lastName: visit.employee.lastName,
+        specialty: visit.employee.title?.name,
+      },
+      prescriptions: visit.prescriptions.map((p) => ({
+        id: p.id,
+        name: p.name,
+        dosage: p.dosage ?? undefined,
+        frequency: p.frequency ?? undefined,
+        duration: p.duration ?? undefined,
+        notes: p.notes ?? undefined,
+        createdAt: p.createdAt,
+      })),
+      serviceOrders: visit.serviceOrders.map((so) => ({
+        id: so.id,
+        serviceName: so.service.name,
+        serviceType: so.service.type,
+        status: so.status,
+        resultText: so.resultText ?? undefined,
+        createdAt: so.createdAt,
+      })),
+    }));
+
+    // Extract unique diagnoses from visits
+    const diagnoses = visits
+      .filter((v) => v.diagnosis)
+      .map((v) => ({
+        diagnosis: v.diagnosis!,
+        visitDate: v.visitDate,
+        doctorName: [
+          v.employee.lastName,
+          v.employee.firstName,
+          v.employee.middleName,
+        ]
+          .filter(Boolean)
+          .join(" "),
+        visitId: v.id,
+      }));
+
+    // Get active medications (from recent visits - last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const activeMedications = visits
+      .filter((v) => v.visitDate >= thirtyDaysAgo)
+      .flatMap((v) =>
+        v.prescriptions.map((p) => ({
+          id: p.id,
+          name: p.name,
+          dosage: p.dosage ?? undefined,
+          frequency: p.frequency ?? undefined,
+          duration: p.duration ?? undefined,
+          prescribedAt: p.createdAt,
+          doctorName: [
+            v.employee.lastName,
+            v.employee.firstName,
+            v.employee.middleName,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        }))
+      );
+
+    // Transform allergies
+    const transformedAllergies = allergies.map((a) => ({
+      id: a.id,
+      substance: a.substance,
+      reaction: a.reaction ?? undefined,
+      severity: a.severity ?? undefined,
+      note: a.note ?? undefined,
+      createdAt: a.createdAt,
+    }));
+
+    // Transform parameters
+    const transformedParameters = parameters.map((p) => ({
+      id: p.id,
+      parameterCode: p.parameterCode,
+      valueNumeric: p.valueNumeric ? Number(p.valueNumeric) : undefined,
+      valueText: p.valueText ?? undefined,
+      unit: p.unit ?? undefined,
+      measuredAt: p.measuredAt,
+    }));
+
+    // Calculate stats
+    const completedVisits = visits.filter(
+      (v) => v.status === VisitStatus.COMPLETED
+    );
+    const uniqueDiagnoses = new Set(
+      visits.map((v) => v.diagnosis).filter(Boolean)
+    );
+
+    const stats = {
+      totalVisits: visits.length,
+      completedVisits: completedVisits.length,
+      totalAllergies: allergies.length,
+      totalDiagnoses: uniqueDiagnoses.size,
+      activeMedications: activeMedications.length,
+      lastVisitDate: visits[0]?.visitDate,
+    };
+
+    return plainToInstance(PatientHistoryResponseDto, {
+      visits: transformedVisits,
+      allergies: transformedAllergies,
+      parameters: transformedParameters,
+      diagnoses,
+      activeMedications,
+      stats,
+    });
   }
 }

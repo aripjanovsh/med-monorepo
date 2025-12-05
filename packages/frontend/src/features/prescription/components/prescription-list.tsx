@@ -28,14 +28,18 @@ export const PrescriptionList = ({
 
   const isEditable = status === "IN_PROGRESS";
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Удалить назначение?")) return;
+  const handleCancel = async (id: string) => {
+    if (!confirm("Отменить рецепт?")) return;
 
     try {
       await deletePrescription(id).unwrap();
-      toast.success("Назначение удалено");
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при удалении");
+      toast.success("Рецепт отменен");
+    } catch (error: unknown) {
+      const errorMessage =
+        error && typeof error === "object" && "data" in error
+          ? (error.data as { message?: string })?.message
+          : undefined;
+      toast.error(errorMessage ?? "Ошибка при отмене");
     }
   };
 
@@ -76,7 +80,7 @@ export const PrescriptionList = ({
                       "dd.MM.yyyy HH:mm",
                       {
                         locale: ru,
-                      },
+                      }
                     )}
                   </p>
                 </div>
@@ -84,7 +88,7 @@ export const PrescriptionList = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(prescription.id)}
+                    onClick={() => handleCancel(prescription.id)}
                     className="h-8 w-8 p-0 shrink-0"
                   >
                     <Trash className="h-4 w-4 text-red-600" />

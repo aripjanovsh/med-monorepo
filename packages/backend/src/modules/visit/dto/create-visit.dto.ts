@@ -87,4 +87,40 @@ export class CreateVisitDto {
   @IsOptional()
   @IsEnum(VisitType)
   type?: VisitType;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Patient complaint",
+    example: "Головная боль, повышение температуры",
+  })
+  @IsOptional()
+  @IsString()
+  complaint?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Anamnesis (medical history)",
+    example: "Болеет 3 дня, принимал парацетамол",
+  })
+  @IsOptional()
+  @IsString()
+  anamnesis?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Diagnosis",
+    example: "ОРВИ",
+  })
+  @IsOptional()
+  @IsString()
+  diagnosis?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Conclusion and recommendations",
+    example: "Рекомендовано: постельный режим, обильное питье",
+  })
+  @IsOptional()
+  @IsString()
+  conclusion?: string;
 }

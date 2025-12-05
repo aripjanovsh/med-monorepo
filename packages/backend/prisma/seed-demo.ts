@@ -58,6 +58,7 @@ async function main() {
     console.log(`   💰 Счета:               ${result.invoices}`);
     console.log(`   💳 Платежи:             ${result.payments}`);
     console.log(`   💊 Рецепты:             ${result.prescriptions}`);
+    console.log(`   🔗 Врачи пациентов:     ${result.patientDoctors}`);
     console.log(`   ⚠️ Аллергии:            ${result.allergies}`);
     console.log(`   📈 Параметры пациентов: ${result.parameters}`);
     console.log(

@@ -1,3 +1,9 @@
 export { VisitDetailHeader } from "./visit-detail-header";
 export { VisitInfoCards } from "./visit-info-cards";
 export { VisitDetailSections } from "./visit-detail-sections";
+export { VisitStickyHeader } from "./visit-sticky-header";
+export { VisitClinicalFields } from "./visit-clinical-fields";
+export { PatientVisitHistory } from "./patient-visit-history";
+export { VisitSidebar } from "./visit-sidebar";
+export { VisitProtocolSection } from "./visit-protocol-section";
+export { VisitPreviewDialog } from "./visit-preview-dialog";
