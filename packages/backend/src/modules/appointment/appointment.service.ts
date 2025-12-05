@@ -12,6 +12,10 @@ import { FindAllAppointmentDto } from "./dto/find-all-appointment.dto";
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { AppointmentResponseDto } from "./dto/appointment-response.dto";
 import { plainToInstance } from "class-transformer";
+import {
+  generateEntityId,
+  ENTITY_PREFIXES,
+} from "@/common/utils/id-generator.util";
 
 @Injectable()
 export class AppointmentService {
@@ -100,9 +104,17 @@ export class AppointmentService {
       );
     }
 
+    // Generate appointmentId
+    const appointmentId = await generateEntityId(
+      this.prisma,
+      ENTITY_PREFIXES.APPOINTMENT,
+      organizationId
+    );
+
     const appointment = await this.prisma.appointment.create({
       data: {
         ...appointmentData,
+        appointmentId,
         organizationId,
       },
       include: {

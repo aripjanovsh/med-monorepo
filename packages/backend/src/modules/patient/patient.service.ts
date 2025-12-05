@@ -7,7 +7,10 @@ import { FindAllPatientDto } from "./dto/find-all-patient.dto";
 import { PaginatedResponseDto } from "../../common/dto/pagination.dto";
 import { PatientResponseDto } from "./dto/patient-response.dto";
 import { plainToInstance } from "class-transformer";
-import { generateMemorableId } from "../../common/utils/id-generator.util";
+import {
+  generateEntityId,
+  ENTITY_PREFIXES,
+} from "../../common/utils/id-generator.util";
 
 @Injectable()
 export class PatientService {
@@ -22,7 +25,11 @@ export class PatientService {
       // Auto-generate patientId if not provided
       let patientId = patientData.patientId;
       if (!patientId) {
-        patientId = generateMemorableId("P");
+        patientId = await generateEntityId(
+          tx,
+          ENTITY_PREFIXES.PATIENT,
+          patientData.organizationId
+        );
       }
 
       // Set status to ACTIVE if not provided

@@ -1,6 +1,10 @@
 import { PrismaClient, UserRole } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import { PERMISSIONS, DEFAULT_ROLES } from "../constants/permissions.constants";
+import {
+  generateEntityIdSync,
+  ENTITY_PREFIXES,
+} from "../utils/id-generator.util";
 
 export class OrganizationSeed {
   constructor(private readonly prisma: PrismaClient) {}
@@ -83,7 +87,7 @@ export class OrganizationSeed {
         lastName: adminLastName,
         email: adminEmail,
         phone: adminPhone,
-        employeeId: "ADMIN-001",
+        employeeId: generateEntityIdSync(ENTITY_PREFIXES.EMPLOYEE, 1),
         userId: adminUser.id,
         organizationId: organization.id,
       },

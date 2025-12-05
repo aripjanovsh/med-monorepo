@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { ChevronsUpDown, LogOut, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ROUTES } from "@/constants/route.constants";
+import { clearAuth } from "@/features/auth/auth.slice";
+import { useMe } from "@/features/auth/use-me";
+import { useAppDispatch } from "@/store/hooks";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -16,18 +24,22 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { useMe } from "@/features/auth/use-me";
-import { ChevronsUpDown, LogOut, User } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import Link from "next/link";
 
 export function SidebarPanelUser() {
   const { t } = useTranslation();
   const { user } = useMe();
   const { isMobile, state } = useSidebar();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const fullName = [user?.lastName, user?.firstName].filter(Boolean).join(" ");
   const avatarId = user?.avatarId ?? user?.employee?.avatarId;
+  const rolesLabel = user?.roles?.join(", ");
+
+  const handleLogout = (): void => {
+    dispatch(clearAuth());
+    router.push(ROUTES.LOGIN);
+  };
 
   return (
     <SidebarMenu className="mt-2">
@@ -48,7 +60,7 @@ export function SidebarPanelUser() {
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{fullName}</span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {user?.role}
+                  {rolesLabel}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -72,7 +84,7 @@ export function SidebarPanelUser() {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{fullName}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {user?.role}
+                    {rolesLabel}
                   </span>
                 </div>
               </div>
@@ -87,11 +99,12 @@ export function SidebarPanelUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/logout" className="flex items-center">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>{t("Выйти")}</span>
-              </Link>
+            <DropdownMenuItem
+              onSelect={handleLogout}
+              className="flex items-center"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t("Выйти")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

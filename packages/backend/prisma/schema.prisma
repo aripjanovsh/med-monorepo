@@ -176,6 +176,7 @@ model Service {
 
 model Appointment {
   id             String            @id @default(uuid())
+  appointmentId  String?
   scheduledAt    DateTime
   duration       Int
   status         AppointmentStatus @default(SCHEDULED)
@@ -210,6 +211,7 @@ model Appointment {
 
 model Visit {
   id                 String             @id @default(uuid())
+  visitId            String?
   visitDate          DateTime           @default(now())
   status             VisitStatus        @default(WAITING)
   type               VisitType          @default(STANDARD)

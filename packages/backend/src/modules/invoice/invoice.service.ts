@@ -15,7 +15,10 @@ import { AddInvoiceItemDto } from "./dto/add-invoice-item.dto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { PaymentStatus } from "@prisma/client";
 import { ServiceOrderQueueService } from "../service-order/service-order-queue.service";
-import { generateMemorableId } from "@/common/utils/id-generator.util";
+import {
+  generateEntityId,
+  ENTITY_PREFIXES,
+} from "@/common/utils/id-generator.util";
 
 @Injectable()
 export class InvoiceService {
@@ -201,7 +204,11 @@ export class InvoiceService {
 
     // Create invoice with items and ServiceOrders in a transaction
     const invoice = await this.prisma.$transaction(async (tx) => {
-      const invoiceNumber = generateMemorableId("INV");
+      const invoiceNumber = await generateEntityId(
+        tx,
+        ENTITY_PREFIXES.INVOICE,
+        organizationId
+      );
 
       // Validate: For invoices without visit, ensure we have a valid creator
       if (!dto.visitId && !createdById) {
@@ -394,7 +401,11 @@ export class InvoiceService {
     }
 
     // Generate invoice number
-    const invoiceNumber = await this.generateInvoiceNumber(organizationId);
+    const invoiceNumber = await generateEntityId(
+      this.prisma,
+      ENTITY_PREFIXES.INVOICE,
+      organizationId
+    );
 
     // Create invoice with items
     const invoice = await this.prisma.invoice.create({
@@ -935,25 +946,5 @@ export class InvoiceService {
       },
       orderBy: { paidAt: "desc" },
     });
-  }
-
-  private async generateInvoiceNumber(organizationId: string): Promise<string> {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-
-    // Get count of invoices for this month
-    const count = await this.prisma.invoice.count({
-      where: {
-        organizationId,
-        createdAt: {
-          gte: new Date(year, now.getMonth(), 1),
-          lt: new Date(year, now.getMonth() + 1, 1),
-        },
-      },
-    });
-
-    const nextNumber = String(count + 1).padStart(4, "0");
-    return `INV-${year}${month}-${nextNumber}`;
   }
 }

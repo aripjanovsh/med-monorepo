@@ -23,6 +23,10 @@ import {
 import * as bcrypt from "bcrypt";
 import { Decimal } from "@prisma/client/runtime/library";
 import { RolesSeed } from "./roles.seed";
+import {
+  generateEntityIdSync,
+  ENTITY_PREFIXES,
+} from "../utils/id-generator.util";
 
 type DemoDataResult = {
   titles: Title[];
@@ -247,7 +251,7 @@ export class DemoDataSeed {
     for (let i = 0; i < doctorData.length; i++) {
       const data = doctorData[i];
       const phone = `+99890${String(1000000 + i).padStart(7, "0")}`;
-      const employeeId = `DOC-${String(i + 1).padStart(3, "0")}`;
+      const employeeId = generateEntityIdSync(ENTITY_PREFIXES.EMPLOYEE, i + 1);
 
       // Check if employee already exists
       const existingEmployee = await this.prisma.employee.findFirst({
@@ -446,7 +450,7 @@ export class DemoDataSeed {
 
     for (let i = 0; i < patientData.length; i++) {
       const data = patientData[i];
-      const patientId = `PAT-${String(i + 1).padStart(5, "0")}`;
+      const patientId = generateEntityIdSync(ENTITY_PREFIXES.PATIENT, i + 1);
 
       // Check if patient already exists
       const existingPatient = await this.prisma.patient.findFirst({
@@ -2222,6 +2226,9 @@ export class DemoDataSeed {
       });
     }
 
+    // Counter for visit IDs
+    let visitCounter = 0;
+
     // Create visits for last 7 days + today
     for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
       const visitDate = new Date(now);
@@ -2276,8 +2283,16 @@ export class DemoDataSeed {
             serviceTimeMinutes = 25;
           }
 
+          visitCounter++;
+          const visitId = generateEntityIdSync(
+            ENTITY_PREFIXES.VISIT,
+            visitCounter,
+            visitTime
+          );
+
           const visit = await this.prisma.visit.create({
             data: {
+              visitId,
               visitDate: visitTime,
               status,
               type:
@@ -2356,8 +2371,15 @@ export class DemoDataSeed {
         const scheduledAt = new Date(appointmentDate);
         scheduledAt.setHours(9 + a, Math.floor(Math.random() * 4) * 15, 0, 0);
 
+        const appointmentId = generateEntityIdSync(
+          ENTITY_PREFIXES.APPOINTMENT,
+          count + 1,
+          scheduledAt
+        );
+
         await this.prisma.appointment.create({
           data: {
+            appointmentId,
             scheduledAt,
             duration: service.durationMin ?? 30,
             status:
@@ -2590,7 +2612,11 @@ export class DemoDataSeed {
 
       if (totalAmount === 0) continue;
 
-      const invoiceNumber = `INV-${Date.now()}-${invoiceCount + 1}`;
+      const invoiceNumber = generateEntityIdSync(
+        ENTITY_PREFIXES.INVOICE,
+        invoiceCount + 1,
+        visit.completedAt ?? undefined
+      );
 
       const invoice = await this.prisma.invoice.create({
         data: {

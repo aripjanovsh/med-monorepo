@@ -26,6 +26,10 @@ import { ActiveVisitResponseDto } from "./dto/active-visit-response.dto";
 import { plainToInstance } from "class-transformer";
 import { differenceInMinutes, startOfDay, endOfDay } from "date-fns";
 import { VisitAiService } from "./visit-ai.service";
+import {
+  generateEntityId,
+  ENTITY_PREFIXES,
+} from "@/common/utils/id-generator.util";
 
 const VISIT_INCLUDE_RELATIONS = {
   patient: {
@@ -204,10 +208,18 @@ export class VisitService {
         },
       });
 
+      // Generate visitId
+      const visitId = await generateEntityId(
+        tx,
+        ENTITY_PREFIXES.VISIT,
+        organizationId
+      );
+
       // Create visit with WAITING status - doctor will start it manually
       const created = await tx.visit.create({
         data: {
           ...visitData,
+          visitId,
           appointmentId: appointmentId || null,
           organizationId,
           visitDate: visitData.visitDate || new Date(),

@@ -34,19 +34,12 @@ export const patientColumns: ColumnDef<PatientResponseDto>[] = [
       const initials = getPatientInitials(patient);
 
       return (
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium">{fullName}</div>
-            <div className="text-sm text-muted-foreground">
-              {patient.patientId || "Без ID"}
-            </div>
+        <>
+          <div className="font-medium">{fullName}</div>
+          <div className="text-sm text-muted-foreground">
+            {patient.patientId || "Без ID"}
           </div>
-        </div>
+        </>
       );
     },
   },

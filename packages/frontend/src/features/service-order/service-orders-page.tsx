@@ -29,7 +29,6 @@ import {
 } from "@/features/service-order";
 import { StatusFacetedSelectField } from "@/features/service-order/components/status-faceted-select-field";
 import { PaymentStatusFacetedSelectField } from "@/features/service-order/components/payment-status-faceted-select-field";
-import { ServiceTypeFacetedSelectField } from "@/features/service-order/components/service-type-faceted-select-field";
 import { useGetDepartmentsQuery } from "@/features/master-data/master-data-departments.api";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
 
@@ -267,10 +266,6 @@ export const ServiceOrdersPage = () => {
               <PaymentStatusFacetedSelectField
                 value={selectedPaymentStatuses}
                 onChange={handlePaymentStatusChange}
-              />
-              <ServiceTypeFacetedSelectField
-                value={selectedServiceTypes}
-                onChange={handleServiceTypeChange}
               />
             </DataTableToolbar>
           )}
