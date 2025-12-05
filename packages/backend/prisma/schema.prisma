@@ -34,7 +34,6 @@ model Organization {
   protocolTemplates    ProtocolTemplate[]
   roles                Role[]
   serviceOrders        ServiceOrder[]
-  serviceTypes         ServiceType[]
   services             Service[]
   titles               Title[]
   users                User[]
@@ -306,7 +305,6 @@ model Employee {
   avatar                   File?                 @relation("EmployeeAvatar", fields: [avatarId], references: [id])
   appointments             Appointment[]
   departmentsAsHead        Department[]          @relation("DepartmentHead")
-  serviceTypes             EmployeeServiceType[]
   city                     Location?             @relation("EmployeeCity", fields: [cityId], references: [id])
   country                  Location?             @relation("EmployeeCountry", fields: [countryId], references: [id])
   department               Department?           @relation("DepartmentStaff", fields: [departmentId], references: [id])
@@ -390,33 +388,6 @@ model Title {
   @@map("titles")
 }
 
-model ServiceType {
-  id             String                @id @default(uuid())
-  name           String
-  code           String?
-  description    String?
-  isActive       Boolean               @default(true)
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  organizationId String
-  employees      EmployeeServiceType[]
-  organization   Organization          @relation(fields: [organizationId], references: [id])
-
-  @@unique([name, organizationId])
-  @@unique([code, organizationId])
-  @@map("service_types")
-}
-
-model EmployeeServiceType {
-  id            String      @id @default(uuid())
-  employeeId    String
-  serviceTypeId String
-  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
-
-  @@unique([employeeId, serviceTypeId])
-  @@map("employee_service_types")
-}
 
 model Location {
   id                  String       @id @default(uuid())
@@ -768,11 +739,7 @@ model AuditLog {
 
 enum UserRole {
   SUPER_ADMIN
-  ADMIN
-  DOCTOR
-  NURSE
-  RECEPTIONIST
-  PATIENT
+  USER
 }
 
 enum EmployeeStatus {

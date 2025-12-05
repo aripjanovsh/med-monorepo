@@ -39,7 +39,6 @@ import { PassportField } from "@/components/fields/passport-field";
 import { GENDER_OPTIONS, FORM_STEPS } from "../employee.constants";
 import { employeeFormSchema, EmployeeFormData } from "../employee.schema";
 import { EmployeeResponseDto } from "../employee.dto";
-import { ServiceTypeListField } from "@/features/master-data/components/service-types/service-type-list-field";
 import { LanguageSelectField } from "@/features/master-data/components/languages/language-select-field";
 import { SelectField } from "@/components/fields/select-field";
 import { RoleListField } from "@/features/roles/components/role-list-field";
@@ -368,11 +367,11 @@ export function EmployeeForm({
                                 if (value && value.length >= 2) {
                                   form.setValue(
                                     "passportSeries",
-                                    value.slice(0, 2),
+                                    value.slice(0, 2)
                                   );
                                   form.setValue(
                                     "passportNumber",
-                                    value.slice(2),
+                                    value.slice(2)
                                   );
                                 } else {
                                   form.setValue("passportSeries", "");
@@ -491,19 +490,19 @@ export function EmployeeForm({
                                     if (value) {
                                       form.setValue(
                                         "countryId",
-                                        value.countryId || "",
+                                        value.countryId || ""
                                       );
                                       form.setValue(
                                         "regionId",
-                                        value.regionId || "",
+                                        value.regionId || ""
                                       );
                                       form.setValue(
                                         "cityId",
-                                        value.cityId || "",
+                                        value.cityId || ""
                                       );
                                       form.setValue(
                                         "districtId",
-                                        value.districtId || "",
+                                        value.districtId || ""
                                       );
                                     } else {
                                       form.setValue("countryId", "");

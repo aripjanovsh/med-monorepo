@@ -72,7 +72,7 @@ export class AppointmentController {
   findOne(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.findOne(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 
@@ -91,12 +91,12 @@ export class AppointmentController {
   update(
     @Param("id") id: string,
     @Body() updateAppointmentDto: UpdateAppointmentDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.appointmentService.update(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
-      updateAppointmentDto,
+      user.isSuperAdmin ? undefined : user.organizationId,
+      updateAppointmentDto
     );
   }
 
@@ -115,12 +115,12 @@ export class AppointmentController {
   updateStatus(
     @Param("id") id: string,
     @Body() updateStatusDto: UpdateAppointmentStatusDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.appointmentService.updateStatus(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
-      updateStatusDto,
+      user.isSuperAdmin ? undefined : user.organizationId,
+      updateStatusDto
     );
   }
 
@@ -135,7 +135,7 @@ export class AppointmentController {
   checkIn(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.checkIn(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 
@@ -150,8 +150,8 @@ export class AppointmentController {
   confirm(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.confirm(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
-      user.id,
+      user.isSuperAdmin ? undefined : user.organizationId,
+      user.id
     );
   }
 
@@ -170,13 +170,13 @@ export class AppointmentController {
   cancel(
     @Param("id") id: string,
     @Body("cancelReason") cancelReason: string,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.appointmentService.cancel(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId,
       user.id,
-      cancelReason,
+      cancelReason
     );
   }
 
@@ -191,7 +191,7 @@ export class AppointmentController {
   markNoShow(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.markNoShow(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 
@@ -210,7 +210,7 @@ export class AppointmentController {
   remove(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.remove(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 }

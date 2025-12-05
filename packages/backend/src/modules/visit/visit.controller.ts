@@ -115,7 +115,7 @@ export class VisitController {
   findOne(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.visitService.findOne(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 
@@ -180,7 +180,7 @@ export class VisitController {
   remove(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.visitService.remove(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 }

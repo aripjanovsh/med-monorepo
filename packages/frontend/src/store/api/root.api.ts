@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_ENDPOINT } from "@/constants/app.constants";
 import {
-  API_TAG_OPERATIONS_SERVICE_TYPES,
   API_TAG_OPERATIONS_SERVICES,
   API_TAG_OPERATIONS_TITLES,
   API_TAG_OPERATIONS_LANGUAGES,
@@ -53,7 +52,6 @@ export const rootApi = createApi({
   tagTypes: [
     API_TAG_OPERATIONS_PROFILE,
     API_TAG_OPERATIONS_TITLES,
-    API_TAG_OPERATIONS_SERVICE_TYPES,
     API_TAG_OPERATIONS_SERVICES,
     API_TAG_OPERATIONS_LANGUAGES,
     API_TAG_OPERATIONS_DEPARTMENTS,

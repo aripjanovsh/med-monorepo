@@ -3,22 +3,21 @@ import { isUUID } from "class-validator";
 import { get } from "lodash";
 import { RequestContextMiddleware } from "../middleware/request-context.middleware";
 import { FieldErrorsException } from "../exceptions/field-errors.exception";
-import { CurrentUserData } from "./current-user.decorator";
-import { UserRole } from "@prisma/client";
+import type { CurrentUserData } from "./current-user.decorator";
 
-export const InjectOrganizationId = (defaultValue = undefined) => {
-  return Transform(({ value }: any) => {
+export const InjectOrganizationId = () => {
+  return Transform(({ value }: { value: unknown }) => {
     const request = RequestContextMiddleware.getRequestContext();
 
     const headerOrganizationId = get(
       request,
       "request.headers.x-organization-id",
-      null,
+      null
     );
-    const user = request?.user as CurrentUserData;
+    const user = request?.user as CurrentUserData | undefined;
     let organizationId = null;
 
-    const isSuperAdmin = user?.role === UserRole.SUPER_ADMIN;
+    const isSuperAdmin = user?.isSuperAdmin ?? false;
 
     if (isSuperAdmin && isUUID(value)) {
       organizationId = value;

@@ -1,20 +1,23 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsEnum, IsString } from "class-validator";
-import { UserRole } from "@prisma/client";
+import { IsOptional, IsString, IsBoolean, IsUUID } from "class-validator";
+import { Transform } from "class-transformer";
 import { FindAllQueryDto } from "../../../common/dto/pagination.dto";
 
 export class FindAllUserDto extends FindAllQueryDto {
   @ApiPropertyOptional({
-    description: "Filter by user role",
-    enum: UserRole,
+    description: "Filter by role ID",
+    type: String,
   })
   @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
+  @IsUUID("4")
+  roleId?: string;
 
   @ApiPropertyOptional({
     description: "Filter by active status",
+    type: Boolean,
   })
   @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
   isActive?: boolean;
 }

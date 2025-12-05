@@ -1,19 +1,23 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { UserRole } from "@prisma/client";
 
-export interface CurrentUserData {
+export type CurrentUserData = {
   id: string;
-  role: UserRole;
   phone: string;
-  roles?: string[];
+  /** Dynamic role names from Role table */
+  roles: string[];
+  /** All permission names from user's roles */
+  permissions: string[];
   organizationId?: string;
-  employeeId?: string; // Employee ID for audit fields (createdById, updatedById, etc.)
+  /** Employee ID for audit fields (createdById, updatedById, etc.) */
+  employeeId?: string;
   isActive: boolean;
+  /** System-level super admin flag */
   isSuperAdmin: boolean;
-}
+};
 
 export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): CurrentUserData => {
+  (data: unknown, ctx: ExecutionContext): CurrentUserData | null => {
     const request = ctx.switchToHttp().getRequest();
     const user = request.user;
 
@@ -24,12 +28,12 @@ export const CurrentUser = createParamDecorator(
     return {
       id: user.id,
       phone: user.phone,
-      role: user.role,
-      roles: user.roles || [],
+      roles: user.roles ?? [],
+      permissions: user.permissions ?? [],
       organizationId: user.organizationId,
       employeeId: user.employeeId,
-      isActive: user.isActive,
+      isActive: user.isActive ?? true,
       isSuperAdmin: user.role === UserRole.SUPER_ADMIN,
     };
-  },
+  }
 );

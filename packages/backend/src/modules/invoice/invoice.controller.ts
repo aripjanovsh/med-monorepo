@@ -47,20 +47,22 @@ export class InvoiceController {
   @ApiResponse({ status: 400, description: "Validation error" })
   async create(
     @Body() createInvoiceDto: CreateInvoiceDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.invoiceService.create(createInvoiceDto, user.employeeId);
   }
 
   @Post("from-visit")
   @RequirePermission({ resource: "invoices", action: "CREATE" })
-  @ApiOperation({ summary: "Create invoice from visit's unpaid service orders" })
+  @ApiOperation({
+    summary: "Create invoice from visit's unpaid service orders",
+  })
   @ApiResponse({ status: 201, description: "Invoice created successfully" })
   @ApiResponse({ status: 404, description: "Visit not found" })
   @ApiResponse({ status: 400, description: "No unpaid services found" })
   async createFromVisit(
     @Body() dto: CreateInvoiceFromVisitDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.invoiceService.createFromVisit(dto, user.employeeId);
   }
@@ -81,7 +83,7 @@ export class InvoiceController {
   findOne(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.invoiceService.findOne(
       id,
-      user.role === "SUPER_ADMIN" ? undefined : user.organizationId,
+      user.isSuperAdmin ? undefined : user.organizationId
     );
   }
 
@@ -94,12 +96,12 @@ export class InvoiceController {
   update(
     @Param("id") id: string,
     @Body() updateInvoiceDto: UpdateInvoiceDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.invoiceService.update(
       id,
       updateInvoiceDto,
-      user.organizationId,
+      user.organizationId
     );
   }
 
@@ -125,7 +127,7 @@ export class InvoiceController {
   addItem(
     @Param("id") id: string,
     @Body() addItemDto: AddInvoiceItemDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.invoiceService.addItem(id, addItemDto, user.organizationId);
   }
@@ -142,7 +144,7 @@ export class InvoiceController {
   removeItem(
     @Param("id") id: string,
     @Param("itemId") itemId: string,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
     return this.invoiceService.removeItem(id, itemId, user.organizationId);
   }
@@ -161,9 +163,13 @@ export class InvoiceController {
   async addPayment(
     @Param("id") id: string,
     @Body() createPaymentDto: CreatePaymentDto,
-    @CurrentUser() user: CurrentUserData,
+    @CurrentUser() user: CurrentUserData
   ) {
-    return this.invoiceService.addPayment(id, createPaymentDto, user.employeeId);
+    return this.invoiceService.addPayment(
+      id,
+      createPaymentDto,
+      user.employeeId
+    );
   }
 
   @Get(":id/payments")

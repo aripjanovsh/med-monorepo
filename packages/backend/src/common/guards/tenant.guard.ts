@@ -14,13 +14,13 @@ export const RequireTenant = Reflector.createDecorator<boolean>();
 export class TenantGuard implements CanActivate {
   constructor(
     private readonly tenantService: TenantService,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requireTenant = this.reflector.getAllAndOverride<boolean>(
       RequireTenant,
-      [context.getHandler(), context.getClass()],
+      [context.getHandler(), context.getClass()]
     );
 
     // If tenant is not required, allow access
@@ -32,20 +32,21 @@ export class TenantGuard implements CanActivate {
     const user = request.user;
 
     // Super admin can bypass tenant restrictions
-    if (user && user.role === UserRole.SUPER_ADMIN) {
+    const isSuperAdmin = user?.role === UserRole.SUPER_ADMIN;
+    if (isSuperAdmin) {
       request.isSuperAdmin = true;
       return true;
     }
 
     // Set organization ID from user for regular users
-    if (user && user.organizationId) {
+    if (user?.organizationId) {
       this.tenantService.setOrganizationId(user.organizationId);
       return true;
     }
 
     // Regular users must have organization ID
     throw new ForbiddenException(
-      "Organization context is required for this operation",
+      "Organization context is required for this operation"
     );
   }
 }

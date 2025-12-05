@@ -1,4 +1,3 @@
-export * from "./master-data-service-types.api";
 export * from "./master-data-services.api";
 export * from "./master-data-titles.api";
 export * from "./master-data-geolocation.api";

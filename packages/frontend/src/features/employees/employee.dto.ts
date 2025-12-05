@@ -80,13 +80,13 @@ export interface EmployeeResponseDto {
   title?: any; // TitleResponseDto
   user?: any; // UserResponseDto
   organization?: any; // OrganizationResponseDto
-  serviceTypes?: any[];
   primaryLanguage?: any; // LanguageResponseDto
   secondaryLanguage?: any; // LanguageResponseDto
   country?: any; // LocationResponseDto
   region?: any; // LocationResponseDto
   city?: any; // LocationResponseDto
   district?: any; // LocationResponseDto
+  department?: any; // DepartmentResponseDto
 }
 
 // Create Employee Request DTO (matches CreateEmployeeDto from backend)
@@ -119,7 +119,6 @@ export interface CreateEmployeeRequestDto {
   secondaryLanguageId?: string;
   textNotificationsEnabled?: boolean;
   notes?: string;
-  serviceTypeIds?: string[];
   // Address fields
   countryId?: string;
   regionId?: string;

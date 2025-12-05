@@ -64,13 +64,13 @@ export class OrganizationSeed {
       },
     });
 
-    // Create admin user
+    // Create admin user (role is USER, permissions come from dynamic roles)
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
     const adminUser = await this.prisma.user.create({
       data: {
         phone: adminPhone,
         password: hashedPassword,
-        role: UserRole.ADMIN,
+        role: UserRole.USER,
         organizationId: organization.id,
         isActive: true,
       },

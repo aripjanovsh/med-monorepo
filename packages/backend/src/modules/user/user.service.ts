@@ -3,7 +3,7 @@ import {
   NotFoundException,
   ConflictException,
 } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -19,9 +19,21 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const { roleIds, ...userData } = createUserDto;
+
     try {
       const user = await this.prisma.user.create({
-        data: createUserDto,
+        data: {
+          ...userData,
+          role: UserRole.USER,
+          roleAssignments: roleIds?.length
+            ? {
+                create: roleIds.map((roleId) => ({
+                  role: { connect: { id: roleId } },
+                })),
+              }
+            : undefined,
+        },
         include: {
           organization: {
             select: {
@@ -57,12 +69,12 @@ export class UserService {
 
   async findAll(
     query: FindAllUserDto,
-    currentUser: CurrentUserData,
+    currentUser: CurrentUserData
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
-    const { page, limit, search, sortBy, sortOrder, role, isActive } = query;
+    const { page, limit, search, sortBy, sortOrder, roleId, isActive } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
 
     // Super admin can see all users, otherwise filter by organization
     if (!currentUser.isSuperAdmin) {
@@ -71,8 +83,10 @@ export class UserService {
       }
     }
 
-    if (role) {
-      where.role = role;
+    if (roleId) {
+      where.roleAssignments = {
+        some: { roleId },
+      };
     }
 
     if (typeof isActive === "boolean") {
@@ -161,7 +175,7 @@ export class UserService {
 
   async update(
     id: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserDto
   ): Promise<UserResponseDto> {
     try {
       const user = await this.prisma.user.update({

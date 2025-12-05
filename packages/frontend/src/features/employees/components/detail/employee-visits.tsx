@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
+import Link from "next/link";
 
 import { ROUTES, url } from "@/constants/route.constants";
 
@@ -32,13 +33,14 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
       ...employeeVisitColumns,
       {
         id: "actions",
-        header: () => <div className="text-right">Действия</div>,
         cell: ({ row }: { row: any }) => {
           const visit = row.original;
           return (
             <div className="text-right">
               <Button variant="outline" size="sm" asChild>
-                <a href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}>Открыть</a>
+                <Link href={url(ROUTES.VISIT_DETAIL, { id: visit.id })}>
+                  Открыть
+                </Link>
               </Button>
             </div>
           );

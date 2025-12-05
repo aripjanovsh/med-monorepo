@@ -21,30 +21,6 @@ export interface UpdateTitleRequest extends Partial<CreateTitleRequest> {
   id?: string;
 }
 
-// Service Type types
-export interface ServiceType {
-  id: string;
-  name: string;
-  code?: string;
-  description?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  organizationId: string;
-}
-
-export interface CreateServiceTypeRequest {
-  name: string;
-  code?: string;
-  description?: string;
-  isActive?: boolean;
-}
-
-export interface UpdateServiceTypeRequest
-  extends Partial<CreateServiceTypeRequest> {
-  id?: string;
-}
-
 // Department types
 export interface Department {
   id: string;

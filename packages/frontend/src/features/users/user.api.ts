@@ -5,8 +5,10 @@ import type { FileResponseDto } from "@/features/file/file.dto";
 export type User = {
   id: string;
   phone: string;
-  role?: string;
+  /** Dynamic role names from Role table */
   roles?: string[];
+  /** All permission names from user's roles */
+  permissions?: string[];
   organizationId?: string;
   employeeId?: string;
   firstName?: string;

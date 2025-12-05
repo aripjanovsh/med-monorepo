@@ -35,14 +35,31 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
+    // Extract roles and permissions from role assignments
+    const roles = Array.isArray(user.roleAssignments)
+      ? user.roleAssignments.map((ra: any) => ra.role?.name).filter(Boolean)
+      : [];
+
+    // Collect unique permissions from all roles
+    const permissionSet = new Set<string>();
+    if (Array.isArray(user.roleAssignments)) {
+      for (const ra of user.roleAssignments) {
+        if (ra.role?.permissions) {
+          for (const rp of ra.role.permissions) {
+            permissionSet.add(rp.permission);
+          }
+        }
+      }
+    }
+    const permissions = Array.from(permissionSet);
+
     const payload = {
       id: user.id,
       phone: user.phone,
       sub: user.id,
       role: user.role,
-      roles: Array.isArray(user.roleAssignments)
-        ? user.roleAssignments.map((ra: any) => ra.role?.name).filter(Boolean)
-        : [],
+      roles,
+      permissions,
       organizationId: user.organizationId,
       employeeId: user.employee?.id,
     };
@@ -53,9 +70,8 @@ export class AuthService {
         id: user.id,
         phone: user.phone,
         role: user.role,
-        roles: Array.isArray(user.roleAssignments)
-          ? user.roleAssignments.map((ra: any) => ra.role?.name).filter(Boolean)
-          : [],
+        roles,
+        permissions,
         organizationId: user.organizationId,
         employeeId: user.employee?.id,
       },
@@ -180,8 +196,8 @@ export class AuthService {
     return {
       id: user.id,
       phone: user.phone,
-      role: user.role,
       roles: user.roles,
+      permissions: user.permissions,
       organizationId: user.organizationId,
       employeeId: user.employeeId,
       firstName: updatedEmployee.firstName,

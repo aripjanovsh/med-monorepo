@@ -30,7 +30,7 @@ export class EmployeeService {
           data: {
             phone: userAccountPhone,
             password: hashedPassword,
-            role: UserRole.DOCTOR,
+            role: UserRole.USER,
             isActive: true,
             organizationId: createEmployeeDto.organizationId,
             roleAssignments: {

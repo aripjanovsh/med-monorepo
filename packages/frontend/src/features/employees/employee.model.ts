@@ -195,26 +195,6 @@ export const getEmployeeDisplayId = (employee: EmployeeResponseDto): string => {
 };
 
 // =============================================
-// Service Types Functions
-// =============================================
-
-/**
- * Get service types as comma-separated string
- */
-export const getServiceTypesDisplay = (
-  employee: EmployeeResponseDto
-): string => {
-  if (!Array.isArray(employee.serviceTypes)) return "-";
-
-  const types = (employee.serviceTypes as any[])
-    .map((s) => (typeof s === "string" ? s : s?.name))
-    .filter(Boolean)
-    .join(", ");
-
-  return types || "-";
-};
-
-// =============================================
 // Salary Functions
 // =============================================
 

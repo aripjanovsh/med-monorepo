@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Calendar, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { url, ROUTES } from "@/constants/route.constants";
+import { formatMinutes } from "@/lib/date.utils";
 
 export const visitColumns: ColumnDef<VisitResponseDto>[] = [
   {
@@ -94,18 +95,14 @@ export const employeeVisitColumns: ColumnDef<VisitResponseDto>[] = [
       const patientName = visit.patient
         ? getPatientFullName(visit.patient)
         : "Не указан";
-      const initials = visit.patient ? getPatientInitials(visit.patient) : "?";
 
       return (
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
           <div>
             <div className="font-medium">{patientName}</div>
             {visit.patient?.patientId && (
               <div className="text-sm text-muted-foreground">
-                #{visit.patient.patientId}
+                {visit.patient.patientId}
               </div>
             )}
           </div>
@@ -124,6 +121,24 @@ export const employeeVisitColumns: ColumnDef<VisitResponseDto>[] = [
           {formatVisitDate(visit.visitDate)}
         </div>
       );
+    },
+  },
+  // время ожидания
+  {
+    accessorKey: "waitingTimeMinute",
+    header: "Время ожидания",
+    cell: ({ row }) => {
+      const visit = row.original;
+      return <div>{formatMinutes(visit.waitingTimeMinutes)}</div>;
+    },
+  },
+  // время визита
+  {
+    accessorKey: "serviceTimeMinutes",
+    header: "Время визита",
+    cell: ({ row }) => {
+      const visit = row.original;
+      return <div>{formatMinutes(visit.serviceTimeMinutes)}</div>;
     },
   },
   {

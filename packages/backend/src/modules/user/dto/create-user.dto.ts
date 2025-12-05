@@ -1,6 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsEnum, IsOptional, IsBoolean } from "class-validator";
-import { UserRole } from "@prisma/client";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsUUID,
+} from "class-validator";
 import { Expose } from "class-transformer";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
 import { IsUniquePhone } from "../../../common/decorators/unique.decorator";
@@ -24,24 +29,21 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
-  // User personal name and avatar are removed from User entity by design
-
-  @ApiProperty({
-    description: "User role",
-    enum: UserRole,
-    example: UserRole.DOCTOR,
+  @ApiPropertyOptional({
+    description: "Role IDs to assign to the user",
+    type: [String],
+    example: ["role-uuid-1", "role-uuid-2"],
   })
-  @IsEnum(UserRole)
-  role: UserRole;
+  @IsOptional()
+  @IsArray()
+  @IsUUID("4", { each: true })
+  roleIds?: string[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Is user active",
     default: true,
-    required: false,
   })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  // Email verification removed because login is phone-based
 }

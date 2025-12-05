@@ -1,6 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MinLength, IsEnum } from "class-validator";
-import { UserRole } from "@prisma/client";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  IsString,
+  MinLength,
+  IsOptional,
+  IsArray,
+  IsUUID,
+} from "class-validator";
 import { IsUniquePhone } from "../../../common/decorators/unique.decorator";
 
 export class RegisterDto {
@@ -21,13 +26,13 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  // Optionally allow setting a base enum role; multiple custom roles can be assigned separately
-
-  @ApiProperty({
-    description: "User role",
-    enum: UserRole,
-    example: UserRole.DOCTOR,
+  @ApiPropertyOptional({
+    description: "Role IDs to assign to the user",
+    type: [String],
+    example: ["role-uuid-1", "role-uuid-2"],
   })
-  @IsEnum(UserRole)
-  role: UserRole;
+  @IsOptional()
+  @IsArray()
+  @IsUUID("4", { each: true })
+  roleIds?: string[];
 }

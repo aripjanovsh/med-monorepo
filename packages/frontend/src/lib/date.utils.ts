@@ -148,3 +148,46 @@ const getYearsWord = (count: number): string => {
   if (count >= 2 && count <= 4) return "года";
   return "лет";
 };
+
+/**
+ * Форматирование минут 1мин., 1час 2мин., 1день 2часа 3мин.
+ * @param minutes - количество минут
+ * @returns строка с форматированными минутами
+ */
+export const formatMinutes = (minutes: number | null | undefined): string => {
+  if (!minutes && minutes !== 0) return "";
+
+  if (minutes === 0) return "0 мин.";
+
+  const days = Math.floor(minutes / (24 * 60));
+  const hours = Math.floor((minutes % (24 * 60)) / 60);
+  const mins = minutes % 60;
+
+  const parts: string[] = [];
+
+  if (days > 0) {
+    parts.push(`${days} ${getDaysWord(days)}`);
+  }
+
+  if (hours > 0) {
+    parts.push(`${hours} ${getHoursWord(hours)}`);
+  }
+
+  if (mins > 0 || parts.length === 0) {
+    parts.push(`${mins} ${getMinutesWord(mins)}`);
+  }
+
+  return parts.join(" ");
+};
+
+const getHoursWord = (count: number): string => {
+  if (count === 1) return "час";
+  if (count >= 2 && count <= 4) return "часа";
+  return "часов";
+};
+
+const getMinutesWord = (count: number): string => {
+  if (count === 1) return "мин.";
+  if (count >= 2 && count <= 4) return "мин.";
+  return "мин.";
+};

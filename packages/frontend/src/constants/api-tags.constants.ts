@@ -4,7 +4,6 @@
 
 // Master Data API Tags
 export const API_TAG_OPERATIONS_TITLES = "Title" as const;
-export const API_TAG_OPERATIONS_SERVICE_TYPES = "ServiceType" as const;
 export const API_TAG_OPERATIONS_SERVICES = "Service" as const;
 export const API_TAG_OPERATIONS_LANGUAGES = "Language" as const;
 export const API_TAG_OPERATIONS_DEPARTMENTS = "Department" as const;
@@ -65,7 +64,6 @@ export const API_TAG_OPERATIONS_ORGANIZATION = "Organization" as const;
 
 export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_TITLES
-  | typeof API_TAG_OPERATIONS_SERVICE_TYPES
   | typeof API_TAG_OPERATIONS_SERVICES
   | typeof API_TAG_OPERATIONS_LANGUAGES
   | typeof API_TAG_OPERATIONS_DEPARTMENTS
@@ -95,7 +93,6 @@ export type ApiTagTypes =
 // Unified API Tags object for easier access
 export const API_TAGS = {
   TITLE: API_TAG_OPERATIONS_TITLES,
-  SERVICE_TYPE: API_TAG_OPERATIONS_SERVICE_TYPES,
   SERVICE: API_TAG_OPERATIONS_SERVICES,
   LANGUAGE: API_TAG_OPERATIONS_LANGUAGES,
   DEPARTMENT: API_TAG_OPERATIONS_DEPARTMENTS,
