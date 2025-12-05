@@ -62,7 +62,6 @@ export {
   getPassportSeriesNumber,
   hasPassportInfo,
   getEmployeeDisplayId,
-  getServiceTypesDisplay,
   formatSalary,
   getWorkScheduleForDay,
   hasWorkSchedule,
@@ -81,7 +80,6 @@ export {
 } from "./employee.api";
 
 // Component exports
-export { EmployeeForm } from "./components/employee-form";
 export { PageEmployeeForm } from "./components/page-employee-form";
 export { default as WorkScheduleField } from "./components/work-schedule-field";
 export { EmployeeSelectField } from "./components/employee-select-field";

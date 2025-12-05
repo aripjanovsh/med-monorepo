@@ -79,6 +79,9 @@ export interface EmployeeResponseDto {
   // Related entities (optional in response)
   title?: any; // TitleResponseDto
   user?: any; // UserResponseDto
+  userRoles?: string[]; // Array of role names
+  userRoleIds?: string[]; // Array of role IDs for form editing
+  userPhone?: string; // User's phone for auth (from user.phone)
   organization?: any; // OrganizationResponseDto
   primaryLanguage?: any; // LanguageResponseDto
   secondaryLanguage?: any; // LanguageResponseDto

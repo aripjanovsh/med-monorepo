@@ -1,4 +1,4 @@
-import { Exclude, Expose } from "class-transformer";
+import { Exclude, Expose, Transform } from "class-transformer";
 import { BaseResponseDto } from "../../../common/dto/response.dto";
 import { UserResponseDto } from "../../user/dto/user-response.dto";
 import { OrganizationResponseDto } from "../../organization/dto/organization-response.dto";
@@ -150,6 +150,30 @@ export class EmployeeResponseDto extends BaseResponseDto {
   @Expose()
   @Type(() => UserResponseDto)
   user?: UserResponseDto;
+
+  @Expose()
+  @Transform(({ obj }) =>
+    Array.isArray(obj?.user?.roleAssignments)
+      ? obj.user.roleAssignments
+          .map((ra: any) => ra?.role?.name)
+          .filter((n: string | undefined) => Boolean(n))
+      : []
+  )
+  userRoles?: string[];
+
+  @Expose()
+  @Transform(({ obj }) =>
+    Array.isArray(obj?.user?.roleAssignments)
+      ? obj.user.roleAssignments
+          .map((ra: any) => ra?.role?.id)
+          .filter((id: string | undefined) => Boolean(id))
+      : []
+  )
+  userRoleIds?: string[];
+
+  @Expose()
+  @Transform(({ obj }) => obj?.user?.phone ?? null)
+  userPhone?: string;
 
   @Expose()
   @Type(() => OrganizationResponseDto)

@@ -9,6 +9,7 @@ import {
   getEmployeeFullName,
   getEmployeePhone,
   getEmployeeTitle,
+  getEmployeeRoles,
 } from "../employee.model";
 import { cn } from "@/lib/utils";
 

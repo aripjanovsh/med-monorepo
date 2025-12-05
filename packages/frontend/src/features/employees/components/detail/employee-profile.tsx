@@ -13,6 +13,7 @@ import {
   getEmployeeDisplayId,
   getWorkScheduleForDay,
   getNotificationStatusDisplay,
+  getEmployeeRoles,
 } from "@/features/employees/employee.model";
 import { EmployeeResponseDto } from "@/features/employees/employee.dto";
 import { WEEK_DAYS, WEEK_DAYS_LONG } from "../../employee.constants";
@@ -77,6 +78,7 @@ export const EmployeeProfile = ({ employee }: EmployeeProfileProps) => {
               label="Второй язык"
               value={employee.secondaryLanguage?.name}
             />
+            <ProfileField label="Роли" value={getEmployeeRoles(employee)} />
             <div className="hidden lg:block" />
           </div>
         </CardContent>

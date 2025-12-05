@@ -79,7 +79,6 @@ export const WEEK_DAYS_LONG = {
 
 export const FORM_STEPS = [
   { key: "staff", title: "Информация" },
-  { key: "services", title: "Услуги" },
   { key: "hours", title: "График работы" },
   { key: "account", title: "Аккаунт и уведомления" },
 ] as const;

@@ -14,6 +14,75 @@ import { generateMemorableId } from "../../common/utils/id-generator.util";
 export class EmployeeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Create or update a user account for the employee.
+   * - If user does not exist and credentials provided -> create user and return userId
+   * - If user exists -> update phone (if provided) and replace role assignments
+   * - If no credentials provided -> return existing userId untouched
+   */
+  private async upsertUserAccount(
+    tx: Prisma.TransactionClient,
+    params: {
+      existingUserId?: string;
+      organizationId: string;
+      userAccountPhone?: string;
+      userAccountRoleIds?: string[];
+    }
+  ): Promise<string | undefined> {
+    const {
+      existingUserId,
+      organizationId,
+      userAccountPhone,
+      userAccountRoleIds,
+    } = params;
+
+    // If no account data provided, keep current state
+    if (!userAccountPhone || !userAccountRoleIds) {
+      return existingUserId;
+    }
+
+    // Create new user account
+    if (!existingUserId) {
+      const hashedPassword = await bcrypt.hash("TempPass123!", 10);
+      const user = await tx.user.create({
+        data: {
+          phone: userAccountPhone,
+          password: hashedPassword,
+          role: UserRole.USER,
+          isActive: true,
+          organizationId,
+          roleAssignments: {
+            create: userAccountRoleIds.map((roleId) => ({
+              role: { connect: { id: roleId } },
+            })),
+          },
+        },
+      });
+      return user.id;
+    }
+
+    // Update existing user: phone + roles
+    await tx.user.update({
+      where: { id: existingUserId },
+      data: userAccountPhone ? { phone: userAccountPhone } : {},
+    });
+
+    await tx.userRole_Assignment.deleteMany({
+      where: { userId: existingUserId },
+    });
+
+    if (userAccountRoleIds.length > 0) {
+      await tx.userRole_Assignment.createMany({
+        data: userAccountRoleIds.map((roleId) => ({
+          userId: existingUserId,
+          roleId,
+        })),
+      });
+    }
+
+    return existingUserId;
+  }
+
   async create(
     createEmployeeDto: CreateEmployeeDto
   ): Promise<EmployeeResponseDto> {
@@ -21,27 +90,12 @@ export class EmployeeService {
       createEmployeeDto;
 
     return await this.prisma.$transaction(async (tx) => {
-      let userId: string | undefined;
-
-      // Create user account within transaction if requested
-      if (userAccountPhone && userAccountRoleIds) {
-        const hashedPassword = await bcrypt.hash("TempPass123!", 10);
-        const user = await tx.user.create({
-          data: {
-            phone: userAccountPhone,
-            password: hashedPassword,
-            role: UserRole.USER,
-            isActive: true,
-            organizationId: createEmployeeDto.organizationId,
-            roleAssignments: {
-              create: userAccountRoleIds.map((roleId) => ({
-                role: { connect: { id: roleId } },
-              })),
-            },
-          },
-        });
-        userId = user.id;
-      }
+      const userId = await this.upsertUserAccount(tx, {
+        existingUserId: undefined,
+        organizationId: createEmployeeDto.organizationId,
+        userAccountPhone,
+        userAccountRoleIds,
+      });
 
       const { ...employeeCore } = employeeData;
 
@@ -130,7 +184,6 @@ export class EmployeeService {
       this.prisma.employee.findMany({
         where,
         include: {
-          user: true,
           organization: true,
           title: true,
           avatar: true,
@@ -173,7 +226,15 @@ export class EmployeeService {
     const employee = await this.prisma.employee.findUnique({
       where,
       include: {
-        user: true,
+        user: {
+          include: {
+            roleAssignments: {
+              include: {
+                role: true,
+              },
+            },
+          },
+        },
         organization: true,
         title: true,
         avatar: true,
@@ -197,9 +258,10 @@ export class EmployeeService {
     id: string,
     updateEmployeeDto: UpdateEmployeeDto
   ): Promise<EmployeeResponseDto> {
-    // Check if employee exists
+    // Check if employee exists with user relation
     const existingEmployee = await this.prisma.employee.findUnique({
       where: { id },
+      include: { user: true },
     });
 
     if (!existingEmployee) {
@@ -215,13 +277,34 @@ export class EmployeeService {
       const { userAccountPhone, userAccountRoleIds, ...coreUpdate } =
         updateEmployeeDto;
 
+      // Create or update user account if payload provided
+      const userId = await this.upsertUserAccount(tx, {
+        existingUserId: existingEmployee.userId,
+        organizationId: existingEmployee.organizationId,
+        userAccountPhone,
+        userAccountRoleIds,
+      });
+
       await tx.employee.update({
         where,
-        data: coreUpdate as any,
+        data: {
+          ...coreUpdate,
+          // Attach newly created user to employee if it was absent before
+          ...(userId ? { userId } : {}),
+        } as any,
       });
 
       const updatedEmployee = await tx.employee.findUnique({
         where: { id },
+        include: {
+          user: {
+            include: {
+              roleAssignments: {
+                include: { role: true },
+              },
+            },
+          },
+        },
       });
 
       return plainToInstance(EmployeeResponseDto, updatedEmployee);

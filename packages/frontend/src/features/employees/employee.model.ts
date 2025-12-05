@@ -207,6 +207,58 @@ export const formatSalary = (salary?: number): string => {
 };
 
 // =============================================
+// Role Functions
+// =============================================
+
+/**
+ * Get employee roles as a comma-separated string
+ */
+export const getEmployeeRoles = (employee: EmployeeResponseDto): string => {
+  if (!employee.userRoles || employee.userRoles.length === 0) {
+    return "Нет ролей";
+  }
+  return employee.userRoles.join(", ");
+};
+
+/**
+ * Check if employee has specific role
+ */
+export const hasEmployeeRole = (
+  employee: EmployeeResponseDto,
+  role: string
+): boolean => {
+  return employee.userRoles?.includes(role) || false;
+};
+
+/**
+ * Check if employee has any roles
+ */
+export const hasEmployeeRoles = (employee: EmployeeResponseDto): boolean => {
+  return !!(employee.userRoles && employee.userRoles.length > 0);
+};
+
+/**
+ * Get employee role IDs for form editing
+ */
+export const getEmployeeRoleIds = (employee: EmployeeResponseDto): string[] => {
+  return employee.userRoleIds || [];
+};
+
+/**
+ * Get user phone for auth (if user account exists)
+ */
+export const getEmployeeUserPhone = (employee: EmployeeResponseDto): string => {
+  return employee.userPhone || "";
+};
+
+/**
+ * Check if employee has user account
+ */
+export const hasUserAccount = (employee: EmployeeResponseDto): boolean => {
+  return !!employee.userId;
+};
+
+// =============================================
 // Work Schedule Functions
 // =============================================
 
@@ -296,7 +348,6 @@ export const mapEmployeeToFormData = (employee: EmployeeResponseDto) => {
     phone: employee.phone || "",
     secondaryPhone: employee.secondaryPhone || "",
     workPhone: employee.workPhone || "",
-    userAccountPhone: "",
 
     // Employment Details
     titleId: employee.titleId || "",
@@ -324,8 +375,9 @@ export const mapEmployeeToFormData = (employee: EmployeeResponseDto) => {
     notes: employee.notes || "",
 
     // Form-specific fields
-    createUserAccount: false,
-    userAccountRoleIds: [],
+    createUserAccount: !!employee.userId,
+    userAccountRoleIds: getEmployeeRoleIds(employee),
+    userAccountPhone: getEmployeeUserPhone(employee),
   };
 };
 

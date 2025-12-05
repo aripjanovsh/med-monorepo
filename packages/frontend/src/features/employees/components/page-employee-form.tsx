@@ -481,72 +481,30 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
             </div>
           </FormSection>
 
-          {/* Notifications & User Account */}
-          <FormSection title="Уведомления и аккаунт">
-            <div>
-              {/* Notifications */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="textNotificationsEnabled"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Включить SMS-уведомления</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          Разрешить отправку SMS этому сотруднику
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* User Account */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium">Аккаунт пользователя</h4>
-                <FormField
-                  control={form.control}
-                  name="createUserAccount"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Создать аккаунт пользователя</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          Сотрудник сможет войти в систему. Телефон будет
-                          использован для авторизации.
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                {createUserAccount && (
-                  <div className="space-y-4 ml-7">
+          {/* User Account */}
+          <FormSection title="Доступ к системе">
+            <div className="space-y-4">
+              {employee?.userId ? (
+                // Existing user account - show info
+                <div className="rounded-lg border bg-muted/50 p-4 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-sm font-medium">Аккаунт активен</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="userAccountPhone"
                       render={({ field }) => (
                         <PhoneField
-                          label="Телефон для авторизации"
-                          placeholder="Введите телефон"
+                          label="Телефон для входа"
+                          disabled
                           {...field}
                         />
                       )}
                     />
-
+                  </div>
+                  <div>
                     <FormField
                       control={form.control}
                       name="userAccountRoleIds"
@@ -560,8 +518,65 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                       )}
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                // No user account - show option to create
+                <>
+                  <FormField
+                    control={form.control}
+                    name="createUserAccount"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            Создать аккаунт для входа в систему
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Сотрудник сможет авторизоваться по номеру телефона
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {createUserAccount && (
+                    <div className="space-y-4 rounded-lg border p-4">
+                      <FormField
+                        control={form.control}
+                        name="userAccountPhone"
+                        render={({ field }) => (
+                          <PhoneField
+                            label="Телефон для авторизации"
+                            placeholder="Введите номер телефона"
+                            required
+                            {...field}
+                          />
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="userAccountRoleIds"
+                        render={({ field }) => (
+                          <RoleListField
+                            label="Назначить роли"
+                            multiple
+                            inline
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </FormSection>
 
