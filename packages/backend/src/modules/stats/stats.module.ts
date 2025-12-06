@@ -4,6 +4,7 @@ import { PatientStatsService } from "./patient-stats.service";
 import { InvoiceStatsService } from "./invoice-stats.service";
 import { EmployeeStatsService } from "./employee-stats.service";
 import { EmployeeQuickStatsService } from "./employee-quick-stats.service";
+import { VisitStatsService } from "./visit-stats.service";
 import { PatientDashboardStatsService } from "./patient-dashboard-stats.service";
 import { StatsController } from "./stats.controller";
 import { PrismaModule } from "@/common/prisma/prisma.module";
@@ -18,6 +19,7 @@ import { PrismaModule } from "@/common/prisma/prisma.module";
     EmployeeStatsService,
     EmployeeQuickStatsService,
     PatientDashboardStatsService,
+    VisitStatsService,
   ],
   exports: [
     StatsService,
@@ -26,6 +28,7 @@ import { PrismaModule } from "@/common/prisma/prisma.module";
     EmployeeStatsService,
     EmployeeQuickStatsService,
     PatientDashboardStatsService,
+    VisitStatsService,
   ],
 })
 export class StatsModule {}

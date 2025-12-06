@@ -72,3 +72,4 @@ export { VisitProtocol } from "./components/visit-protocol";
 export { VisitDetailHeader, VisitInfoCards } from "./components/detail";
 export { VisitStatusFacetedSelectField } from "./components/visit-status-faceted-select-field";
 export { EmployeeFacetedSelectField } from "./components/employee-faceted-select-field";
+export { VisitsQuickStats } from "./components/visits-quick-stats";

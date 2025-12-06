@@ -278,3 +278,41 @@ export interface PatientDashboardStatsResponseDto {
   activeOrders: PatientActiveOrderDto[];
   treatingDoctors: PatientTreatingDoctorDto[];
 }
+
+// Visit Stats DTOs
+export interface VisitStatsQueryDto {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface VisitStatusDistributionDto {
+  waiting: number;
+  inProgress: number;
+  completed: number;
+  canceled: number;
+  waitingPercent: number;
+  inProgressPercent: number;
+  completedPercent: number;
+  canceledPercent: number;
+}
+
+export interface VisitMonthlyTrendDto {
+  month: string;
+  monthShort: string;
+  year: number;
+  visitsCount: number;
+  completedCount: number;
+}
+
+export interface VisitStatsResponseDto {
+  totalVisits: number;
+  visitsThisMonth: number;
+  visitsLastMonth: number;
+  growthPercent: number;
+  completedVisits: number;
+  completionRate: number;
+  avgWaitingTimeMinutes: number;
+  avgServiceTimeMinutes: number;
+  statusDistribution: VisitStatusDistributionDto;
+  monthlyTrends: VisitMonthlyTrendDto[];
+}

@@ -2,7 +2,14 @@
 
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Plus, Eye, Trash } from "lucide-react";
+import {
+  MoreHorizontal,
+  Plus,
+  Eye,
+  Trash,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -37,6 +44,8 @@ import { ActionTabs } from "@/components/action-tabs";
 import { VisitStatusFacetedSelectField } from "./components/visit-status-faceted-select-field";
 import { EmployeeFacetedSelectField } from "./components/employee-faceted-select-field";
 import { DateRangeFilter } from "@/components/ui/date-range-filter";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { VisitsQuickStats } from "./components/visits-quick-stats";
 
 const STATUS_TABS = [
   { value: "all", label: "Все визиты" },
@@ -51,6 +60,9 @@ export const VisitsPage = () => {
   const confirm = useConfirmDialog();
   const visitDialog = useDialog(VisitFormDialog);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [showStats, setShowStats] = useLocalStorage("visits-show-stats", {
+    defaultValue: false,
+  });
 
   const { queryParams, handlers, setters, values } = useDataTableState({
     defaultLimit: 20,
@@ -193,20 +205,32 @@ export const VisitsPage = () => {
       <LayoutHeader
         title="Визиты"
         right={
-          <Button
-            onClick={() =>
-              visitDialog.open({
-                mode: "create",
-                onSuccess: refetch,
-              })
-            }
-          >
-            <Plus />
-            Начать прием
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowStats(!showStats)}
+              variant="link"
+              className="cursor-pointer gap-1"
+            >
+              {showStats ? <ChevronUp /> : <ChevronDown />}
+              {showStats ? "Скрыть статистику" : "Показать статистику"}
+            </Button>
+            <Button
+              onClick={() =>
+                visitDialog.open({
+                  mode: "create",
+                  onSuccess: refetch,
+                })
+              }
+            >
+              <Plus />
+              Начать прием
+            </Button>
+          </div>
         }
       />
       <CabinetContent className="space-y-6">
+        {showStats && <VisitsQuickStats />}
+
         <ActionTabs
           value={activeTab}
           onValueChange={setActiveTab}
@@ -224,9 +248,9 @@ export const VisitsPage = () => {
                 return (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="icon-sm">
                         <span className="sr-only">Открыть меню</span>
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreHorizontal />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -238,14 +262,14 @@ export const VisitsPage = () => {
                           )
                         }
                       >
-                        <Eye className="mr-2 h-4 w-4" />
+                        <Eye />
                         Просмотр
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600"
                         onClick={() => handleDeleteVisit(visit)}
                       >
-                        <Trash className="mr-2 h-4 w-4" />
+                        <Trash />
                         Удалить
                       </DropdownMenuItem>
                     </DropdownMenuContent>

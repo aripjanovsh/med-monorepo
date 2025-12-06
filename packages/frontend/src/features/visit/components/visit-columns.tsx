@@ -3,22 +3,19 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-
 import type { VisitResponseDto } from "../visit.dto";
 import { formatVisitDate } from "../visit.model";
 import { VisitStatusBadge } from "./visit-status-badge";
+import { getPatientShortName } from "@/features/patients/patient.model";
 import {
-  getPatientFullName,
-  getPatientInitials,
-} from "@/features/patients/patient.model";
-import { getEmployeeFullName } from "@/features/employees/employee.model";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
-import { Calendar, ExternalLink, Clock } from "lucide-react";
+  getEmployeeShortName,
+  getEmployeeTitle,
+} from "@/features/employees/employee.model";
+import { Calendar, Clock } from "lucide-react";
+import { formatMinutes } from "@/lib/date.utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import Link from "next/link";
 import { url, ROUTES } from "@/constants/route.constants";
-import { formatMinutes } from "@/lib/date.utils";
-import { VISIT_TYPE_LABELS } from "../visit.constants";
-import type { VisitType } from "../visit.constants";
 
 export const visitColumns: ColumnDef<VisitResponseDto>[] = [
   {
@@ -39,10 +36,15 @@ export const visitColumns: ColumnDef<VisitResponseDto>[] = [
     header: "ПАЦИЕНТ",
     cell: ({ row }) => {
       const visit = row.original;
-      const patientName = getPatientFullName(visit.patient);
+      const patientName = getPatientShortName(visit.patient as any);
       return (
         <div>
-          <div className="font-medium">{patientName}</div>
+          <Link
+            href={url(ROUTES.PATIENT_DETAIL, { id: visit.patient?.id })}
+            className="font-medium hover:underline"
+          >
+            {patientName}
+          </Link>
           {visit.patient?.patientId && (
             <div className="text-xs text-muted-foreground">
               {visit.patient.patientId}
@@ -56,17 +58,29 @@ export const visitColumns: ColumnDef<VisitResponseDto>[] = [
     accessorKey: "employee",
     header: "ВРАЧ",
     cell: ({ row }) => {
-      const employeeName = getEmployeeFullName(row.original.employee);
-      return <div className="text-sm">{employeeName}</div>;
-    },
-  },
-  {
-    accessorKey: "type",
-    header: "ТИП",
-    cell: ({ row }) => {
-      const type = row.original.type as VisitType | undefined;
-      if (!type) return <span className="text-muted-foreground">—</span>;
-      return <span className="text-sm">{VISIT_TYPE_LABELS[type] || type}</span>;
+      const employee = row.original.employee;
+      const fullName = getEmployeeShortName(employee as any);
+      const title = getEmployeeTitle(employee as any);
+
+      return (
+        <div className="flex items-center space-x-3">
+          <UserAvatar
+            avatarId={employee?.avatarId}
+            name={fullName}
+            className="h-8"
+            size={24}
+          />
+          <div>
+            <Link
+              href={url(ROUTES.EMPLOYEE_DETAIL, { id: employee?.id })}
+              className="font-medium hover:underline"
+            >
+              {fullName}
+            </Link>
+            <div className="text-xs text-muted-foreground">{title}</div>
+          </div>
+        </div>
+      );
     },
   },
   {

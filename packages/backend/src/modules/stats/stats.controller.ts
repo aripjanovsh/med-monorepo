@@ -24,6 +24,9 @@ import { PatientDashboardStatsResponseDto } from "./dto/patient-dashboard-stats-
 import { EmployeeQuickStatsService } from "./employee-quick-stats.service";
 import { EmployeeQuickStatsQueryDto } from "./dto/employee-quick-stats-query.dto";
 import { EmployeeQuickStatsResponseDto } from "./dto/employee-quick-stats-response.dto";
+import { VisitStatsService } from "./visit-stats.service";
+import { VisitStatsQueryDto } from "./dto/visit-stats-query.dto";
+import { VisitStatsResponseDto } from "./dto/visit-stats-response.dto";
 import {
   RequirePermission,
   PermissionGuard,
@@ -40,7 +43,8 @@ export class StatsController {
     private readonly invoiceStatsService: InvoiceStatsService,
     private readonly employeeStatsService: EmployeeStatsService,
     private readonly employeeQuickStatsService: EmployeeQuickStatsService,
-    private readonly patientDashboardStatsService: PatientDashboardStatsService
+    private readonly patientDashboardStatsService: PatientDashboardStatsService,
+    private readonly visitStatsService: VisitStatsService
   ) {}
 
   @Get()
@@ -125,5 +129,19 @@ export class StatsController {
     @Query() query: PatientDashboardStatsQueryDto
   ): Promise<PatientDashboardStatsResponseDto> {
     return this.patientDashboardStatsService.getDashboardStats(query);
+  }
+
+  @Get("visits")
+  @RequirePermission({ resource: "stats", action: "READ" })
+  @ApiOperation({ summary: "Get visit statistics" })
+  @ApiResponse({
+    status: 200,
+    description: "Visit statistics data",
+    type: VisitStatsResponseDto,
+  })
+  getVisitStats(
+    @Query() query: VisitStatsQueryDto
+  ): Promise<VisitStatsResponseDto> {
+    return this.visitStatsService.getVisitStats(query);
   }
 }

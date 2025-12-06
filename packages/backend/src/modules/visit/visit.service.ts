@@ -50,6 +50,13 @@ const VISIT_INCLUDE_RELATIONS = {
       firstName: true,
       middleName: true,
       lastName: true,
+      avatarId: true,
+      title: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   },
   appointment: {

@@ -64,6 +64,17 @@ class SimpleEmployeeResponseDto {
   @Expose()
   @ApiProperty()
   lastName: string;
+
+  @Expose()
+  @ApiPropertyOptional()
+  avatarId?: string;
+
+  @Expose()
+  @ApiPropertyOptional()
+  title?: {
+    id: string;
+    name: string;
+  };
 }
 
 @Exclude()

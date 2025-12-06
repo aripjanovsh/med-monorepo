@@ -24,12 +24,11 @@ export const getEmployeeFullName = (
     .join(" ");
 };
 
-export const getEmployeeShortName = (
-  employee:
-    | EmployeeResponseDto
-    | SimpleEmployeeDto
-    | { firstName: string; lastName: string; middleName?: string }
-): string => {
+export const getEmployeeShortName = (employee: {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+}): string => {
   return `${employee.lastName} ${employee.firstName}`;
 };
 

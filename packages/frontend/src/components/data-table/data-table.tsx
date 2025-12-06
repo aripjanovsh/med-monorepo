@@ -146,7 +146,16 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => onRowClick?.(row)}
+                  onClick={(e) => {
+                    // Don't trigger row click if clicking on interactive elements
+                    const target = e.target as HTMLElement;
+                    const isInteractive = target.closest(
+                      'a, button, [role="button"], input, select, textarea, [data-no-row-click]'
+                    );
+                    if (isInteractive) return;
+
+                    onRowClick?.(row);
+                  }}
                   className={onRowClick ? "cursor-pointer" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => {
@@ -157,7 +166,7 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id} className={columnMeta.className}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     );

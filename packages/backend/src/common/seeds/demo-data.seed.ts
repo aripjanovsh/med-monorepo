@@ -2239,6 +2239,12 @@ export class DemoDataSeed {
   ): Promise<Visit[]> {
     const visits: Visit[] = [];
     const now = new Date();
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const randomBetween = (min: number, max: number): number => {
+      return min + Math.floor(Math.random() * (max - min + 1));
+    };
 
     // Check existing visits count
     const existingCount = await this.prisma.visit.count({
@@ -2269,7 +2275,7 @@ export class DemoDataSeed {
 
         for (let v = 0; v < visitsPerDay; v++) {
           const patient = patients[Math.floor(Math.random() * patients.length)];
-          const visitTime = new Date(visitDate);
+          let visitTime = new Date(visitDate);
           visitTime.setHours(9 + v * 2, Math.floor(Math.random() * 60), 0, 0);
 
           // Determine status based on day
@@ -2298,6 +2304,59 @@ export class DemoDataSeed {
               completedAt = new Date(startedAt.getTime() + 25 * 60000);
               waitingTimeMinutes = 10;
               serviceTimeMinutes = 25;
+            }
+
+            // Ensure "today" visits are not in the future to avoid negative waiting times
+            switch (status) {
+              case VisitStatus.WAITING: {
+                const minutesAgo = randomBetween(5, 40);
+                visitTime = new Date(now.getTime() - minutesAgo * 60000);
+                queuedAt = visitTime;
+                waitingTimeMinutes = minutesAgo;
+                startedAt = null;
+                completedAt = null;
+                serviceTimeMinutes = null;
+                break;
+              }
+              case VisitStatus.IN_PROGRESS: {
+                const waitMinutes = randomBetween(8, 18);
+                const startedMinutesAgo = randomBetween(5, 25);
+                startedAt = new Date(now.getTime() - startedMinutesAgo * 60000);
+                queuedAt = new Date(startedAt.getTime() - waitMinutes * 60000);
+                visitTime = queuedAt;
+                waitingTimeMinutes = waitMinutes;
+                serviceTimeMinutes = null;
+                completedAt = null;
+                break;
+              }
+              case VisitStatus.COMPLETED: {
+                const waitMinutes = randomBetween(8, 15);
+                const serviceMinutes = randomBetween(20, 35);
+                const completedMinutesAgo = randomBetween(10, 120);
+                completedAt = new Date(
+                  now.getTime() - completedMinutesAgo * 60000
+                );
+                startedAt = new Date(
+                  completedAt.getTime() - serviceMinutes * 60000
+                );
+                queuedAt = new Date(startedAt.getTime() - waitMinutes * 60000);
+                visitTime = queuedAt;
+                waitingTimeMinutes = waitMinutes;
+                serviceTimeMinutes = serviceMinutes;
+                break;
+              }
+            }
+
+            if (queuedAt && queuedAt < startOfToday) {
+              const shift = startOfToday.getTime() - queuedAt.getTime();
+              queuedAt = startOfToday;
+              if (startedAt) {
+                startedAt = new Date(startedAt.getTime() + shift);
+              }
+              if (completedAt) {
+                completedAt = new Date(completedAt.getTime() + shift);
+              }
+              visitTime = queuedAt;
             }
           } else {
             // Past days: all completed

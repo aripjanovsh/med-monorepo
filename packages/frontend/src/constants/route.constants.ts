@@ -92,7 +92,7 @@ export const urlWithParams = (
  */
 export const url = (
   route: RouteValues,
-  params?: Record<string, string | number>
+  params?: Record<string, any>
 ): string => {
   if (!params || Object.keys(params).length === 0) {
     return route;

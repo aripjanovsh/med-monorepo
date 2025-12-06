@@ -16,6 +16,8 @@ import type {
   EmployeeStatsResponseDto,
   PatientDashboardStatsQueryDto,
   PatientDashboardStatsResponseDto,
+  VisitStatsQueryDto,
+  VisitStatsResponseDto,
 } from "./stats.dto";
 
 export const STATS_API_TAG = API_TAG_OPERATIONS_STATS;
@@ -90,6 +92,16 @@ export const statsApi = rootApi.injectEndpoints({
         { type: STATS_API_TAG, id: `patient-${patientId}` },
       ],
     }),
+    getVisitQuickStats: builder.query<
+      VisitStatsResponseDto,
+      VisitStatsQueryDto | void
+    >({
+      query: (params) => ({
+        url: "/api/v1/stats/visits",
+        params: params ?? undefined,
+      }),
+      providesTags: [STATS_API_TAG],
+    }),
   }),
 });
 
@@ -100,4 +112,5 @@ export const {
   useGetEmployeeQuickStatsQuery,
   useGetEmployeeDashboardStatsQuery,
   useGetPatientDashboardStatsQuery,
+  useGetVisitQuickStatsQuery,
 } = statsApi;

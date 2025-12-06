@@ -6,23 +6,37 @@ import {
 } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { CardOverview } from "@/components/card-overview";
-import { useGetPatientQuickStatsQuery } from "@/features/stats";
+import { useGetVisitQuickStatsQuery } from "@/features/stats";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, RefreshCw } from "lucide-react";
 
 const chartConfig = {
-  newPatients: {
-    label: "Новые пациенты",
+  visitsCount: {
+    label: "Визиты",
     color: "var(--chart-1)",
   },
-  visits: {
-    label: "Посещения",
+  completedCount: {
+    label: "Завершено",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
-export const PatientsQuickStats = () => {
-  const { data: stats, isLoading } = useGetPatientQuickStatsQuery();
+const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat("ru-RU").format(value);
+};
+
+const formatMinutes = (minutes: number): string => {
+  if (minutes < 60) {
+    return `${minutes} мин`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0
+    ? `${hours} ч ${remainingMinutes} мин`
+    : `${hours} ч`;
+};
+
+export const VisitsQuickStats = () => {
+  const { data: stats, isLoading } = useGetVisitQuickStatsQuery();
 
   if (isLoading) {
     return (
@@ -49,26 +63,25 @@ export const PatientsQuickStats = () => {
 
   const chartData = stats.monthlyTrends.map((trend) => ({
     month: trend.monthShort,
-    newPatients: trend.newPatients,
-    visits: trend.visits,
+    visitsCount: trend.visitsCount,
+    completedCount: trend.completedCount,
   }));
 
   const growthColor =
     stats.growthPercent >= 0 ? "text-green-500" : "text-red-500";
-
   const growthPrefix = stats.growthPercent >= 0 ? "+" : "";
 
   return (
     <div className="grid grid-cols-5 border-t border-b bg-background -mx-6">
       <div className="flex justify-between border-r col-span-2 items-center">
         <CardOverview
-          title="Всего пациентов"
+          title="Всего визитов"
           className="bg-background border-transparent shadow-none rounded-none"
         >
           <div className="flex justify-between gap-4">
             <div className="flex flex-col">
               <div className="text-2xl font-bold">
-                {stats.totalPatients.toLocaleString("ru-RU")}
+                {formatNumber(stats.totalVisits)}
               </div>
               <p className="text-xs text-muted-foreground text-nowrap">
                 <span className={growthColor}>
@@ -100,7 +113,7 @@ export const PatientsQuickStats = () => {
                 content={<ChartTooltipContent indicator="line" />}
               />
               <defs>
-                <linearGradient id="fillPatients" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillVisits" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor="var(--chart-1)"
@@ -113,7 +126,7 @@ export const PatientsQuickStats = () => {
                   />
                 </linearGradient>
 
-                <linearGradient id="fillVisits" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillCompleted" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
                     stopColor="var(--chart-2)"
@@ -127,22 +140,22 @@ export const PatientsQuickStats = () => {
                 </linearGradient>
               </defs>
               <Area
-                dataKey="newPatients"
+                dataKey="visitsCount"
                 type="natural"
-                fill="url(#fillPatients)"
-                fillOpacity={0.4}
+                fill="url(#fillVisits)"
                 strokeWidth={2}
+                fillOpacity={0.4}
                 stroke="var(--chart-1)"
                 stackId="a"
               />
               <Area
-                dataKey="visits"
+                dataKey="completedCount"
                 type="natural"
-                fill="url(#fillVisits)"
-                fillOpacity={0.4}
+                fill="url(#fillCompleted)"
                 strokeWidth={2}
+                fillOpacity={0.4}
                 stroke="var(--chart-2)"
-                stackId="a"
+                stackId="b"
               />
             </AreaChart>
           </ChartContainer>
@@ -150,59 +163,78 @@ export const PatientsQuickStats = () => {
       </div>
 
       <CardOverview
-        title="По полу"
+        title="По статусу"
         className="bg-background border-transparent shadow-none rounded-none border-r-border"
       >
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Мужчин:</span>
+            <span className="text-muted-foreground">Ожидают:</span>
             <span className="font-semibold">
-              {stats.genderDistribution.male.toLocaleString("ru-RU")} (
-              {stats.genderDistribution.malePercent}%)
+              {formatNumber(stats.statusDistribution.waiting)} (
+              {stats.statusDistribution.waitingPercent}%)
             </span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Женщин:</span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">В процессе:</span>
             <span className="font-semibold">
-              {stats.genderDistribution.female.toLocaleString("ru-RU")} (
-              {stats.genderDistribution.femalePercent}%)
+              {formatNumber(stats.statusDistribution.inProgress)} (
+              {stats.statusDistribution.inProgressPercent}%)
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Завершены:</span>
+            <span className="font-semibold text-green-600">
+              {formatNumber(stats.statusDistribution.completed)} (
+              {stats.statusDistribution.completedPercent}%)
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Отменены:</span>
+            <span className="font-semibold text-red-500">
+              {formatNumber(stats.statusDistribution.canceled)} (
+              {stats.statusDistribution.canceledPercent}%)
             </span>
           </div>
         </div>
       </CardOverview>
 
       <CardOverview
-        title="По возрасту"
+        title="Среднее время"
         className="bg-background border-transparent shadow-none rounded-none border-r-border"
       >
-        <div className="flex flex-col gap-0.5">
-          {stats.ageDistribution.map((age) => (
-            <div
-              key={age.label}
-              className="flex items-center justify-between text-xs"
-            >
-              <span className="text-muted-foreground">{age.label}:</span>
-              <span className="font-medium">
-                {age.count.toLocaleString("ru-RU")} ({age.percent}%)
-              </span>
-            </div>
-          ))}
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground">Ожидание</span>
+            <span className="text-sm font-semibold">
+              {formatMinutes(stats.avgWaitingTimeMinutes)}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground">Прием</span>
+            <span className="text-sm font-semibold">
+              {formatMinutes(stats.avgServiceTimeMinutes)}
+            </span>
+          </div>
         </div>
       </CardOverview>
 
       <CardOverview
-        title="Повторные визиты"
+        title="Эффективность"
         className="bg-background border-transparent shadow-none rounded-none"
       >
         <div className="flex flex-col">
-          <div className="text-2xl font-bold">
-            {stats.returningPatients.toLocaleString("ru-RU")}
+          <div className="text-2xl font-bold text-green-600">
+            {stats.completionRate}%
           </div>
           <p className="text-xs text-muted-foreground">
-            <span className="text-green-500">
-              {stats.returningPatientsPercent}%
+            Завершено{" "}
+            <span className="font-medium">
+              {formatNumber(stats.completedVisits)}
             </span>{" "}
-            от всех пациентов
+            из{" "}
+            <span className="font-medium">
+              {formatNumber(stats.totalVisits)}
+            </span>
           </p>
         </div>
       </CardOverview>
