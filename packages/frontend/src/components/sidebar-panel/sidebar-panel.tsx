@@ -12,7 +12,6 @@ import {
   SidebarGroupLabel,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { SIDEBAR_PANEL_NAV_MENU } from "@/components/sidebar-panel/sidebar-panel.menu";
 import { ComponentProps } from "react";
@@ -21,7 +20,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   GalleryVerticalEnd,
-  HelpCircle,
   Settings,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,10 +33,10 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
-      <SidebarHeader className="p-0">
+      <SidebarHeader className="relative p-0">
         <Link
           href="/cabinet"
-          className={cn("flex items-center gap-2 pl-2 py-2", {
+          className={cn("flex items-center gap-2 pl-2 pr-10 py-2", {
             "pl-3": !isCollapsed,
           })}
         >
@@ -49,6 +47,22 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
             <span className="text-2xl font-gilroy font-bold">datadoc.</span>
           )}
         </Link>
+        <button
+          type="button"
+          aria-label={isCollapsed ? "Развернуть" : "Свернуть"}
+          onClick={toggleSidebar}
+          className={cn(
+            "pointer-events-none absolute -right-1 top-1/2 flex py-2 px-[1px] -translate-y-1/2 items-center justify-center rounded-md bg-muted text-muted-foreground shadow-sm transition-opacity duration-150 cursor-pointer hover:bg-muted/80",
+            "opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto",
+            isCollapsed && "-right-3"
+          )}
+        >
+          {isCollapsed ? (
+            <ChevronsRight className="size-4" />
+          ) : (
+            <ChevronsLeft className="size-4" />
+          )}
+        </button>
       </SidebarHeader>
 
       <SidebarContent>
@@ -93,21 +107,11 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip={isCollapsed ? "Развернуть" : "Свернуть"}
-                  onClick={toggleSidebar}
-                >
-                  {isCollapsed ? <ChevronsRight /> : <ChevronsLeft />}
-                  <span>{isCollapsed ? "Развернуть" : "Свернуть"}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
             <SidebarPanelUser />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }
