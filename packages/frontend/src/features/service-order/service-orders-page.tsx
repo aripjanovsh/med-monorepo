@@ -237,7 +237,7 @@ export const ServiceOrdersPage = () => {
                 return (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="icon">
                         <span className="sr-only">Открыть меню</span>
                         <MoreHorizontal />
                       </Button>

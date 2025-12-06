@@ -79,6 +79,7 @@ export interface InvoiceListItemDto {
     id: string;
     firstName: string;
     lastName: string;
+    patientId: string;
   };
   visit?: {
     id: string;

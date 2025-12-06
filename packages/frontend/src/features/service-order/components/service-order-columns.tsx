@@ -1,14 +1,9 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { ru } from "date-fns/locale";
 
-import { getPatientFullName, getPatientShortName } from "@/features/patients";
-import {
-  getEmployeeFullName,
-  getEmployeeShortName,
-} from "@/features/employees";
+import { getPatientShortName } from "@/features/patients";
+import { getEmployeeShortName } from "@/features/employees";
 
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 import { SERVICE_TYPE_LABELS } from "../service-order.constants";
@@ -16,24 +11,21 @@ import {
   OrderStatusBadge,
   PaymentStatusBadge,
 } from "./service-order-status-badge";
-import { getEmployeeLastNameInitial } from "@/features/employees/employee.model";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import Link from "next/link";
 import { url, ROUTES } from "@/constants/route.constants";
 import { getEmployeeTitle } from "@/features/employees/employee.model";
+import { formatFullDate } from "@/lib/date.utils";
 
 export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
     accessorKey: "createdAt",
     header: "ДАТА",
-    cell: ({ row }) => {
-      const date = new Date(row.original.createdAt);
-      return (
-        <div className="whitespace-nowrap text-sm">
-          {format(date, "dd.MM.yyyy HH:mm", { locale: ru })}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap text-sm">
+        {formatFullDate(row.original.createdAt)}
+      </div>
+    ),
   },
   {
     accessorKey: "patient",
@@ -129,10 +121,9 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
       const resultAt = row.original.resultAt;
       if (!resultAt)
         return <div className="text-sm text-muted-foreground">—</div>;
-      const date = new Date(resultAt);
       return (
         <div className="text-sm whitespace-nowrap">
-          {format(date, "dd.MM.yyyy", { locale: ru })}
+          {formatFullDate(resultAt)}
         </div>
       );
     },

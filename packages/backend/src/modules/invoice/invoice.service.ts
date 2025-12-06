@@ -536,6 +536,7 @@ export class InvoiceService {
               firstName: true,
               lastName: true,
               middleName: true,
+              patientId: true,
             },
           },
           visit: {

@@ -225,7 +225,7 @@ export const InvoicesPage = () => {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
                         <span className="sr-only">Открыть меню</span>
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreHorizontal />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -236,23 +236,22 @@ export const InvoicesPage = () => {
                           )
                         }
                       >
-                        <Eye className="mr-2 h-4 w-4" />
+                        <Eye />
                         Просмотр
                       </DropdownMenuItem>
                       {canAddPayment(invoice) && (
                         <DropdownMenuItem
                           onClick={() => handleAddPayment(invoice)}
                         >
-                          <CreditCard className="mr-2 h-4 w-4" />
+                          <CreditCard />
                           Добавить платеж
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDeleteInvoice(invoice)}
                         className="text-destructive"
                       >
-                        <Trash className="mr-2 h-4 w-4" />
+                        <Trash />
                         Удалить
                       </DropdownMenuItem>
                     </DropdownMenuContent>

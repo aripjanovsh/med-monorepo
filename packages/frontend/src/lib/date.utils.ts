@@ -11,6 +11,11 @@ import {
   parseISO,
   startOfDay,
 } from "date-fns";
+import { ru } from "date-fns/locale";
+
+export const formatFullDate = (date: string | Date): string => {
+  return format(date, "dd.MM.yyyy, HH:mm", { locale: ru });
+};
 
 /**
  * Calculate age from date of birth string

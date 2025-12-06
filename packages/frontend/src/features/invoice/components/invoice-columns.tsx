@@ -3,53 +3,57 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { FileText, Stethoscope } from "lucide-react";
 import type { InvoiceListItemDto } from "../invoice.dto";
-import { formatDate } from "@/lib/date.utils";
+import { formatDate, formatFullDate } from "@/lib/date.utils";
 import { getInvoiceRemainingAmount } from "../invoice.model";
-import { getPatientFullName } from "@/features/patients";
+import { getPatientFullName, getPatientShortName } from "@/features/patients";
 import { formatCurrency } from "@/lib/currency.utils";
 import { InvoiceStatusBadge } from "./invoice-status-badge";
+import Link from "next/link";
+import { ROUTES, url } from "@/constants/route.constants";
 
 export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
   {
+    accessorKey: "createdAt",
+    header: "ДАТА",
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap text-sm">
+        {formatFullDate(row.original.createdAt)}
+      </div>
+    ),
+  },
+  {
     accessorKey: "invoiceNumber",
-    header: "Номер счета",
+    header: "НОМЕР СЧЕТА",
     cell: ({ row }) => (
       <div className="font-medium">{row.original.invoiceNumber}</div>
     ),
   },
   {
     accessorKey: "patient",
-    header: "Пациент",
-    cell: ({ row }) => (
-      <div>
-        <div className="font-medium">
-          {getPatientFullName(row.original.patient)}
+    header: "ПАЦИЕНТ",
+    cell: ({ row }) => {
+      const invoice = row.original;
+      const patientName = getPatientShortName(invoice.patient);
+      return (
+        <div>
+          <Link
+            href={url(ROUTES.PATIENT_DETAIL, { id: invoice.patient?.id })}
+            className="font-medium hover:underline"
+          >
+            {patientName}
+          </Link>
+          {invoice.patient?.patientId && (
+            <div className="text-xs text-muted-foreground">
+              {invoice.patient.patientId}
+            </div>
+          )}
         </div>
-        {row.original.visit ? (
-          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-            <Stethoscope className="h-3 w-3" />С визитом
-          </div>
-        ) : (
-          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-            <FileText className="h-3 w-3" />
-            Прямая продажа
-          </div>
-        )}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Дата",
-    cell: ({ row }) => (
-      <div className="text-sm">
-        {formatDate(row.original.createdAt, "dd.MM.yyyy")}
-      </div>
-    ),
+      );
+    },
   },
   {
     accessorKey: "totalAmount",
-    header: "Сумма",
+    header: "СУММА",
     cell: ({ row }) => (
       <div className="text-right font-medium">
         {formatCurrency(row.original.totalAmount)}
@@ -62,7 +66,7 @@ export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
   },
   {
     accessorKey: "paidAmount",
-    header: "Оплачено",
+    header: "ОПЛАЧЕНО",
     cell: ({ row }) => (
       <div className="text-right">
         {formatCurrency(row.original.paidAmount)}
@@ -75,7 +79,7 @@ export const invoiceColumns: ColumnDef<InvoiceListItemDto>[] = [
   },
   {
     accessorKey: "status",
-    header: "Статус",
+    header: "СТАТУС",
     cell: ({ row }) => {
       const invoice = row.original;
       const remainingAmount = getInvoiceRemainingAmount(invoice);
