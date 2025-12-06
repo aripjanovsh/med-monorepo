@@ -44,7 +44,7 @@ export function SidebarPanel({ ...props }: ComponentProps<typeof Sidebar>) {
             <GalleryVerticalEnd className="size-5" />
           </div>
           {!isCollapsed && (
-            <span className="text-2xl font-gilroy font-bold">datadoc.</span>
+            <span className="text-2xl font-gilroy font-bold">DataDoc.</span>
           )}
         </Link>
         <button

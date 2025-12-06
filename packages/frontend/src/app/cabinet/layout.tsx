@@ -3,7 +3,7 @@ import { Cabinet } from "@/components/layouts/cabinet";
 import { AuthGuard } from "@/features/auth/components/auth-guard";
 
 export const metadata: Metadata = {
-  title: "datadoc. - Medical Dashboard",
+  title: "DataDoc.",
   description: "Professional medical dashboard application",
 };
 

@@ -43,10 +43,10 @@ export default function ExecuteOrderLayout({
 
   return (
     <div className="space-y-6">
-      <LayoutHeader
+      {/* <LayoutHeader
         backHref={url(ROUTES.ORDER_DETAIL, { id })}
         backTitle="Назад к назначению"
-      />
+      /> */}
 
       <PageHeader
         title="Выполнение назначения"
