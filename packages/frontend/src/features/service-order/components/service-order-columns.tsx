@@ -18,6 +18,9 @@ import {
 } from "./service-order-status-badge";
 import { getEmployeeLastNameInitial } from "@/features/employees/employee.model";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import Link from "next/link";
+import { url, ROUTES } from "@/constants/route.constants";
+import { getEmployeeTitle } from "@/features/employees/employee.model";
 
 export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
   {
@@ -36,8 +39,23 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     accessorKey: "patient",
     header: "ПАЦИЕНТ",
     cell: ({ row }) => {
-      const patientName = getPatientShortName(row.original.patient);
-      return <div className="font-medium">{patientName}</div>;
+      const order = row.original;
+      const patientName = getPatientShortName(order.patient);
+      return (
+        <div>
+          <Link
+            href={url(ROUTES.PATIENT_DETAIL, { id: order.patient?.id })}
+            className="font-medium hover:underline"
+          >
+            {patientName}
+          </Link>
+          {order.patient?.patientId && (
+            <div className="text-xs text-muted-foreground">
+              {order.patient.patientId}
+            </div>
+          )}
+        </div>
+      );
     },
   },
   {
@@ -65,18 +83,27 @@ export const serviceOrderColumns: ColumnDef<ServiceOrderResponseDto>[] = [
     accessorKey: "doctor",
     header: "НАЗНАЧИЛ",
     cell: ({ row }) => {
-      const doctorName = getEmployeeLastNameInitial(row.original.doctor);
-      const avatarId = row.original.doctor.avatarId;
-      return (
-        <div className="flex flex-row gap-1 items-center">
-          <UserAvatar
-            avatarId={avatarId}
-            name={doctorName}
-            className="size-5 rounded-full"
-            fallbackClassName="rounded-full text-xs"
-          />
+      const doctor = row.original.doctor;
+      const fullName = getEmployeeShortName(doctor);
+      const title = getEmployeeTitle(doctor);
 
-          <div className="text-sm">{doctorName}</div>
+      return (
+        <div className="flex items-center space-x-3">
+          <UserAvatar
+            avatarId={doctor?.avatarId}
+            name={fullName}
+            className="h-8"
+            size={24}
+          />
+          <div>
+            <Link
+              href={url(ROUTES.EMPLOYEE_DETAIL, { id: doctor?.id })}
+              className="font-medium hover:underline"
+            >
+              {fullName}
+            </Link>
+            <div className="text-xs text-muted-foreground">{title}</div>
+          </div>
         </div>
       );
     },

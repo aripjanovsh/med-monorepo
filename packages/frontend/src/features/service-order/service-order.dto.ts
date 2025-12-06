@@ -22,6 +22,10 @@ export interface SimpleDoctorDto {
   middleName?: string;
   lastName: string;
   avatarId?: string;
+  title?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface SimpleServiceDto {

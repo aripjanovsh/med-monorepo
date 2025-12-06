@@ -123,6 +123,13 @@ export class ServiceOrderService {
                 firstName: true,
                 middleName: true,
                 lastName: true,
+                avatarId: true,
+                title: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
             service: {
@@ -305,6 +312,12 @@ export class ServiceOrderService {
               middleName: true,
               lastName: true,
               avatarId: true,
+              title: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
           service: {
@@ -385,6 +398,12 @@ export class ServiceOrderService {
             firstName: true,
             middleName: true,
             lastName: true,
+            title: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         service: {
@@ -501,6 +520,12 @@ export class ServiceOrderService {
             firstName: true,
             middleName: true,
             lastName: true,
+            title: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         service: {

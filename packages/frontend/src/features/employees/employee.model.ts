@@ -6,6 +6,7 @@
 import { formatDate as formatDateUtil } from "@/lib/date.utils";
 import { EmployeeResponseDto } from "./employee.dto";
 import { SimpleEmployeeDto } from "../visit";
+import { SimpleDoctorDto } from "../service-order/service-order.dto";
 import { GENDER } from "./employee.constants";
 import { fileHelpers } from "@/features/file/file.api";
 
@@ -43,8 +44,13 @@ export const getEmployeeInitials = (employee: EmployeeResponseDto): string => {
   return `${employee.lastName?.[0] || ""}${employee.firstName?.[0] || ""}`;
 };
 
-export const getEmployeeTitle = (employee: EmployeeResponseDto): string => {
-  return employee.title?.name;
+export const getEmployeeTitle = (
+  employee: EmployeeResponseDto | SimpleDoctorDto
+): string => {
+  if ("title" in employee) {
+    return employee.title?.name || "";
+  }
+  return "";
 };
 
 export const getEmployeeAvatarUrl = (
