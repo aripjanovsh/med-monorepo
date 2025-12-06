@@ -31,6 +31,7 @@ import { StatusFacetedSelectField } from "@/features/service-order/components/st
 import { PaymentStatusFacetedSelectField } from "@/features/service-order/components/payment-status-faceted-select-field";
 import { useGetDepartmentsQuery } from "@/features/master-data/master-data-departments.api";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 
 export const ServiceOrdersPage = () => {
   const router = useRouter();
@@ -58,11 +59,15 @@ export const ServiceOrdersPage = () => {
   const serviceTypeFilter = values.columnFilters.find(
     (f) => f.id === "serviceType"
   );
+  const dateFromFilter = values.columnFilters.find((f) => f.id === "dateFrom");
+  const dateToFilter = values.columnFilters.find((f) => f.id === "dateTo");
 
   const selectedStatuses = (statusFilter?.value as OrderStatus[]) || [];
   const selectedPaymentStatuses =
     (paymentStatusFilter?.value as string[]) || [];
   const selectedServiceTypes = (serviceTypeFilter?.value as string[]) || [];
+  const dateFrom = dateFromFilter?.value as string | undefined;
+  const dateTo = dateToFilter?.value as string | undefined;
 
   // Add filters to query params
   const finalQueryParams = useMemo(() => {
@@ -86,6 +91,13 @@ export const ServiceOrdersPage = () => {
       params.serviceType = selectedServiceTypes.join(",");
     }
 
+    if (dateFrom) {
+      params.dateFrom = dateFrom;
+    }
+    if (dateTo) {
+      params.dateTo = dateTo;
+    }
+
     return params;
   }, [
     queryParams,
@@ -93,6 +105,8 @@ export const ServiceOrdersPage = () => {
     selectedStatuses,
     selectedPaymentStatuses,
     selectedServiceTypes,
+    dateFrom,
+    dateTo,
   ]);
 
   const { data, isLoading, refetch } =
@@ -182,6 +196,22 @@ export const ServiceOrdersPage = () => {
     [values.columnFilters, handlers.filters]
   );
 
+  const handleDateChange = useCallback(
+    (newDateFrom?: string, newDateTo?: string) => {
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "dateFrom" && f.id !== "dateTo"
+      );
+      if (newDateFrom) {
+        newFilters.push({ id: "dateFrom", value: newDateFrom });
+      }
+      if (newDateTo) {
+        newFilters.push({ id: "dateTo", value: newDateTo });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
   return (
     <>
       <LayoutHeader title="Назначения" />
@@ -259,6 +289,11 @@ export const ServiceOrdersPage = () => {
               searchValue={values.searchImmediate}
               onSearchChange={handlers.search.onChange}
             >
+              <DateRangeFilter
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                onChange={handleDateChange}
+              />
               <StatusFacetedSelectField
                 value={selectedStatuses}
                 onChange={handleStatusChange}

@@ -141,6 +141,7 @@ export const InvoicesQuickStats = () => {
                 dataKey="invoicesCount"
                 type="natural"
                 fill="url(#fillInvoices)"
+                strokeWidth={2}
                 fillOpacity={0.4}
                 stroke="var(--chart-1)"
                 stackId="a"
@@ -149,6 +150,7 @@ export const InvoicesQuickStats = () => {
                 dataKey="revenue"
                 type="natural"
                 fill="url(#fillRevenue)"
+                strokeWidth={2}
                 fillOpacity={0.4}
                 stroke="var(--chart-2)"
                 stackId="b"

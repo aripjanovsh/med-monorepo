@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MoreHorizontal, Plus, Eye, Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -21,30 +21,143 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   type VisitResponseDto,
+  type VisitStatus,
   visitColumns,
   useGetVisitsQuery,
   useDeleteVisitMutation,
   VisitFormDialog,
+  VISIT_STATUS,
 } from "@/features/visit";
 import { useDialog } from "@/lib/dialog-manager";
 import { ROUTES, url } from "@/constants/route.constants";
 import { useConfirmDialog } from "@/components/dialogs";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 import { LayoutHeader, CabinetContent } from "@/components/layouts/cabinet";
+import { ActionTabs } from "@/components/action-tabs";
+import { VisitStatusFacetedSelectField } from "./components/visit-status-faceted-select-field";
+import { EmployeeFacetedSelectField } from "./components/employee-faceted-select-field";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
+
+const STATUS_TABS = [
+  { value: "all", label: "Все визиты" },
+  { value: VISIT_STATUS.WAITING, label: "Ожидают" },
+  { value: VISIT_STATUS.IN_PROGRESS, label: "В процессе" },
+  { value: VISIT_STATUS.COMPLETED, label: "Завершены" },
+  { value: VISIT_STATUS.CANCELED, label: "Отменены" },
+];
 
 export const VisitsPage = () => {
   const router = useRouter();
   const confirm = useConfirmDialog();
   const visitDialog = useDialog(VisitFormDialog);
+  const [activeTab, setActiveTab] = useState<string>("all");
 
-  const { queryParams, handlers, values } = useDataTableState({
+  const { queryParams, handlers, setters, values } = useDataTableState({
     defaultLimit: 20,
     defaultSorting: [{ id: "visitDate", desc: true }],
     sortFormat: "split",
+    searchDebounceMs: 300,
   });
 
-  const { data, isLoading, error, refetch } = useGetVisitsQuery(queryParams);
+  // Reset to first page when activeTab changes
+  useEffect(() => {
+    setters.setPage(1);
+  }, [activeTab, setters]);
+
+  // Get filter values from columnFilters
+  const statusFilter = values.columnFilters.find((f) => f.id === "status");
+  const employeeFilter = values.columnFilters.find(
+    (f) => f.id === "employeeId"
+  );
+  const dateFromFilter = values.columnFilters.find((f) => f.id === "dateFrom");
+  const dateToFilter = values.columnFilters.find((f) => f.id === "dateTo");
+
+  const selectedStatuses = (statusFilter?.value as VisitStatus[]) || [];
+  const selectedEmployees = (employeeFilter?.value as string[]) || [];
+  const dateFrom = dateFromFilter?.value as string | undefined;
+  const dateTo = dateToFilter?.value as string | undefined;
+
+  // Build final query params with filters
+  const finalQueryParams = useMemo(() => {
+    const params: Record<string, unknown> = { ...queryParams };
+
+    // Remove the filters object that useDataTableState adds
+    delete params.filters;
+
+    // Add status filter from tabs or faceted filter
+    if (activeTab !== "all") {
+      params.status = activeTab;
+    } else if (selectedStatuses.length > 0) {
+      params.status = selectedStatuses.join(",");
+    }
+
+    // Add employee filter
+    if (selectedEmployees.length > 0) {
+      params.employeeId = selectedEmployees.join(",");
+    }
+
+    // Add date filters
+    if (dateFrom) {
+      params.dateFrom = dateFrom;
+    }
+    if (dateTo) {
+      params.dateTo = dateTo;
+    }
+
+    return params;
+  }, [
+    queryParams,
+    activeTab,
+    selectedStatuses,
+    selectedEmployees,
+    dateFrom,
+    dateTo,
+  ]);
+
+  const { data, isLoading, error, refetch } =
+    useGetVisitsQuery(finalQueryParams);
   const [deleteVisit] = useDeleteVisitMutation();
+
+  // Filter handlers
+  const handleStatusChange = useCallback(
+    (value: string[]) => {
+      const newFilters = values.columnFilters.filter((f) => f.id !== "status");
+      if (value.length > 0) {
+        newFilters.push({ id: "status", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handleEmployeeChange = useCallback(
+    (value: string[]) => {
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "employeeId"
+      );
+      if (value.length > 0) {
+        newFilters.push({ id: "employeeId", value });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
+
+  const handleDateChange = useCallback(
+    (newDateFrom?: string, newDateTo?: string) => {
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "dateFrom" && f.id !== "dateTo"
+      );
+      if (newDateFrom) {
+        newFilters.push({ id: "dateFrom", value: newDateFrom });
+      }
+      if (newDateTo) {
+        newFilters.push({ id: "dateTo", value: newDateTo });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
 
   const handleDeleteVisit = useCallback(
     async (visit: VisitResponseDto) => {
@@ -94,6 +207,12 @@ export const VisitsPage = () => {
         }
       />
       <CabinetContent className="space-y-6">
+        <ActionTabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          items={STATUS_TABS}
+        />
+
         <DataTable
           columns={[
             ...visitColumns,
@@ -141,14 +260,31 @@ export const VisitsPage = () => {
             ...handlers.pagination,
             total,
           }}
+          sort={handlers.sorting}
           toolbar={(table) => (
             <DataTableToolbar
               table={table}
-              searchKey="patient"
+              searchKey="search"
               searchPlaceholder="Поиск по пациенту..."
               searchValue={values.searchImmediate}
               onSearchChange={handlers.search.onChange}
-            />
+            >
+              <DateRangeFilter
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                onChange={handleDateChange}
+              />
+              <EmployeeFacetedSelectField
+                value={selectedEmployees}
+                onChange={handleEmployeeChange}
+              />
+              {activeTab === "all" && (
+                <VisitStatusFacetedSelectField
+                  value={selectedStatuses}
+                  onChange={handleStatusChange}
+                />
+              )}
+            </DataTableToolbar>
           )}
           emptyState={
             error ? (

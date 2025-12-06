@@ -70,3 +70,5 @@ export { VisitForm } from "./components/visit-form";
 export { VisitFormDialog } from "./components/visit-form-dialog";
 export { VisitProtocol } from "./components/visit-protocol";
 export { VisitDetailHeader, VisitInfoCards } from "./components/detail";
+export { VisitStatusFacetedSelectField } from "./components/visit-status-faceted-select-field";
+export { EmployeeFacetedSelectField } from "./components/employee-faceted-select-field";

@@ -467,13 +467,17 @@ export class InvoiceService {
       search,
       sortBy = "createdAt",
       sortOrder = "desc",
-      ...filters
+      patientId,
+      visitId,
+      status,
     } = query;
     const skip = (page - 1) * limit;
 
     const where = {
       organizationId,
-      ...filters,
+      ...(patientId && { patientId }),
+      ...(visitId && { visitId }),
+      ...(status && { status }),
       ...(dateFrom || dateTo
         ? {
             createdAt: {

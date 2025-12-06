@@ -29,12 +29,14 @@ import { ServiceOrderResultSheet } from "./service-order-result-dialog";
 import type { ServiceOrderResponseDto } from "../service-order.dto";
 
 type ServiceOrderListCompactProps = {
-  visitId: string;
+  visitId?: string;
+  patientId?: string;
   isEditable?: boolean;
 };
 
 export const ServiceOrderListCompact = ({
   visitId,
+  patientId,
   isEditable = true,
 }: ServiceOrderListCompactProps) => {
   const router = useRouter();
@@ -43,6 +45,7 @@ export const ServiceOrderListCompact = ({
 
   const { data, isLoading } = useGetServiceOrdersQuery({
     visitId,
+    patientId,
     sortBy: "createdAt",
     sortOrder: "desc",
   });

@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import {
-  History,
   Copy,
   FileText,
   Calendar,
@@ -14,7 +13,6 @@ import {
   Eye,
   ClipboardCopy,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,7 +39,7 @@ type PatientVisitHistoryProps = {
   patientId: string;
   currentVisitId: string;
   isEditable: boolean;
-  defaultCollapsed?: boolean;
+  defaultCollapsed?: boolean; // kept for backward compat, no longer used
   onCopyComplaint?: (text: string) => void;
   onCopyAnamnesis?: (text: string) => void;
   onCopyDiagnosis?: (text: string) => void;
@@ -63,7 +61,6 @@ export const PatientVisitHistory = ({
   patientId,
   currentVisitId,
   isEditable,
-  defaultCollapsed = false,
   onCopyComplaint,
   onCopyAnamnesis,
   onCopyDiagnosis,
@@ -72,7 +69,6 @@ export const PatientVisitHistory = ({
   onCopyAll,
 }: PatientVisitHistoryProps) => {
   const [expandedVisits, setExpandedVisits] = useState<ExpandedVisits>({});
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [previewVisit, setPreviewVisit] = useState<VisitResponseDto | null>(
     null
   );
@@ -423,67 +419,30 @@ export const PatientVisitHistory = ({
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <History className="h-5 w-5" />
-            История визитов
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="px-2 py-3">
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-14 rounded-lg bg-muted animate-pulse" />
+          ))}
+        </div>
+      </div>
     );
   }
 
   return (
     <>
-      <Collapsible
-        open={!isCollapsed}
-        onOpenChange={(open) => setIsCollapsed(!open)}
-      >
-        <Card>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="pb-3 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <History className="h-5 w-5" />
-                  История визитов
-                  {visits.length > 0 && (
-                    <Badge variant="secondary" className="ml-1">
-                      {visits.length}
-                    </Badge>
-                  )}
-                </CardTitle>
-                {isCollapsed ? (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-            </CardHeader>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              {visits.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground">
-                  <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Нет предыдущих визитов</p>
-                </div>
-              ) : (
-                <ScrollArea className="h-[400px] pr-3">
-                  <div className="space-y-2">{visits.map(renderVisitItem)}</div>
-                </ScrollArea>
-              )}
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
+      <div className="px-2">
+        {visits.length === 0 ? (
+          <div className="text-center py-4 text-muted-foreground">
+            <FileText className="h-6 w-6 mx-auto mb-1.5 opacity-50" />
+            <p className="text-xs">Нет предыдущих визитов</p>
+          </div>
+        ) : (
+          <ScrollArea className="max-h-[350px] pr-2">
+            <div className="space-y-1.5">{visits.map(renderVisitItem)}</div>
+          </ScrollArea>
+        )}
+      </div>
 
       {/* Preview Dialog */}
       <VisitPreviewDialog

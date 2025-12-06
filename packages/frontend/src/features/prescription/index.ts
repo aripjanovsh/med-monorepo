@@ -39,3 +39,8 @@ export {
   useUpdatePrescriptionMutation,
   useDeletePrescriptionMutation,
 } from "./prescription.api";
+
+// Components
+export { PrescriptionList } from "./components/prescription-list";
+export { PatientPrescriptionsHistory } from "./components/patient-prescriptions-history";
+export { PrescriptionPreviewDialog } from "./components/prescription-preview-dialog";

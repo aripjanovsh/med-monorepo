@@ -163,6 +163,8 @@ export interface PatientsQueryParamsDto extends QueryParamsDto {
   gender?: GenderDto;
   organizationId?: string;
   doctorId?: string;
+  visitDateFrom?: string;
+  visitDateTo?: string;
 }
 
 // Patient By ID Query DTO

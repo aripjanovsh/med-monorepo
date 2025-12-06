@@ -47,6 +47,7 @@ import { useDialog } from "@/lib/dialog-manager";
 import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 
 export const InvoicesPage = () => {
   const router = useRouter();
@@ -84,14 +85,41 @@ export const InvoicesPage = () => {
     setters.setPage(1);
   }, [activeTab, setters]);
 
+  // Get date filter values from columnFilters
+  const dateFromFilter = values.columnFilters.find((f) => f.id === "dateFrom");
+  const dateToFilter = values.columnFilters.find((f) => f.id === "dateTo");
+  const dateFrom = dateFromFilter?.value as string | undefined;
+  const dateTo = dateToFilter?.value as string | undefined;
+
   // Add status filter to query params
   const finalQueryParams = useMemo(() => {
+    const { filters: _filters, ...restQueryParams } =
+      queryParams as unknown as Record<string, unknown>;
     const status = getStatusFilter(activeTab);
     return {
-      ...queryParams,
+      ...restQueryParams,
       ...(status && { status }),
+      ...(dateFrom && { dateFrom }),
+      ...(dateTo && { dateTo }),
     };
-  }, [queryParams, activeTab]);
+  }, [queryParams, activeTab, dateFrom, dateTo]);
+
+  // Date change handler
+  const handleDateChange = useCallback(
+    (newDateFrom?: string, newDateTo?: string) => {
+      const newFilters = values.columnFilters.filter(
+        (f) => f.id !== "dateFrom" && f.id !== "dateTo"
+      );
+      if (newDateFrom) {
+        newFilters.push({ id: "dateFrom", value: newDateFrom });
+      }
+      if (newDateTo) {
+        newFilters.push({ id: "dateTo", value: newDateTo });
+      }
+      handlers.filters.onChange(newFilters);
+    },
+    [values.columnFilters, handlers.filters]
+  );
 
   // Fetch invoices with managed state
   const {
@@ -246,7 +274,13 @@ export const InvoicesPage = () => {
               searchPlaceholder="Поиск по номеру счета или имени пациента..."
               searchValue={values.searchImmediate}
               onSearchChange={handlers.search.onChange}
-            />
+            >
+              <DateRangeFilter
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                onChange={handleDateChange}
+              />
+            </DataTableToolbar>
           )}
           emptyState={
             invoicesError ? (

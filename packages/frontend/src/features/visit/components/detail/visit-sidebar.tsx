@@ -3,11 +3,29 @@
 import { useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Plus } from "lucide-react";
+import {
+  Plus,
+  Pill,
+  AlertTriangle,
+  Activity,
+  Stethoscope,
+  History,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 import { useDialog } from "@/lib/dialog-manager";
-import { PrescriptionList } from "@/features/prescription/components/prescription-list";
+import {
+  PrescriptionList,
+  PatientPrescriptionsHistory,
+} from "@/features/prescription";
 import { AddPrescriptionDialog } from "@/features/prescription/components/add-prescription-dialog";
 import { ServiceOrderListCompact } from "@/features/service-order";
 import { AddServicesDialog } from "@/features/service-order/components/add-services-dialog";
@@ -19,8 +37,8 @@ import {
 import {
   AddPatientAllergyDialog,
   useGetPatientAllergiesQuery,
+  getAllergySeverityLabel,
 } from "@/features/patient-allergy";
-import { AllergyListItem } from "./allergy-list-item";
 import { useGetParameterDefinitionsQuery } from "@/features/parameter-definition";
 import { PatientVisitHistory } from "./patient-visit-history";
 import type { VisitResponseDto } from "../../visit.dto";
@@ -43,6 +61,56 @@ type VisitSidebarProps = {
     protocolId?: string;
   }) => void;
 };
+
+// Section header component for consistent styling
+const SectionHeader = ({
+  icon: Icon,
+  title,
+  count,
+  onAdd,
+  isEditable,
+  variant = "default",
+}: {
+  icon: typeof Stethoscope;
+  title: string;
+  count?: number;
+  onAdd?: () => void;
+  isEditable: boolean;
+  variant?: "default" | "warning";
+}) => (
+  <div className="flex items-center justify-between w-full">
+    <div className="flex items-center gap-2">
+      <Icon
+        className={cn(
+          "h-4 w-4",
+          variant === "warning" ? "text-orange-500" : "text-muted-foreground"
+        )}
+      />
+      <span className="text-sm font-medium">{title}</span>
+      {count !== undefined && count > 0 && (
+        <Badge
+          variant={variant === "warning" ? "destructive" : "secondary"}
+          className="h-5 px-1.5 text-xs"
+        >
+          {count}
+        </Badge>
+      )}
+    </div>
+    {isEditable && onAdd && (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6"
+        onClick={(e) => {
+          e.stopPropagation();
+          onAdd();
+        }}
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </Button>
+    )}
+  </div>
+);
 
 export const VisitSidebar = ({
   visit,
@@ -82,13 +150,18 @@ export const VisitSidebar = ({
   });
 
   // Memoized values
+  const allergies = useMemo(
+    () => allergiesData?.data ?? [],
+    [allergiesData?.data]
+  );
+  const parameters = useMemo(() => latestParameters ?? [], [latestParameters]);
   const parameterDefinitions = useMemo(
     () => definitionsData?.data ?? [],
     [definitionsData?.data]
   );
 
-  const getParameterName = useMemo(
-    () => (code: string) => {
+  const getParameterName = useCallback(
+    (code: string) => {
       return parameterDefinitions.find((p) => p.code === code)?.name ?? code;
     },
     [parameterDefinitions]
@@ -127,133 +200,201 @@ export const VisitSidebar = ({
   }, [addServicesDialog, visit.id, patient.id, employee.id]);
 
   return (
-    <div className="space-y-4">
-      {/* Services and Orders */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Назначения</CardTitle>
-            {isEditable && (
-              <Button variant="ghost" size="icon" onClick={handleAddServices}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <ServiceOrderListCompact visitId={visit.id} isEditable={isEditable} />
-        </CardContent>
-      </Card>
+    <Card className="sticky top-4">
+      <CardContent className="p-3">
+        <Accordion
+          type="multiple"
+          defaultValue={["services", "prescriptions", "allergies"]}
+          className="space-y-1"
+        >
+          {/* Services Section */}
+          <AccordionItem value="services" className="border-none">
+            <AccordionTrigger className="py-2 px-2 hover:bg-muted/50 rounded-md hover:no-underline">
+              <SectionHeader
+                icon={Stethoscope}
+                title="Назначения"
+                onAdd={handleAddServices}
+                isEditable={isEditable}
+              />
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pt-1 pb-2">
+              <ServiceOrderListCompact
+                patientId={patient.id}
+                isEditable={isEditable}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-      {/* Prescriptions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Рецепты</CardTitle>
-            {isEditable && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleAddPrescription}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <PrescriptionList visitId={visit.id} status={visit.status} />
-        </CardContent>
-      </Card>
+          {/* Prescriptions Section */}
+          <AccordionItem value="prescriptions" className="border-none">
+            <AccordionTrigger className="py-2 px-2 hover:bg-muted/50 rounded-md hover:no-underline">
+              <SectionHeader
+                icon={Pill}
+                title="Рецепты"
+                onAdd={handleAddPrescription}
+                isEditable={isEditable}
+              />
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pt-1 pb-2">
+              <div className="space-y-3">
+                {/* Current Visit Prescriptions */}
+                <PrescriptionList visitId={visit.id} status={visit.status} />
 
-      {/* Allergies */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Аллергии</CardTitle>
-            {isEditable && (
-              <Button variant="ghost" size="icon" onClick={handleAddAllergy}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          {!allergiesData || allergiesData.data.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Нет данных об аллергиях
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {allergiesData.data.map((allergy) => (
-                <AllergyListItem key={allergy.id} allergy={allergy} />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                {/* Patient Prescription History (from other visits) */}
+                <PatientPrescriptionsHistory
+                  patientId={patient.id}
+                  defaultCollapsed={true}
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-      {/* Patient Parameters */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Показатели</CardTitle>
-            {isEditable && (
-              <Button variant="ghost" size="icon" onClick={handleAddParameter}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          {!latestParameters || latestParameters.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Нет данных о показателях
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {latestParameters.map((param) => (
-                <div
-                  key={param.id}
-                  className="flex items-start justify-between border-b pb-2 last:border-0"
-                >
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">
-                      {getParameterName(param.parameterCode)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(param.measuredAt), "dd.MM.yyyy HH:mm", {
-                        locale: ru,
-                      })}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm">
-                      {formatParameterValue(param)}
-                    </p>
-                  </div>
+          {/* Allergies Section */}
+          <AccordionItem value="allergies" className="border-none">
+            <AccordionTrigger className="py-2 px-2 hover:bg-muted/50 rounded-md hover:no-underline">
+              <SectionHeader
+                icon={AlertTriangle}
+                title="Аллергии"
+                count={allergies.length}
+                onAdd={handleAddAllergy}
+                isEditable={isEditable}
+                variant={allergies.length > 0 ? "warning" : "default"}
+              />
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pt-1 pb-2">
+              {allergies.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-1">
+                  Нет данных об аллергиях
+                </p>
+              ) : (
+                <div className="space-y-1.5">
+                  {allergies.map((allergy) => (
+                    <div
+                      key={allergy.id}
+                      className={cn(
+                        "flex items-start gap-2 p-2 rounded-md transition-colors",
+                        allergy.severity === "SEVERE"
+                          ? "bg-red-50 dark:bg-red-950/30"
+                          : allergy.severity === "MODERATE"
+                            ? "bg-orange-50 dark:bg-orange-950/30"
+                            : "bg-muted/30"
+                      )}
+                    >
+                      <AlertTriangle
+                        className={cn(
+                          "h-3.5 w-3.5 mt-0.5 flex-shrink-0",
+                          allergy.severity === "SEVERE"
+                            ? "text-red-500"
+                            : allergy.severity === "MODERATE"
+                              ? "text-orange-500"
+                              : "text-muted-foreground"
+                        )}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {allergy.substance}
+                        </p>
+                        {allergy.reaction && (
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {allergy.reaction}
+                          </p>
+                        )}
+                        {allergy.severity && (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "mt-1 text-[10px] h-4 px-1",
+                              allergy.severity === "SEVERE"
+                                ? "border-red-200 text-red-700 dark:text-red-400"
+                                : allergy.severity === "MODERATE"
+                                  ? "border-orange-200 text-orange-700 dark:text-orange-400"
+                                  : ""
+                            )}
+                          >
+                            {getAllergySeverityLabel(allergy.severity)}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+            </AccordionContent>
+          </AccordionItem>
 
-      {/* Patient Visit History - only for editable (non-completed) visits */}
-      {isEditable && (
-        <PatientVisitHistory
-          patientId={patient.id}
-          currentVisitId={visit.id}
-          isEditable={isEditable}
-          onCopyComplaint={onCopyComplaint}
-          onCopyAnamnesis={onCopyAnamnesis}
-          onCopyDiagnosis={onCopyDiagnosis}
-          onCopyConclusion={onCopyConclusion}
-          onCopyProtocol={onCopyProtocol}
-          onCopyAll={onCopyAll}
-          defaultCollapsed={true}
-        />
-      )}
-    </div>
+          {/* Parameters Section */}
+          <AccordionItem value="parameters" className="border-none">
+            <AccordionTrigger className="py-2 px-2 hover:bg-muted/50 rounded-md hover:no-underline">
+              <SectionHeader
+                icon={Activity}
+                title="Показатели"
+                count={parameters.length}
+                onAdd={handleAddParameter}
+                isEditable={isEditable}
+              />
+            </AccordionTrigger>
+            <AccordionContent className="px-2 pt-1 pb-2">
+              {parameters.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-1">
+                  Нет данных о показателях
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  {parameters.map((param) => (
+                    <div
+                      key={param.id}
+                      className="flex items-center justify-between py-1.5 px-2 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">
+                          {getParameterName(param.parameterCode)}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {format(
+                            new Date(param.measuredAt),
+                            "dd.MM.yy HH:mm",
+                            { locale: ru }
+                          )}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold tabular-nums">
+                        {formatParameterValue(param)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Visit History Section - only for editable visits */}
+          {isEditable && (
+            <AccordionItem value="history" className="border-none">
+              <AccordionTrigger className="py-2 px-2 hover:bg-muted/50 rounded-md hover:no-underline">
+                <SectionHeader
+                  icon={History}
+                  title="История визитов"
+                  isEditable={false}
+                />
+              </AccordionTrigger>
+              <AccordionContent className="px-0 pt-1 pb-2">
+                <PatientVisitHistory
+                  patientId={patient.id}
+                  currentVisitId={visit.id}
+                  isEditable={isEditable}
+                  onCopyComplaint={onCopyComplaint}
+                  onCopyAnamnesis={onCopyAnamnesis}
+                  onCopyDiagnosis={onCopyDiagnosis}
+                  onCopyConclusion={onCopyConclusion}
+                  onCopyProtocol={onCopyProtocol}
+                  onCopyAll={onCopyAll}
+                  defaultCollapsed={false}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
+      </CardContent>
+    </Card>
   );
 };

@@ -67,6 +67,8 @@ export class PatientService {
       gender,
       organizationId,
       doctorId,
+      visitDateFrom,
+      visitDateTo,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -90,6 +92,22 @@ export class PatientService {
         some: {
           employeeId: doctorId,
           isActive: true,
+        },
+      };
+    }
+
+    if (visitDateFrom || visitDateTo) {
+      where.visits = {
+        some: {
+          ...(organizationId && { organizationId }),
+          ...(visitDateFrom || visitDateTo
+            ? {
+                visitDate: {
+                  ...(visitDateFrom && { gte: new Date(visitDateFrom) }),
+                  ...(visitDateTo && { lte: new Date(visitDateTo) }),
+                },
+              }
+            : {}),
         },
       };
     }

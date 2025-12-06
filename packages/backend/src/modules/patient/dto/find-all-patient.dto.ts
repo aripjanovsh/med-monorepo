@@ -47,4 +47,24 @@ export class FindAllPatientDto extends FindAllQueryDto {
   @IsOptional()
   @IsString()
   doctorId?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Filter patients by visit date from (inclusive, ISO)",
+    required: false,
+    example: "2025-01-01T00:00:00.000Z",
+  })
+  @IsOptional()
+  @IsString()
+  visitDateFrom?: string;
+
+  @Expose()
+  @ApiProperty({
+    description: "Filter patients by visit date to (inclusive, ISO)",
+    required: false,
+    example: "2025-01-31T23:59:59.999Z",
+  })
+  @IsOptional()
+  @IsString()
+  visitDateTo?: string;
 }
