@@ -51,6 +51,10 @@ export const ROUTES = {
   MASTER_DATA_LANGUAGES: "/cabinet/settings/master-data/languages",
   MASTER_DATA_DEPARTMENTS: "/cabinet/settings/master-data/departments",
   MASTER_DATA_GEOLOCATION: "/cabinet/settings/master-data/geolocation",
+  MASTER_DATA_APPOINTMENT_TYPES:
+    "/cabinet/settings/master-data/appointment-types",
+  MASTER_DATA_APPOINTMENT_CANCEL_TYPES:
+    "/cabinet/settings/master-data/appointment-cancel-types",
 
   // Analysis Templates routes (Settings)
   ANALYSIS_TEMPLATES: "/cabinet/settings/master-data/analysis-templates",

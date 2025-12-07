@@ -5,6 +5,7 @@ import { UzbekistanLocationSeed } from "../src/common/seeds/uzbekistan-location.
 import { LanguageSeed } from "../src/common/seeds/language.seed";
 import { DepartmentServiceSeed } from "../src/common/seeds/department-service.seed";
 import { ParameterDefinitionSeed } from "../src/common/seeds/parameter-definition.seed";
+import { AppointmentTypeSeed } from "../src/common/seeds/appointment-type.seed";
 
 const prisma = new PrismaClient();
 
@@ -40,6 +41,7 @@ async function main() {
     if (organizationId) {
       await seedDepartmentsAndServices(organizationId);
       await seedParameterDefinitions(organizationId);
+      await seedAppointmentTypes(organizationId);
     }
 
     console.log("✅ Database seeding completed successfully!");
@@ -202,6 +204,29 @@ async function seedParameterDefinitions(organizationId: string) {
   } catch (error) {
     if (error.message && error.message.includes("already exists")) {
       console.log("ℹ️  Parameter definitions already exist, skipping...");
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function seedAppointmentTypes(organizationId: string) {
+  console.log("📅 Seeding appointment types...");
+
+  try {
+    const appointmentTypeSeed = new AppointmentTypeSeed(prisma);
+    const result = await appointmentTypeSeed.seedAll(organizationId);
+
+    if (!result.appointmentTypes[0]?.skipped) {
+      console.log("✅ Appointment types seeded successfully!");
+      console.log(`📅 Appointment types: ${result.appointmentTypes.length}`);
+      console.log(`❌ Cancel types: ${result.appointmentCancelTypes.length}`);
+    }
+
+    return result;
+  } catch (error) {
+    if (error.message && error.message.includes("already exists")) {
+      console.log("ℹ️  Appointment types already exist, skipping...");
       return null;
     }
     throw error;

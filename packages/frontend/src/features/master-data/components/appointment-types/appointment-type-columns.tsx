@@ -1,0 +1,76 @@
+"use client";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import type { AppointmentType } from "@/features/master-data/master-data.types";
+import { formatDate } from "@/lib/date.utils";
+
+export const appointmentTypeColumns: ColumnDef<AppointmentType>[] = [
+  {
+    accessorKey: "name",
+    header: "Название",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        {row.original.color && (
+          <div
+            className="size-3 rounded-full shrink-0"
+            style={{ backgroundColor: row.original.color }}
+          />
+        )}
+        <span className="font-medium">{row.getValue("name")}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "code",
+    header: "Код",
+    size: 120,
+    cell: ({ row }) => {
+      const code = row.getValue("code") as string;
+      return code ? (
+        <Badge variant="outline">{code}</Badge>
+      ) : (
+        <span className="text-muted-foreground">-</span>
+      );
+    },
+  },
+  {
+    accessorKey: "description",
+    header: "Описание",
+    cell: ({ row }) => {
+      const description = row.getValue("description") as string;
+      return <div className="max-w-[250px] truncate">{description || "-"}</div>;
+    },
+  },
+  {
+    accessorKey: "durationMin",
+    header: "Длит. (мин)",
+    size: 100,
+    cell: ({ row }) => {
+      const duration = row.getValue("durationMin") as number;
+      return duration ? `${duration} мин` : "-";
+    },
+  },
+  {
+    accessorKey: "isActive",
+    header: "Статус",
+    size: 120,
+    cell: ({ row }) => {
+      const isActive = row.getValue("isActive") as boolean;
+      return (
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Активный" : "Неактивный"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Дата создания",
+    size: 140,
+    cell: ({ row }) => {
+      const date = row.getValue("createdAt") as string;
+      return formatDate(date, "dd.MM.yyyy");
+    },
+  },
+];

@@ -17,6 +17,8 @@ import {
   Stethoscope,
   FileText,
   FlaskConical,
+  Calendar,
+  Ban,
 } from "lucide-react";
 import { ROUTES } from "@/constants/route.constants";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
@@ -66,6 +68,20 @@ const masterDataModules = [
     icon: Languages,
     href: ROUTES.MASTER_DATA_LANGUAGES,
     color: "text-orange-600",
+  },
+  {
+    title: "Типы приёма",
+    description: "Управление типами записи на приём",
+    icon: Calendar,
+    href: ROUTES.MASTER_DATA_APPOINTMENT_TYPES,
+    color: "text-teal-600",
+  },
+  {
+    title: "Причины отмены",
+    description: "Управление причинами отмены записей",
+    icon: Ban,
+    href: ROUTES.MASTER_DATA_APPOINTMENT_CANCEL_TYPES,
+    color: "text-red-600",
   },
 ];
 

@@ -197,6 +197,66 @@ export interface ServiceQueryParams extends MasterDataQueryParams {
 }
 
 // ==========================
+// Appointment Type
+// ==========================
+export interface AppointmentType {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  color?: string;
+  durationMin?: number;
+  isActive: boolean;
+  order?: number;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAppointmentTypeRequest {
+  name: string;
+  code?: string;
+  description?: string;
+  color?: string;
+  durationMin?: number;
+  isActive?: boolean;
+  order?: number;
+}
+
+export interface UpdateAppointmentTypeRequest
+  extends Partial<CreateAppointmentTypeRequest> {
+  id?: string;
+}
+
+// ==========================
+// Appointment Cancel Type
+// ==========================
+export interface AppointmentCancelType {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  isActive: boolean;
+  order?: number;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAppointmentCancelTypeRequest {
+  name: string;
+  code?: string;
+  description?: string;
+  isActive?: boolean;
+  order?: number;
+}
+
+export interface UpdateAppointmentCancelTypeRequest
+  extends Partial<CreateAppointmentCancelTypeRequest> {
+  id?: string;
+}
+
+// ==========================
 // Common query parameters
 // ==========================
 export interface MasterDataQueryParams extends QueryParamsDto {

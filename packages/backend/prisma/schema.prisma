@@ -8,38 +8,40 @@ datasource db {
 }
 
 model Organization {
-  id                   String                @id @default(uuid())
-  name                 String
-  slug                 String                @unique
-  address              String?
-  phone                String?
-  email                String?
-  website              String?
-  description          String?
-  logoId               String?               @unique
-  isActive             Boolean               @default(true)
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  logo                 File?                 @relation("OrganizationLogo", fields: [logoId], references: [id])
-  analysisTemplates    AnalysisTemplate[]
-  appointments         Appointment[]
-  departments          Department[]
-  employees            Employee[]
-  invoices             Invoice[]
-  parameterDefinitions ParameterDefinition[]
-  allergies            PatientAllergy[]
-  patientParameters    PatientParameter[]
-  patients             Patient[]
-  payments             Payment[]
-  protocolTemplates    ProtocolTemplate[]
-  roles                Role[]
-  serviceOrders        ServiceOrder[]
-  services             Service[]
-  titles               Title[]
-  users                User[]
-  visits               Visit[]
-  auditLogs            AuditLog[]
-  files                File[]
+  id                     String                  @id @default(uuid())
+  name                   String
+  slug                   String                  @unique
+  address                String?
+  phone                  String?
+  email                  String?
+  website                String?
+  description            String?
+  logoId                 String?                 @unique
+  isActive               Boolean                 @default(true)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  logo                   File?                   @relation("OrganizationLogo", fields: [logoId], references: [id])
+  analysisTemplates      AnalysisTemplate[]
+  appointments           Appointment[]
+  appointmentTypes       AppointmentType[]
+  appointmentCancelTypes AppointmentCancelType[]
+  departments            Department[]
+  employees              Employee[]
+  invoices               Invoice[]
+  parameterDefinitions   ParameterDefinition[]
+  allergies              PatientAllergy[]
+  patientParameters      PatientParameter[]
+  patients               Patient[]
+  payments               Payment[]
+  protocolTemplates      ProtocolTemplate[]
+  roles                  Role[]
+  serviceOrders          ServiceOrder[]
+  services               Service[]
+  titles                 Title[]
+  users                  User[]
+  visits                 Visit[]
+  auditLogs              AuditLog[]
+  files                  File[]
 
   @@map("organizations")
 }
@@ -175,38 +177,84 @@ model Service {
 }
 
 model Appointment {
-  id             String            @id @default(uuid())
-  appointmentId  String?
-  scheduledAt    DateTime
-  duration       Int
-  status         AppointmentStatus @default(SCHEDULED)
-  notes          String?
-  reason         String?
-  roomNumber     String?
-  confirmedById  String?
-  confirmedAt    DateTime?
-  canceledById   String?
-  canceledAt     DateTime?
-  cancelReason   String?
-  checkInAt      DateTime?
-  checkOutAt     DateTime?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  organizationId String
-  patientId      String
-  employeeId     String
-  serviceId      String?
-  createdById    String
-  canceledBy     User?             @relation("AppointmentCanceledBy", fields: [canceledById], references: [id])
-  confirmedBy    User?             @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
-  createdBy      User              @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
-  employee       Employee          @relation(fields: [employeeId], references: [id])
-  organization   Organization      @relation(fields: [organizationId], references: [id])
-  patient        Patient           @relation(fields: [patientId], references: [id])
-  service        Service?          @relation(fields: [serviceId], references: [id])
-  visits         Visit[]
+  id                      String                 @id @default(uuid())
+  appointmentId           String?
+  scheduledAt             DateTime
+  duration                Int
+  status                  AppointmentStatus      @default(SCHEDULED)
+  notes                   String?
+  reason                  String?
+  roomNumber              String?
+  confirmedById           String?
+  confirmedAt             DateTime?
+  canceledById            String?
+  canceledAt              DateTime?
+  cancelReason            String?
+  checkInAt               DateTime?
+  checkOutAt              DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  organizationId          String
+  patientId               String
+  employeeId              String
+  serviceId               String?
+  createdById             String
+  appointmentTypeId       String?
+  appointmentCancelTypeId String?
+  appointmentType         AppointmentType?       @relation(fields: [appointmentTypeId], references: [id])
+  appointmentCancelType   AppointmentCancelType? @relation(fields: [appointmentCancelTypeId], references: [id])
+  canceledBy              User?                  @relation("AppointmentCanceledBy", fields: [canceledById], references: [id])
+  confirmedBy             User?                  @relation("AppointmentConfirmedBy", fields: [confirmedById], references: [id])
+  createdBy               User                   @relation("AppointmentCreatedBy", fields: [createdById], references: [id])
+  employee                Employee               @relation(fields: [employeeId], references: [id])
+  organization            Organization           @relation(fields: [organizationId], references: [id])
+  patient                 Patient                @relation(fields: [patientId], references: [id])
+  service                 Service?               @relation(fields: [serviceId], references: [id])
+  visits                  Visit[]
 
+  @@index([appointmentTypeId])
+  @@index([appointmentCancelTypeId])
   @@map("appointments")
+}
+
+model AppointmentType {
+  id             String        @id @default(uuid())
+  name           String
+  code           String?
+  description    String?
+  color          String?       // Цвет для отображения в календаре
+  durationMin    Int?          // Длительность по умолчанию в минутах
+  isActive       Boolean       @default(true)
+  order          Int?          // Порядок сортировки
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  appointments   Appointment[]
+
+  @@unique([name, organizationId])
+  @@unique([code, organizationId])
+  @@index([organizationId])
+  @@map("appointment_types")
+}
+
+model AppointmentCancelType {
+  id             String        @id @default(uuid())
+  name           String
+  code           String?
+  description    String?
+  isActive       Boolean       @default(true)
+  order          Int?          // Порядок сортировки
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  appointments   Appointment[]
+
+  @@unique([name, organizationId])
+  @@unique([code, organizationId])
+  @@index([organizationId])
+  @@map("appointment_cancel_types")
 }
 
 model Visit {
