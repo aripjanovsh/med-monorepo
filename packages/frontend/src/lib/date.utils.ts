@@ -249,3 +249,14 @@ const getMinutesWord = (count: number): string => {
   if (count >= 2 && count <= 4) return "мин.";
   return "мин.";
 };
+
+/**
+ * Get weekday name from Date object in lowercase format (monday, tuesday, etc.)
+ * Compatible with repeatOn field from EmployeeAvailability
+ */
+export const getWeekdayName = (date: Date): (typeof WEEK_DAYS)[number] => {
+  const dayIndex = date.getDay(); // 0 = Sunday, 1 = Monday, ...
+  // Convert to Monday-first index and map to WEEK_DAYS
+  const weekDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+  return WEEK_DAYS[weekDayIndex];
+};
