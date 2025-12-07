@@ -19,6 +19,8 @@ import {
   FlaskConical,
   Calendar,
   Ban,
+  Palmtree,
+  PartyPopper,
 } from "lucide-react";
 import { ROUTES } from "@/constants/route.constants";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
@@ -82,6 +84,20 @@ const masterDataModules = [
     icon: Ban,
     href: ROUTES.MASTER_DATA_APPOINTMENT_CANCEL_TYPES,
     color: "text-red-600",
+  },
+  {
+    title: "Типы отпусков",
+    description: "Управление типами отпусков и отсутствий",
+    icon: Palmtree,
+    href: ROUTES.MASTER_DATA_LEAVE_TYPES,
+    color: "text-lime-600",
+  },
+  {
+    title: "Праздники",
+    description: "Управление праздничными и нерабочими днями",
+    icon: PartyPopper,
+    href: ROUTES.MASTER_DATA_HOLIDAYS,
+    color: "text-amber-600",
   },
 ];
 

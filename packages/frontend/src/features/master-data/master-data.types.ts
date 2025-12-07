@@ -257,6 +257,65 @@ export interface UpdateAppointmentCancelTypeRequest
 }
 
 // ==========================
+// Leave Type
+// ==========================
+export interface LeaveType {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  color?: string;
+  isPaid: boolean;
+  isActive: boolean;
+  order?: number;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateLeaveTypeRequest {
+  name: string;
+  code?: string;
+  description?: string;
+  color?: string;
+  isPaid?: boolean;
+  isActive?: boolean;
+  order?: number;
+}
+
+export interface UpdateLeaveTypeRequest
+  extends Partial<CreateLeaveTypeRequest> {
+  id?: string;
+}
+
+// ==========================
+// Holiday
+// ==========================
+export interface Holiday {
+  id: string;
+  name: string;
+  startsOn: string;
+  until: string;
+  note?: string;
+  isActive: boolean;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateHolidayRequest {
+  name: string;
+  startsOn: string;
+  until: string;
+  note?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateHolidayRequest extends Partial<CreateHolidayRequest> {
+  id?: string;
+}
+
+// ==========================
 // Common query parameters
 // ==========================
 export interface MasterDataQueryParams extends QueryParamsDto {

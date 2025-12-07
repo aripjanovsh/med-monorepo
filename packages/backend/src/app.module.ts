@@ -30,6 +30,8 @@ import { AuditLogModule } from "./modules/audit-log/audit-log.module";
 import { HtmlModule } from "./modules/html/html.module";
 import { PdfModule } from "./modules/pdf/pdf.module";
 import { AiModule } from "./modules/ai/ai.module";
+import { EmployeeAvailabilityModule } from "./modules/employee-availability/employee-availability.module";
+import { EmployeeLeaveDaysModule } from "./modules/employee-leave-days/employee-leave-days.module";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor";
@@ -66,6 +68,8 @@ import { AuditLogInterceptor } from "./common/interceptors/audit-log.interceptor
     HtmlModule,
     PdfModule,
     AiModule,
+    EmployeeAvailabilityModule,
+    EmployeeLeaveDaysModule,
   ],
   controllers: [AppController],
   providers: [

@@ -6,6 +6,7 @@ import { LanguageSeed } from "../src/common/seeds/language.seed";
 import { DepartmentServiceSeed } from "../src/common/seeds/department-service.seed";
 import { ParameterDefinitionSeed } from "../src/common/seeds/parameter-definition.seed";
 import { AppointmentTypeSeed } from "../src/common/seeds/appointment-type.seed";
+import { LeaveTypeHolidaySeed } from "../src/common/seeds/leave-type-holiday.seed";
 
 const prisma = new PrismaClient();
 
@@ -42,6 +43,7 @@ async function main() {
       await seedDepartmentsAndServices(organizationId);
       await seedParameterDefinitions(organizationId);
       await seedAppointmentTypes(organizationId);
+      await seedLeaveTypesAndHolidays(organizationId);
     }
 
     console.log("✅ Database seeding completed successfully!");
@@ -227,6 +229,29 @@ async function seedAppointmentTypes(organizationId: string) {
   } catch (error) {
     if (error.message && error.message.includes("already exists")) {
       console.log("ℹ️  Appointment types already exist, skipping...");
+      return null;
+    }
+    throw error;
+  }
+}
+
+async function seedLeaveTypesAndHolidays(organizationId: string) {
+  console.log("🏖️ Seeding leave types and holidays...");
+
+  try {
+    const leaveTypeHolidaySeed = new LeaveTypeHolidaySeed(prisma);
+    const result = await leaveTypeHolidaySeed.seedAll(organizationId);
+
+    if (!(result.leaveTypes as any)[0]?.skipped) {
+      console.log("✅ Leave types and holidays seeded successfully!");
+      console.log(`🏖️ Leave types: ${result.leaveTypes.length}`);
+      console.log(`🎉 Holidays: ${result.holidays.length}`);
+    }
+
+    return result;
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      console.log("ℹ️  Leave types and holidays already exist, skipping...");
       return null;
     }
     throw error;

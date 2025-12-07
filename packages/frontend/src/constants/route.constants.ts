@@ -55,6 +55,8 @@ export const ROUTES = {
     "/cabinet/settings/master-data/appointment-types",
   MASTER_DATA_APPOINTMENT_CANCEL_TYPES:
     "/cabinet/settings/master-data/appointment-cancel-types",
+  MASTER_DATA_LEAVE_TYPES: "/cabinet/settings/master-data/leave-types",
+  MASTER_DATA_HOLIDAYS: "/cabinet/settings/master-data/holidays",
 
   // Analysis Templates routes (Settings)
   ANALYSIS_TEMPLATES: "/cabinet/settings/master-data/analysis-templates",

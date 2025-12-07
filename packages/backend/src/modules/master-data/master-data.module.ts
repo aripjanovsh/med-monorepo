@@ -6,6 +6,8 @@ import { LanguageModule } from "./language/language.module";
 import { DepartmentModule } from "./department/department.module";
 import { AppointmentTypeModule } from "./appointment-type/appointment-type.module";
 import { AppointmentCancelTypeModule } from "./appointment-cancel-type/appointment-cancel-type.module";
+import { LeaveTypeModule } from "./leave-type/leave-type.module";
+import { HolidayModule } from "./holiday/holiday.module";
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AppointmentCancelTypeModule } from "./appointment-cancel-type/appointme
     DepartmentModule,
     AppointmentTypeModule,
     AppointmentCancelTypeModule,
+    LeaveTypeModule,
+    HolidayModule,
   ],
   exports: [
     TitleModule,
@@ -25,6 +29,8 @@ import { AppointmentCancelTypeModule } from "./appointment-cancel-type/appointme
     DepartmentModule,
     AppointmentTypeModule,
     AppointmentCancelTypeModule,
+    LeaveTypeModule,
+    HolidayModule,
   ],
 })
 export class MasterDataModule {}

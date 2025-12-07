@@ -42,6 +42,8 @@ model Organization {
   visits                 Visit[]
   auditLogs              AuditLog[]
   files                  File[]
+  leaveTypes             LeaveType[]
+  holidays               Holiday[]
 
   @@map("organizations")
 }
@@ -341,7 +343,6 @@ model Employee {
   hireDate                 DateTime?             @db.Date
   terminationDate          DateTime?             @db.Date
   status                   EmployeeStatus        @default(ACTIVE)
-  workSchedule             Json?
   primaryLanguageId        String?
   secondaryLanguageId      String?
   countryId                String?
@@ -381,9 +382,93 @@ model Employee {
   services                 Service[]
   visits                   Visit[]               @relation("VisitDoctor")
   auditLogs                AuditLog[]
+  availability             EmployeeAvailability[]
+  leaveDays                EmployeeLeaveDays[]
 
   @@unique([employeeId, organizationId])
   @@map("employees")
+}
+
+/// ===============================
+/// EMPLOYEE AVAILABILITY & LEAVE
+/// ===============================
+model EmployeeAvailability {
+  id             String    @id @default(uuid())
+  employeeId     String
+  startsOn       DateTime  @db.Date
+  until          DateTime? @db.Date
+  startTime      String    // Format: HH:mm
+  endTime        String    // Format: HH:mm
+  repeatOn       Int[]     // Week days: 0=Sunday, 1=Monday, ..., 6=Saturday
+  note           String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  organizationId String
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([organizationId])
+  @@index([startsOn, until])
+  @@map("employee_availability")
+}
+
+model EmployeeLeaveDays {
+  id             String    @id @default(uuid())
+  employeeId     String
+  leaveTypeId    String
+  startsOn       DateTime  @db.Date
+  until          DateTime  @db.Date
+  note           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  organizationId String
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType      LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@index([employeeId])
+  @@index([leaveTypeId])
+  @@index([organizationId])
+  @@index([startsOn, until])
+  @@map("employee_leave_days")
+}
+
+model LeaveType {
+  id             String              @id @default(uuid())
+  name           String
+  code           String?
+  description    String?
+  color          String?             // Color for calendar display
+  isPaid         Boolean             @default(true)
+  isActive       Boolean             @default(true)
+  order          Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  leaveDays      EmployeeLeaveDays[]
+
+  @@unique([name, organizationId])
+  @@unique([code, organizationId])
+  @@index([organizationId])
+  @@map("leave_types")
+}
+
+model Holiday {
+  id             String       @id @default(uuid())
+  name           String
+  startsOn       DateTime     @db.Date
+  until          DateTime     @db.Date
+  note           String?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([startsOn, until])
+  @@map("holidays")
 }
 
 model Role {
