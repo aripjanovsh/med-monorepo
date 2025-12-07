@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useDataTableState } from "@/hooks/use-data-table-state";
 import { FileIcon, Upload, Download, Trash2, Eye } from "lucide-react";
 
 import type { EmployeeResponseDto } from "@/features/employees/employee.dto";
@@ -36,11 +37,24 @@ export const EmployeeFiles = ({ employee }: EmployeeFilesProps) => {
   const [previewFile, setPreviewFile] = useState<FileResponseDto | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  // DataTable state management
+  const filesState = useDataTableState({
+    defaultLimit: 20,
+    defaultSorting: [
+      {
+        desc: true,
+        id: "createdAt",
+      },
+    ],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
+
   const { data, isLoading, refetch } = useGetFilesQuery(
     {
       entityType: FileEntityType.EMPLOYEE,
       entityId: employee.id,
-      limit: 100,
+      ...filesState.queryParams,
     },
     { skip: !employee.id }
   );
@@ -48,6 +62,7 @@ export const EmployeeFiles = ({ employee }: EmployeeFilesProps) => {
   const [deleteFile] = useDeleteFileMutation();
 
   const files = data?.data || [];
+  const totalFiles = data?.total || 0;
 
   const handleUploadClick = useCallback(() => {
     uploadDialog.open({
@@ -169,6 +184,11 @@ export const EmployeeFiles = ({ employee }: EmployeeFilesProps) => {
         columns={columns}
         data={files}
         isLoading={isLoading}
+        pagination={{
+          ...filesState.handlers.pagination,
+          total: totalFiles,
+        }}
+        sort={filesState.handlers.sorting}
         emptyState={
           <DataTableEmptyState
             title="Нет файлов"

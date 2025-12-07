@@ -266,9 +266,6 @@ export const employeeFormSchema = yup.object({
   titleId: yup.string().required(VALIDATION_MESSAGES.REQUIRED),
   salary: yup.number().min(0, "Salary must be positive"),
 
-  // Work details
-  workSchedule: workScheduleSchema.optional(),
-
   // Languages
   primaryLanguageId: yup.string(),
   secondaryLanguageId: yup.string(),
@@ -327,7 +324,6 @@ export const createEmployeeRequestSchema = yup.object({
   workPhone: yup.string(),
   titleId: yup.string(),
   salary: yup.number().min(0, "Salary must be positive"),
-  workSchedule: workScheduleSchema.optional(),
   primaryLanguageId: yup.string(),
   secondaryLanguageId: yup.string(),
   textNotificationsEnabled: yup.boolean().default(false),

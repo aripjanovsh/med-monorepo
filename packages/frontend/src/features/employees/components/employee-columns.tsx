@@ -1,17 +1,15 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
-import { EmployeeResponseDto } from "../employee.dto";
-import { WEEK_DAYS, WEEK_DAYS_SHORT } from "../employee.constants";
+import type { EmployeeResponseDto } from "../employee.dto";
 import {
   getEmployeeFullName,
   getEmployeePhone,
   getEmployeeTitle,
-  getEmployeeRoles,
+  getEmployeeStatusDisplay,
 } from "../employee.model";
-import { cn } from "@/lib/utils";
 
 export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
   {
@@ -63,38 +61,16 @@ export const employeeColumns: ColumnDef<EmployeeResponseDto>[] = [
     },
   },
   {
-    accessorKey: "workSchedule",
-    header: "РАБОЧИЕ ДНИ",
+    accessorKey: "status",
+    header: "СТАТУС",
     enableSorting: false,
     enableHiding: false,
     cell: ({ row }) => {
-      const workingDays = row.original.workSchedule;
+      const employee = row.original;
       return (
-        <div className="flex space-x-1">
-          {WEEK_DAYS.map((day) => {
-            const schedule = workingDays?.[day];
-            const isWorkingDay =
-              schedule &&
-              schedule.from &&
-              schedule.to &&
-              schedule.from !== "" &&
-              schedule.to !== "";
-
-            return (
-              <div
-                key={day}
-                className={cn(
-                  "size-7 rounded-full flex items-center justify-center text-xs font-medium",
-                  isWorkingDay
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-500"
-                )}
-              >
-                {WEEK_DAYS_SHORT?.[day]}
-              </div>
-            );
-          })}
-        </div>
+        <Badge variant={employee.status === "ACTIVE" ? "default" : "secondary"}>
+          {getEmployeeStatusDisplay(employee.status)}
+        </Badge>
       );
     },
   },

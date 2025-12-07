@@ -358,9 +358,6 @@ export const mapEmployeeToFormData = (employee: EmployeeResponseDto) => {
     titleId: employee.titleId || "",
     salary: employee.salary || 0,
 
-    // Work details
-    workSchedule: employee.workSchedule || {},
-
     // Languages
     primaryLanguageId: employee.primaryLanguageId || "",
     secondaryLanguageId: employee.secondaryLanguageId || "",

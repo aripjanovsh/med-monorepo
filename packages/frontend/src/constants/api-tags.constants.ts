@@ -71,6 +71,12 @@ export const API_TAG_OPERATIONS_APPOINTMENT_CANCEL_TYPES =
 export const API_TAG_OPERATIONS_LEAVE_TYPES = "LeaveType" as const;
 export const API_TAG_OPERATIONS_HOLIDAYS = "Holiday" as const;
 
+// Employee Availability and Leave Days API Tags
+export const API_TAG_OPERATIONS_EMPLOYEE_AVAILABILITY =
+  "EmployeeAvailability" as const;
+export const API_TAG_OPERATIONS_EMPLOYEE_LEAVE_DAYS =
+  "EmployeeLeaveDays" as const;
+
 export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_TITLES
   | typeof API_TAG_OPERATIONS_SERVICES
@@ -101,7 +107,9 @@ export type ApiTagTypes =
   | typeof API_TAG_OPERATIONS_APPOINTMENT_TYPES
   | typeof API_TAG_OPERATIONS_APPOINTMENT_CANCEL_TYPES
   | typeof API_TAG_OPERATIONS_LEAVE_TYPES
-  | typeof API_TAG_OPERATIONS_HOLIDAYS;
+  | typeof API_TAG_OPERATIONS_HOLIDAYS
+  | typeof API_TAG_OPERATIONS_EMPLOYEE_AVAILABILITY
+  | typeof API_TAG_OPERATIONS_EMPLOYEE_LEAVE_DAYS;
 
 // Unified API Tags object for easier access
 export const API_TAGS = {

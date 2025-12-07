@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useRouter } from "next/navigation";
 import { Users } from "lucide-react";
 import Link from "next/link";
@@ -18,8 +19,22 @@ type EmployeePatientsProps = {
 
 export const EmployeePatients = ({ employee }: EmployeePatientsProps) => {
   const router = useRouter();
+
+  // DataTable state management
+  const patientsState = useDataTableState({
+    defaultLimit: 20,
+    defaultSorting: [
+      {
+        desc: false,
+        id: "firstName",
+      },
+    ],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
+
   const { data, isLoading } = useGetPatientsQuery(
-    { doctorId: employee.id, limit: 100 },
+    { doctorId: employee.id, ...patientsState.queryParams },
     { skip: !employee.id }
   );
 
@@ -56,6 +71,11 @@ export const EmployeePatients = ({ employee }: EmployeePatientsProps) => {
         columns={columns}
         data={assignedPatients}
         isLoading={isLoading}
+        pagination={{
+          ...patientsState.handlers.pagination,
+          total,
+        }}
+        sort={patientsState.handlers.sorting}
         emptyState={
           <DataTableEmptyState
             title="Нет пациентов"

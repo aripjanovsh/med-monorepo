@@ -64,6 +64,11 @@ export default function EmployeeDetailLayout({
       value: "visits",
     },
     {
+      label: "Расписание",
+      href: `${url(ROUTES.EMPLOYEE_DETAIL, { id })}/availability`,
+      value: "availability",
+    },
+    {
       label: "Файлы",
       href: `${url(ROUTES.EMPLOYEE_DETAIL, { id })}/files`,
       value: "files",

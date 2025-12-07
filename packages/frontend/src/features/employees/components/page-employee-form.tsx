@@ -19,10 +19,8 @@ import {
 import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
 import { TitleSelectField } from "@/features/master-data/components/titles/title-select-field";
-import { WorkScheduleField } from "./work-schedule-field";
 import { TextField } from "@/components/fields/text-field";
 import { DatePickerField } from "@/components/fields/date-picker-field";
-import { PassportField } from "@/components/fields/passport-field";
 import { PhoneField } from "@/components/fields/phone-field";
 import { GENDER_OPTIONS } from "../employee.constants";
 import { employeeFormSchema, EmployeeFormData } from "../employee.schema";
@@ -74,9 +72,6 @@ const DEFAULT_VALUES: Partial<EmployeeFormData> = {
   // Employment Details
   titleId: "",
   salary: 0,
-
-  // Work details
-  workSchedule: {},
 
   // Languages
   primaryLanguageId: "",
@@ -455,27 +450,6 @@ export function PageEmployeeForm({ employee, mode }: PageEmployeeFormProps) {
                     placeholder="Введите улицу, дом, квартиру"
                     {...field}
                   />
-                )}
-              />
-            </div>
-          </FormSection>
-
-          {/* Work Schedule */}
-          <FormSection title="Рабочее расписание">
-            <div>
-              <FormField
-                control={form.control}
-                name="workSchedule"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <WorkScheduleField
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
                 )}
               />
             </div>

@@ -67,6 +67,17 @@ export const WEEK_DAYS_SHORT = {
   sunday: "Вс",
 } as const;
 
+// Indexed by day number (0 = Sunday, 1 = Monday, ...)
+export const WEEKDAYS_BY_INDEX = [
+  "Вс",
+  "Пн",
+  "Вт",
+  "Ср",
+  "Чт",
+  "Пт",
+  "Сб",
+] as const;
+
 export const WEEK_DAYS_LONG = {
   monday: "Понедельник",
   tuesday: "Вторник",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useDataTableState } from "@/hooks/use-data-table-state";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
@@ -20,12 +21,27 @@ type EmployeeVisitsProps = {
 
 export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
   const router = useRouter();
+
+  // DataTable state management
+  const visitsState = useDataTableState({
+    defaultLimit: 20,
+    defaultSorting: [
+      {
+        desc: true,
+        id: "date",
+      },
+    ],
+    sortFormat: "split",
+    searchDebounceMs: 500,
+  });
+
   const { data, isLoading } = useGetVisitsQuery(
-    { employeeId: employee.id, limit: 100 },
+    { employeeId: employee.id, ...visitsState.queryParams },
     { skip: !employee.id }
   );
 
   const visits = data?.data || [];
+  const totalVisits = data?.meta?.total || 0;
 
   // Columns with actions
   const columns = useMemo(
@@ -58,6 +74,11 @@ export const EmployeeVisits = ({ employee }: EmployeeVisitsProps) => {
         columns={columns}
         data={visits}
         isLoading={isLoading}
+        pagination={{
+          ...visitsState.handlers.pagination,
+          total: totalVisits,
+        }}
+        sort={visitsState.handlers.sorting}
         emptyState={
           <DataTableEmptyState
             title="Визитов пока нет"
