@@ -4,7 +4,8 @@
  */
 
 import * as yup from "yup";
-import { EMPLOYEE_STATUS, GENDER, WORKING_DAYS } from "./employee.constants";
+import { EMPLOYEE_STATUS, GENDER } from "./employee.constants";
+import { WORKING_DAYS } from "@/lib/date.utils";
 import { VALIDATION_MESSAGES } from "@/lib/validation-messages";
 import { WorkScheduleDto, WorkScheduleDay } from "./employee.dto";
 

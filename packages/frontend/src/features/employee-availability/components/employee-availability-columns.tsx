@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/date.utils";
 import type { EmployeeAvailabilityDto } from "../employee-availability.dto";
-import { WEEKDAYS_BY_INDEX } from "@/features/employees/employee.constants";
+import { WEEK_DAYS_SHORT } from "@/lib/date.utils";
 
 export const employeeAvailabilityColumns: ColumnDef<EmployeeAvailabilityDto>[] =
   [
@@ -24,7 +24,7 @@ export const employeeAvailabilityColumns: ColumnDef<EmployeeAvailabilityDto>[] =
         <div className="flex gap-1">
           {row.original.repeatOn.map((day) => (
             <Badge key={day} variant="secondary" className="text-xs">
-              {WEEKDAYS_BY_INDEX[day]}
+              {WEEK_DAYS_SHORT[day as keyof typeof WEEK_DAYS_SHORT]}
             </Badge>
           ))}
         </div>

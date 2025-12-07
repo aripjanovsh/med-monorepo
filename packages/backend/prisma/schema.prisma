@@ -399,7 +399,7 @@ model EmployeeAvailability {
   until          DateTime? @db.Date
   startTime      String    // Format: HH:mm
   endTime        String    // Format: HH:mm
-  repeatOn       Int[]     // Week days: 0=Sunday, 1=Monday, ..., 6=Saturday
+  repeatOn       String[]   // Week days: "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
   note           String?
   isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())

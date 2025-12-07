@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TimePickerField } from "@/components/fields/time-picker-field";
+import { DatePickerField } from "@/components/fields/date-picker-field";
 import {
   Dialog,
   DialogContent,
@@ -31,15 +32,16 @@ import {
 import type { EmployeeAvailabilityDto } from "../employee-availability.dto";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
+import { handleFieldErrors } from "@/lib/api.utils";
 
 const WEEKDAYS = [
-  { value: 0, label: "Воскресенье" },
-  { value: 1, label: "Понедельник" },
-  { value: 2, label: "Вторник" },
-  { value: 3, label: "Среда" },
-  { value: 4, label: "Четверг" },
-  { value: 5, label: "Пятница" },
-  { value: 6, label: "Суббота" },
+  { value: "monday", label: "Понедельник" },
+  { value: "tuesday", label: "Вторник" },
+  { value: "wednesday", label: "Среда" },
+  { value: "thursday", label: "Четверг" },
+  { value: "friday", label: "Пятница" },
+  { value: "saturday", label: "Суббота" },
+  { value: "sunday", label: "Воскресенье" },
 ];
 
 type EmployeeAvailabilityFormProps = {
@@ -55,14 +57,26 @@ type AvailabilityFormValues = {
   until: string;
   startTime: string;
   endTime: string;
-  repeatOn: number[];
+  repeatOn: string[];
   note: string;
   isActive: boolean;
 };
 
 const schema = yup.object().shape({
   startsOn: yup.string().required("Дата начала обязательна"),
-  until: yup.string().optional(),
+  until: yup
+    .string()
+    .optional()
+    .test(
+      "is-after-start",
+      "Дата окончания не может быть раньше даты начала",
+      function (value) {
+        if (!value) return true; // Optional field
+        const { startsOn } = this.parent;
+        if (!startsOn) return true;
+        return new Date(value) >= new Date(startsOn);
+      }
+    ),
   startTime: yup
     .string()
     .required("Время начала обязательно")
@@ -73,7 +87,7 @@ const schema = yup.object().shape({
     .matches(/^\d{2}:\d{2}$/, "Формат: ЧЧ:ММ"),
   repeatOn: yup
     .array()
-    .of(yup.number().required())
+    .of(yup.string().required())
     .min(1, "Выберите хотя бы один день")
     .required(),
   note: yup.string().optional(),
@@ -102,7 +116,7 @@ export function EmployeeAvailabilityForm({
       until: "",
       startTime: "09:00",
       endTime: "18:00",
-      repeatOn: [1, 2, 3, 4, 5],
+      repeatOn: ["monday", "tuesday", "wednesday", "thursday", "friday"],
       note: "",
       isActive: true,
     },
@@ -127,7 +141,7 @@ export function EmployeeAvailabilityForm({
         until: "",
         startTime: "09:00",
         endTime: "18:00",
-        repeatOn: [1, 2, 3, 4, 5],
+        repeatOn: ["monday", "tuesday", "wednesday", "thursday", "friday"],
         note: "",
         isActive: true,
       });
@@ -160,8 +174,9 @@ export function EmployeeAvailabilityForm({
 
       onOpenChange(false);
       onSuccess?.();
-    } catch {
+    } catch (error) {
       toast.error(isEditing ? "Ошибка обновления" : "Ошибка создания");
+      handleFieldErrors(error, form.setError);
     }
   };
 
@@ -184,31 +199,33 @@ export function EmployeeAvailabilityForm({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 items-start">
               <FormField
                 control={form.control}
                 name="startTime"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Начало *</FormLabel>
-                    <FormControl>
-                      <Input type="time" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormControl>
+                    <TimePickerField
+                      disabled={isLoading}
+                      label="Начало"
+                      required
+                      {...field}
+                    />
+                  </FormControl>
                 )}
               />
               <FormField
                 control={form.control}
                 name="endTime"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Окончание *</FormLabel>
-                    <FormControl>
-                      <Input type="time" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormControl>
+                    <TimePickerField
+                      disabled={isLoading}
+                      label="Окончание"
+                      required
+                      {...field}
+                    />
+                  </FormControl>
                 )}
               />
             </div>
@@ -258,31 +275,32 @@ export function EmployeeAvailabilityForm({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 items-start">
               <FormField
                 control={form.control}
                 name="startsOn"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Действует с *</FormLabel>
-                    <FormControl>
-                      <Input type="date" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormControl>
+                    <DatePickerField
+                      disabled={isLoading}
+                      label="Действует с"
+                      required
+                      {...field}
+                    />
+                  </FormControl>
                 )}
               />
               <FormField
                 control={form.control}
                 name="until"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>До (необязательно)</FormLabel>
-                    <FormControl>
-                      <Input type="date" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormControl>
+                    <DatePickerField
+                      disabled={isLoading}
+                      label="До (необязательно)"
+                      {...field}
+                    />
+                  </FormControl>
                 )}
               />
             </div>

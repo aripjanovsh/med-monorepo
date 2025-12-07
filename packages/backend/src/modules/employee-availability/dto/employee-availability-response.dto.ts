@@ -64,11 +64,11 @@ export class EmployeeAvailabilityResponseDto {
 
   @ApiProperty({
     description: "Дни недели",
-    example: [1, 2, 3, 4, 5],
-    type: [Number],
+    example: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    type: [String],
   })
   @Expose()
-  repeatOn: number[];
+  repeatOn: string[];
 
   @ApiPropertyOptional({
     description: "Примечание",

@@ -40,9 +40,17 @@ export {
   EMPLOYEE_STATUS,
   GENDER,
   USER_ROLE,
-  WORKING_DAYS,
   FORM_STEPS,
 } from "./employee.constants";
+
+// Date constants exports
+export {
+  WORKING_DAYS,
+  WEEK_DAYS,
+  WEEK_DAYS_SHORT,
+  WEEK_DAYS_LONG,
+  WEEK_DAYS_BY_INDEX,
+} from "@/lib/date.utils";
 
 // Model/Utility exports
 export {

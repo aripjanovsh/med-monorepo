@@ -16,7 +16,7 @@ import {
   getEmployeeRoles,
 } from "@/features/employees/employee.model";
 import { EmployeeResponseDto } from "@/features/employees/employee.dto";
-import { WEEK_DAYS, WEEK_DAYS_LONG } from "../../employee.constants";
+import { WEEK_DAYS, WEEK_DAYS_LONG } from "@/lib/date.utils";
 
 type EmployeeProfileProps = {
   employee: EmployeeResponseDto;

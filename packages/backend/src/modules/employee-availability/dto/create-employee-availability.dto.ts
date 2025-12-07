@@ -10,6 +10,7 @@ import {
   Max,
   MaxLength,
   Matches,
+  IsEnum,
 } from "class-validator";
 import { Transform, Expose } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
@@ -59,16 +60,39 @@ export class CreateEmployeeAvailabilityDto {
   endTime: string;
 
   @ApiProperty({
-    description: "Дни недели (0=Воскресенье, 1=Понедельник, ..., 6=Суббота)",
-    example: [1, 2, 3, 4, 5],
-    type: [Number],
+    description: "Дни недели",
+    example: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    type: [String],
+    enum: [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ],
   })
   @IsArray({ message: "repeatOn должен быть массивом" })
   @ArrayMinSize(1, { message: "Должен быть выбран хотя бы один день недели" })
-  @IsInt({ each: true, message: "Каждый элемент должен быть целым числом" })
-  @Min(0, { each: true, message: "Значение дня недели должно быть от 0 до 6" })
-  @Max(6, { each: true, message: "Значение дня недели должно быть от 0 до 6" })
-  repeatOn: number[];
+  @IsString({ each: true, message: "Каждый элемент должен быть строкой" })
+  @IsEnum(
+    [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ],
+    {
+      each: true,
+      message:
+        "День недели должен быть одним из: monday, tuesday, wednesday, thursday, friday, saturday, sunday",
+    }
+  )
+  repeatOn: string[];
 
   @ApiPropertyOptional({
     description: "Примечание",

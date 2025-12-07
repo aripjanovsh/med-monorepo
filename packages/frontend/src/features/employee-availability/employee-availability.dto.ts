@@ -5,7 +5,7 @@ export type EmployeeAvailabilityDto = {
   until?: string;
   startTime: string;
   endTime: string;
-  repeatOn: number[];
+  repeatOn: string[];
   note?: string;
   isActive: boolean;
   organizationId: string;
@@ -19,7 +19,7 @@ export type CreateEmployeeAvailabilityRequestDto = {
   until?: string;
   startTime: string;
   endTime: string;
-  repeatOn: number[];
+  repeatOn: string[];
   note?: string;
   isActive?: boolean;
 };

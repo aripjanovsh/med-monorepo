@@ -12,6 +12,16 @@ import { UpdateEmployeeAvailabilityDto } from "./dto/update-employee-availabilit
 import { FindAllEmployeeAvailabilityDto } from "./dto/find-all-employee-availability.dto";
 import { EmployeeAvailabilityResponseDto } from "./dto/employee-availability-response.dto";
 
+const DAY_NAMES = [
+  "sunday", // 0
+  "monday", // 1
+  "tuesday", // 2
+  "wednesday", // 3
+  "thursday", // 4
+  "friday", // 5
+  "saturday", // 6
+];
+
 const EMPLOYEE_SELECT = {
   id: true,
   firstName: true,
@@ -168,6 +178,7 @@ export class EmployeeAvailabilityService {
     date: Date
   ): Promise<EmployeeAvailabilityResponseDto[]> {
     const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const dayName = DAY_NAMES[dayOfWeek];
 
     const availabilities = await this.prisma.employeeAvailability.findMany({
       where: {
@@ -175,7 +186,7 @@ export class EmployeeAvailabilityService {
         isActive: true,
         startsOn: { lte: date },
         OR: [{ until: null }, { until: { gte: date } }],
-        repeatOn: { has: dayOfWeek },
+        repeatOn: { has: dayName },
       },
       include: { employee: { select: EMPLOYEE_SELECT } },
       orderBy: { startsOn: "desc" },

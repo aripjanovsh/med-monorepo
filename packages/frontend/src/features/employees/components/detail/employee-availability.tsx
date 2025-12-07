@@ -209,7 +209,7 @@ export const EmployeeAvailability = ({
               cell: ({ row }) => (
                 <div className="flex gap-1 justify-end">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => handleEditAvailability(row.original)}
                   >

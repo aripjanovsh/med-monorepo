@@ -7,6 +7,8 @@ import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePickerField } from "@/components/fields/date-picker-field";
+import { DateRangeField } from "@/components/fields/date-range-field";
 import {
   Dialog,
   DialogContent,
@@ -48,26 +50,30 @@ type EmployeeLeaveDaysFormProps = {
 
 type LeaveDaysFormValues = {
   leaveTypeId: string;
-  startsOn: string;
-  until: string;
+  dateRange: {
+    from?: string;
+    to?: string;
+  };
   note: string;
 };
 
 const schema = yup.object().shape({
   leaveTypeId: yup.string().required("Выберите тип отпуска"),
-  startsOn: yup.string().required("Дата начала обязательна"),
-  until: yup
-    .string()
-    .required("Дата окончания обязательна")
-    .test(
-      "is-after-start",
-      "Дата окончания должна быть не раньше даты начала",
-      function (value) {
-        const { startsOn } = this.parent;
-        if (!startsOn || !value) return true;
-        return new Date(value) >= new Date(startsOn);
-      }
-    ),
+  dateRange: yup.object().shape({
+    from: yup.string().required("Дата начала обязательна"),
+    to: yup
+      .string()
+      .required("Дата окончания обязательна")
+      .test(
+        "is-after-start",
+        "Дата окончания должна быть не раньше даты начала",
+        function (value) {
+          const { from } = this.parent;
+          if (!from || !value) return true;
+          return new Date(value) >= new Date(from);
+        }
+      ),
+  }),
   note: yup.string().optional(),
 });
 
@@ -95,8 +101,7 @@ export function EmployeeLeaveDaysForm({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       leaveTypeId: "",
-      startsOn: "",
-      until: "",
+      dateRange: {},
       note: "",
     },
   });
@@ -105,15 +110,16 @@ export function EmployeeLeaveDaysForm({
     if (open && leaveDays) {
       form.reset({
         leaveTypeId: leaveDays.leaveTypeId,
-        startsOn: format(parseISO(leaveDays.startsOn), "yyyy-MM-dd"),
-        until: format(parseISO(leaveDays.until), "yyyy-MM-dd"),
+        dateRange: {
+          from: format(parseISO(leaveDays.startsOn), "yyyy-MM-dd"),
+          to: format(parseISO(leaveDays.until), "yyyy-MM-dd"),
+        },
         note: leaveDays.note || "",
       });
     } else if (open && !leaveDays) {
       form.reset({
         leaveTypeId: "",
-        startsOn: "",
-        until: "",
+        dateRange: {},
         note: "",
       });
     }
@@ -124,8 +130,8 @@ export function EmployeeLeaveDaysForm({
       const payload = {
         employeeId,
         leaveTypeId: data.leaveTypeId,
-        startsOn: data.startsOn,
-        until: data.until,
+        startsOn: data.dateRange.from!,
+        until: data.dateRange.to!,
         note: data.note || undefined,
       };
 
@@ -198,34 +204,20 @@ export function EmployeeLeaveDaysForm({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="startsOn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Дата начала *</FormLabel>
-                    <FormControl>
-                      <Input type="date" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="until"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Дата окончания *</FormLabel>
-                    <FormControl>
-                      <Input type="date" disabled={isLoading} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="dateRange"
+              render={({ field }) => (
+                <FormControl>
+                  <DateRangeField
+                    disabled={isLoading}
+                    label="Период отпуска"
+                    required
+                    {...field}
+                  />
+                </FormControl>
+              )}
+            />
 
             <FormField
               control={form.control}

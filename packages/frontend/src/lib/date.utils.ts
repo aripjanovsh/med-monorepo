@@ -13,6 +13,59 @@ import {
 } from "date-fns";
 import { ru } from "date-fns/locale";
 
+// Date-related constants
+export const WORKING_DAYS = {
+  SUNDAY: "S",
+  MONDAY: "M",
+  TUESDAY: "T",
+  WEDNESDAY: "W",
+  THURSDAY: "T",
+  FRIDAY: "F",
+} as const;
+
+export const WEEK_DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
+
+export const WEEK_DAYS_SHORT = {
+  monday: "Пн",
+  tuesday: "Вт",
+  wednesday: "Ср",
+  thursday: "Чт",
+  friday: "Пт",
+  saturday: "Сб",
+  sunday: "Вс",
+} as const;
+
+// Indexed by day number (0 = Sunday, 1 = Monday, ...)
+export const WEEK_DAYS_BY_INDEX = [
+  "Вс",
+  "Пн",
+  "Вт",
+  "Ср",
+  "Чт",
+  "Пт",
+  "Сб",
+] as const;
+
+export const WEEK_DAYS_LONG = {
+  monday: "Понедельник",
+  tuesday: "Вторник",
+  wednesday: "Среда",
+  thursday: "Четверг",
+  friday: "Пятница",
+  saturday: "Суббота",
+  sunday: "Воскресенье",
+} as const;
+
+export type WorkingDay = (typeof WORKING_DAYS)[keyof typeof WORKING_DAYS];
+
 export const formatFullDate = (date: string | Date): string => {
   return format(date, "dd.MM.yyyy, HH:mm", { locale: ru });
 };

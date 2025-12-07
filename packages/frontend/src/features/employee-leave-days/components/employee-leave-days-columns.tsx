@@ -23,14 +23,27 @@ export const employeeLeaveDaysColumns: ColumnDef<EmployeeLeaveDaysDto>[] = [
     ),
   },
   {
-    accessorKey: "startsOn",
-    header: "Начало",
-    cell: ({ row }) => formatDate(row.original.startsOn, "dd.MM.yyyy"),
+    accessorKey: "daysCount",
+    header: "Дни отсуствие",
+    cell: ({ row }) => {
+      if (!row.original.until) return 1;
+      const start = new Date(row.original.startsOn);
+      const end = new Date(row.original.until);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return diffDays;
+    },
   },
   {
-    accessorKey: "until",
-    header: "Окончание",
-    cell: ({ row }) => formatDate(row.original.until, "dd.MM.yyyy"),
+    accessorKey: "startsOn",
+    header: "Период",
+    cell: ({ row }) => (
+      <span>
+        {formatDate(row.original.startsOn, "dd.MM.yyyy")}
+        {row.original.until &&
+          ` — ${formatDate(row.original.until, "dd.MM.yyyy")}`}
+      </span>
+    ),
   },
   {
     accessorKey: "note",
