@@ -122,6 +122,8 @@ type CalendarViewProps = {
   availabilities?: EmployeeAvailabilityDto[];
   leaveDays?: EmployeeLeaveDaysDto[];
   holidays?: Holiday[];
+
+  bodyClassName?: string;
 };
 
 export const Navigation = ({
@@ -183,6 +185,7 @@ export const CalendarView = ({
   availabilities = [],
   leaveDays = [],
   holidays = [],
+  bodyClassName,
 }: CalendarViewProps) => {
   const weekDays = useMemo(() => {
     const start = startOfWeek(currentWeekStart, { weekStartsOn: 1 });
@@ -379,7 +382,7 @@ export const CalendarView = ({
           </div>
 
           {/* Time Slots */}
-          <ScrollArea className="h-[600px]">
+          <ScrollArea className={cn("h-[600px]", bodyClassName)}>
             {TIME_SLOTS.map((timeSlot) => (
               <div
                 id={`time-slot-${timeSlot}`}

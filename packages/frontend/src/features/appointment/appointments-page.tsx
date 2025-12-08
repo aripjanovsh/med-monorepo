@@ -1,172 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { Plus } from "lucide-react";
-import { startOfWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useDialog } from "@/lib/dialog-manager/dialog-manager";
-import { useConfirmDialog, usePromptDialog } from "@/components/dialogs";
-
-import {
-  useGetAppointmentsQuery,
-  useDeleteAppointmentMutation,
-  useConfirmAppointmentMutation,
-  useCheckInAppointmentMutation,
-  useCancelAppointmentMutation,
-  type AppointmentResponseDto,
-  type AppointmentStatus,
-  CalendarView,
-  Navigation,
-  ListView,
-  ViewSwitcher,
-  AppointmentViewSheet,
-  AppointmentFormSheet,
-  createAppointmentColumns,
-} from "./index";
-import PageHeader from "@/components/layouts/page-header";
 import { CabinetContent, LayoutHeader } from "@/components/layouts/cabinet";
-
-type ViewMode = "calendar" | "list";
+import { GlobalSearchAutocomplete } from "@/features/global-search";
+import { AppointmentFormSheet } from "./components/appointment-form-sheet";
 
 export const AppointmentsPage = () => {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
-  const [selectedStatus, setSelectedStatus] = useState<
-    AppointmentStatus | "all"
-  >("all");
-  const [currentWeekStart, setCurrentWeekStart] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
-
-  // Dialog Manager для управления sheets и dialogs
-  const viewSheet = useDialog(AppointmentViewSheet);
   const formSheet = useDialog(AppointmentFormSheet);
-  const confirm = useConfirmDialog();
-  const prompt = usePromptDialog();
-
-  const { data, isLoading, refetch } = useGetAppointmentsQuery({
-    page: viewMode === "list" ? page : 1,
-    limit: viewMode === "list" ? pageSize : 1000,
-    status: selectedStatus !== "all" ? selectedStatus : undefined,
-  });
-
-  const [deleteAppointment] = useDeleteAppointmentMutation();
-  const [confirmAppointment] = useConfirmAppointmentMutation();
-  const [checkInAppointment] = useCheckInAppointmentMutation();
-  const [cancelAppointment] = useCancelAppointmentMutation();
-
-  const handleView = (appointment: AppointmentResponseDto) => {
-    viewSheet.open({
-      appointmentId: appointment.id,
-      onEdit: (id) => {
-        viewSheet.close();
-        handleEdit({ id } as AppointmentResponseDto);
-      },
-      onDeleted: refetch,
-    });
-  };
-
-  const handleEdit = (appointment: AppointmentResponseDto) => {
-    formSheet.open({
-      mode: "edit",
-      appointmentId: appointment.id,
-      onSuccess: () => {
-        refetch();
-        formSheet.close();
-      },
-    });
-  };
 
   const handleCreate = () => {
     formSheet.open({
       mode: "create",
       appointmentId: null,
       onSuccess: () => {
-        refetch();
         formSheet.close();
       },
     });
   };
-
-  const handleDelete = async (appointment: AppointmentResponseDto) => {
-    confirm({
-      title: "Удалить запись?",
-      description:
-        "Это действие нельзя отменить. Запись будет удалена безвозвратно.",
-      variant: "destructive",
-      confirmText: "Удалить",
-      onConfirm: async () => {
-        try {
-          await deleteAppointment(appointment.id).unwrap();
-          toast.success("Запись удалена");
-          refetch();
-        } catch (error: any) {
-          toast.error(error?.data?.message || "Ошибка при удалении");
-        }
-      },
-    });
-  };
-
-  const handleConfirm = async (appointment: AppointmentResponseDto) => {
-    try {
-      await confirmAppointment(appointment.id).unwrap();
-      toast.success("Запись подтверждена");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при подтверждении");
-    }
-  };
-
-  const handleCheckIn = async (appointment: AppointmentResponseDto) => {
-    try {
-      await checkInAppointment(appointment.id).unwrap();
-      toast.success("Пациент отмечен");
-      refetch();
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Ошибка при отметке прибытия");
-    }
-  };
-
-  const handleCancel = async (appointment: AppointmentResponseDto) => {
-    prompt({
-      title: "Отменить запись",
-      description: "Укажите причину отмены записи на прием",
-      label: "Причина отмены *",
-      placeholder: "Например: Пациент отказался, изменились планы...",
-      multiline: true,
-      required: true,
-      confirmText: "Отменить запись",
-      onConfirm: async (reason) => {
-        try {
-          await cancelAppointment({
-            id: appointment.id,
-            cancelReason: reason,
-          }).unwrap();
-          toast.success("Запись отменена");
-          refetch();
-        } catch (error: any) {
-          toast.error(error?.data?.message || "Ошибка при отмене");
-        }
-      },
-    });
-  };
-
-  const handleGoToToday = () => {
-    setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  };
-
-  const columns = createAppointmentColumns(
-    handleEdit,
-    handleView,
-    handleDelete,
-    handleConfirm,
-    handleCheckIn,
-    handleCancel
-  );
-
-  const appointments = useMemo(() => data?.data || [], [data?.data]);
 
   return (
     <>
@@ -179,47 +31,116 @@ export const AppointmentsPage = () => {
           </Button>
         }
       />
-      <CabinetContent className="space-y-6">
-        {/* Single Row: Add new + Filters + Navigation */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <ViewSwitcher
-              view={viewMode}
-              onViewChange={setViewMode}
-              selectedStatus={selectedStatus}
-              onStatusChange={setSelectedStatus}
-            />
+      <CabinetContent>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+          {/* Illustration */}
+          <div className="mb-8">
+            <svg
+              width="200"
+              height="160"
+              viewBox="0 0 200 160"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-primary"
+            >
+              {/* Simple illustration of people with calendar */}
+              <circle
+                cx="100"
+                cy="60"
+                r="50"
+                fill="currentColor"
+                fillOpacity="0.1"
+              />
+              <circle
+                cx="70"
+                cy="50"
+                r="15"
+                fill="currentColor"
+                fillOpacity="0.3"
+              />
+              <circle
+                cx="130"
+                cy="50"
+                r="15"
+                fill="currentColor"
+                fillOpacity="0.3"
+              />
+              <rect
+                x="60"
+                y="70"
+                width="20"
+                height="30"
+                rx="4"
+                fill="currentColor"
+                fillOpacity="0.2"
+              />
+              <rect
+                x="120"
+                y="70"
+                width="20"
+                height="30"
+                rx="4"
+                fill="currentColor"
+                fillOpacity="0.2"
+              />
+              {/* Calendar icon */}
+              <rect
+                x="85"
+                y="35"
+                width="30"
+                height="25"
+                rx="3"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+              <line
+                x1="90"
+                y1="35"
+                x2="90"
+                y2="30"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <line
+                x1="110"
+                y1="35"
+                x2="110"
+                y2="30"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <line
+                x1="85"
+                y1="43"
+                x2="115"
+                y2="43"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              {/* Small dots for calendar days */}
+              <circle cx="92" cy="50" r="2" fill="currentColor" />
+              <circle cx="100" cy="50" r="2" fill="currentColor" />
+              <circle cx="108" cy="50" r="2" fill="currentColor" />
+            </svg>
           </div>
 
-          {viewMode === "calendar" && (
-            <Navigation
-              currentWeekStart={currentWeekStart}
-              onWeekChange={setCurrentWeekStart}
-              onGoToToday={handleGoToToday}
-            />
-          )}
-        </div>
+          {/* Title */}
+          <h2 className="text-xl font-semibold text-center mb-2">
+            Поиск терапевта / клиента
+          </h2>
+          <p className="text-muted-foreground text-center mb-6">
+            для просмотра календаря записей
+          </p>
 
-        {viewMode === "calendar" ? (
-          <CalendarView
-            appointments={appointments}
-            currentWeekStart={currentWeekStart}
-            onAppointmentClick={handleView}
-          />
-        ) : (
-          <ListView
-            columns={columns}
-            appointments={appointments}
-            isLoading={isLoading}
-            pagination={{
-              page,
-              limit: pageSize,
-              total: data?.meta?.total || 0,
-              onChangePage: setPage,
-              onChangeLimit: setPageSize,
-            }}
-          />
-        )}
+          {/* Search Autocomplete */}
+          <div className="w-full max-w-md">
+            <GlobalSearchAutocomplete
+              placeholder="Поиск по имени пациента, сотрудника, ID..."
+              className="border rounded-lg shadow-sm"
+            />
+          </div>
+        </div>
       </CabinetContent>
     </>
   );

@@ -69,3 +69,4 @@ export { ViewSwitcher } from "./components/view-switcher";
 export { AppointmentViewSheet } from "./components/appointment-view-sheet";
 export { AppointmentFormSheet } from "./components/appointment-form-sheet";
 export { AppointmentsPage } from "./appointments-page";
+export { FilteredAppointmentsPage } from "./filtered-appointments-page";
