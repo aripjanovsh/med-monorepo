@@ -24,6 +24,7 @@ import {
   Stethoscope,
   CalendarOff,
   Palmtree,
+  PartyPopper,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { getWeekdayName } from "@/lib/date.utils";
 import type { EmployeeAvailabilityDto } from "@/features/employee-availability";
 import type { EmployeeLeaveDaysDto } from "@/features/employee-leave-days";
+import type { Holiday } from "@/features/master-data/master-data.types";
 
 import type { AppointmentResponseDto } from "../appointment.dto";
 import {
@@ -105,9 +107,11 @@ type NavigationProps = {
 type DayStatus = {
   isNonWorking: boolean;
   isLeave: boolean;
+  isHoliday: boolean;
   leaveReason?: string;
   leaveTypeName?: string;
   leaveTypeColor?: string;
+  holidayName?: string;
 };
 
 type CalendarViewProps = {
@@ -117,6 +121,7 @@ type CalendarViewProps = {
   showEmployee?: boolean;
   availabilities?: EmployeeAvailabilityDto[];
   leaveDays?: EmployeeLeaveDaysDto[];
+  holidays?: Holiday[];
 };
 
 export const Navigation = ({
@@ -177,6 +182,7 @@ export const CalendarView = ({
   showEmployee = false,
   availabilities = [],
   leaveDays = [],
+  holidays = [],
 }: CalendarViewProps) => {
   const weekDays = useMemo(() => {
     const start = startOfWeek(currentWeekStart, { weekStartsOn: 1 });
@@ -221,6 +227,27 @@ export const CalendarView = ({
       const dayStart = startOfDay(day);
       const dayEnd = endOfDay(day);
 
+      // Check if it's a company holiday
+      for (const holiday of holidays) {
+        const holidayStart = startOfDay(parseISO(holiday.startsOn));
+        const holidayEnd = endOfDay(parseISO(holiday.until));
+
+        if (
+          isWithinInterval(dayStart, {
+            start: holidayStart,
+            end: holidayEnd,
+          }) ||
+          isWithinInterval(dayEnd, { start: holidayStart, end: holidayEnd })
+        ) {
+          return {
+            isNonWorking: false,
+            isLeave: false,
+            isHoliday: true,
+            holidayName: holiday.name,
+          };
+        }
+      }
+
       // Check if it's a leave day
       for (const leave of leaveDays) {
         const leaveStart = startOfDay(parseISO(leave.startsOn));
@@ -233,6 +260,7 @@ export const CalendarView = ({
           return {
             isNonWorking: false,
             isLeave: true,
+            isHoliday: false,
             leaveReason: leave.note,
             leaveTypeName: leave.leaveType?.name,
             leaveTypeColor: leave.leaveType?.color,
@@ -261,6 +289,7 @@ export const CalendarView = ({
           return {
             isNonWorking: true,
             isLeave: false,
+            isHoliday: false,
           };
         }
       }
@@ -268,9 +297,10 @@ export const CalendarView = ({
       return {
         isNonWorking: false,
         isLeave: false,
+        isHoliday: false,
       };
     },
-    [availabilities, leaveDays]
+    [availabilities, leaveDays, holidays]
   );
 
   const getAppointmentsForDayAndTime = (day: Date, timeSlot: string) => {
@@ -309,12 +339,16 @@ export const CalendarView = ({
                       "bg-[repeating-linear-gradient(135deg,#eef2f7_0px,#eef2f7_12px,#dfe4ea_12px,#dfe4ea_24px)] dark:bg-[repeating-linear-gradient(135deg,#1f2937_0px,#1f2937_12px,#111827_12px,#111827_24px)] bg-fixed",
                     dayStatus.isLeave &&
                       "bg-[repeating-linear-gradient(135deg,#fff1e8_0px,#fff1e8_12px,#ffd7b8_12px,#ffd7b8_24px)] dark:bg-[repeating-linear-gradient(135deg,#3b2a1f_0px,#3b2a1f_12px,#2a1d14_12px,#2a1d14_24px)] bg-fixed",
+                    dayStatus.isHoliday &&
+                      "bg-[repeating-linear-gradient(135deg,#fce7f3_0px,#fce7f3_12px,#fbcfe8_12px,#fbcfe8_24px)] dark:bg-[repeating-linear-gradient(135deg,#4a1942_0px,#4a1942_12px,#3b1033_12px,#3b1033_24px)] bg-fixed",
                     !dayStatus.isNonWorking &&
                       !dayStatus.isLeave &&
+                      !dayStatus.isHoliday &&
                       "bg-muted/50 dark:bg-card",
                     isToday(day) &&
                       !dayStatus.isNonWorking &&
                       !dayStatus.isLeave &&
+                      !dayStatus.isHoliday &&
                       "bg-blue-50 dark:bg-blue-900/20"
                   )}
                 >
@@ -327,7 +361,8 @@ export const CalendarView = ({
                     </div>
                     {eventsCount > 0 &&
                       !dayStatus.isNonWorking &&
-                      !dayStatus.isLeave && (
+                      !dayStatus.isLeave &&
+                      !dayStatus.isHoliday && (
                         <div className="text-xs text-green-600 dark:text-green-400 font-medium">
                           {eventsCount}{" "}
                           {eventsCount === 1
@@ -372,16 +407,20 @@ export const CalendarView = ({
                         "relative p-1 min-h-[70px] min-w-[150px]",
                         !dayStatus.isNonWorking &&
                           !dayStatus.isLeave &&
+                          !dayStatus.isHoliday &&
                           "bg-muted/50 dark:bg-card",
                         isToday(day) &&
                           !dayStatus.isNonWorking &&
                           !dayStatus.isLeave &&
+                          !dayStatus.isHoliday &&
                           "bg-blue-50 dark:bg-blue-900/20",
 
                         dayStatus.isNonWorking &&
                           "bg-[repeating-linear-gradient(135deg,#eef2f7_0px,#eef2f7_12px,#dfe4ea_12px,#dfe4ea_24px)] dark:bg-[repeating-linear-gradient(135deg,#1f2937_0px,#1f2937_12px,#111827_12px,#111827_24px)] bg-fixed",
                         dayStatus.isLeave &&
-                          "bg-[repeating-linear-gradient(135deg,#fff1e8_0px,#fff1e8_12px,#ffd7b8_12px,#ffd7b8_24px)] dark:bg-[repeating-linear-gradient(135deg,#3b2a1f_0px,#3b2a1f_12px,#2a1d14_12px,#2a1d14_24px)] bg-fixed"
+                          "bg-[repeating-linear-gradient(135deg,#fff1e8_0px,#fff1e8_12px,#ffd7b8_12px,#ffd7b8_24px)] dark:bg-[repeating-linear-gradient(135deg,#3b2a1f_0px,#3b2a1f_12px,#2a1d14_12px,#2a1d14_24px)] bg-fixed",
+                        dayStatus.isHoliday &&
+                          "bg-[repeating-linear-gradient(135deg,#fce7f3_0px,#fce7f3_12px,#fbcfe8_12px,#fbcfe8_24px)] dark:bg-[repeating-linear-gradient(135deg,#4a1942_0px,#4a1942_12px,#3b1033_12px,#3b1033_24px)] bg-fixed"
                       )}
                     >
                       {isFirstRow && dayStatus.isNonWorking && (
@@ -397,6 +436,14 @@ export const CalendarView = ({
                           <Palmtree className="size-5 text-muted-foreground mb-2" />
                           <div className="text-sm font-semibold font-gilroy text-muted-foreground">
                             {dayStatus.leaveTypeName || "Отсутствует"}
+                          </div>
+                        </div>
+                      )}
+                      {isFirstRow && dayStatus.isHoliday && (
+                        <div className="flex flex-col items-center justify-center h-full min-h-[60px] text-center py-2">
+                          <PartyPopper className="size-5 text-pink-600 dark:text-pink-400 mb-2" />
+                          <div className="text-sm font-semibold font-gilroy text-pink-600 dark:text-pink-400">
+                            {dayStatus.holidayName || "Праздник"}
                           </div>
                         </div>
                       )}

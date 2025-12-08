@@ -75,12 +75,17 @@ export const DatePickerField = ({
   // Handle manual input changes
   const handleAccept = useCallback(
     (maskedValue: string) => {
-      // Only process complete dates (10 chars: dd.MM.yyyy)
-      if (maskedValue.length !== 10) {
-        // Clear value if input is incomplete
-        if (value && maskedValue.length === 0) {
+      // Check if value is effectively empty (no digits)
+      const hasDigits = /\d/.test(maskedValue);
+      if (!hasDigits) {
+        if (value) {
           onChange?.(undefined);
         }
+        return;
+      }
+
+      // Only process complete dates (10 chars: dd.MM.yyyy)
+      if (maskedValue.length !== 10) {
         return;
       }
 
@@ -215,7 +220,7 @@ export const DatePickerField = ({
             disabled={disabledMatcher}
             defaultMonth={selectedDate}
             fromYear={minDate?.getFullYear() ?? 1900}
-            toYear={maxDate?.getFullYear() ?? new Date().getFullYear()}
+            toYear={maxDate?.getFullYear() ?? new Date().getFullYear() + 10}
           />
         </PopoverContent>
       </Popover>

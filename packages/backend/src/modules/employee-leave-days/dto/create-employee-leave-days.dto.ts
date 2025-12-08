@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsDateString, MaxLength } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  MaxLength,
+  ValidateIf,
+} from "class-validator";
 import { Transform, Expose } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { InjectOrganizationId } from "../../../common/decorators/inject-organization-id.decorator";
@@ -36,12 +42,14 @@ export class CreateEmployeeLeaveDaysDto {
     description: "Примечание",
     example: "Ежегодный отпуск",
     maxLength: 500,
+    nullable: true,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @IsString({ message: "Примечание должно быть строкой" })
   @MaxLength(500, { message: "Примечание не должно превышать 500 символов" })
-  @Transform(({ value }) => value?.trim())
-  note?: string;
+  @Transform(({ value }) => (value === null ? null : value?.trim()))
+  note?: string | null;
 
   @Expose()
   @InjectOrganizationId()

@@ -322,3 +322,8 @@ export interface MasterDataQueryParams extends QueryParamsDto {
   organizationId?: string;
   isActive?: boolean;
 }
+
+export interface HolidayQueryParams extends MasterDataQueryParams {
+  from?: string;
+  to?: string;
+}

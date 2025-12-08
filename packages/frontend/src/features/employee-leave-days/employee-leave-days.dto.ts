@@ -24,7 +24,7 @@ export type CreateEmployeeLeaveDaysRequestDto = {
   leaveTypeId: string;
   startsOn: string;
   until: string;
-  note?: string;
+  note?: string | null;
 };
 
 export type UpdateEmployeeLeaveDaysRequestDto =
@@ -33,6 +33,8 @@ export type UpdateEmployeeLeaveDaysRequestDto =
 export type EmployeeLeaveDaysQueryDto = {
   employeeId?: string;
   leaveTypeId?: string;
+  from?: string;
+  to?: string;
   page?: number;
   limit?: number;
 };

@@ -4,7 +4,7 @@ import type {
   CreateHolidayRequest,
   UpdateHolidayRequest,
   MasterDataPaginatedResponse,
-  MasterDataQueryParams,
+  HolidayQueryParams,
 } from "@/features/master-data/master-data.types";
 import { API_TAG_OPERATIONS_HOLIDAYS } from "@/constants/api-tags.constants";
 
@@ -13,7 +13,7 @@ export const holidaysApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     getHolidays: builder.query<
       MasterDataPaginatedResponse<Holiday>,
-      MasterDataQueryParams
+      HolidayQueryParams
     >({
       query: (params) => ({
         url: "/api/v1/master-data/holidays",

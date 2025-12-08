@@ -284,7 +284,7 @@ export const DateRangeField = ({
               disabled={disabledMatcher}
               defaultMonth={selectedRange?.from}
               fromYear={minDate?.getFullYear() ?? 1900}
-              toYear={maxDate?.getFullYear() ?? new Date().getFullYear()}
+              toYear={maxDate?.getFullYear() ?? new Date().getFullYear() + 10}
               numberOfMonths={showPresets ? 1 : 2}
               locale={ru}
             />

@@ -26,6 +26,7 @@ import {
 } from "@/features/appointment";
 import { useGetEmployeeAvailabilitiesQuery } from "@/features/employee-availability";
 import { useGetEmployeeLeaveDaysQuery } from "@/features/employee-leave-days";
+import { useGetHolidaysQuery } from "@/features/master-data/master-data-holidays.api";
 import PageHeader from "@/components/layouts/page-header";
 
 type ViewMode = "calendar" | "list";
@@ -80,6 +81,16 @@ export function EmployeeAppointments({ employee }: EmployeeAppointmentsProps) {
 
   const { data: leaveDaysData } = useGetEmployeeLeaveDaysQuery({
     employeeId: employee.id,
+    from: weekStart,
+    to: weekEnd,
+    limit: 100,
+  });
+
+  // Fetch holidays for the current week
+  const { data: holidaysData } = useGetHolidaysQuery({
+    from: weekStart,
+    to: weekEnd,
+    isActive: true,
     limit: 100,
   });
 
@@ -90,6 +101,10 @@ export function EmployeeAppointments({ employee }: EmployeeAppointmentsProps) {
   const leaveDays = useMemo(
     () => leaveDaysData?.data ?? [],
     [leaveDaysData?.data]
+  );
+  const holidays = useMemo(
+    () => holidaysData?.data ?? [],
+    [holidaysData?.data]
   );
 
   const [deleteAppointment] = useDeleteAppointmentMutation();
@@ -250,6 +265,7 @@ export function EmployeeAppointments({ employee }: EmployeeAppointmentsProps) {
           showEmployee={false}
           availabilities={availabilities}
           leaveDays={leaveDays}
+          holidays={holidays}
         />
       ) : (
         <ListView

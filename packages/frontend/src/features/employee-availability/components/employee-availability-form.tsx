@@ -31,7 +31,7 @@ import {
 } from "../employee-availability.api";
 import type { EmployeeAvailabilityDto } from "../employee-availability.dto";
 import { toast } from "sonner";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, startOfDay } from "date-fns";
 import { handleFieldErrors } from "@/lib/api.utils";
 
 const WEEKDAYS = [
@@ -153,11 +153,11 @@ export function EmployeeAvailabilityForm({
       const payload = {
         employeeId,
         startsOn: data.startsOn,
-        until: data.until || undefined,
+        until: data.until || null,
         startTime: data.startTime,
         endTime: data.endTime,
         repeatOn: data.repeatOn,
-        note: data.note || undefined,
+        note: data.note || null,
         isActive: data.isActive,
       };
 
@@ -285,6 +285,7 @@ export function EmployeeAvailabilityForm({
                       disabled={isLoading}
                       label="Действует с"
                       required
+                      minDate={startOfDay(new Date())}
                       {...field}
                     />
                   </FormControl>
@@ -298,6 +299,7 @@ export function EmployeeAvailabilityForm({
                     <DatePickerField
                       disabled={isLoading}
                       label="До (необязательно)"
+                      minDate={startOfDay(new Date())}
                       {...field}
                     />
                   </FormControl>

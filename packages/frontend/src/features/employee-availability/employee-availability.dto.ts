@@ -16,11 +16,11 @@ export type EmployeeAvailabilityDto = {
 export type CreateEmployeeAvailabilityRequestDto = {
   employeeId: string;
   startsOn: string;
-  until?: string;
+  until?: string | null;
   startTime: string;
   endTime: string;
   repeatOn: string[];
-  note?: string;
+  note?: string | null;
   isActive?: boolean;
 };
 

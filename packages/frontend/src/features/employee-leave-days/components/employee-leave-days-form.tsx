@@ -38,7 +38,7 @@ import {
 import type { EmployeeLeaveDaysDto } from "../employee-leave-days.dto";
 import { useGetLeaveTypesQuery } from "@/features/master-data/master-data-leave-types.api";
 import { toast } from "sonner";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, startOfDay } from "date-fns";
 
 type EmployeeLeaveDaysFormProps = {
   open: boolean;
@@ -132,7 +132,7 @@ export function EmployeeLeaveDaysForm({
         leaveTypeId: data.leaveTypeId,
         startsOn: data.dateRange.from!,
         until: data.dateRange.to!,
-        note: data.note || undefined,
+        note: data.note || null,
       };
 
       if (isEditing && leaveDays) {
@@ -213,6 +213,7 @@ export function EmployeeLeaveDaysForm({
                     disabled={isLoading}
                     label="Период отпуска"
                     required
+                    minDate={startOfDay(new Date())}
                     {...field}
                   />
                 </FormControl>

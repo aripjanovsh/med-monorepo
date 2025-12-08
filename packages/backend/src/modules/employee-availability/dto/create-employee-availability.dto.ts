@@ -11,6 +11,7 @@ import {
   MaxLength,
   Matches,
   IsEnum,
+  ValidateIf,
 } from "class-validator";
 import { Transform, Expose } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
@@ -34,10 +35,13 @@ export class CreateEmployeeAvailabilityDto {
   @ApiPropertyOptional({
     description: "Дата окончания действия расписания (null = бессрочно)",
     example: "2024-12-31",
+    nullable: true,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @IsDateString({}, { message: "until должна быть валидной датой" })
-  until?: string;
+  @Transform(({ value }) => (value === null ? null : value))
+  until?: string | null;
 
   @ApiProperty({
     description: "Время начала работы (HH:mm)",
@@ -98,12 +102,14 @@ export class CreateEmployeeAvailabilityDto {
     description: "Примечание",
     example: "Основной график работы",
     maxLength: 500,
+    nullable: true,
   })
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @IsString({ message: "Примечание должно быть строкой" })
   @MaxLength(500, { message: "Примечание не должно превышать 500 символов" })
-  @Transform(({ value }) => value?.trim())
-  note?: string;
+  @Transform(({ value }) => (value === null ? null : value?.trim()))
+  note?: string | null;
 
   @ApiPropertyOptional({
     description: "Статус активности",
