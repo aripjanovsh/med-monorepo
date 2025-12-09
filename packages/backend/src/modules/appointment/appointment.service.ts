@@ -123,6 +123,7 @@ export class AppointmentService {
         service: true,
         createdBy: true,
         organization: true,
+        appointmentType: true,
       },
     });
 
@@ -180,6 +181,7 @@ export class AppointmentService {
           confirmedBy: true,
           canceledBy: true,
           organization: true,
+          appointmentType: true,
         },
       }),
       this.prisma.appointment.count({ where }),
@@ -214,6 +216,7 @@ export class AppointmentService {
         confirmedBy: true,
         canceledBy: true,
         organization: true,
+        appointmentType: true,
         visits: true,
       },
     });
@@ -294,6 +297,7 @@ export class AppointmentService {
         confirmedBy: true,
         canceledBy: true,
         organization: true,
+        appointmentType: true,
       },
     });
 
@@ -381,6 +385,7 @@ export class AppointmentService {
         confirmedBy: true,
         canceledBy: true,
         organization: true,
+        appointmentType: true,
       },
     });
 

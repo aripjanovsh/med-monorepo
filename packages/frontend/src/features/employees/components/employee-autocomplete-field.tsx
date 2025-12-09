@@ -7,6 +7,8 @@ import {
 } from "@/components/fields/async-combobox-field";
 import type { FieldProps } from "@/components/fields/field";
 import { useGetEmployeesQuery } from "@/features/employees/employee.api";
+import { getEmployeeFullName } from "../employee.model";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 type EmployeeAutocompleteFieldProps = Omit<FieldProps, "children"> & {
   value?: string;
@@ -39,8 +41,22 @@ export const EmployeeAutocompleteField = ({
 
   const options: AsyncOption[] = useMemo(() => {
     return employees.map((employee) => ({
-      label:
-        `${employee.title?.name || "Врач"} ${employee.lastName} ${employee.firstName} ${employee.middleName || ""}`.trim(),
+      label: (
+        <div className="flex items-center gap-2">
+          <UserAvatar
+            avatarId={employee.avatarId}
+            name={getEmployeeFullName(employee)}
+            className="size-8"
+          />
+          <div className="flex flex-col">
+            <span>{getEmployeeFullName(employee)}</span>
+            <span className="text-xs text-muted-foreground">
+              {employee.title?.name || ""}
+            </span>
+          </div>
+        </div>
+      ),
+      displayLabel: getEmployeeFullName(employee),
       value: employee.id,
     }));
   }, [employees]);

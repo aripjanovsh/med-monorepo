@@ -11,6 +11,7 @@ export const appointmentFormSchema = yup.object({
   patientId: yup.string().required("Пациент обязателен"),
   employeeId: yup.string().required("Врач обязателен"),
   serviceId: yup.string().optional(),
+  appointmentTypeId: yup.string().optional(),
 });
 
 export const createAppointmentRequestSchema = yup.object({

@@ -250,4 +250,22 @@ export class AppointmentResponseDto extends BaseResponseDto {
   })
   @Type(() => SimpleOrganizationResponseDto)
   organization: SimpleOrganizationResponseDto;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Appointment type ID",
+  })
+  appointmentTypeId?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Appointment type information",
+  })
+  appointmentType?: {
+    id: string;
+    name: string;
+    code?: string;
+    color?: string;
+    durationMin?: number;
+  };
 }

@@ -10,6 +10,7 @@ import { useDialog } from "@/lib/dialog-manager";
 import { useGetPatientsQuery } from "@/features/patients/patient.api";
 import type { PatientResponseDto } from "@/features/patients/patient.dto";
 import { PatientFormSheet } from "./patient-form-sheet";
+import { getPatientFullName, getPatientPrimaryPhone } from "../patient.model";
 
 type PatientAutocompleteFieldProps = Omit<FieldProps, "children"> & {
   value?: string;
@@ -47,11 +48,29 @@ export const PatientAutocompleteField = ({
   const patients = data?.data ?? [];
 
   const options: AsyncOption[] = useMemo(() => {
-    const patientOptions = patients.map((patient) => ({
-      label:
-        `${patient.lastName} ${patient.firstName} ${patient.middleName || ""}`.trim(),
-      value: patient.id,
-    }));
+    const patientOptions = patients.map((patient) => {
+      const fullName = getPatientFullName(patient);
+      const phone = getPatientPrimaryPhone(patient);
+      return {
+        label: (
+          <div>
+            <p>
+              {fullName}{" "}
+              {phone ? (
+                <span className="text-muted-foreground">({phone})</span>
+              ) : (
+                ""
+              )}
+            </p>
+            <div className="text-sm text-muted-foreground">
+              {patient.patientId || "Без ID"}
+            </div>
+          </div>
+        ),
+        value: patient.id,
+        displayLabel: fullName,
+      };
+    });
 
     // Add recently created patient if not in the list
     if (
@@ -60,8 +79,23 @@ export const PatientAutocompleteField = ({
     ) {
       return [
         {
-          label:
-            `${recentlyCreatedPatient.lastName} ${recentlyCreatedPatient.firstName} ${recentlyCreatedPatient.middleName || ""}`.trim(),
+          label: (
+            <div>
+              <p>
+                {getPatientFullName(recentlyCreatedPatient)}{" "}
+                {getPatientPrimaryPhone(recentlyCreatedPatient) ? (
+                  <span className="text-muted-foreground">
+                    ({getPatientPrimaryPhone(recentlyCreatedPatient)})
+                  </span>
+                ) : (
+                  ""
+                )}
+              </p>
+              <div className="text-sm text-muted-foreground">
+                {recentlyCreatedPatient.patientId || "Без ID"}
+              </div>
+            </div>
+          ),
           value: recentlyCreatedPatient.id,
         },
         ...patientOptions,

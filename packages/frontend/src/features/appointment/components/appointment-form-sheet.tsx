@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +18,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { handleFieldErrors } from "@/lib/api.utils";
 import type { DialogProps } from "@/lib/dialog-manager/dialog-manager";
@@ -31,12 +38,15 @@ import {
   useUpdateAppointmentMutation,
   useGetAppointmentQuery,
 } from "../appointment.api";
-import { EmployeeSelectField } from "@/features/employees/components/employee-select-field";
 import { useMe } from "@/features/auth/use-me";
 import { PatientAutocompleteField } from "@/features/patients";
-import { DatePickerField } from "@/components/fields/date-picker-field";
-import { TimePickerField } from "@/components/fields/time-picker-field";
 import { EmployeeAutocompleteField } from "@/features/employees";
+import { useGetAppointmentTypesQuery } from "@/features/master-data/master-data-appointment-types.api";
+import { DoctorAvailabilityInfo } from "./doctor-availability-info";
+import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import { CalendarDays, Clock } from "lucide-react";
 
 /**
  * Пропсы для AppointmentFormSheet (без базовых DialogProps)
@@ -74,18 +84,48 @@ export const AppointmentFormSheet = ({
       skip: mode !== "edit" || !appointmentId,
     });
 
+  // Fetch appointment types
+  const { data: appointmentTypesData } = useGetAppointmentTypesQuery({
+    isActive: true,
+    limit: 100,
+  });
+
+  const appointmentTypes = useMemo(
+    () => appointmentTypesData?.data || [],
+    [appointmentTypesData]
+  );
+
   const form = useForm({
     schema: appointmentFormSchema,
     defaultValues: {
       patientId: prefilledPatientId || "",
       employeeId: prefilledEmployeeId || "",
-      date: "",
+      date: format(new Date(), "yyyy-MM-dd"),
       time: "",
       duration: 30,
       reason: "",
       serviceId: "",
+      appointmentTypeId: "",
     },
   });
+
+  const watchedEmployeeId = form.watch("employeeId");
+  const watchedDate = form.watch("date");
+  const watchedTime = form.watch("time");
+  const watchedDuration = form.watch("duration");
+  const watchedAppointmentTypeId = form.watch("appointmentTypeId");
+
+  // Auto-set duration when appointment type changes
+  useEffect(() => {
+    if (watchedAppointmentTypeId) {
+      const selectedType = appointmentTypes.find(
+        (t) => t.id === watchedAppointmentTypeId
+      );
+      if (selectedType?.durationMin) {
+        form.setValue("duration", selectedType.durationMin);
+      }
+    }
+  }, [watchedAppointmentTypeId, appointmentTypes, form]);
 
   // Update form when existing appointment loads
   useEffect(() => {
@@ -102,6 +142,7 @@ export const AppointmentFormSheet = ({
         duration: existingAppointment.duration,
         reason: existingAppointment.reason || "",
         serviceId: existingAppointment.service?.id || "",
+        appointmentTypeId: existingAppointment.appointmentTypeId || "",
       });
     }
   }, [existingAppointment, mode, form]);
@@ -110,6 +151,11 @@ export const AppointmentFormSheet = ({
     try {
       if (!user?.id) {
         toast.error("Пользователь не авторизован");
+        return;
+      }
+
+      if (!data.time) {
+        toast.error("Выберите время приема");
         return;
       }
 
@@ -123,6 +169,7 @@ export const AppointmentFormSheet = ({
         duration: data.duration,
         reason: data.reason,
         serviceId: data.serviceId || undefined,
+        appointmentTypeId: data.appointmentTypeId || undefined,
         createdById: user.id,
       };
 
@@ -151,11 +198,30 @@ export const AppointmentFormSheet = ({
     form.reset();
   };
 
+  const handleSlotSelect = (date: string, time: string) => {
+    form.setValue("date", date);
+    form.setValue("time", time);
+  };
+
   const isLoading = isCreating || isUpdating || isLoadingAppointment;
+
+  // Format selected slot for display
+  const selectedSlotDisplay = useMemo(() => {
+    if (!watchedDate || !watchedTime) return null;
+    try {
+      const date = new Date(watchedDate);
+      return {
+        date: format(date, "d MMMM yyyy, EEEE", { locale: ru }),
+        time: watchedTime,
+      };
+    } catch {
+      return null;
+    }
+  }, [watchedDate, watchedTime]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className="sm:max-w-2xl">
         <SheetHeader>
           <SheetTitle>
             {mode === "edit" ? "Редактировать запись" : "Создать запись"}
@@ -174,7 +240,7 @@ export const AppointmentFormSheet = ({
                     control={form.control}
                     name="patientId"
                     render={({ field }) => (
-                      <PatientAutocompleteField label="Пациент*" {...field} />
+                      <PatientAutocompleteField label="Пациент *" {...field} />
                     )}
                   />
                 )}
@@ -183,33 +249,69 @@ export const AppointmentFormSheet = ({
                   control={form.control}
                   name="employeeId"
                   render={({ field }) => (
-                    <EmployeeAutocompleteField label="Врач" {...field} />
+                    <EmployeeAutocompleteField label="Врач *" {...field} />
                   )}
                 />
 
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Appointment Type */}
                   <FormField
                     control={form.control}
-                    name="date"
+                    name="appointmentTypeId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Дата *</FormLabel>
-                        <FormControl>
-                          <DatePickerField {...field} />
-                        </FormControl>
+                        <FormLabel>Тип приема</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите тип" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {appointmentTypes.map((type) => (
+                              <SelectItem key={type.id} value={type.id}>
+                                <div className="flex items-center gap-2">
+                                  {type.color && (
+                                    <div
+                                      className="w-3 h-3 rounded-full"
+                                      style={{ backgroundColor: type.color }}
+                                    />
+                                  )}
+                                  <span>{type.name}</span>
+                                  {type.durationMin && (
+                                    <span className="text-muted-foreground text-xs">
+                                      ({type.durationMin} мин)
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
+                  {/* Duration */}
                   <FormField
                     control={form.control}
-                    name="time"
+                    name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Время *</FormLabel>
+                        <FormLabel>Длительность (мин) *</FormLabel>
                         <FormControl>
-                          <TimePickerField {...field} />
+                          <Input
+                            type="number"
+                            min="1"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -217,25 +319,45 @@ export const AppointmentFormSheet = ({
                   />
                 </div>
 
+                <Separator />
+
+                {/* Selected slot display */}
+                {selectedSlotDisplay && (
+                  <div className="flex items-center gap-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CalendarDays className="h-4 w-4 text-primary" />
+                      <span className="font-medium">
+                        {selectedSlotDisplay.date}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="font-medium">
+                        {selectedSlotDisplay.time}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Doctor Availability with Timeslots */}
+                <DoctorAvailabilityInfo
+                  employeeId={watchedEmployeeId}
+                  selectedDate={watchedDate}
+                  selectedTime={watchedTime}
+                  onSlotSelect={handleSlotSelect}
+                  duration={watchedDuration}
+                />
+
+                {/* Hidden fields for date/time validation */}
                 <FormField
                   control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Длительность (минуты) *</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="1"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  name="date"
+                  render={() => <FormMessage />}
+                />
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={() => <FormMessage />}
                 />
 
                 <FormField
@@ -266,7 +388,7 @@ export const AppointmentFormSheet = ({
               >
                 Отмена
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || !watchedTime}>
                 {isLoading
                   ? "Сохранение..."
                   : mode === "edit"

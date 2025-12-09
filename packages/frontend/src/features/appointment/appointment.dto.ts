@@ -1,8 +1,5 @@
 import type { PaginatedResponseDto, QueryParamsDto } from "@/types/api.types";
-import type {
-  AppointmentStatus,
-  AppointmentType,
-} from "./appointment.constants";
+import type { AppointmentStatus } from "./appointment.constants";
 
 // Nested DTOs (simplified)
 export interface SimplePatientDto {
@@ -43,13 +40,20 @@ export interface SimpleOrganizationDto {
   slug: string;
 }
 
+export interface SimpleAppointmentTypeDto {
+  id: string;
+  name: string;
+  code?: string;
+  color?: string;
+  durationMin?: number;
+}
+
 // Main DTOs
 export interface AppointmentResponseDto {
   id: string;
   scheduledAt: string; // ISO
   duration: number;
   status: AppointmentStatus;
-  type: AppointmentType;
   notes?: string;
   reason?: string;
   roomNumber?: string;
@@ -65,6 +69,8 @@ export interface AppointmentResponseDto {
   confirmedBy?: SimpleUserDto;
   canceledBy?: SimpleUserDto;
   organization: SimpleOrganizationDto;
+  appointmentTypeId?: string;
+  appointmentType?: SimpleAppointmentTypeDto;
   createdAt: string; // ISO
   updatedAt: string; // ISO
 }
@@ -72,7 +78,6 @@ export interface AppointmentResponseDto {
 export interface CreateAppointmentRequestDto {
   scheduledAt: string; // ISO
   duration: number;
-  type?: AppointmentType;
   notes?: string;
   reason?: string;
   roomNumber?: string;
@@ -80,6 +85,7 @@ export interface CreateAppointmentRequestDto {
   employeeId: string;
   serviceId?: string;
   createdById: string;
+  appointmentTypeId?: string;
 }
 
 export interface UpdateAppointmentRequestDto
@@ -98,7 +104,7 @@ export interface AppointmentsQueryParamsDto extends QueryParamsDto {
   employeeId?: string;
   serviceId?: string;
   status?: AppointmentStatus;
-  type?: AppointmentType;
+  appointmentTypeId?: string;
   scheduledFrom?: string; // ISO
   scheduledTo?: string; // ISO
 }
