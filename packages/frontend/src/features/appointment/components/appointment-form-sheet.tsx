@@ -235,21 +235,27 @@ export const AppointmentFormSheet = ({
           >
             <SheetBody>
               <div className="space-y-4">
-                {!prefilledPatientId && (
-                  <FormField
-                    control={form.control}
-                    name="patientId"
-                    render={({ field }) => (
-                      <PatientAutocompleteField label="Пациент *" {...field} />
-                    )}
-                  />
-                )}
+                <FormField
+                  control={form.control}
+                  name="patientId"
+                  render={({ field }) => (
+                    <PatientAutocompleteField
+                      label="Пациент *"
+                      {...field}
+                      disabled={!!prefilledPatientId}
+                    />
+                  )}
+                />
 
                 <FormField
                   control={form.control}
                   name="employeeId"
                   render={({ field }) => (
-                    <EmployeeAutocompleteField label="Врач *" {...field} />
+                    <EmployeeAutocompleteField
+                      label="Врач *"
+                      {...field}
+                      disabled={!!prefilledEmployeeId}
+                    />
                   )}
                 />
 

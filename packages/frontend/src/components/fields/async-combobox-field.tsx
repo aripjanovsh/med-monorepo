@@ -33,6 +33,7 @@ interface BaseComboboxFieldProps extends FieldProps {
   onCreate?: (value: string) => void;
   canCreate?: boolean;
   createButtonText?: string;
+  disabled?: boolean;
 }
 
 interface SingleComboboxFieldProps extends BaseComboboxFieldProps {
@@ -73,6 +74,7 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
   onCreate,
   canCreate = false,
   createButtonText = "Создать",
+  disabled = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [search, setSearch] = useState("");
@@ -219,13 +221,17 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
 
         <Command
           shouldFilter={false}
-          className="border rounded-md overflow-visible bg-transparent"
+          className={cn(
+            "border border-input rounded-md overflow-visible bg-transparent transition-[color,box-shadow]",
+            isFocused && "border-ring ring-ring/50 ring-[3px]"
+          )}
         >
           <div className="relative">
             <CommandInput
               placeholder={placeholder}
               value={displayValue}
               onValueChange={(val) => {
+                if (disabled) return;
                 setSearch(val);
                 if (!multiselect && selectedOptions.length > 0) {
                   // Clear selection when user starts typing
@@ -233,23 +239,28 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
                 }
               }}
               onFocus={() => {
+                if (disabled) return;
                 setIsFocused(true);
                 if (!multiselect && selectedOptions.length > 0) {
                   setSearch("");
                 }
               }}
+              disabled={disabled}
               className="border-0"
             />
             {/* Clear button for single select */}
-            {!multiselect && selectedOptions.length > 0 && !isFocused && (
-              <button
-                type="button"
-                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-1 rounded transition-colors"
-                onClick={(e) => handleRemove(selectedOptions[0].value, e)}
-              >
-                <X size={14} />
-              </button>
-            )}
+            {!multiselect &&
+              selectedOptions.length > 0 &&
+              !isFocused &&
+              !disabled && (
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-1 rounded transition-colors"
+                  onClick={(e) => handleRemove(selectedOptions[0].value, e)}
+                >
+                  <X size={14} />
+                </button>
+              )}
           </div>
 
           {showResults && (

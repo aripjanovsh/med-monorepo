@@ -66,6 +66,9 @@ type PatientFormSheetOwnProps = {
   mode: "create" | "edit";
   patientId?: string | null;
   onSuccess?: (patient?: PatientResponseDto) => void;
+  defaultFirstName?: string;
+  defaultLastName?: string;
+  defaultPhone?: string;
 };
 
 type PatientFormSheetProps = PatientFormSheetOwnProps & DialogProps;
@@ -101,6 +104,9 @@ export const PatientFormSheet = ({
   mode,
   patientId,
   onSuccess,
+  defaultFirstName = "",
+  defaultLastName = "",
+  defaultPhone = "",
 }: PatientFormSheetProps) => {
   const [createPatient, { isLoading: isCreating }] = useCreatePatientMutation();
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation();
@@ -131,9 +137,22 @@ export const PatientFormSheet = ({
           : "",
       });
     } else {
-      form.reset(DEFAULT_VALUES);
+      form.reset({
+        ...DEFAULT_VALUES,
+        firstName: defaultFirstName,
+        lastName: defaultLastName,
+        phone: defaultPhone,
+      });
     }
-  }, [open, patient, form]);
+  }, [
+    open,
+    patient,
+    form,
+    mode,
+    defaultFirstName,
+    defaultLastName,
+    defaultPhone,
+  ]);
 
   const isLoading = isCreating || isUpdating;
 

@@ -142,6 +142,8 @@ export const FilteredAppointmentsPage = ({
     formSheet.open({
       mode: "create",
       appointmentId: null,
+      patientId,
+      employeeId,
       onSuccess: () => {
         refetch();
         formSheet.close();

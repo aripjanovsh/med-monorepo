@@ -328,7 +328,7 @@ export const DoctorAvailabilityInfo = ({
       <ScrollArea className="h-[300px] rounded-lg border">
         <div className="grid grid-cols-7 divide-x">
           {weekSchedule.map((day) => (
-            <div key={day.dateStr} className="min-h-full">
+            <div key={day.dateStr} className="min-h-[300px]">
               {/* Day header */}
               <div
                 className={cn(

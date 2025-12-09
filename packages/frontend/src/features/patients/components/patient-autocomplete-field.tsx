@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AsyncComboboxField,
@@ -7,10 +7,14 @@ import {
 } from "@/components/fields/async-combobox-field";
 import type { FieldProps } from "@/components/fields/field";
 import { useDialog } from "@/lib/dialog-manager";
-import { useGetPatientsQuery } from "@/features/patients/patient.api";
+import {
+  useGetPatientsQuery,
+  useGetPatientQuery,
+} from "@/features/patients/patient.api";
 import type { PatientResponseDto } from "@/features/patients/patient.dto";
 import { PatientFormSheet } from "./patient-form-sheet";
 import { getPatientFullName, getPatientPrimaryPhone } from "../patient.model";
+import { useMergedOptions } from "@/components/fields/use-merged-options";
 
 type PatientAutocompleteFieldProps = Omit<FieldProps, "children"> & {
   value?: string;
@@ -21,6 +25,32 @@ type PatientAutocompleteFieldProps = Omit<FieldProps, "children"> & {
   enableQuickCreate?: boolean;
   createButtonText?: string;
   onPatientCreated?: (patient: PatientResponseDto) => void;
+  disabled?: boolean;
+};
+
+// Mapper defined outside
+const mapPatientToOption = (patient: PatientResponseDto): AsyncOption => {
+  const fullName = getPatientFullName(patient);
+  const phone = getPatientPrimaryPhone(patient);
+  return {
+    label: (
+      <div>
+        <p>
+          {fullName}{" "}
+          {phone ? (
+            <span className="text-muted-foreground">({phone})</span>
+          ) : (
+            ""
+          )}
+        </p>
+        <div className="text-sm text-muted-foreground">
+          {patient.patientId || "Без ID"}
+        </div>
+      </div>
+    ),
+    displayLabel: fullName,
+    value: patient.id,
+  };
 };
 
 export const PatientAutocompleteField = ({
@@ -32,6 +62,7 @@ export const PatientAutocompleteField = ({
   enableQuickCreate = true,
   createButtonText,
   onPatientCreated,
+  disabled,
   ...fieldProps
 }: PatientAutocompleteFieldProps): ReactElement => {
   const { t } = useTranslation();
@@ -47,63 +78,18 @@ export const PatientAutocompleteField = ({
 
   const patients = data?.data ?? [];
 
-  const options: AsyncOption[] = useMemo(() => {
-    const patientOptions = patients.map((patient) => {
-      const fullName = getPatientFullName(patient);
-      const phone = getPatientPrimaryPhone(patient);
-      return {
-        label: (
-          <div>
-            <p>
-              {fullName}{" "}
-              {phone ? (
-                <span className="text-muted-foreground">({phone})</span>
-              ) : (
-                ""
-              )}
-            </p>
-            <div className="text-sm text-muted-foreground">
-              {patient.patientId || "Без ID"}
-            </div>
-          </div>
-        ),
-        value: patient.id,
-        displayLabel: fullName,
-      };
-    });
+  // Fetch selected patient by ID if value is provided
+  const { data: selectedPatient } = useGetPatientQuery(
+    { id: value || "" },
+    { skip: !value || patients.some((p) => p.id === value) }
+  );
 
-    // Add recently created patient if not in the list
-    if (
-      recentlyCreatedPatient &&
-      !patients.some((p) => p.id === recentlyCreatedPatient.id)
-    ) {
-      return [
-        {
-          label: (
-            <div>
-              <p>
-                {getPatientFullName(recentlyCreatedPatient)}{" "}
-                {getPatientPrimaryPhone(recentlyCreatedPatient) ? (
-                  <span className="text-muted-foreground">
-                    ({getPatientPrimaryPhone(recentlyCreatedPatient)})
-                  </span>
-                ) : (
-                  ""
-                )}
-              </p>
-              <div className="text-sm text-muted-foreground">
-                {recentlyCreatedPatient.patientId || "Без ID"}
-              </div>
-            </div>
-          ),
-          value: recentlyCreatedPatient.id,
-        },
-        ...patientOptions,
-      ];
-    }
-
-    return patientOptions;
-  }, [patients, recentlyCreatedPatient]);
+  const options = useMergedOptions({
+    items: patients,
+    selectedItem: selectedPatient,
+    recentlyCreatedItem: recentlyCreatedPatient,
+    mapOption: mapPatientToOption,
+  });
 
   const loadOptions = useCallback(async (searchValue: string) => {
     setSearch(searchValue);
@@ -122,13 +108,43 @@ export const PatientAutocompleteField = ({
   const handleCreate = useCallback(
     (searchValue: string) => {
       setSearch(searchValue);
+
+      let defaultFirstName = "";
+      let defaultLastName = "";
+      let defaultPhone = "";
+
+      // Check if search value looks like a phone number
+      // Allow digits, spaces, plus, minus, parentheses
+      // Must have at least 7 digits to be considered a phone number
+      const isPhone =
+        /^[\d+\-\(\)\s]+$/.test(searchValue) &&
+        searchValue.replace(/\D/g, "").length >= 7;
+
+      if (isPhone) {
+        defaultPhone = searchValue;
+      } else {
+        // Parse into firstName and lastName
+        const parts = searchValue.trim().split(/\s+/);
+        // If multiple parts, assume first is lastName (common in CRM/Medical apps in CIS)
+        // Adjust based on your locale preference if needed
+        if (parts.length > 0) {
+          defaultLastName = parts[0];
+          if (parts.length > 1) {
+            defaultFirstName = parts.slice(1).join(" ");
+          }
+        }
+      }
+
       patientFormSheet.open({
         mode: "create",
         patientId: null,
+        defaultFirstName,
+        defaultLastName,
+        defaultPhone,
         onSuccess: handleQuickCreateSuccess,
       });
     },
-    [handleQuickCreateSuccess]
+    [handleQuickCreateSuccess, patientFormSheet]
   );
 
   return (
@@ -143,9 +159,10 @@ export const PatientAutocompleteField = ({
         placeholder={placeholder ?? t("Выберите пациента")}
         searchPlaceholder={searchPlaceholder ?? t("Поиск пациента...")}
         empty={empty ?? t("Пациенты не найдены")}
-        canCreate={enableQuickCreate}
+        canCreate={enableQuickCreate && !disabled}
         onCreate={handleCreate}
         createButtonText={createButtonText ?? t("Добавить пациента")}
+        disabled={disabled}
       />
     </>
   );
