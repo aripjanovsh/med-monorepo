@@ -114,7 +114,7 @@ export const InProgressWidget = () => {
   if (!visits || visits.length === 0) {
     return (
       <Card>
-        <CardContent>
+        <CardContent className="pt-4">
           <EmptyState
             icon={<FileText />}
             title="Активные приемы"

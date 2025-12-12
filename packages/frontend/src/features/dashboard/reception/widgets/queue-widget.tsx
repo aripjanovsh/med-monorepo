@@ -183,7 +183,7 @@ export const QueueWidget = () => {
   if (!queue || queue.length === 0) {
     return (
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="pt-4">
           <EmptyState
             icon={<Clock className="h-5 w-5" />}
             title="Активная очередь"

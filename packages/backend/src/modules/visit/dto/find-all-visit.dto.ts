@@ -1,11 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsOptional,
-  IsEnum,
-  IsUUID,
-  IsDateString,
-  IsArray,
-} from "class-validator";
+import { IsOptional, IsEnum, IsUUID, IsDate, IsArray } from "class-validator";
 import { Expose, Exclude, Type, Transform } from "class-transformer";
 import { VisitStatus } from "@prisma/client";
 import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
@@ -62,7 +56,7 @@ export class FindAllVisitDto extends PaginationDto {
     example: "2024-01-01T00:00:00.000Z",
   })
   @IsOptional()
-  @IsDateString()
+  @IsDate()
   @TransformDate()
   dateFrom?: Date;
 
@@ -72,7 +66,7 @@ export class FindAllVisitDto extends PaginationDto {
     example: "2024-12-31T23:59:59.999Z",
   })
   @IsOptional()
-  @IsDateString()
+  @IsDate()
   @TransformDate()
   dateTo?: Date;
 
