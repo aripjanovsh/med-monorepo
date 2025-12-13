@@ -281,23 +281,21 @@ export const VisitsTableWidget = ({
         </div>
       </div>
 
-      <div className="bg-card">
-        <DataTable
-          columns={columns}
-          data={filteredVisits}
-          emptyState={
-            <EmptyState
-              icon={<FileText className="h-5 w-5" />}
-              title="Нет визитов"
-              description={
-                searchQuery
-                  ? "Попробуйте изменить параметры поиска"
-                  : "Визиты за сегодня отсутствуют"
-              }
-            />
-          }
-        />
-      </div>
+      <DataTable
+        columns={columns}
+        data={filteredVisits}
+        emptyState={
+          <EmptyState
+            icon={<FileText className="h-5 w-5" />}
+            title="Нет визитов"
+            description={
+              searchQuery
+                ? "Попробуйте изменить параметры поиска"
+                : "Визиты за сегодня отсутствуют"
+            }
+          />
+        }
+      />
     </div>
   );
 };
