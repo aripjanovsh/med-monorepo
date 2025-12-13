@@ -12,6 +12,11 @@ import { VisitsTableWidget } from "@/features/dashboard/reception/widgets/visits
 import { VisitFormDialog } from "@/features/visit";
 import { PatientFormSheet } from "@/features/patients";
 import { AppointmentFormSheet } from "@/features/appointment";
+import {
+  DashboardContent,
+  DashboardProvider,
+  DashboardTrigger,
+} from "@/components/dashboard/dashboard-configurator";
 
 export const ReceptionDashboardPage = () => {
   const createVisitDialog = useDialog(VisitFormDialog);
@@ -75,26 +80,46 @@ export const ReceptionDashboardPage = () => {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Header: Quick Actions Toolbar */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="text-lg font-semibold">Сегодня</h2>
-        <QuickActionsToolbar
-          onCreateVisit={handleCreateVisit}
-          onCreatePatient={handleCreatePatient}
-          onCreateAppointment={handleCreateAppointment}
-          onCreateInvoice={() => handleCreateInvoice(null)}
-        />
+    <DashboardProvider
+      storageKey="reception-dashboard-settings"
+      widgets={[
+        {
+          id: "stats",
+          label: "Статистика",
+          component: <TodayStatsWidget />,
+        },
+        {
+          id: "appointments",
+          label: "Записи на сегодня",
+          component: <TodayAppointmentsWidget />,
+        },
+        {
+          id: "visits",
+          label: "Визиты за сегодня",
+          component: (
+            <VisitsTableWidget onCreateInvoice={handleCreateInvoice} />
+          ),
+        },
+      ]}
+    >
+      <div className="space-y-5">
+        {/* Header: Quick Actions Toolbar */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h2 className="text-lg font-semibold">Сегодня</h2>
+          <div className="flex items-center gap-2">
+            <QuickActionsToolbar
+              onCreateVisit={handleCreateVisit}
+              onCreatePatient={handleCreatePatient}
+              onCreateAppointment={handleCreateAppointment}
+              onCreateInvoice={() => handleCreateInvoice(null)}
+            />
+
+            <DashboardTrigger />
+          </div>
+        </div>
+
+        <DashboardContent className="space-y-5" />
       </div>
-
-      {/* Today's Statistics */}
-      <TodayStatsWidget />
-
-      {/* Today's Appointments - Full Width */}
-      <TodayAppointmentsWidget />
-
-      {/* Visits Table - Unified view with status filter */}
-      <VisitsTableWidget onCreateInvoice={handleCreateInvoice} />
-    </div>
+    </DashboardProvider>
   );
 };
