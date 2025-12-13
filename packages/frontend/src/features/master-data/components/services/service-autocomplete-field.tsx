@@ -42,7 +42,7 @@ export const ServiceAutocompleteField = ({
 
   const options: AsyncOption[] = useMemo(() => {
     return services.map((service) => ({
-      label: `${service.name}${service.price ? ` (${service.price.toLocaleString()} сум)` : ""}`,
+      label: `${service.name}`,
       value: service.id,
     }));
   }, [services]);
@@ -62,7 +62,7 @@ export const ServiceAutocompleteField = ({
         }
       }
     },
-    [onChange, onServiceSelected, services],
+    [onChange, onServiceSelected, services]
   );
 
   return (

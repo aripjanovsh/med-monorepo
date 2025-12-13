@@ -9,10 +9,11 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+// Popover imports removed
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
-import { CheckIcon, PlusCircle, X } from "lucide-react";
+import { Check, Loader2, PlusCircle, X } from "lucide-react";
 import { FC, useEffect, useState, useRef } from "react";
 
 export type AsyncOption = {
@@ -76,10 +77,10 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
   createButtonText = "Создать",
   disabled = false,
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, debounceMs);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedValues = multiselect
     ? ((value as string[]) ?? [])
@@ -87,6 +88,12 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
   const selectedOptions = options.filter((option) =>
     selectedValues.includes(option.value)
   );
+
+  useEffect(() => {
+    if (isOpen) {
+      loadOptions(debouncedSearch);
+    }
+  }, [debouncedSearch, isOpen, loadOptions]);
 
   const handleSelect = (option: AsyncOption) => {
     if (multiselect) {
@@ -96,12 +103,18 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
       (onChange as (value: string[] | undefined) => void)(
         newValue.length ? newValue : undefined
       );
+      // Keep open for multiselect, but clear search if desired?
+      // For now, let's keep search as is or maybe focus back?
+      inputRef.current?.focus();
     } else {
       (onChange as (value: string | undefined) => void)(
         option.value === value ? undefined : option.value
       );
       setSearch("");
-      setIsFocused(false);
+      setOpen(false);
+      // Hack to prevent immediate re-focus if we want to blur (optional)
+      // but usually nice to keep focus or blur. Example blurs.
+      // setTimeout(() => inputRef.current?.blur(), 0);
     }
   };
 
@@ -119,30 +132,39 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (isFocused) {
-      loadOptions(debouncedSearch);
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
     }
-  }, [debouncedSearch, isFocused, loadOptions]);
 
-  // Handle click outside to close
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsFocused(false);
+    // Keep the options displayed when the user is typing
+    if (!isOpen) {
+      setOpen(true);
+    }
+
+    if (event.key === "Enter" && input.value !== "" && canCreate) {
+      // Check if it's a create action if no option matches strictly?
+      // Or let Command handle it? Command usually handles Enter for selection.
+      // We'll let CommandItem's onSelect handle standard selection.
+      // This block is for custom "Enter" actions if any.
+    }
+
+    if (event.key === "Escape") {
+      input.blur();
+      setOpen(false);
+    }
+  };
+
+  const handleBlur = () => {
+    // Small delay to allow click events on items to fire before closing
+    setTimeout(() => {
+      setOpen(false);
+      if (!multiselect && selectedOptions.length > 0) {
+        setSearch("");
       }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const showResults = isFocused && (search.length > 0 || options.length > 0);
+    }, 200);
+  };
 
   const renderLoading = () => (
     <div className="p-4 space-y-3">
@@ -163,8 +185,12 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
           <CommandGroup>
             <CommandItem
               value={search}
-              className="text-sm"
-              onSelect={() => onCreate?.(search)}
+              className="text-sm cursor-pointer"
+              onSelect={() => {
+                onCreate?.(search);
+                setOpen(false);
+                setSearch("");
+              }}
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               {createButtonText} "{search}"
@@ -175,14 +201,25 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
     </>
   );
 
-  // Display selected value in input when not focused
-  const displayValue =
-    !isFocused && !multiselect && selectedOptions.length > 0
-      ? selectedOptions[0].displayLabel ||
-        (typeof selectedOptions[0].label === "string"
-          ? selectedOptions[0].label
-          : "")
-      : search;
+  // Display value logic
+  // If single select and has value and NOT open/editing -> show label
+  // BUT user wants input to be editable.
+  // The input value should be `search`.
+  // If we have a value selected, should we show it in input?
+  // Usually:
+  // - Multiselect: Badges outside, input empty (unless typing).
+  // - Single select: Input shows Label. Focusing -> clears it (or selects all)?
+  //   User's example: `inputValue` state.
+  //   `value?.label || ""`
+  //   We'll use `search`.
+  //   If !isOpen and single value -> set search to label?
+
+  useEffect(() => {
+    if (!multiselect && selectedOptions.length === 1 && !isOpen) {
+      const opt = selectedOptions[0];
+      setSearch(opt.displayLabel || (opt.label as string));
+    }
+  }, [selectedOptions, multiselect, isOpen]);
 
   return (
     <Field
@@ -196,112 +233,141 @@ export const AsyncComboboxField: FC<AsyncComboboxFieldProps> = ({
         labelHintClassName,
       }}
     >
-      <div ref={containerRef} className="relative">
-        {/* Selected badges for multiselect */}
-        {multiselect && selectedOptions.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {selectedOptions.map((option) => (
-              <Badge
-                key={option.value}
-                variant="secondary"
-                className="gap-1 pr-1"
+      {/* Selected badges for multiselect */}
+      {multiselect && selectedOptions.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {selectedOptions.map((option) => (
+            <Badge
+              key={option.value}
+              variant="secondary"
+              className="gap-1 pr-1"
+            >
+              {option.label}
+              <button
+                type="button"
+                className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-0.5 rounded transition-colors"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => handleRemove(option.value, e)}
               >
-                {option.label}
-                <button
-                  type="button"
-                  className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-0.5 rounded transition-colors"
-                  onClick={(e) => handleRemove(option.value, e)}
-                >
-                  <X size={12} />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
+                <X size={12} />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
 
-        <Command
-          shouldFilter={false}
-          className={cn(
-            "border border-input rounded-md overflow-visible bg-transparent transition-[color,box-shadow]",
-            isFocused && "border-ring ring-ring/50 ring-[3px]"
-          )}
-        >
-          <div className="relative">
+      <Command
+        shouldFilter={false}
+        onKeyDown={handleKeyDown}
+        className="overflow-visible bg-transparent"
+      >
+        <div className="relative">
+          <div
+            className={cn(
+              "relative border border-input rounded-md bg-transparent transition-[color,box-shadow]",
+              isOpen && "border-ring ring-ring/50 ring-[3px]"
+            )}
+          >
             <CommandInput
+              ref={inputRef}
               placeholder={placeholder}
-              value={displayValue}
+              value={search}
               onValueChange={(val) => {
                 if (disabled) return;
                 setSearch(val);
-                if (!multiselect && selectedOptions.length > 0) {
-                  // Clear selection when user starts typing
-                  (onChange as (value: string | undefined) => void)(undefined);
+                setOpen(true);
+                if (!multiselect && selectedOptions.length > 0 && !isOpen) {
+                  // If they start typing over a selected value, we might want to clear it?
+                  // Or just filter.
+                  // User example clears on change if it was selected?
+                  // Actually user example `onValueChange` sets `inputValue`.
                 }
               }}
               onFocus={() => {
                 if (disabled) return;
-                setIsFocused(true);
-                if (!multiselect && selectedOptions.length > 0) {
-                  setSearch("");
-                }
+                setOpen(true);
               }}
+              onBlur={handleBlur}
               disabled={disabled}
-              className="border-0"
+              className="border-0 pr-8"
             />
-            {/* Clear button for single select */}
-            {!multiselect &&
-              selectedOptions.length > 0 &&
-              !isFocused &&
-              !disabled && (
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-1 rounded transition-colors"
-                  onClick={(e) => handleRemove(selectedOptions[0].value, e)}
-                >
-                  <X size={14} />
-                </button>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {loading && (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               )}
+              {/* Clear button for single select */}
+              {!multiselect &&
+                selectedOptions.length > 0 &&
+                !isOpen &&
+                !disabled && (
+                  <button
+                    type="button"
+                    className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground p-0.5 rounded transition-colors"
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Prevent blur
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemove(selectedOptions[0].value, e);
+                      // Maybe focus input?
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+            </div>
           </div>
 
-          {showResults && (
-            <CommandList className="absolute top-full left-0 right-0 z-50 bg-popover border rounded-md shadow-md mt-1 max-h-[300px] overflow-auto">
-              {loading && renderLoading()}
-              {!loading &&
-                options.length === 0 &&
-                search.length > 0 &&
-                renderEmpty()}
-              {!loading && options.length > 0 && (
-                <CommandGroup>
-                  {options.map((option) => (
-                    <CommandItem
-                      value={option.value}
-                      key={option.value}
-                      onSelect={() => handleSelect(option)}
-                      className="cursor-pointer"
-                    >
-                      {renderOption ? (
-                        renderOption(option)
-                      ) : (
-                        <>
-                          <CheckIcon
-                            className={cn(
-                              "mr-2",
-                              selectedValues.includes(option.value)
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {option.label}
-                        </>
-                      )}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
+          {/* Dropdown Results */}
+          {isOpen && (
+            <div className="absolute top-full z-50 w-full mt-1 rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+              <CommandList>
+                {loading && renderLoading()}
+
+                {!loading &&
+                  options.length === 0 &&
+                  search.length > 0 &&
+                  renderEmpty()}
+
+                {!loading && options.length > 0 && (
+                  <CommandGroup>
+                    {options.map((option) => (
+                      <CommandItem
+                        value={option.value}
+                        key={option.value}
+                        onSelect={() => handleSelect(option)}
+                        className="cursor-pointer"
+                        onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
+                      >
+                        {renderOption ? (
+                          renderOption(option)
+                        ) : (
+                          <>
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedValues.includes(option.value)
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {option.label}
+                          </>
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+              </CommandList>
+            </div>
           )}
-        </Command>
-      </div>
+        </div>
+      </Command>
     </Field>
   );
 };

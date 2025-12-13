@@ -41,14 +41,9 @@ import {
 import type { InvoiceFormData } from "@/features/invoice";
 import { ServiceAutocompleteField } from "@/features/master-data/components";
 import type { Service } from "@/features/master-data/master-data.types";
-import { useGetVisitsQuery } from "@/features/visit";
 import { MultiPaymentForm } from "./multi-payment-form";
 import { PatientAutocompleteField } from "@/features/patients/components/patient-autocomplete-field";
 import { useDialog } from "@/lib/dialog-manager";
-import { formatDate } from "@/lib/date.utils";
-import { getEmployeeFullName } from "@/features/employees/employee.model";
-import { Select, SelectItem, SelectValue } from "@/components/ui/select";
-import { SelectField } from "@/components/fields/select-field";
 import { formatCurrency } from "@/lib/currency.utils";
 
 type ServiceOrder = {
@@ -113,11 +108,6 @@ export const CreateInvoiceWithPaymentSheet = ({
   });
 
   const items = form.watch("items");
-  const patientId = form.watch("patientId");
-  const { data: patientVisits } = useGetVisitsQuery(
-    patientId ? ({ patientId, limit: 100 } as any) : undefined,
-    { skip: !patientId }
-  );
 
   // Calculate total immediately without useMemo
   const total = items.reduce((sum, item) => {
@@ -247,34 +237,11 @@ export const CreateInvoiceWithPaymentSheet = ({
                         {...field}
                         onChange={(value: string | undefined) => {
                           field.onChange(value);
-                          // Clear visit when patient changes
-                          form.setValue("visitId", "");
                         }}
                       />
                     </FormItem>
                   )}
                 />
-
-                {/* Visit Selector - Only when patient is selected */}
-                {patientId && !visitData && (
-                  <FormField
-                    control={form.control}
-                    name="visitId"
-                    render={({ field }) => (
-                      <SelectField
-                        label="Визит (опционально)"
-                        placeholder="Выберите визит"
-                        options={[
-                          ...(patientVisits?.data?.map((visit) => ({
-                            value: visit.id,
-                            label: `${formatDate(visit.visitDate, "dd.MM.yyyy")} - ${getEmployeeFullName(visit.employee)}`,
-                          })) || []),
-                        ]}
-                        {...field}
-                      />
-                    )}
-                  />
-                )}
 
                 {/* Services Table */}
                 <div className="space-y-3">
@@ -305,7 +272,7 @@ export const CreateInvoiceWithPaymentSheet = ({
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-md border overflow-x-auto">
+                    <div className="rounded-md border">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -345,40 +312,37 @@ export const CreateInvoiceWithPaymentSheet = ({
 
                             return (
                               <TableRow key={field.id}>
-                                <TableCell>
+                                <TableCell className="align-top">
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.serviceId`}
                                     render={({ field: formField }) => (
                                       <FormItem>
-                                        <FormControl>
-                                          <ServiceAutocompleteField
-                                            value={formField.value}
-                                            onChange={(value) => {
-                                              formField.onChange(value);
-                                            }}
-                                            onServiceSelected={(service) => {
-                                              setSelectedServices((prev) => {
-                                                const newMap = new Map(prev);
-                                                newMap.set(service.id, service);
-                                                return newMap;
-                                              });
-                                              if (!items[index]?.unitPrice) {
-                                                form.setValue(
-                                                  `items.${index}.unitPrice`,
-                                                  service.price
-                                                );
-                                              }
-                                            }}
-                                            placeholder="Выберите услугу"
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
+                                        <ServiceAutocompleteField
+                                          value={formField.value}
+                                          onChange={(value) => {
+                                            formField.onChange(value);
+                                          }}
+                                          onServiceSelected={(service) => {
+                                            setSelectedServices((prev) => {
+                                              const newMap = new Map(prev);
+                                              newMap.set(service.id, service);
+                                              return newMap;
+                                            });
+                                            if (!items[index]?.unitPrice) {
+                                              form.setValue(
+                                                `items.${index}.unitPrice`,
+                                                service.price
+                                              );
+                                            }
+                                          }}
+                                          placeholder="Выберите услугу"
+                                        />
                                       </FormItem>
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="align-top">
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.quantity`}
@@ -397,7 +361,7 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="w-[120px]">
+                                <TableCell className="w-[120px] align-top">
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.unitPrice`}
@@ -419,7 +383,7 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="align-top">
                                   <FormField
                                     control={form.control}
                                     name={`items.${index}.discount`}
@@ -440,10 +404,12 @@ export const CreateInvoiceWithPaymentSheet = ({
                                     )}
                                   />
                                 </TableCell>
-                                <TableCell className="text-right font-medium">
-                                  {formatCurrency(itemTotal)}
+                                <TableCell className="text-right font-medium align-top">
+                                  <div className="pt-2">
+                                    {formatCurrency(itemTotal)}
+                                  </div>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="align-top">
                                   <Button
                                     type="button"
                                     variant="ghost"
