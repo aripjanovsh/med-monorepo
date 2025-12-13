@@ -40,7 +40,16 @@ export function DataTableColumnHeader<TData, TValue>({
 
   // Simple header without any actions
   if (!canSort && !canHide) {
-    return <div className={cn("font-medium", className)}>{ctx}</div>;
+    return (
+      <div
+        className={cn(
+          "font-gilroy font-semibold text-foreground text-sm uppercase",
+          className
+        )}
+      >
+        {ctx}
+      </div>
+    );
   }
 
   // For client-side sorting (when no sort prop is provided)
@@ -49,7 +58,10 @@ export function DataTableColumnHeader<TData, TValue>({
       <Button
         variant="ghost"
         size="sm"
-        className={cn("-ml-3 h-8 data-[state=open]:bg-accent", className)}
+        className={cn(
+          "-ml-3 h-8 data-[state=open]:bg-accent text-foreground uppercase",
+          className
+        )}
         onClick={() => {
           const isSorted = column.getIsSorted();
           if (isSorted === "asc") {
@@ -78,7 +90,7 @@ export function DataTableColumnHeader<TData, TValue>({
   const isMultiple = !!sort?.multiple;
 
   const isColumnSorted = sortColumns.some(
-    (col) => col === ascColumn || col === descColumn,
+    (col) => col === ascColumn || col === descColumn
   );
   const isAscending = sortColumns.includes(ascColumn);
 
@@ -90,11 +102,11 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const handleSort = (columnId: string) => {
     const newColumns = sortColumns.filter(
-      (col) => ![ascColumn, descColumn].includes(col),
+      (col) => ![ascColumn, descColumn].includes(col)
     );
     if (isMultiple) {
       handleChange(
-        sortColumns.includes(columnId) ? newColumns : [...newColumns, columnId],
+        sortColumns.includes(columnId) ? newColumns : [...newColumns, columnId]
       );
     } else {
       handleChange(sortColumns.includes(columnId) ? [] : [columnId]);
@@ -109,7 +121,7 @@ export function DataTableColumnHeader<TData, TValue>({
           <Button
             variant="ghost"
             size="sm"
-            className="-ml-3 h-8 data-[state=open]:bg-accent"
+            className="-ml-3 h-8 data-[state=open]:bg-accent text-foreground uppercase"
           >
             <span>{ctx}</span>
             {isColumnSorted ? (

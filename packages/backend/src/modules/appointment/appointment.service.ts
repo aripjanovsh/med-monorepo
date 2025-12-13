@@ -5,10 +5,15 @@ import {
 } from "@nestjs/common";
 import { Prisma, AppointmentStatus } from "@prisma/client";
 import { PrismaService } from "@/common/prisma/prisma.service";
+import { VisitService } from "@/modules/visit/visit.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 import { UpdateAppointmentStatusDto } from "./dto/update-appointment-status.dto";
 import { FindAllAppointmentDto } from "./dto/find-all-appointment.dto";
+import { CancelAppointmentDto } from "./dto/cancel-appointment.dto";
+import { CheckInAppointmentDto } from "./dto/check-in-appointment.dto";
+import { ConfirmAppointmentDto } from "./dto/confirm-appointment.dto";
+import { MarkNoShowAppointmentDto } from "./dto/mark-no-show-appointment.dto";
 import { PaginatedResponseDto } from "@/common/dto/pagination.dto";
 import { AppointmentResponseDto } from "./dto/appointment-response.dto";
 import { plainToInstance } from "class-transformer";
@@ -19,7 +24,10 @@ import {
 
 @Injectable()
 export class AppointmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly visitService: VisitService
+  ) {}
 
   async create(
     createAppointmentDto: CreateAppointmentDto
@@ -232,9 +240,10 @@ export class AppointmentService {
 
   async update(
     id: string,
-    organizationId: string,
     updateAppointmentDto: UpdateAppointmentDto
   ): Promise<AppointmentResponseDto> {
+    const { organizationId, ...data } = updateAppointmentDto;
+
     const existingAppointment = await this.prisma.appointment.findUnique({
       where: { id, organizationId },
     });
@@ -308,9 +317,10 @@ export class AppointmentService {
 
   async updateStatus(
     id: string,
-    organizationId: string,
     updateStatusDto: UpdateAppointmentStatusDto
   ): Promise<AppointmentResponseDto> {
+    const { organizationId, ...data } = updateStatusDto;
+
     const appointment = await this.prisma.appointment.findUnique({
       where: { id, organizationId },
     });
@@ -417,19 +427,51 @@ export class AppointmentService {
 
   async checkIn(
     id: string,
-    organizationId: string
+    dto: CheckInAppointmentDto
   ): Promise<AppointmentResponseDto> {
-    return this.updateStatus(id, organizationId, {
+    const { organizationId } = dto;
+
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id, organizationId },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Appointment with ID ${id} not found`);
+    }
+
+    if (
+      appointment.status !== AppointmentStatus.SCHEDULED &&
+      appointment.status !== AppointmentStatus.CONFIRMED
+    ) {
+      throw new BadRequestException(
+        "Appointment must be SCHEDULED or CONFIRMED to check in"
+      );
+    }
+
+    // Create visit using VisitService
+    await this.visitService.create({
+      organizationId,
+      patientId: appointment.patientId,
+      employeeId: appointment.employeeId,
+      appointmentId: appointment.id,
+      notes: appointment.notes || undefined,
+      // Default to standard visit type or map from appointment type if needed
+    });
+
+    // Update appointment status to IN_QUEUE
+    return this.updateStatus(id, {
+      ...dto,
       status: AppointmentStatus.IN_QUEUE,
     });
   }
 
   async confirm(
     id: string,
-    organizationId: string,
+    dto: ConfirmAppointmentDto,
     userId: string
   ): Promise<AppointmentResponseDto> {
-    return this.updateStatus(id, organizationId, {
+    return this.updateStatus(id, {
+      ...dto,
       status: AppointmentStatus.CONFIRMED,
       userId,
     });
@@ -437,22 +479,22 @@ export class AppointmentService {
 
   async cancel(
     id: string,
-    organizationId: string,
-    userId: string,
-    cancelReason: string
+    dto: CancelAppointmentDto,
+    userId: string
   ): Promise<AppointmentResponseDto> {
-    return this.updateStatus(id, organizationId, {
+    return this.updateStatus(id, {
+      ...dto,
       status: AppointmentStatus.CANCELLED,
       userId,
-      cancelReason,
     });
   }
 
   async markNoShow(
     id: string,
-    organizationId: string
+    dto: MarkNoShowAppointmentDto
   ): Promise<AppointmentResponseDto> {
-    return this.updateStatus(id, organizationId, {
+    return this.updateStatus(id, {
+      ...dto,
       status: AppointmentStatus.NO_SHOW,
     });
   }

@@ -48,11 +48,6 @@ export class VisitController {
   @Post()
   @RequirePermission({ resource: "visits", action: "CREATE" })
   @ApiOperation({ summary: "Create new visit (start medical appointment)" })
-  @ApiResponse({ status: 201, description: "Visit created successfully" })
-  @ApiResponse({
-    status: 404,
-    description: "Patient, Employee, or Appointment not found",
-  })
   create(@Body() createVisitDto: CreateVisitDto) {
     return this.visitService.create(createVisitDto);
   }
@@ -60,7 +55,6 @@ export class VisitController {
   @Get()
   @RequirePermission({ resource: "visits", action: "READ" })
   @ApiOperation({ summary: "Get all visits with filters and pagination" })
-  @ApiResponse({ status: 200, description: "List of visits" })
   findAll(@Query() query: FindAllVisitDto) {
     return this.visitService.findAll(query);
   }
@@ -75,7 +69,6 @@ export class VisitController {
     description: "Doctor queue data",
     type: DoctorQueueResponseDto,
   })
-  @ApiResponse({ status: 404, description: "Employee not found" })
   getDoctorQueue(
     @Param("employeeId") employeeId: string,
     @Query() query: DoctorQueueQueryDto
@@ -95,7 +88,6 @@ export class VisitController {
     description: "Active visit found",
     type: ActiveVisitResponseDto,
   })
-  @ApiResponse({ status: 200, description: "No active visit (returns null)" })
   findActiveVisit(
     @Query() query: FindActiveVisitDto
   ): Promise<ActiveVisitResponseDto | null> {
@@ -122,9 +114,6 @@ export class VisitController {
   @Patch(":id")
   @RequirePermission({ resource: "visits", action: "UPDATE" })
   @ApiOperation({ summary: "Update visit information" })
-  @ApiResponse({ status: 200, description: "Visit updated successfully" })
-  @ApiResponse({ status: 404, description: "Visit not found" })
-  @ApiResponse({ status: 400, description: "Cannot update completed visit" })
   update(@Param("id") id: string, @Body() updateVisitDto: UpdateVisitDto) {
     return this.visitService.update(id, updateVisitDto);
   }
@@ -132,12 +121,6 @@ export class VisitController {
   @Post(":id/start")
   @RequirePermission({ resource: "visits", action: "UPDATE" })
   @ApiOperation({ summary: "Start visit (change from WAITING to IN_PROGRESS)" })
-  @ApiResponse({ status: 200, description: "Visit started successfully" })
-  @ApiResponse({ status: 404, description: "Visit not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Cannot start visit with current status",
-  })
   startVisit(@Param("id") id: string, @Body() dto: StartVisitDto) {
     return this.visitService.startVisit(id, dto);
   }
@@ -146,12 +129,6 @@ export class VisitController {
   @RequirePermission({ resource: "visits", action: "UPDATE" })
   @ApiOperation({
     summary: "Complete visit (change from IN_PROGRESS to COMPLETED)",
-  })
-  @ApiResponse({ status: 200, description: "Visit completed successfully" })
-  @ApiResponse({ status: 404, description: "Visit not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Cannot complete visit with current status",
   })
   async completeVisit(@Param("id") id: string, @Body() dto: CompleteVisitDto) {
     return this.visitService.completeVisit(id, dto);
@@ -162,12 +139,6 @@ export class VisitController {
   @ApiOperation({
     summary: "Cancel visit (change status to CANCELED)",
   })
-  @ApiResponse({ status: 200, description: "Visit canceled successfully" })
-  @ApiResponse({ status: 404, description: "Visit not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Cannot cancel completed visit",
-  })
   async cancelVisit(@Param("id") id: string, @Body() dto: CancelVisitDto) {
     return this.visitService.cancelVisit(id, dto);
   }
@@ -175,8 +146,6 @@ export class VisitController {
   @Delete(":id")
   @RequirePermission({ resource: "visits", action: "DELETE" })
   @ApiOperation({ summary: "Delete visit" })
-  @ApiResponse({ status: 200, description: "Visit deleted successfully" })
-  @ApiResponse({ status: 404, description: "Visit not found" })
   remove(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.visitService.remove(
       id,

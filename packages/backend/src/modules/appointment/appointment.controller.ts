@@ -19,7 +19,11 @@ import {
 import { AppointmentService } from "./appointment.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
-import { UpdateAppointmentStatusDto } from "./dto/update-appointment-status.dto";
+
+import { CheckInAppointmentDto } from "./dto/check-in-appointment.dto";
+import { ConfirmAppointmentDto } from "./dto/confirm-appointment.dto";
+import { CancelAppointmentDto } from "./dto/cancel-appointment.dto";
+import { MarkNoShowAppointmentDto } from "./dto/mark-no-show-appointment.dto";
 import { FindAllAppointmentDto } from "./dto/find-all-appointment.dto";
 import {
   RequirePermission,
@@ -40,18 +44,6 @@ export class AppointmentController {
   @Post()
   @RequirePermission({ resource: "appointments", action: "CREATE" })
   @ApiOperation({ summary: "Create new appointment" })
-  @ApiResponse({
-    status: 201,
-    description: "Appointment created successfully",
-  })
-  @ApiResponse({
-    status: 404,
-    description: "Patient, Employee, Service, or User not found",
-  })
-  @ApiResponse({
-    status: 400,
-    description: "Time slot conflicts with an existing appointment",
-  })
   create(@Body() createAppointmentDto: CreateAppointmentDto) {
     return this.appointmentService.create(createAppointmentDto);
   }
@@ -59,7 +51,6 @@ export class AppointmentController {
   @Get()
   @RequirePermission({ resource: "appointments", action: "READ" })
   @ApiOperation({ summary: "Get all appointments with filters and pagination" })
-  @ApiResponse({ status: 200, description: "List of appointments" })
   findAll(@Query() query: FindAllAppointmentDto) {
     return this.appointmentService.findAll(query);
   }
@@ -67,8 +58,6 @@ export class AppointmentController {
   @Get(":id")
   @RequirePermission({ resource: "appointments", action: "READ" })
   @ApiOperation({ summary: "Get appointment by ID" })
-  @ApiResponse({ status: 200, description: "Appointment details" })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
   findOne(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.findOne(
       id,
@@ -80,133 +69,55 @@ export class AppointmentController {
   @RequirePermission({ resource: "appointments", action: "UPDATE" })
   @ApiOperation({ summary: "Update appointment information" })
   @ApiResponse({
-    status: 200,
-    description: "Appointment updated successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  @ApiResponse({
     status: 400,
     description: "Time slot conflicts with an existing appointment",
   })
   update(
     @Param("id") id: string,
-    @Body() updateAppointmentDto: UpdateAppointmentDto,
-    @CurrentUser() user: CurrentUserData
+    @Body() updateAppointmentDto: UpdateAppointmentDto
   ) {
-    return this.appointmentService.update(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId,
-      updateAppointmentDto
-    );
-  }
-
-  @Patch(":id/status")
-  @RequirePermission({ resource: "appointments", action: "UPDATE" })
-  @ApiOperation({ summary: "Update appointment status" })
-  @ApiResponse({
-    status: 200,
-    description: "Appointment status updated successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Invalid status transition",
-  })
-  updateStatus(
-    @Param("id") id: string,
-    @Body() updateStatusDto: UpdateAppointmentStatusDto,
-    @CurrentUser() user: CurrentUserData
-  ) {
-    return this.appointmentService.updateStatus(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId,
-      updateStatusDto
-    );
+    return this.appointmentService.update(id, updateAppointmentDto);
   }
 
   @Post(":id/check-in")
   @RequirePermission({ resource: "appointments", action: "UPDATE" })
   @ApiOperation({ summary: "Check-in patient for appointment" })
-  @ApiResponse({
-    status: 200,
-    description: "Patient checked in successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  checkIn(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
-    return this.appointmentService.checkIn(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId
-    );
+  checkIn(@Body() dto: CheckInAppointmentDto, @Param("id") id: string) {
+    return this.appointmentService.checkIn(id, dto);
   }
 
   @Post(":id/confirm")
   @RequirePermission({ resource: "appointments", action: "UPDATE" })
   @ApiOperation({ summary: "Confirm appointment" })
-  @ApiResponse({
-    status: 200,
-    description: "Appointment confirmed successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  confirm(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
-    return this.appointmentService.confirm(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId,
-      user.id
-    );
+  confirm(
+    @Param("id") id: string,
+    @Body() dto: ConfirmAppointmentDto,
+    @CurrentUser() user: CurrentUserData
+  ) {
+    return this.appointmentService.confirm(id, dto, user.id);
   }
 
   @Post(":id/cancel")
   @RequirePermission({ resource: "appointments", action: "UPDATE" })
   @ApiOperation({ summary: "Cancel appointment" })
-  @ApiResponse({
-    status: 200,
-    description: "Appointment cancelled successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Cancel reason is required",
-  })
   cancel(
     @Param("id") id: string,
-    @Body("cancelReason") cancelReason: string,
+    @Body() dto: CancelAppointmentDto,
     @CurrentUser() user: CurrentUserData
   ) {
-    return this.appointmentService.cancel(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId,
-      user.id,
-      cancelReason
-    );
+    return this.appointmentService.cancel(id, dto, user.id);
   }
 
   @Post(":id/no-show")
   @RequirePermission({ resource: "appointments", action: "UPDATE" })
   @ApiOperation({ summary: "Mark appointment as no-show" })
-  @ApiResponse({
-    status: 200,
-    description: "Appointment marked as no-show",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  markNoShow(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
-    return this.appointmentService.markNoShow(
-      id,
-      user.isSuperAdmin ? undefined : user.organizationId
-    );
+  markNoShow(@Param("id") id: string, @Body() dto: MarkNoShowAppointmentDto) {
+    return this.appointmentService.markNoShow(id, dto);
   }
 
   @Delete(":id")
   @RequirePermission({ resource: "appointments", action: "DELETE" })
   @ApiOperation({ summary: "Delete appointment" })
-  @ApiResponse({
-    status: 200,
-    description: "Appointment deleted successfully",
-  })
-  @ApiResponse({ status: 404, description: "Appointment not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Cannot delete appointment with associated visits",
-  })
   remove(@Param("id") id: string, @CurrentUser() user: CurrentUserData) {
     return this.appointmentService.remove(
       id,

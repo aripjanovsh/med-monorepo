@@ -2,12 +2,17 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { AppointmentStatus } from "@prisma/client";
+import { InjectOrganizationId } from "@/common/decorators/inject-organization-id.decorator";
 
 @Exclude()
 export class UpdateAppointmentStatusDto {
   @Expose()
+  @InjectOrganizationId()
+  organizationId: string;
+
+  @Expose()
   @ApiProperty({
-    description: "Appointment status",
+    description: "New status of the appointment",
     enum: AppointmentStatus,
     example: AppointmentStatus.CONFIRMED,
   })
@@ -16,7 +21,7 @@ export class UpdateAppointmentStatusDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "User ID who updates the status",
+    description: "ID of user performing the update",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @IsOptional()
@@ -25,7 +30,7 @@ export class UpdateAppointmentStatusDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Cancel reason (required for CANCELLED status)",
+    description: "Reason for cancellation (required if status is CANCELLED)",
     example: "Patient requested cancellation",
   })
   @IsOptional()

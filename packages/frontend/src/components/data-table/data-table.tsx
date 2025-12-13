@@ -102,11 +102,11 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {toolbar && toolbar(table)}
-      <div className="rounded-md border bg-card">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="bg-muted">
                 {headerGroup.headers.map((header) => {
                   const columnMeta =
                     (header.column.columnDef.meta as ColumnMeta | undefined) ||
