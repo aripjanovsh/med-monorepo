@@ -156,7 +156,7 @@ export class AppointmentService {
       patientId,
       employeeId,
       serviceId,
-      status,
+      search,
       scheduledFrom,
       scheduledTo,
     } = findAllDto;
@@ -168,7 +168,36 @@ export class AppointmentService {
       ...(patientId && { patientId }),
       ...(employeeId && { employeeId }),
       ...(serviceId && { serviceId }),
-      ...(status && { status }),
+      ...(status && {
+        status: {
+          in: (Array.isArray(status)
+            ? status
+            : [status]) as AppointmentStatus[],
+        },
+      }),
+      ...(search && {
+        OR: [
+          {
+            patient: {
+              OR: [
+                { firstName: { contains: search, mode: "insensitive" } },
+                { lastName: { contains: search, mode: "insensitive" } },
+                { phone: { contains: search, mode: "insensitive" } },
+                { patientId: { contains: search, mode: "insensitive" } },
+              ],
+            },
+          },
+          {
+            employee: {
+              OR: [
+                { firstName: { contains: search, mode: "insensitive" } },
+                { lastName: { contains: search, mode: "insensitive" } },
+                { employeeId: { contains: search, mode: "insensitive" } },
+              ],
+            },
+          },
+        ],
+      }),
       ...(scheduledFrom || scheduledTo
         ? {
             scheduledAt: {

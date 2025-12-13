@@ -7,8 +7,9 @@ import {
   IsInt,
   Min,
   Max,
+  IsString,
 } from "class-validator";
-import { Expose, Exclude, Type } from "class-transformer";
+import { Expose, Exclude, Type, Transform } from "class-transformer";
 import { AppointmentStatus } from "@prisma/client";
 import { TransformDate } from "@/common/decorators";
 import { PaginationDto } from "@/common/dto/pagination.dto";
@@ -49,13 +50,28 @@ export class FindAllAppointmentDto extends PaginationDto {
 
   @Expose()
   @ApiPropertyOptional({
-    description: "Filter by status",
-    enum: AppointmentStatus,
-    example: AppointmentStatus.SCHEDULED,
+    description: "Search by patient or doctor name",
+    example: "John",
   })
   @IsOptional()
-  @IsEnum(AppointmentStatus)
-  status?: AppointmentStatus;
+  @IsString()
+  search?: string;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: "Filter by status (comma separated)",
+    enum: AppointmentStatus,
+    example: "SCHEDULED,CONFIRMED",
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      return value.split(",");
+    }
+    return value;
+  })
+  @IsEnum(AppointmentStatus, { each: true })
+  status?: AppointmentStatus[];
 
   @Expose()
   @ApiPropertyOptional({
