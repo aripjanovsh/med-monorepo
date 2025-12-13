@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { differenceInMinutes, startOfToday, endOfToday } from "date-fns";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Search, FileText } from "lucide-react";
+import { Search, FileText, CalendarCheck } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -262,7 +262,11 @@ export const VisitsTableWidget = ({
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h2 className="text-lg font-semibold">Визиты за сегодня</h2>
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <CalendarCheck />
+          Визиты за сегодня
+        </h2>
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -127,7 +127,11 @@ export class AppointmentService {
       },
       include: {
         patient: true,
-        employee: true,
+        employee: {
+          include: {
+            title: true,
+          },
+        },
         service: true,
         createdBy: true,
         organization: true,
@@ -183,7 +187,11 @@ export class AppointmentService {
         orderBy: { [sortBy]: sortOrder },
         include: {
           patient: true,
-          employee: true,
+          employee: {
+            include: {
+              title: true,
+            },
+          },
           service: true,
           createdBy: true,
           confirmedBy: true,
@@ -218,7 +226,11 @@ export class AppointmentService {
       where: { id, organizationId },
       include: {
         patient: true,
-        employee: true,
+        employee: {
+          include: {
+            title: true,
+          },
+        },
         service: true,
         createdBy: true,
         confirmedBy: true,
@@ -300,7 +312,11 @@ export class AppointmentService {
       data: updateAppointmentDto,
       include: {
         patient: true,
-        employee: true,
+        employee: {
+          include: {
+            title: true,
+          },
+        },
         service: true,
         createdBy: true,
         confirmedBy: true,
@@ -389,7 +405,11 @@ export class AppointmentService {
       data: updateData,
       include: {
         patient: true,
-        employee: true,
+        employee: {
+          include: {
+            title: true,
+          },
+        },
         service: true,
         createdBy: true,
         confirmedBy: true,

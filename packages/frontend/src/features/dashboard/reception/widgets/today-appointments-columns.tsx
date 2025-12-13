@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { UserCheck, Loader2, User } from "lucide-react";
+import { UserCheck, Loader2, User, UserX } from "lucide-react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 
@@ -18,16 +18,22 @@ import {
   APPOINTMENT_STATUS_COLORS,
 } from "@/features/appointment/appointment.constants";
 import { getPatientShortName } from "@/features/patients/patient.model";
-import { getEmployeeShortName } from "@/features/employees/employee.model";
+import {
+  getEmployeeShortName,
+  getEmployeeTitle,
+} from "@/features/employees/employee.model";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { AppointmentResponseDto } from "@/features/appointment/appointment.dto";
 
 type AppointmentsTableColumnsProps = {
   onArrived: (appointment: AppointmentResponseDto) => void;
+  onNoShow: (appointment: AppointmentResponseDto) => void;
   processingId: string | null;
 };
 
 export const getTodayAppointmentsColumns = ({
   onArrived,
+  onNoShow,
   processingId,
 }: AppointmentsTableColumnsProps): ColumnDef<AppointmentResponseDto>[] => [
   {
@@ -76,11 +82,30 @@ export const getTodayAppointmentsColumns = ({
     cell: ({ row }) => {
       const employee = row.original.employee;
       const employeeName = getEmployeeShortName(employee as any);
+      const employeeTitle = getEmployeeTitle(employee as any);
 
       return (
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-          <User className="h-3 w-3" />
-          <span className="truncate">{employeeName}</span>
+        <div className="flex items-center space-x-3">
+          <UserAvatar
+            avatarId={employee?.avatarId}
+            name={employeeName}
+            className="h-8"
+            size={24}
+          />
+          <div className="min-w-0">
+            <Link
+              href={url(ROUTES.EMPLOYEE_DETAIL, {
+                id: employee?.id,
+              })}
+              className="font-medium hover:underline truncate block"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {employeeName}
+            </Link>
+            <div className="text-xs text-muted-foreground truncate">
+              {employeeTitle}
+            </div>
+          </div>
         </div>
       );
     },
@@ -99,30 +124,40 @@ export const getTodayAppointmentsColumns = ({
       );
     },
   },
-  {
-    accessorKey: "status",
-    header: "Статус",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge
-          className={APPOINTMENT_STATUS_COLORS[status]}
-          variant="secondary"
-        >
-          {APPOINTMENT_STATUS_LABELS[status]}
-        </Badge>
-      );
-    },
-  },
+
   {
     id: "actions",
     header: () => <div className="text-right">Действия</div>,
     cell: ({ row }) => {
       const appointment = row.original;
       const isProcessing = processingId === appointment.id;
+      const scheduledTime = parseISO(appointment.scheduledAt);
+      const now = new Date();
+      // Show "No Show" if appointment time has passed (simple check)
+      const canMarkNoShow = now > scheduledTime;
 
       return (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-1">
+          {canMarkNoShow && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNoShow(appointment);
+                  }}
+                  disabled={isProcessing || processingId !== null}
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                >
+                  <UserX className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Пациент не пришёл</TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

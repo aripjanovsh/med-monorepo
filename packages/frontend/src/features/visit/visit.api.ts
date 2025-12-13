@@ -1,5 +1,8 @@
 import { rootApi } from "@/store/api/root.api";
-import { API_TAG_OPERATIONS_VISITS } from "@/constants/api-tags.constants";
+import {
+  API_TAG_OPERATIONS_VISITS,
+  API_TAG_OPERATIONS_APPOINTMENTS,
+} from "@/constants/api-tags.constants";
 import type {
   CreateVisitRequestDto,
   UpdateVisitRequestDto,
@@ -50,6 +53,7 @@ export const visitApi = rootApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { patientId }) => [
         API_TAG_OPERATIONS_VISITS,
+        API_TAG_OPERATIONS_APPOINTMENTS,
         { type: API_TAG_OPERATIONS_VISITS, id: `patient-active-${patientId}` },
       ],
     }),
