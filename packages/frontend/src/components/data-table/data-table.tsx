@@ -104,40 +104,43 @@ export function DataTable<TData, TValue>({
       {toolbar && toolbar(table)}
       <div className="rounded-md border overflow-hidden">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted">
-                {headerGroup.headers.map((header) => {
-                  const columnMeta =
-                    (header.column.columnDef.meta as ColumnMeta | undefined) ||
-                    {};
-                  return (
-                    <TableHead
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      className={
-                        columnMeta.headerClassName ?? columnMeta.className
-                      }
-                      style={{
-                        width:
-                          header.getSize() !== 150
-                            ? header.getSize()
-                            : undefined,
-                      }}
-                    >
-                      <DataTableColumnHeader
-                        header={header}
-                        sort={sort}
+          {(isLoading || table.getRowModel().rows?.length > 0) && (
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted">
+                  {headerGroup.headers.map((header) => {
+                    const columnMeta =
+                      (header.column.columnDef.meta as
+                        | ColumnMeta
+                        | undefined) || {};
+                    return (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
                         className={
                           columnMeta.headerClassName ?? columnMeta.className
                         }
-                      />
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
+                        style={{
+                          width:
+                            header.getSize() !== 150
+                              ? header.getSize()
+                              : undefined,
+                        }}
+                      >
+                        <DataTableColumnHeader
+                          header={header}
+                          sort={sort}
+                          className={
+                            columnMeta.headerClassName ?? columnMeta.className
+                          }
+                        />
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+          )}
           <TableBody>
             {isLoading ? (
               <DataTableSkeleton columns={columns.length} rows={10} />

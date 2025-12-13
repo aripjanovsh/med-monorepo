@@ -24,6 +24,12 @@ import type { AppointmentResponseDto } from "@/features/appointment/appointment.
 import { useCreateVisitMutation } from "@/features/visit/visit.api";
 import { getPatientShortName } from "@/features/patients/patient.model";
 import { getEmployeeShortName } from "@/features/employees/employee.model";
+import { FacetedSelectField } from "@/components/ui/faceted-select-field";
+import {
+  APPOINTMENT_STATUS_OPTIONS,
+  type AppointmentStatus,
+} from "@/features/appointment/appointment.constants";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export const TodayAppointmentsWidget = () => {
   const today = new Date();
@@ -34,33 +40,20 @@ export const TodayAppointmentsWidget = () => {
   const [markNoShow] = useMarkAppointmentNoShowMutation();
   const [checkIn] = useCheckInAppointmentMutation();
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const { data, isLoading, error, refetch } = useGetAppointmentsQuery({
     scheduledFrom: startDate,
     scheduledTo: endDate,
     sortBy: "scheduledAt",
     sortOrder: "asc",
     limit: 50,
+    search: debouncedSearch || undefined,
+    status: ["SCHEDULED", "CONFIRMED"],
   });
 
   const appointments = data?.data ?? [];
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredAppointments = useMemo(() => {
-    let result = appointments;
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((a) => {
-        const patientName = getPatientShortName(a.patient as any).toLowerCase();
-        const doctorName = getEmployeeShortName(
-          a.employee as any
-        ).toLowerCase();
-        return patientName.includes(query) || doctorName.includes(query);
-      });
-    }
-
-    return result;
-  }, [appointments, searchQuery]);
 
   const handleArrived = useCallback(
     async (appointment: AppointmentResponseDto) => {
@@ -122,20 +115,22 @@ export const TodayAppointmentsWidget = () => {
           Записи на сегодня
         </h2>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Поиск по пациенту или врачу..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-full sm:w-[280px]"
-          />
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-[280px]">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Поиск по пациенту или врачу..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-full"
+            />
+          </div>
         </div>
       </div>
 
       <DataTable
         columns={columns}
-        data={filteredAppointments}
+        data={appointments}
         hidePagination
         emptyState={
           <EmptyState

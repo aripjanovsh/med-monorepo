@@ -157,6 +157,7 @@ export class AppointmentService {
       employeeId,
       serviceId,
       search,
+      status, // Add status here
       scheduledFrom,
       scheduledTo,
     } = findAllDto;

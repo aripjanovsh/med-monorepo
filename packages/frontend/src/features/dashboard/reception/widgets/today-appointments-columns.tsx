@@ -43,7 +43,7 @@ export const getTodayAppointmentsColumns = ({
     cell: ({ row }) => {
       const scheduledTime = parseISO(row.original.scheduledAt);
       return (
-        <div className="flex flex-col items-center justify-center h-10 w-14 rounded-lg bg-primary/10">
+        <div className="flex flex-col items-center justify-center h-10 w-14 rounded bg-primary/10">
           <span className="text-sm font-bold text-primary">
             {format(scheduledTime, "HH:mm")}
           </span>

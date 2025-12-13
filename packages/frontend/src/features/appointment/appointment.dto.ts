@@ -108,7 +108,8 @@ export interface AppointmentsQueryParamsDto extends QueryParamsDto {
   patientId?: string;
   employeeId?: string;
   serviceId?: string;
-  status?: AppointmentStatus;
+  search?: string;
+  status?: AppointmentStatus | AppointmentStatus[];
   appointmentTypeId?: string;
   scheduledFrom?: string; // ISO
   scheduledTo?: string; // ISO
