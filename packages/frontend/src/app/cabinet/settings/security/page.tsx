@@ -36,13 +36,13 @@ export default function SecuritySettingsPage() {
           <div className="grid gap-8 xl:grid-cols-2">
             {/* Authentication */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Authentication
               </h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between py-4">
                   <div className="space-y-1">
-                    <Label className="text-base font-medium text-gray-900">
+                    <Label className="text-base font-medium text-foreground">
                       Two-Factor Authentication
                     </Label>
                     <p className="text-sm text-gray-500">
@@ -59,7 +59,7 @@ export default function SecuritySettingsPage() {
 
                 <div className="flex items-center justify-between py-4">
                   <div className="space-y-1">
-                    <Label className="text-base font-medium text-gray-900">
+                    <Label className="text-base font-medium text-foreground">
                       Single Sign-On (SSO)
                     </Label>
                     <p className="text-sm text-gray-500">
@@ -74,7 +74,7 @@ export default function SecuritySettingsPage() {
                 <div className="py-4">
                   <Label
                     htmlFor="session-timeout"
-                    className="text-base font-medium text-gray-900 mb-3 block"
+                    className="text-base font-medium text-foreground mb-3 block"
                   >
                     Session Timeout
                   </Label>
@@ -103,13 +103,13 @@ export default function SecuritySettingsPage() {
 
             {/* Data Protection */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Data Protection
               </h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between py-4">
                   <div className="space-y-1">
-                    <Label className="text-base font-medium text-gray-900">
+                    <Label className="text-base font-medium text-foreground">
                       Data Encryption
                     </Label>
                     <p className="text-sm text-gray-500">
@@ -126,7 +126,7 @@ export default function SecuritySettingsPage() {
 
                 <div className="flex items-center justify-between py-4">
                   <div className="space-y-1">
-                    <Label className="text-base font-medium text-gray-900">
+                    <Label className="text-base font-medium text-foreground">
                       Audit Logging
                     </Label>
                     <p className="text-sm text-gray-500">
@@ -144,7 +144,7 @@ export default function SecuritySettingsPage() {
                 <div className="py-4">
                   <Label
                     htmlFor="backup-frequency"
-                    className="text-base font-medium text-gray-900 mb-3 block"
+                    className="text-base font-medium text-foreground mb-3 block"
                   >
                     Backup Frequency
                   </Label>
